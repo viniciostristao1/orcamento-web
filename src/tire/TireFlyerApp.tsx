@@ -76,7 +76,7 @@ const TireFlyerApp: React.FC = () => {
       {/* Conteúdo mais estreito e centralizado: margens laterais no painel
           "DADOS DA TABELA" e no flyer (a largura útil cai ~pela metade). */}
       <div className="max-w-[1150px] mx-auto">
-      <header className="mb-8 text-center border-b border-slate-800 pb-6">
+      <header className="mb-4 text-center">
         <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase">
           TIRE <span className="text-blue-500">FLYER</span>
         </h1>

@@ -47,9 +47,11 @@ serifada).
   (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
   impressão sai normal). Título interno **ORÇAMENTOS** na cor de acento (v0.7.7) e títulos dos
   cards em **maiúsculas no texto-fonte** (o tema Claude tira o `text-transform`).
-- **Claude** (v0.7.7; fundo atrás dos cards `#000` na v0.8.0): campo `#000000`, painel
-  `#0a0a09`, bordas `#171715/#262624`; textos brancos. Histórico com fontes maiores (data 16px,
-  descrição 18px, valores 16px).
+- **Claude** (v0.7.7; fundo atrás dos cards `#000` na v0.8.0; painel/bordas mais escuros na
+  v0.8.3): campo `#000000`, painel `#060605`, bordas `#141412/#212120`; textos brancos.
+  Histórico com fontes maiores (data 16px, descrição 18px, valores 16px).
+- **Títulos das abas** (v0.8.3): centralizados, sem a linha embaixo e sem subtítulo
+  (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards.
 - **Botões são ícone-only** (v0.8.0): sempre com `aria-label` + `title` com o texto da ação —
   é o que os testes e o Playwright usam (`getByRole('button', { name: … })`). Abas e opções de
   tema continuam com texto.
@@ -116,8 +118,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.2`** com
-  `Orcamento-v0.8.2.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.3`** com
+  `Orcamento-v0.8.3.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

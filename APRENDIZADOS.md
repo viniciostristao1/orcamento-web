@@ -5,6 +5,22 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Claude mais escuro + títulos das abas sem a linha embaixo (v0.8.3)
+
+**Pedidos:** (1) o fundo do Claude (o que fica atrás das caixinhas) um pouco mais escuro;
+(2) tirar a **linha horizontal** que corria embaixo dos títulos das abas e o espaço — o conteúdo
+deve vir logo abaixo do título (como nos cards "1. DESCRIÇÃO DO REPARO"/"DADOS DA TABELA").
+
+**Feito:**
+- A **página já estava `#000000`** desde a v0.8.0 (quando o pedido foi "o que está atrás das
+  caixinhas") — não dá para escurecer mais. O que ainda tinha folga era o **painel dos cards**
+  (o cinza atrás dos campos) e as bordas: `--tema-painel #0a0a09 → #060605`,
+  `--tema-borda-forte #171715 → #141412`, `--tema-borda-media #262624 → #212120`.
+- Headers das três abas: removidos o `border-b border-slate-800` e o `pb-6`; agora são
+  `mb-4 text-center` (vão de ~12px até o conteúdo). O subtítulo "Automação mensal de contatos"
+  da aba Whats também saiu, para as três ficarem iguais.
+- PNGs do orçamento/flyer: **0 diferenças**; testes: 44.
+
 ## 2026-09-24 — Impressão idêntica ao PNG + RESUMO LÍQUIDO compacto (v0.8.2)
 
 **Pedidos:** (1) a **impressão** saía em formato diferente do PNG — maior, colunas com
