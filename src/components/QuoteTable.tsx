@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { QuoteSummary } from '../types';
 import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
 import { Printer, Download, Image as ImageIcon } from 'lucide-react';
-import * as htmlToImage from 'html-to-image';
+import { exportarPng } from '../utils/exportImage';
 
 interface QuoteTableProps {
   summary: QuoteSummary;
@@ -26,8 +26,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
     if (!printableRef.current) return;
     
     try {
-      // Gera a imagem em alta definição
-      const dataUrl = await htmlToImage.toPng(printableRef.current, {
+      // Gera a imagem em alta definição, com as fontes no tamanho real
+      // (o exportarPng desfaz a redução de 0.1px do html-to-image)
+      const dataUrl = await exportarPng(printableRef.current, {
         quality: 1.0,
         pixelRatio: 3, // Qualidade ainda maior para exportação
         backgroundColor: '#ffffff',

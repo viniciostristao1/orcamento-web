@@ -5,6 +5,43 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — PNG: último item não realizado longe do "Total Não Realizado" (v0.3.2)
+
+**Pedido:** ao gerar o PNG, o último item da caixa "Itens Não Realizados" ficava **longe**
+(um vão de uma linha inteira) do divisor/"Total Não Realizado"; na tela do navegador o
+espaçamento era normal. Só no PNG.
+
+**Causa (reproduzida em Chromium headless com o build real):** o `html-to-image` grava no
+clone os estilos computados, mas **reduz todo `font-size` em 0,1px**
+(`Math.floor(px) - 0.1`, ver `node_modules/html-to-image/lib/clone-node.js` → `cloneCSSStyle`,
+caminho de fallback quando `getComputedStyle().cssText` é vazio — o caso do Chrome). Medido no
+clone: `font: 700 23.9px / 32px Inter` onde o navegador usa 24px. Numa descrição que fica **no
+limite da quebra**, o texto quebra em 2 linhas no navegador e **cabe em 1 linha no SVG**;
+como a altura da linha vai **fixa** no clone (copiada do navegador), sobra o vão de uma linha
+(32px) exatamente antes do divisor — o sintoma do usuário. Confirmado por experimento:
+restaurando `23.9px` → `24px` no SVG antes de virar canvas, o vão volta ao normal
+(caso `PASTILHAS DE FREIO DIANTEIRAS E TR`: vão 49px → 17px).
+
+**Fix:** novo `src/utils/exportImage.ts` — `exportarPng()` chama `htmlToImage.toSvg()`,
+**restaura os font-sizes reais** (`restaurarFontesReduzidas()`; a lista de tamanhos é medada no
+documento e o valor reduzido de cada um é `floor(px) - 0.1`) e desenha o SVG no canvas
+(`pixelRatio`, `backgroundColor`, limite de 16384px do canvas). O `QuoteTable` passou a usar
+`exportarPng` no botão BAIXAR IMAGEM, com o mesmo `filter` (`data-ui`) de antes. Testes: **32**
+(5 novos do `restaurarFontesReduzidas`, incluindo atalho `font` e tamanhos fracionários).
+
+**Validação no build (Playwright + Chromium headless, clique no botão real e download
+interceptado):** varredura de 28 a 100 caracteres de descrição (`n` par): **37/37 casos com o
+nº de linhas do PNG igual ao do navegador**; antes, `n=34` (2→1 linha) e `n=56` (3→2) davam o
+vão. Documento completo do caso padrão conferido visualmente: tabela, resumo e caixa corretos.
+
+**Gotchas:**
+- O HTML final é autocontido e as fontes vão embutidas no SVG gerado pelo `toSvg` — o desenho
+  manual no canvas mantém o PNG offline e sem recursos externos.
+- O `checkCanvasDimensions` do html-to-image foi replicado (escala máx. 16384px) para não
+  quebrar com orçamentos muito altos no `pixelRatio 3`.
+- Nunca "consertar" isso mexendo no CSS da linha (altura fixa continua sendo copiada): o
+  problema é a métrica da fonte na captura, não o layout do navegador.
+
 ## 2026-09-24 — Desmarcados riscados no PNG + caixa "Itens Não Realizados" (v0.3.1)
 
 **Pedido (3 partes):** (1) ao desmarcar um item, o PNG saía com linhas mais altas/distorcidas;

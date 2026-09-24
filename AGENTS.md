@@ -33,8 +33,9 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
-- Testes: **26 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
-  (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
+- Testes: **32 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+  (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`) e smoke de tela
+  (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
@@ -59,8 +60,13 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   do Resumo Financeiro) com os itens e a soma (`itensNaoRealizados`); some quando todos estão
   marcados. Só a **caixinha** é escondida no PNG/print (`data-ui` + `filter` do `html-to-image`
   + CSS `@media print`). Ao processar/abrir do histórico, todas começam marcadas.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.3.1`** com
-  `Orcamento-v0.3.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **PNG sem vão no "Total Não Realizado"** (v0.3.2): o html-to-image reduz todo `font-size` em
+  0.1px no clone (`clone-node.js`), então uma descrição no limite da quebra ficava com uma
+  linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
+  (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
+  ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.3.2`** com
+  `Orcamento-v0.3.2.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
