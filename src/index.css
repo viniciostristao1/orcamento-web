@@ -8,6 +8,11 @@
 @import "@fontsource/inter/latin-900.css";
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-700.css";
+/* Serifada do tema Claude (aproximação livre da Tiempos, que é paga) —
+   aplicada só nos títulos da interface via .titulo-tema. */
+@import "@fontsource/source-serif-4/latin-400.css";
+@import "@fontsource/source-serif-4/latin-600.css";
+@import "@fontsource/source-serif-4/latin-700.css";
 
 /* ============================================================================
    TEMAS DA INTERFACE (Original / Claude)
@@ -40,6 +45,7 @@
   --color-amber-500: var(--tema-ambar);
   --color-amber-300: var(--tema-ambar-claro);
   --color-green-900: var(--tema-sombra-sucesso);
+  --tracking-widest: var(--tema-tracking-widest);
 }
 
 /* Original = padrão (mesmos valores do Tailwind de hoje). */
@@ -68,9 +74,12 @@
   --tema-ambar: oklch(76.9% 0.188 70.08);
   --tema-ambar-claro: oklch(87.9% 0.169 91.605);
   --tema-sombra-sucesso: oklch(39.3% 0.095 152.535);
+  --tema-tracking-widest: 0.1em;
+  --tema-fonte-titulo: 'Inter', sans-serif;
 }
 
-/* Claude = tema escuro (cinzas quentes + laranja). */
+/* Claude = tema escuro (cinzas quentes + laranja), com tipografia própria:
+   títulos em serifada (aproximação da Tiempos) e cartões chapados. */
 [data-tema='claude'] {
   --tema-fundo: #262624;
   --tema-campo: #1f1f1e;
@@ -96,6 +105,8 @@
   --tema-ambar: #d97757;
   --tema-ambar-claro: #e8a08c;
   --tema-sombra-sucesso: #3a2118;
+  --tema-tracking-widest: 0.05em;
+  --tema-fonte-titulo: 'Source Serif 4', Georgia, 'Times New Roman', serif;
 }
 
 /* Campo de conteúdo (textarea/input): no Claude fica mais escuro que o painel,
@@ -104,15 +115,36 @@
   background-color: var(--tema-campo);
 }
 
-/* NeonCard no Claude: brilho e traço neutros/laranja (os inline styles do
-   componente são neutros aqui para não virar arco-íris no tema). */
+/* Títulos da interface: no Claude entram na serifada, em caixa normal e peso
+   mais leve (a Tiempos do Claude não é "black"). Os documentos de saída não
+   usam esta classe. */
+.titulo-tema {
+  font-family: var(--tema-fonte-titulo);
+}
+[data-tema='claude'] .titulo-tema {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+/* Estilo chapado do Claude: sem brilho neon, sem sombra nos botões, cantos
+   menores nos cards. Só atingem a interface (saídas não têm botões/NeonCard). */
+[data-tema='claude'] button {
+  box-shadow: none;
+}
 [data-tema='claude'] [data-neon-glow] {
-  background-color: #d97757 !important;
-  opacity: 0.06 !important;
+  display: none !important;
 }
 [data-tema='claude'] [data-neon-dot] {
   background-color: #d97757 !important;
-  box-shadow: 0 0 20px rgba(217, 119, 87, 0.7) !important;
+  box-shadow: none !important;
+}
+[data-tema='claude'] [data-neon-card],
+[data-tema='claude'] [data-neon-box] {
+  border-radius: 1.25rem !important;
+}
+[data-tema='claude'] [data-neon-box] {
+  box-shadow: none !important;
 }
 
 /* Documentos de saída NÃO seguem o tema: restaura os valores originais do
@@ -143,6 +175,8 @@
   --tema-ambar: oklch(76.9% 0.188 70.08);
   --tema-ambar-claro: oklch(87.9% 0.169 91.605);
   --tema-sombra-sucesso: oklch(39.3% 0.095 152.535);
+  --tema-tracking-widest: 0.1em;
+  --tema-fonte-titulo: 'Inter', sans-serif;
 }
 
 /* Base idêntica à do index.html do AI Studio */

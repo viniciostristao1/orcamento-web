@@ -42,12 +42,14 @@ da interface entre **Original** (azul/slate) e **Claude** (cinzas quentes + lara
 - Testes: **42 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
-- **Temas + logo** (v0.5.0): `data-tema` no `<html>` (`utils/tema.ts`, `localStorage`
-  `orcamentos_tema_v1`) com as paletas em `index.css` (`@theme inline` remapeando os tokens do
-  Tailwind para `--tema-*`). Botão **Configurações** no header (`components/ConfiguracoesTema.tsx`).
-  Logo Toyota transparente no header (`src/assets/logo_toyota.png`). **As saídas não seguem o
-  tema** — `#printable-quote` e o flyer (`data-saida="flyer"`) resetam as variáveis; validado
-  pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs do orçamento e do flyer).
+- **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
+  `localStorage` `orcamentos_tema_v1`) com as paletas em `index.css` (`@theme inline` remapeando
+  os tokens do Tailwind para `--tema-*`). Botão **Configurações** no header
+  (`components/ConfiguracoesTema.tsx`). Logo Toyota transparente no header
+  (`src/assets/logo_toyota.png`). No **Claude** os títulos/valores usam a serifada
+  (`@fontsource/source-serif-4`, classe `.titulo-tema`), sem glow nos cards e sem sombra nos
+  botões. **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
+  resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
 - **Aba Tire Flyer** (v0.4.0): `src/App.tsx` = shell com as abas (as duas ficam montadas, a
   inativa com `hidden`, para não perder o que foi digitado); orçamentos em
   `src/components/OrcamentosApp.tsx`; pneus em `src/tire/` (`TireFlyerApp.tsx`, `types.ts`,
@@ -86,8 +88,8 @@ da interface entre **Original** (azul/slate) e **Claude** (cinzas quentes + lara
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.5.0`** com
-  `Orcamento-v0.5.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.6.0`** com
+  `Orcamento-v0.6.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -111,6 +113,7 @@ orcamento_web/
     utils/historico.ts       HISTÓRICO local (localStorage) + backup/restaurar JSON
     utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
     utils/tema.ts            tema da interface (Original/Claude) + persistência
+                             (fontes/paleta em index.css; .titulo-tema = serifada do Claude)
     assets/logo_toyota.png   logo do header (fundo transparente)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/ConfiguracoesTema.tsx engrenagem: escolhe o tema

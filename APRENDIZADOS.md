@@ -5,6 +5,33 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Tema Claude com tipografia e acabamento do Claude (v0.6.0)
+
+**Pedido:** o tema Claude não devia ser só cores — "quero letras e estilo Claude".
+
+**Feito:**
+- **Serifada:** `@fontsource/source-serif-4` (400/600/700, embutida) importada no `index.css` —
+  aproximação livre da **Tiempos** do Claude (paga, não dá para embutir). Variável
+  `--tema-fonte-titulo` (Original = Inter; Claude = Source Serif 4) aplicada pela classe
+  `.titulo-tema` nos títulos da interface: `NeonCard`, marca do header, "DASHBOARD TIRE FLYER",
+  os 4 valores do resumo e o título do histórico. No Claude a classe também tira o caixa-alta e o
+  peso 900 (`text-transform: none; font-weight: 600; letter-spacing: -0.01em`) — a marca vira
+  **"Toyota Weiand Lajeado"** em serifada, no espírito do Claude.
+- **Espaçamento das maiúsculas:** `--tracking-widest` remapeado por `@theme inline` (Claude =
+  0.05em) e **resetado nas saídas** (o rótulo do orçamento e as tags do flyer usam a classe).
+- **Acabamento chapado (estilo Claude):** sem glow nos `NeonCard` (`data-neon-glow` oculto),
+  bolinha laranja sem brilho, **sem sombra em botões** no Claude e cantos dos cards 24px → 20px
+  (`data-neon-card`/`data-neon-box`, também no painel do histórico).
+- **Saídas intactas:** revalidado pixel a pixel contra a v0.4.2 — **0 diferenças** no PNG do
+  orçamento (2688x2736) e do flyer (1500x3728), nos **dois** temas. Testes: 42.
+
+**Gotchas:**
+- `[data-tema='claude'] button { box-shadow: none }` é seguro porque os **documentos de saída
+  não têm botões** (as ações ficam fora do `#printable-quote` e do flyer).
+- Ao marcar um título novo da interface, usar `.titulo-tema`; **não** usar a classe dentro das
+  saídas (mudaria o PNG).
+- Build subiu de ~715 kB para ~901 kB por causa da serifada embutida (aceitável para uso local).
+
 ## 2026-09-24 — Temas Original/Claude + logo Toyota + aba de pneus unificada (v0.5.0)
 
 **Pedido (3 partes):** (1) as duas abas com o **mesmo estilo**; (2) **botão de configurações**

@@ -59,7 +59,7 @@ const TireFlyerApp: React.FC = () => {
   return (
     <div className="ui-compacta py-12 text-slate-200">
       <header className="mb-10 text-left border-b border-slate-800 pb-8">
-        <h1 className="text-4xl font-black tracking-tighter uppercase mb-1">
+        <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase mb-1">
           DASHBOARD <span className="text-blue-500">TIRE FLYER</span>
         </h1>
         <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Painel de Controle de Ofertas</p>

@@ -199,19 +199,19 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="p-6 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                       <span className="text-[10px] font-black text-slate-500 uppercase block mb-2">Total Peças</span>
-                      <span className="text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
+                      <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
                     </div>
                     <div className="p-6 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                       <span className="text-[10px] font-black text-slate-500 uppercase block mb-2">Total Serviços</span>
-                      <span className="text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
+                      <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
                     </div>
                     <div className="p-6 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
                       <span className="text-[10px] font-black text-emerald-500 uppercase block mb-2">Desc. ({visivel.descontoPercentual}%)</span>
-                      <span className="text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
+                      <span className="titulo-tema text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
                     </div>
                     <div className="p-6 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
                       <span className="text-[10px] font-black text-blue-400 uppercase block mb-2 underline">Valor Líquido</span>
-                      <span className="text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
+                      <span className="titulo-tema text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
                     </div>
                   </div>
                 </NeonCard>

@@ -33,7 +33,7 @@ const App: React.FC = () => {
         <div className="max-w-[1400px] mx-auto px-10 h-20 flex items-center justify-between gap-8">
           <div className="flex items-center gap-4">
             <img src={logoToyota} alt="Toyota" className="h-11 w-auto" />
-            <h1 className="text-2xl font-black tracking-tighter uppercase">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
+            <h1 className="titulo-tema text-2xl font-black tracking-tighter uppercase">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
           </div>
 
           <nav className="flex items-center gap-2">

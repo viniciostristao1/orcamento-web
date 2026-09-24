@@ -29,7 +29,7 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
         style={{ backgroundColor: glowColor, zIndex: 0 }}
       ></div>
       
-      <div className="relative z-10 bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl backdrop-blur-sm">
+      <div data-neon-box className="relative z-10 bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl backdrop-blur-sm">
         {/* Cabeçalho do Card Ampliado */}
         {title && (
           <div className={`relative z-30 flex items-center justify-between ${compact ? 'px-6 py-4' : 'px-8 py-6'} bg-slate-950/60 border-b border-slate-800/50`}>
@@ -39,7 +39,7 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
                 className="w-2 h-8 rounded-full"
                 style={{ backgroundColor: glowColor, boxShadow: `0 0 20px ${glowColor}` }}
               ></div>
-              <h3 className="text-xl font-black text-slate-100 uppercase tracking-widest">
+              <h3 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-widest">
                 {title}
               </h3>
             </div>
