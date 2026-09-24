@@ -5,6 +5,32 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Nova aba "Whats" (contatos/agenda do WhatsApp) (v0.7.0)
+
+**Pedido:** terceira aba (ao lado de Tire Flyer) com o app **ZapZap Manager** do AI Studio —
+gerenciador de contatos, template de mensagem, agenda com cronômetros por tarefa e
+backup/restauração JSON. Nome da aba: **Whats**. Visual unificado às outras abas.
+
+**Feito:**
+- Portado 1:1 para `src/whats/` (`WhatsApp.tsx` + `types.ts` + `components/`
+  `TaskManager`, `ContactForm`, `MessageEditor`, `BackupManager`, `ContactList`) — só as
+  classes mudaram.
+- **Visual**: cartões `bg-slate-900/60 border-slate-800`, campos `campo-tema` (mais escuros no
+  Claude), textos `slate-*`, títulos com `titulo-tema` (serifada no Claude), acento do app
+  azul → **laranja no tema Claude** (via remap). Status "concluído" em `green-*` (não remapeado,
+  senão viraria laranja no Claude e confundiria com o "NOTIFICAR").
+- **Logica intacta**: localStorage `zap_contacts`/`zap_tasks`/`zap_template` (separado do
+  histórico/tema), sincronização entre abas, `wa.me` abre em nova aba, backup JSON por
+  Blob/FileReader. `@google/genai` do template **não** foi trazido (nenhum componente usa).
+- Testes: **44** (2 novos: render dos painéis; cadastrar contato e tarefa com persistência).
+  E2E no Chromium: copiar (clipboard ok em `file://`), `wa.me` abre com telefone formatado,
+  "CONCLUÍDO" após notificar; PNGs do orçamento/flyer seguem **0 diferenças**.
+
+**Gotchas:**
+- `navigator.clipboard` funciona no `file://` (contexto seguro no Chrome) — validado.
+- Cuidado ao usar `emerald-*` em estados semânticos: no Claude ele é remapeado para o laranja
+  do tema; use `green-*` quando precisar de verde de verdade.
+
 ## 2026-09-24 — Tema Claude: textos em branco (v0.6.3)
 
 **Pedido:** no tema Claude, as fontes devem ser de cor **branca**.

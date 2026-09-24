@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { History } from 'lucide-react';
 import OrcamentosApp from './components/OrcamentosApp';
 import TireFlyerApp from './tire/TireFlyerApp';
+import WhatsApp from './whats/WhatsApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
 import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
 import logoToyota from './assets/logo_toyota.png';
 
-type Aba = 'orcamentos' | 'pneus';
+type Aba = 'orcamentos' | 'pneus' | 'whats';
 
 const ABAS: { id: Aba; label: string }[] = [
   { id: 'orcamentos', label: 'Orçamentos' },
   { id: 'pneus', label: 'Tire Flyer' },
+  { id: 'whats', label: 'Whats' },
 ];
 
 const App: React.FC = () => {
@@ -69,7 +71,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className={`mx-auto px-[30px] pt-8 ${aba === 'pneus' ? 'max-w-[1400px]' : 'max-w-[1050px]'}`}>
+      <main className={`mx-auto px-[30px] pt-8 ${aba === 'orcamentos' ? 'max-w-[1050px]' : 'max-w-[1400px]'}`}>
         <div className={aba === 'orcamentos' ? '' : 'hidden'}>
           <OrcamentosApp
             historicoAberto={historicoAberto}
@@ -78,6 +80,9 @@ const App: React.FC = () => {
         </div>
         <div className={aba === 'pneus' ? '' : 'hidden'}>
           <TireFlyerApp />
+        </div>
+        <div className={aba === 'whats' ? '' : 'hidden'}>
+          <WhatsApp />
         </div>
       </main>
     </div>
