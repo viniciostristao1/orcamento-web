@@ -5,6 +5,25 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Títulos centralizados, cards compactos e botão play (v0.7.8)
+
+**Pedidos (em sequência):** (1) remover o subtítulo "Painel de Controle de Ofertas";
+(2) padronizar os títulos **ORÇAMENTOS / PAINEL WHATSAPP / TIRE FLYER** no centro e com o mesmo
+tamanho; (3) **remover o espaço** entre o título dos cards 1, 2 e 3 e o campo (rolar menos);
+(4) trocar o texto **"PROCESSAR TUDO"** por um **ícone play**.
+
+**Feito:**
+- Headers das 3 abas com `text-center` e `text-4xl` (mesmo tamanho); subtítulo do Tire Flyer
+  removido. **Mantive "ORÇAMENTOS" no plural** (como pedido na v0.7.7) — se quiser "ORÇAMENTO",
+  é trocar uma palavra.
+- Cards 1, 2 e 3 com **`compact`** (e o "DADOS DA TABELA" do Tire Flyer também). No `NeonCard`
+  o `compact` passou a `px-6 py-3` (cabeçalho) e `px-6 pt-2 pb-4` (conteúdo) — o vão
+  título→campo caiu de ~46px para **22px**. A coluna esquerda também foi de `space-y-10` → `space-y-6`.
+- Botão de processar virou **ícone de play** (`Play` do lucide, preenchido), com
+  `aria-label`/`title` "Processar Tudo" (o nome acessível é o que os testes e o Playwright usam).
+  Testes atualizados de `getByText` para `getByRole('button', { name: … })`.
+- Testes: **44**; PNGs do orçamento/flyer: **0 diferenças**.
+
 ## 2026-09-24 — Títulos das abas, maiúsculas no orçamento, histórico maior, Claude mais escuro (v0.7.7)
 
 **Pedidos (em sequência):** (1) "TIRE FLYER" no lugar de "DASHBOARD TIRE FLYER" (TIRE branco,

@@ -3,7 +3,7 @@ import { processQuote, formatCurrency, parseBrazilianNumber, recalcularComSeleca
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable from './QuoteTable';
-import { Sparkles, Percent, History } from 'lucide-react';
+import { Play, Percent, History } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
@@ -96,16 +96,17 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   return (
     <>
       <div className="ui-compacta print:hidden">
-        <header className="mb-8 border-b border-slate-800 pb-6">
+        <header className="mb-8 text-center border-b border-slate-800 pb-6">
           <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase text-blue-500">ORÇAMENTOS</h1>
         </header>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 print:hidden ui-compacta">
-          <div className="xl:col-span-8 space-y-10">
+          <div className="xl:col-span-8 space-y-6">
             <NeonCard
               title="1. DESCRIÇÃO DO REPARO"
               borderColor="blue-500"
+              compact
               actions={
                 <div className="flex items-center gap-2">
                   <button
@@ -126,7 +127,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
             
-            <NeonCard title="2. DADOS DO ORÇAMENTO" borderColor="blue-600" actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}>
+            <NeonCard title="2. DADOS DO ORÇAMENTO" borderColor="blue-600" compact actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}>
               <textarea 
                 className="w-full h-96 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
                 value={orcamentoRaw} 
@@ -135,7 +136,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
             
-            <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
+            <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
               <textarea 
                 className="w-full h-32 campo-tema border border-slate-800 rounded-2xl p-6 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
                 placeholder="Ex: 1 50,00" 
@@ -204,9 +205,12 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
                 <button 
                   onClick={handleGenerate} 
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl shadow-2xl transition-all flex items-center justify-center gap-4 uppercase tracking-[0.2em] active:scale-[0.98] mt-2 text-lg"
+                  type="button"
+                  aria-label="Processar Tudo"
+                  title="Processar Tudo"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] mt-2 cursor-pointer"
                 >
-                  <Sparkles size={24} /> Processar Tudo
+                  <Play size={28} fill="currentColor" />
                 </button>
               </div>
             </NeonCard>

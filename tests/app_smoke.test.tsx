@@ -34,14 +34,14 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
-    expect(screen.getByText(/Processar Tudo/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Processar Tudo/i })).toBeTruthy();
     expect(screen.getByText(/Histórico/i)).toBeTruthy();
   });
 
   it('ao processar, mostra o resumo com os valores calculados', () => {
     render(<App />);
     fireEvent.change(screen.getByPlaceholderText('Ex.: ABC1D23'), { target: { value: 'ABC1D23' } });
-    fireEvent.click(screen.getByText(/Processar Tudo/i));
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
 
     // Resumo líquido (nos cartões) e a tabela de saída
     expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
@@ -64,7 +64,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('caixinhas: desmarcar um item recalcula os totais', () => {
     render(<App />);
-    fireEvent.click(screen.getByText(/Processar Tudo/i));
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     expect(screen.getAllByText(/2\.821,94/).length).toBeGreaterThan(0); // total peças cheio
     // todos marcados: NÃO existe a caixa de não realizados
     expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
@@ -101,7 +101,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('documentos de saída são marcados para não seguir o tema', () => {
     render(<App />);
-    fireEvent.click(screen.getByText(/Processar Tudo/i));
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     expect(document.querySelector('#printable-quote')).toBeTruthy();
     expect(document.querySelector('[data-saida="flyer"]')).toBeTruthy();
   });

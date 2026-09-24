@@ -76,11 +76,10 @@ const TireFlyerApp: React.FC = () => {
       {/* Conteúdo mais estreito e centralizado: margens laterais no painel
           "DADOS DA TABELA" e no flyer (a largura útil cai ~pela metade). */}
       <div className="max-w-[1150px] mx-auto">
-      <header className="mb-8 text-left border-b border-slate-800 pb-6">
-        <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase mb-1">
+      <header className="mb-8 text-center border-b border-slate-800 pb-6">
+        <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase">
           TIRE <span className="text-blue-500">FLYER</span>
         </h1>
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Painel de Controle de Ofertas</p>
       </header>
 
       <div className="grid lg:grid-cols-[1fr_auto] gap-10 items-start">
@@ -89,6 +88,7 @@ const TireFlyerApp: React.FC = () => {
           <NeonCard
             title="DADOS DA TABELA"
             borderColor="blue-600"
+            compact
             actions={<ClearButton onClick={handleClear} label="Limpar Texto" />}
           >
             <textarea

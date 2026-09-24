@@ -75,7 +75,7 @@ const WhatsApp: React.FC = () => {
 
   return (
     <div className="ui-compacta pt-1 pb-20 text-slate-200">
-      <header className="mb-8 border-b border-slate-800 pb-6">
+      <header className="mb-8 text-center border-b border-slate-800 pb-6">
         <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase mb-1">
           PAINEL <span className="text-blue-500">WHATSAPP</span>
         </h1>
