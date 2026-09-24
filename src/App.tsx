@@ -3,7 +3,9 @@ import { processQuote, formatCurrency, parseBrazilianNumber } from './utils/quot
 import { QuoteSummary } from './types';
 import NeonCard from './components/NeonCard';
 import QuoteTable from './components/QuoteTable';
-import { Calculator, Trash2, Car, Sparkles, Percent, X } from 'lucide-react';
+import { Calculator, Trash2, Car, Sparkles, Percent, X, History } from 'lucide-react';
+import HistoryModal from './components/HistoryModal';
+import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from './utils/historico';
 
 const ClearButton = ({ onClick }: { onClick: () => void }) => (
   <button 
@@ -24,6 +26,7 @@ const App: React.FC = () => {
   const [desconto, setDesconto] = useState<number>(5);
   const [parcelas, setParcelas] = useState<number>(3);
   const [summary, setSummary] = useState<QuoteSummary | null>(null);
+  const [historicoAberto, setHistoricoAberto] = useState(false);
 
   // Estados locais para os inputs de texto para permitir digitação livre (como vírgulas e pontos)
   const [revAprovadaInput, setRevAprovadaInput] = useState<string>("1766,23");
@@ -36,11 +39,39 @@ const App: React.FC = () => {
     
     const result = processQuote(descReparo, orcamentoRaw, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
     setSummary(result);
+
+    // Histórico local (localStorage): salva a cada "Processar Tudo".
+    adicionarAoHistorico({
+      descReparo,
+      orcamentoRaw,
+      ajustesManuais,
+      revAprovadaInput,
+      revPecasInput,
+      desconto,
+      parcelas,
+      ...retratoDoResumo(result),
+    });
     
     // Atualiza os estados numéricos para consistência
     setRevAprovada(finalRevAprovada);
     setRevPecas(finalRevPecas);
     
+    setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
+  };
+
+  // Reabre um orçamento do histórico na tela (recalcula a partir dos textos).
+  const abrirDoHistorico = (r: OrcamentoSalvo) => {
+    setDescReparo(r.descReparo);
+    setOrcamentoRaw(r.orcamentoRaw);
+    setAjustesManuais(r.ajustesManuais);
+    setRevAprovadaInput(r.revAprovadaInput);
+    setRevPecasInput(r.revPecasInput);
+    setDesconto(r.desconto);
+    setParcelas(r.parcelas);
+    setHistoricoAberto(false);
+    const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
+    const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
+    setSummary(processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais));
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
   };
 
@@ -52,7 +83,16 @@ const App: React.FC = () => {
             <Car className="text-blue-500" size={32} />
             <h1 className="text-2xl font-black tracking-tighter uppercase">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
           </div>
-          <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 border-l border-slate-800 pl-6 h-8 flex items-center">Gestão de Vendas</span>
+          <div className="flex items-center gap-6">
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 border-l border-slate-800 pl-6 h-8 flex items-center">Gestão de Vendas</span>
+            <button
+              type="button"
+              onClick={() => setHistoricoAberto(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
+            >
+              <History size={16} /> Histórico
+            </button>
+          </div>
         </div>
       </header>
 
@@ -175,6 +215,12 @@ const App: React.FC = () => {
           )}
         </div>
       </main>
+
+      <HistoryModal
+        aberto={historicoAberto}
+        onFechar={() => setHistoricoAberto(false)}
+        onAbrir={abrirDoHistorico}
+      />
     </div>
   );
 };

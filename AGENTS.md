@@ -22,13 +22,21 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
 
 ## 2. Estado atual
 
-- Projeto em `/root/orcamento_web/` (Vite + React 19 + TS + Tailwind 4 + `lucide-react`).
-- `src/App.tsx` = tela original do AI Studio (ainda com **stubs temporários** em
-  `types.ts`, `utils/quoteLogic.ts`, `components/NeonCard.tsx`, `components/QuoteTable.tsx`
-  até o usuário colar os arquivos reais).
-- Build de arquivo único **validado** (`dist/index.html` com CSS+JS embutidos, sem
+- Projeto em `/root/orcamento_web/` (Vite + React 19 + TS + Tailwind 4 + `lucide-react` +
+  `html-to-image`). **Todos os arquivos do AI Studio já integrados 1:1** (`App.tsx`,
+  `types.ts`, `utils/quoteLogic.ts`, `components/NeonCard.tsx`, `components/QuoteTable.tsx`,
+  `package.json` com `html-to-image`).
+- **Exportar PNG**: já no `QuoteTable` (botão "BAIXAR IMAGEM (ALTA QUALIDADE)",
+  `html-to-image` em `pixelRatio: 3`) + "IMPRIMIR / PDF" (impressão do Chrome).
+- **Histórico implementado**: `utils/historico.ts` (localStorage `orcamentos_historico_v1`,
+  salva a cada "Processar Tudo", sem duplicar dados iguais) + `components/HistoryModal.tsx`
+  (abrir/excluir/limpar, **backup e restaurar JSON**). Botão "Histórico" no header.
+- Testes: **17 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+  (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
+- Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
-- **Ainda não publicado** (repo GitHub + Release com o `.html` a definir).
+- **Falta**: testar no Chrome do usuário e publicar o `.html` (repo GitHub + Release → link
+  fixo).
 
 ## 3. Arquitetura / estrutura
 
@@ -40,11 +48,13 @@ orcamento_web/
     main.tsx                 entrada (StrictMode)
     index.css                @import "tailwindcss"; @utility scrollbar-hide; @media print
     App.tsx                  tela (entradas + resumo + tabela + export)
-    types.ts                 tipos (QuoteSummary, itens...)
+    types.ts                 tipos (QuoteSummary, QuoteItem)
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
+    utils/historico.ts       HISTÓRICO local (localStorage) + backup/restaurar JSON
     components/NeonCard.tsx  card com borda neon
-    components/QuoteTable.tsx tabela de saída
-  tests/                     testes de lógica com node --test (casos reais do usuário)
+    components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
+    components/HistoryModal.tsx painel do histórico (abrir/excluir/limpar/backup)
+  tests/                     vitest: quote_logic, historico, app_smoke (jsdom)
   dist/index.html            BUILD = arquivo único entregue ao usuário
 ```
 
@@ -96,9 +106,7 @@ npm run build        # gera dist/index.html (arquivo único)
 
 ## 8. Pendências
 
-- Receber e integrar os arquivos reais: `utils/quoteLogic.ts`, `types.ts`,
-  `components/QuoteTable.tsx`, `components/NeonCard.tsx`, `package.json`/CSS originais.
-- Testes de lógica com 1–2 exemplos reais do usuário (entrada → saída esperada).
-- Botão **Exportar PNG** (ex.: `html-to-image`/`html2canvas`, empacotado no arquivo único).
-- Histórico (localStorage) + backup/restaurar JSON.
-- Criar repo GitHub + Release com link fixo.
+- Usuário **testar no Chrome** (abrir `dist/index.html` pelo arquivo) e validar a lógica com
+  1–2 casos reais (entrada → saída esperada).
+- Publicar o `.html` (repo GitHub + Release → link fixo) — decidir público/privado.
+- Só então considerar a migração concluída.

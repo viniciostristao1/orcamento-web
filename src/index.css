@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* Barra de rolagem oculta nos textareas do orçamento (classe usada no App). */
 @utility scrollbar-hide {

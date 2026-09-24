@@ -5,6 +5,31 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Componentes reais + Exportar PNG + Histórico (v0.2.0)
+
+**Feito:**
+- `components/QuoteTable.tsx` e `components/NeonCard.tsx` colados 1:1 do AI Studio. Dependência
+  nova: **`html-to-image`** (o export PNG já existia no app original: botão "BAIXAR IMAGEM
+  (ALTA QUALIDADE)", `pixelRatio: 3`, `backgroundColor: #ffffff`).
+- `tw-animate-css` instalado e importado no `index.css` para as classes `animate-in fade-in
+  zoom-in-95` (do `tailwindcss-animate`) continuarem funcionando no Tailwind 4.
+- **Histórico** (`utils/historico.ts` + `components/HistoryModal.tsx`): salva a cada
+  "Processar Tudo" em `localStorage["orcamentos_historico_v1"]` (máx. 100; **substitui** se o
+  último tiver dados idênticos — não duplica), lista (mais recente primeiro), abre de volta
+  (recalcula a partir dos textos), excluir, limpar tudo e **backup/restaurar JSON** (merge por
+  `id`). Botão "Histórico" no header; modal `print:hidden` → **não aparece no PNG impressão**.
+- Testes: **17** (`quote_logic` 11 · `historico` 4 · `app_smoke` 2 em jsdom). O smoke renderiza
+  o App, clica em "Processar Tudo" e confere os valores na tela + o registro salvo no
+  localStorage. Build único: 294,67 kB.
+
+**Gotchas:**
+- `localStorage` funciona no `file://` do Chrome, mas some se limpar dados do navegador → por
+  isso o **backup JSON** é obrigatório.
+- `baixarBackup` usa `URL.createObjectURL` (não roda no jsdom; por isso o teste cobre só
+  adicionar/remover/importar).
+- Em `html-to-image`, o nó capturado é `#printable-quote` (o documento branco) — os botões
+  ficam fora dele, então não saem na imagem.
+
 ## 2026-09-24 — quoteLogic integrado + testes de lógica (exemplo Hilux)
 
 **Feito:** `src/utils/quoteLogic.ts` colado **1:1** do AI Studio (parse de número BR, ajustes
