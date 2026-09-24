@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import App from '../src/App';
 import HistoryModal from '../src/components/HistoryModal';
 import type { OrcamentoSalvo } from '../src/utils/historico';
+import { RASCUNHO_KEY } from '../src/utils/rascunho';
 
 const registro = (id: string, placa: string, criadoEm: string): OrcamentoSalvo => ({
   id,
@@ -24,7 +25,10 @@ const registro = (id: string, placa: string, criadoEm: string): OrcamentoSalvo =
   totalGeral: 100,
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  localStorage.removeItem(RASCUNHO_KEY);
+});
 
 describe('App — smoke test (render + processar)', () => {
   it('renderiza a tela com os textos principais', () => {
@@ -81,6 +85,17 @@ describe('App — smoke test (render + processar)', () => {
     // remarca: a caixa some de novo
     fireEvent.click(screen.getAllByRole('checkbox')[0]);
     expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
+  });
+
+  it('lembra o último orçamento digitado (rascunho no localStorage)', () => {
+    const { unmount, container } = render(<App />);
+    const primeiroTextarea = container.querySelector('textarea') as HTMLTextAreaElement;
+    fireEvent.change(primeiroTextarea, { target: { value: '01 TESTE PERSISTIDO' } });
+    unmount();
+
+    const { container: novo } = render(<App />);
+    const textareaDepois = novo.querySelector('textarea') as HTMLTextAreaElement;
+    expect(textareaDepois.value).toBe('01 TESTE PERSISTIDO');
   });
 
   it('configurações: troca o tema (Original/Claude) e salva a escolha', () => {

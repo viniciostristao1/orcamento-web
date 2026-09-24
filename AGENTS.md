@@ -41,6 +41,9 @@ serifada).
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
 - **Ajustes Manuais** (v0.7.4) tem o mesmo botão **Limpar** dos cards 1 e 2.
+- **Rascunho do orçamento** (v0.8.4): `utils/rascunho.ts` (`orcamento_rascunho_v1`) guarda os
+  campos em edição a cada mudança e os restaura ao abrir (sem rascunho, cai no exemplo).
+  "Limpar" + reabrir fica vazio. **Tudo é local** (`localStorage`) — nada de VPS/nuvem.
 - **Layout do Orçamentos** (v0.7.5): botão **Histórico no cabeçalho do card 1** (ao lado de
   Limpar); **RESUMO LÍQUIDO** na coluna da direita logo abaixo do APROVADO E DESCONTO com os
   valores empilhados; **preview do orçamento na metade** na tela
@@ -59,7 +62,7 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **44 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **45 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
@@ -118,8 +121,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.3`** com
-  `Orcamento-v0.8.3.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.4`** com
+  `Orcamento-v0.8.4.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

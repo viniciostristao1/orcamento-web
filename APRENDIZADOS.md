@@ -5,6 +5,24 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Lembrar o último orçamento digitado (v0.8.4)
+
+**Pedido:** ao reabrir o app, em vez do exemplo embutido, vir o **último orçamento** que o
+usuário estava fazendo. (Também perguntou se algo vai para VPS/Firebase/nuvem: **não** — tudo é
+`localStorage` do navegador, local.)
+
+**Feito:** `src/utils/rascunho.ts` (`orcamento_rascunho_v1`) lê/salva os campos em edição
+(descrição, dados do orçamento, ajustes, revisão/peças, desconto, parcelas e placa).
+O `OrcamentosApp` inicializa os estados pelo rascunho (com fallback no exemplo) e salva a cada
+mudança. Comportamento validado no Chromium: 1ª abertura sem rascunho mostra o exemplo;
+digitar + recarregar restaura o que foi digitado; **"Limpar" + recarregar fica vazio** (não
+volta o exemplo). É leve (poucos KB) e independente do histórico e do backup JSON.
+Testes: **45** (1 novo); PNGs do orçamento/flyer: **0 diferenças**.
+
+**Resposta ao usuário (memória):** nada sai do PC — o app é um HTML offline; histórico,
+rascunho, tema e contatos ficam no `localStorage` do Chrome (típico 5–10 MB por arquivo/origem;
+o histórico guarda até 100 orçamentos). Limpar dados do navegador apaga → usar o backup JSON.
+
 ## 2026-09-24 — Claude mais escuro + títulos das abas sem a linha embaixo (v0.8.3)
 
 **Pedidos:** (1) o fundo do Claude (o que fica atrás das caixinhas) um pouco mais escuro;

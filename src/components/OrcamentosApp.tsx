@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { processQuote, formatCurrency, parseBrazilianNumber, recalcularComSelecao } from '../utils/quoteLogic';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
@@ -7,6 +7,10 @@ import { Play, Percent, History } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
+import { lerRascunho, salvarRascunho } from '../utils/rascunho';
+
+const EXEMPLO_DESC = `01 TR PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS\n02 OXI\n03 TR BORRACHA DAS PALHETAS`;
+const EXEMPLO_ORCAMENTO = `1 Serviço GUN126L473025 DISCO DIANTEIRO UM LADO NO VEICULO 1,20000 514,800000 514,80\n1 Peça 142142GC133 *GRAXA COBREADA ALTA TEMPERATURA 1 36,640000 36,64\n1 Peça CARE040201 LIMPADOR PREMIUM UNIVERSAL 1 156,600000 156,60\n1 Peça 044650K401 JOGO PASTILHAS FREIO DIANT.HILUX AP.2016 1 1.245,000000 1.245,00\n3 Serviço GUN126L850091 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0,10000 42,900000 42,90\n3 Peça CARE044907 CAR CONJUNTO VISIB. DO PARABRISA, H20 PARA VEICULOS1 27,100000 27,10\n3 Peça 8521428090 BORRACHA LIMPADOR DI 1 65,000000 65,00\n3 Peça 8521453080 BORRACHA LIMPADOR PA 1 82,000000 82,00\n2 Serviço HIGMOTO HIGIENIZACAO AR CONDICIONADO 0,05000 0,000000 0,00\n2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60\n2 Peça CARE010701 OXY-SANITIZATION APP 1 99,000000 99,00\n1 Serviço RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO 1,00000 250,000000 250,00`;
 
 interface OrcamentosAppProps {
   historicoAberto: boolean;
@@ -15,20 +19,27 @@ interface OrcamentosAppProps {
 }
 
 const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico }) => {
-  const [descReparo, setDescReparo] = useState<string>(`01 TR PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS\n02 OXI\n03 TR BORRACHA DAS PALHETAS`);
-  const [orcamentoRaw, setOrcamentoRaw] = useState<string>(`1 Serviço GUN126L473025 DISCO DIANTEIRO UM LADO NO VEICULO 1,20000 514,800000 514,80\n1 Peça 142142GC133 *GRAXA COBREADA ALTA TEMPERATURA 1 36,640000 36,64\n1 Peça CARE040201 LIMPADOR PREMIUM UNIVERSAL 1 156,600000 156,60\n1 Peça 044650K401 JOGO PASTILHAS FREIO DIANT.HILUX AP.2016 1 1.245,000000 1.245,00\n3 Serviço GUN126L850091 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0,10000 42,900000 42,90\n3 Peça CARE044907 CAR CONJUNTO VISIB. DO PARABRISA, H20 PARA VEICULOS1 27,100000 27,10\n3 Peça 8521428090 BORRACHA LIMPADOR DI 1 65,000000 65,00\n3 Peça 8521453080 BORRACHA LIMPADOR PA 1 82,000000 82,00\n2 Serviço HIGMOTO HIGIENIZACAO AR CONDICIONADO 0,05000 0,000000 0,00\n2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60\n2 Peça CARE010701 OXY-SANITIZATION APP 1 99,000000 99,00\n1 Serviço RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO 1,00000 250,000000 250,00`);
-  const [ajustesManuais, setAjustesManuais] = useState<string>("");
+  // Último orçamento em edição (localStorage local). Sem rascunho, cai no exemplo.
+  const [rascunho] = useState(lerRascunho);
+  const [descReparo, setDescReparo] = useState<string>(() => rascunho?.descReparo ?? EXEMPLO_DESC);
+  const [orcamentoRaw, setOrcamentoRaw] = useState<string>(() => rascunho?.orcamentoRaw ?? EXEMPLO_ORCAMENTO);
+  const [ajustesManuais, setAjustesManuais] = useState<string>(() => rascunho?.ajustesManuais ?? "");
   const [revAprovada, setRevAprovada] = useState<number>(1766.23);
   const [revPecas, setRevPecas] = useState<number>(1000.00);
-  const [desconto, setDesconto] = useState<number>(5);
-  const [parcelas, setParcelas] = useState<number>(3);
-  const [placa, setPlaca] = useState<string>("");
+  const [desconto, setDesconto] = useState<number>(() => rascunho?.desconto ?? 5);
+  const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 3);
+  const [placa, setPlaca] = useState<string>(() => rascunho?.placa ?? "");
   const [summary, setSummary] = useState<QuoteSummary | null>(null);
   const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
 
   // Estados locais para os inputs de texto para permitir digitação livre (como vírgulas e pontos)
-  const [revAprovadaInput, setRevAprovadaInput] = useState<string>("1766,23");
-  const [revPecasInput, setRevPecasInput] = useState<string>("1000,00");
+  const [revAprovadaInput, setRevAprovadaInput] = useState<string>(() => rascunho?.revAprovadaInput ?? "1766,23");
+  const [revPecasInput, setRevPecasInput] = useState<string>(() => rascunho?.revPecasInput ?? "1000,00");
+
+  // Salva o rascunho enquanto o usuário edita (reabre com o que estava fazendo).
+  useEffect(() => {
+    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa });
+  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa]);
 
   const handleGenerate = () => {
     if (!descReparo.trim() || !orcamentoRaw.trim()) return;
