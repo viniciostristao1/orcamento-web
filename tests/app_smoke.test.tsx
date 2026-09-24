@@ -134,21 +134,20 @@ describe('App — smoke test (render + processar)', () => {
 
   it('aba Whats: renderiza os painéis principais', () => {
     localStorage.removeItem('zap_contacts');
-    localStorage.removeItem('zap_tasks');
     render(<App />);
     fireEvent.click(screen.getByText('Whats'));
 
     expect(screen.getByText('PAINEL')).toBeTruthy();
-    expect(screen.getByText('Agenda de Tarefas')).toBeTruthy();
     expect(screen.getByText('Novo Contato')).toBeTruthy();
     expect(screen.getByText('Script de Prospecção')).toBeTruthy();
     expect(screen.getByText('Centro de Dados')).toBeTruthy();
     expect(screen.getByText('Relatório de Envios')).toBeTruthy();
+    // Agenda de Tarefas foi removida do app
+    expect(screen.queryByText('Agenda de Tarefas')).toBeNull();
   });
 
-  it('aba Whats: cadastra contato e tarefa (e salva no localStorage)', () => {
+  it('aba Whats: cadastra contato (e salva no localStorage)', () => {
     localStorage.removeItem('zap_contacts');
-    localStorage.removeItem('zap_tasks');
     render(<App />);
     fireEvent.click(screen.getByText('Whats'));
 
@@ -160,15 +159,6 @@ describe('App — smoke test (render + processar)', () => {
     const salvos = JSON.parse(localStorage.getItem('zap_contacts') ?? '[]');
     expect(salvos.length).toBe(1);
     expect(salvos[0].name).toBe('JOAO DA SILVA');
-
-    fireEvent.change(screen.getByPlaceholderText('ABC-1234'), { target: { value: 'ABC-1234' } });
-    fireEvent.click(screen.getByText('+15m'));
-    fireEvent.click(screen.getByText('Gerar Tarefa'));
-
-    expect(screen.getByText('ABC-1234')).toBeTruthy();
-    const tarefas = JSON.parse(localStorage.getItem('zap_tasks') ?? '[]');
-    expect(tarefas.length).toBe(1);
-    expect(tarefas[0].plate).toBe('ABC-1234');
   });
 
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {

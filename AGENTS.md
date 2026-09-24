@@ -16,10 +16,10 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
 
 O app tem **três abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
 pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e **Whats** (v0.7.0 —
-contatos, template de mensagem, agenda com cronômetros e backup JSON para disparos mensais no
-WhatsApp). As três abas compartilham o mesmo estilo e há um **botão de configurações**
-(v0.5.0) para alternar o tema da interface entre **Original** (azul/slate) e **Claude**
-(cinzas escuros + laranja, com serifada).
+contatos, template de mensagem e backup JSON para disparos mensais no WhatsApp). As três abas
+compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
+da interface entre **Original** (azul/slate) e **Claude** (cinzas escuros + laranja, com
+serifada).
 
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
 - **Uso local no PC**: o app final é **UM arquivo `.html`** aberto com duplo clique no Chrome,
@@ -40,15 +40,15 @@ WhatsApp). As três abas compartilham o mesmo estilo e há um **botão de config
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
+- **Ajustes Manuais** (v0.7.4) tem o mesmo botão **Limpar** dos cards 1 e 2.
 - Testes: **44 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
-- **Aba Whats** (v0.7.0): `src/whats/` portado 1:1 do AI Studio (contatos, template,
-  agenda/cronômetros, backup JSON). `localStorage` próprio (`zap_contacts`, `zap_tasks`,
-  `zap_template`). "NOTIFICAR" abre `wa.me` e marca como concluído; status verde em `green-*`
-  (o `emerald-*` é remapeado para o laranja no tema Claude). `@google/genai` do template
-  original **não** entrou (não é usado).
+- **Aba Whats** (v0.7.0; agenda removida na v0.7.4): `src/whats/` (contatos, template,
+  backup JSON). `localStorage` próprio (`zap_contacts`, `zap_template`). "NOTIFICAR" abre
+  `wa.me` e marca como concluído; status verde em `green-*` (o `emerald-*` é remapeado para o
+  laranja no tema Claude). `@google/genai` do template original **não** entrou (não é usado).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
   `localStorage` `orcamentos_tema_v1`) com as paletas em `index.css` (`@theme inline` remapeando
   os tokens do Tailwind para `--tema-*`). Botão **Configurações** no header
@@ -99,8 +99,8 @@ WhatsApp). As três abas compartilham o mesmo estilo e há um **botão de config
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.7.3`** com
-  `Orcamento-v0.7.3.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.7.4`** com
+  `Orcamento-v0.7.4.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -136,8 +136,8 @@ orcamento_web/
     tire/components/Flyer.tsx flyer 750px (layout de saída, 1:1 do AI Studio)
     tire/utils/parser.ts     parse da tabela de pneus (TABs) + preço BRL
     tire/types.ts            TireData / PromoInfo
-    whats/WhatsApp.tsx       tela da aba Whats (contatos + agenda + backup)
-    whats/components/*.tsx   TaskManager, ContactForm, MessageEditor, BackupManager, ContactList
+    whats/WhatsApp.tsx       tela da aba Whats (contatos + backup)
+    whats/components/*.tsx   ContactForm, ContactList, MessageEditor, BackupManager
     whats/types.ts           Contact / Task / AppState
   tests/                     vitest: quote_logic, historico, export_image, tire_flyer, app_smoke
   dist/index.html            BUILD = arquivo único entregue ao usuário

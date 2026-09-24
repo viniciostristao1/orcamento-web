@@ -5,6 +5,25 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Aba Whats sem a "Agenda de Tarefas" + Limpar nos Ajustes Manuais (v0.7.4)
+
+**Pedidos:** (1) remover toda a parte de **Agenda de Tarefas** (Controle Operacional Weiand,
+cronômetros, "Pátio limpo: Sem tarefas pendentes"); (2) o card **3. Ajustes Manuais (ID VALOR)**
+também precisa do botão "Limpar".
+
+**Feito:**
+- Card dos ajustes ganhou o mesmo **`ClearButton`** dos cards 1 e 2 (`actions=`, limpa só aquele
+  campo).
+- `TaskManager.tsx` **apagado**; saíram o estado `tasks`, os efeitos/handlers de tarefa e a
+  chave `zap_tasks` do `localStorage` (a antiga fica no navegador, sem uso).
+- `BackupManager`: backup/restauração agora só com **contatos + mensagem padrão** (arquivos
+  antigos com `tasks` importam normalmente, o campo é ignorado; o alerta não fala mais em
+  tarefas).
+- Textos ajustados: subtítulo "Automação mensal de contatos" e "contatos e da mensagem padrão"
+  no Centro de Dados.
+- Testes: os 2 casos da aba Whats foram atualizados (um deles agora garante que não existe mais
+  "Agenda de Tarefas"). Seguem **44** e os PNGs do orçamento/flyer com **0 diferenças**.
+
 ## 2026-09-24 — Fonte do campo de pneus = campo do orçamento + Histórico fora da caixa (v0.7.3)
 
 **Pedido:** (1) o conteúdo de "DADOS DA TABELA" (pneus) com a **mesma fonte/tamanho** do campo

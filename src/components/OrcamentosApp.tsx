@@ -114,7 +114,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
             
-            <NeonCard title="3. Ajustes Manuais (ID VALOR)" borderColor="#f59e0b">
+            <NeonCard title="3. Ajustes Manuais (ID VALOR)" borderColor="#f59e0b" actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
               <textarea 
                 className="w-full h-32 campo-tema border border-slate-800 rounded-2xl p-6 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
                 placeholder="Ex: 1 50,00" 

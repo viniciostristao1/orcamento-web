@@ -1,22 +1,20 @@
 import React, { useRef } from 'react';
 import { Download, Upload, Cloud } from 'lucide-react';
-import { Contact, Task } from '../types';
+import { Contact } from '../types';
 
 interface BackupManagerProps {
   contacts: Contact[];
-  tasks: Task[];
   messageTemplate: string;
-  onImport: (data: { contacts: Contact[], messageTemplate: string, tasks?: Task[] }) => void;
+  onImport: (data: { contacts: Contact[], messageTemplate: string }) => void;
 }
 
-const BackupManager: React.FC<BackupManagerProps> = ({ contacts, tasks, messageTemplate, onImport }) => {
+const BackupManager: React.FC<BackupManagerProps> = ({ contacts, messageTemplate, onImport }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
     try {
       const data = {
         contacts,
-        tasks,
         messageTemplate,
         exportDate: new Date().toISOString(),
         version: "1.2",
@@ -51,14 +49,12 @@ const BackupManager: React.FC<BackupManagerProps> = ({ contacts, tasks, messageT
         
         if (json && json.contacts && Array.isArray(json.contacts)) {
           const contactCount = json.contacts.length;
-          const taskCount = json.tasks ? json.tasks.length : 0;
           
           onImport({
             contacts: json.contacts,
-            messageTemplate: json.messageTemplate || messageTemplate,
-            tasks: json.tasks || []
+            messageTemplate: json.messageTemplate || messageTemplate
           });
-          alert(`✅ SUCESSO!\n\n${contactCount} contatos e ${taskCount} tarefas foram restaurados.\nOs cronômetros continuam correndo em tempo real.`);
+          alert(`✅ SUCESSO!\n\n${contactCount} contatos foram restaurados.`);
         } else {
           alert('❌ Erro: Arquivo de backup inválido.');
         }
@@ -85,7 +81,7 @@ const BackupManager: React.FC<BackupManagerProps> = ({ contacts, tasks, messageT
       </div>
 
       <p className="text-base text-slate-400 mb-10 font-bold leading-relaxed max-w-lg relative z-10">
-        Gere uma cópia física dos seus <span className="text-slate-100">contatos e cronômetros</span> para evitar perda de dados localmente.
+        Gere uma cópia física dos seus <span className="text-slate-100">contatos e da mensagem padrão</span> para evitar perda de dados localmente.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10 mt-auto">
