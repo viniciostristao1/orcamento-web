@@ -5,6 +5,15 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Tire Flyer: largura do campo ajustada (v0.4.2)
+
+**Pedido:** a v0.4.1 deixou a largura "um pouco exagerada"; reduzir um pouco.
+
+**Feito:** `main` do Tire Flyer de `max-w-[1600px]` → **`max-w-[1400px]`**. Textarea fica com
+**~927px** lógicos em telas 1600+ (era ~1194) e **882px em 1366** (igual, o viewport limita
+antes) — segue **sem rolagem lateral** (`scrollWidth == clientWidth`) e as duas colunas
+continuam. Flyer (750px) e PNG (1500px) inalterados. Testes: 40.
+
 ## 2026-09-24 — Tire Flyer: campo "Dados da Tabela" mais largo (v0.4.1)
 
 **Pedido:** o textarea da tabela de pneus era estreito — tinha que rolar para o lado para ver
