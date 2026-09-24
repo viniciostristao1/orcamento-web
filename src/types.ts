@@ -1,10 +1,9 @@
-// STUB TEMPORÁRIO (provisório, inferido do quoteLogic.ts) — será substituído pelo types.ts real do AI Studio.
 export interface QuoteItem {
   id: number;
   description: string;
+  value: number;
   pecasValue: number;
   servicosValue: number;
-  value: number;
 }
 
 export interface QuoteSummary {
@@ -15,9 +14,11 @@ export interface QuoteSummary {
   numParcelas: number;
   valorParcela: number;
   currentTime: string;
+  
+  // Dados Internos (Não aparecem no QuoteTable)
   totalPecasGeral: number;
   totalServicosGeral: number;
   valorDescontoTotal: number;
   valorLiquidoFinal: number;
   descontoPercentual: number;
-}
+} 
