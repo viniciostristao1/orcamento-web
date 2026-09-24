@@ -5,6 +5,26 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Pesquisar no histórico por data ou placa (v0.2.5)
+
+**Pedido:** botão de busca no histórico (entre "Restaurar backup" e "Limpar tudo") por **data
+ou placa**.
+
+**Feito:**
+- `filtrarHistorico(lista, termo)` + `normalizarBusca` em `utils/historico.ts`: compara em
+  **maiúsculas sem separadores** (`/[^A-Z0-9]/`), então `24/09`, `2026` e `abc-1d23` funcionam;
+  termo vazio devolve tudo. Lógica fora do componente → testável.
+- `HistoryModal`: botão **Pesquisar** (azul quando ativo) revela um campo com lupa e ✕; filtra
+  ao digitar; mostra `N de M`; "Nenhum orçamento encontrado." quando não bate; a busca é
+  resetada ao abrir/fechar. Backup/limpar continuam agindo no histórico **inteiro** (não no
+  filtro).
+- Testes: **21** (casos de `filtrarHistorico` + teste de UI do modal pesquisando por placa e
+  por data).
+
+**Gotcha:** no teste de UI, **não** usar `adicionarAoHistorico` para semear datas — a função
+gera `id`/`criadoEm` próprios (sempre "agora"). Para testar busca por data, gravar direto no
+`localStorage["orcamentos_historico_v1"]` com os registros desejados.
+
 ## 2026-09-24 — Sem espaço acima dos campos da direita (v0.2.4)
 
 **Pedido:** remover o espaço acima de Total Revisão, Peças na Revisão, etc. (a v0.2.3 já tinha

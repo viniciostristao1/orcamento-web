@@ -33,7 +33,7 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
-- Testes: **19 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **21 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
@@ -43,8 +43,11 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
 - **Card direito compacto** (v0.2.3, apertado na v0.2.4): inputs com `px-4 py-2.5 text-xl`,
   grupos com `space-y-2` e `NeonCard` com o prop **`compact`** (`px-6 py-4` no cabeçalho e no
   conteúdo, antes `px-8 py-6`/`p-8`) — praticamente sem espaço acima de Total Revisão/Peças/etc.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.4`** com
-  `Orcamento-v0.2.4.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Busca no histórico** (v0.2.5): botão **Pesquisar** entre "Restaurar backup" e "Limpar
+  tudo" → campo que filtra por **data ou placa** (`filtrarHistorico`, ignora `/ - . : e espaços`;
+  ex.: `24/09`, `2026`, `abc-1d23`), com contador `N de M`.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.5`** com
+  `Orcamento-v0.2.5.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

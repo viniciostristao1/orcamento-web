@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  type OrcamentoSalvo,
   adicionarAoHistorico,
   contarItensDaDescricao,
+  filtrarHistorico,
   importarBackup,
   limparHistorico,
   listarHistorico,
@@ -49,6 +51,17 @@ describe('histórico (localStorage)', () => {
     adicionarAoHistorico({ ...base, descReparo: '2 Y' });
     const lista = listarHistorico();
     expect(lista[0].descReparo).toBe('2 Y');
+  });
+
+  it('filtra por data ou placa (ignora separadores)', () => {
+    const a: OrcamentoSalvo = { ...base, id: '1', criadoEm: '24/09/2026 12:30:00', placa: 'ABC1D23' };
+    const b: OrcamentoSalvo = { ...base, id: '2', criadoEm: '01/08/2026 09:00:00', placa: 'XYZ9A87' };
+    const lista = [a, b];
+    expect(filtrarHistorico(lista, '')).toEqual(lista); // vazio = tudo
+    expect(filtrarHistorico(lista, 'abc-1d23').map((r) => r.id)).toEqual(['1']); // placa sem separador
+    expect(filtrarHistorico(lista, '24/09').map((r) => r.id)).toEqual(['1']); // data BR
+    expect(filtrarHistorico(lista, '2026').length).toBe(2); // ano
+    expect(filtrarHistorico(lista, 'zzz')).toEqual([]); // nada
   });
 
   it('placa: mesma placa substitui; placa diferente vira outro registro', () => {

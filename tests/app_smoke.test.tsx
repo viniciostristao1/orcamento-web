@@ -2,6 +2,27 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import App from '../src/App';
+import HistoryModal from '../src/components/HistoryModal';
+import type { OrcamentoSalvo } from '../src/utils/historico';
+
+const registro = (id: string, placa: string, criadoEm: string): OrcamentoSalvo => ({
+  id,
+  criadoEm,
+  descReparo: '01 TESTE',
+  orcamentoRaw: '',
+  ajustesManuais: '',
+  revAprovadaInput: '100,00',
+  revPecasInput: '50,00',
+  desconto: 5,
+  parcelas: 3,
+  placa,
+  numItens: 1,
+  totalPecasGeral: 50,
+  totalServicosGeral: 50,
+  valorDescontoTotal: 5,
+  valorLiquidoFinal: 95,
+  totalGeral: 100,
+});
 
 afterEach(() => cleanup());
 
@@ -38,5 +59,33 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].descReparo).toContain('PASTILHAS');
     expect(salvo[0].numItens).toBe(3);
     expect(salvo[0].placa).toBe('ABC1D23');
+  });
+
+  it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
+        registro('2', 'XYZ9A87', '01/08/2026 09:00:00'),
+      ]),
+    );
+    render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+
+    expect(screen.getByText('ABC1D23')).toBeTruthy();
+    expect(screen.getByText('XYZ9A87')).toBeTruthy();
+
+    fireEvent.click(screen.getByText(/Pesquisar/i));
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), {
+      target: { value: 'abc-1d23' },
+    });
+    expect(screen.getByText('ABC1D23')).toBeTruthy();
+    expect(screen.queryByText('XYZ9A87')).toBeNull();
+
+    // Busca por data também
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), {
+      target: { value: '01/08' },
+    });
+    expect(screen.getByText('XYZ9A87')).toBeTruthy();
+    expect(screen.queryByText('ABC1D23')).toBeNull();
   });
 });

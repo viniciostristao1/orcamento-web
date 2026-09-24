@@ -126,6 +126,21 @@ export function contarItensDaDescricao(descricao: string): number {
   return descricao.split('\n').filter((l) => /^\s*\d/.test(l)).length;
 }
 
+/** Normaliza para busca: maiúsculas e só letras/números (ignora / - . : e espaços). */
+const normalizarBusca = (s: string): string => s.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+/**
+ * Filtra o histórico por **data ou placa** (busca "contém", ignorando
+ * separadores). Termo vazio devolve a lista inteira.
+ */
+export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): OrcamentoSalvo[] {
+  const t = normalizarBusca(termo);
+  if (!t) return lista;
+  return lista.filter(
+    (r) => normalizarBusca(r.placa ?? '').includes(t) || normalizarBusca(r.criadoEm).includes(t),
+  );
+}
+
 /** Resumo do resultado para a lista do histórico (sem recalcular). */
 export function retratoDoResumo(s: QuoteSummary): Pick<
   OrcamentoSalvo,

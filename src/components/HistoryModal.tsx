@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Database, FolderOpen, Trash2, Upload, X } from 'lucide-react';
+import { Database, FolderOpen, Search, Trash2, Upload, X } from 'lucide-react';
 import {
   type OrcamentoSalvo,
   baixarBackup,
   contarItensDaDescricao,
+  filtrarHistorico,
   importarBackup,
   limparHistorico,
   listarHistorico,
@@ -20,16 +21,22 @@ interface HistoryModalProps {
 const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }) => {
   const [lista, setLista] = useState<OrcamentoSalvo[]>([]);
   const [msg, setMsg] = useState('');
+  const [buscaAberta, setBuscaAberta] = useState(false);
+  const [busca, setBusca] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (aberto) {
       setLista(listarHistorico());
       setMsg('');
+      setBuscaAberta(false);
+      setBusca('');
     }
   }, [aberto]);
 
   if (!aberto) return null;
+
+  const visiveis = filtrarHistorico(lista, busca);
 
   const handleRestaurar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,6 +97,20 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
           <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={handleRestaurar} />
           <button
             type="button"
+            onClick={() => {
+              setBuscaAberta((v) => !v);
+              setBusca('');
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-xs font-black uppercase border cursor-pointer active:scale-95 ${
+              buscaAberta
+                ? 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+            }`}
+          >
+            <Search size={16} /> Pesquisar
+          </button>
+          <button
+            type="button"
             onClick={handleLimpar}
             disabled={lista.length === 0}
             className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-red-600 disabled:opacity-40 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95 ml-auto"
@@ -97,6 +118,35 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
             <Trash2 size={16} /> Limpar tudo
           </button>
         </div>
+
+        {buscaAberta && (
+          <div className="flex items-center gap-3 px-6 py-3 border-b border-slate-800/60">
+            <div className="relative flex-1">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input
+                autoFocus
+                type="text"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Pesquisar por data ou placa… (ex.: 24/09 ou ABC1D23)"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  onClick={() => setBusca('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
+                  title="Limpar busca"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+            <span className="text-xs font-bold text-slate-500 whitespace-nowrap">
+              {visiveis.length} de {lista.length}
+            </span>
+          </div>
+        )}
 
         {msg && (
           <div className="px-6 py-3 text-sm font-bold text-blue-300 bg-blue-600/10 border-b border-blue-500/20">{msg}</div>
@@ -109,7 +159,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
               Nenhum orçamento salvo ainda.
             </p>
           )}
-          {lista.map((r) => {
+          {lista.length > 0 && visiveis.length === 0 && (
+            <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-sm">
+              Nenhum orçamento encontrado.
+            </p>
+          )}
+          {visiveis.map((r) => {
             const itens = r.numItens ?? contarItensDaDescricao(r.descReparo);
             return (
             <div key={r.id} className="border border-slate-800 rounded-2xl p-4 bg-slate-950/40 hover:border-slate-700 transition-colors">
