@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Tema Claude ainda mais escuro + "Limpar Texto" sem confirmação (v0.6.2)
+
+**Pedidos:** (1) fundo do Claude mais escuro; (2) o que acontece no "Limpar Texto" da tabela de
+pneus — por que aparece a janela de confirmação?
+
+**Feito:**
+- Paleta do Claude escurecida de novo: fundo `#191918 → #0f0f0e`, campo `#111110 → #080807`,
+  painel `#232321 → #171716`, bordas `#343430/#45443e → #292926/#3b3b36`.
+- **Limpar Texto:** o `window.confirm` tinha vindo do app original do AI Studio e, ao confirmar,
+  apagava o campo **e** o flyer. Agora é igual à aba de orçamentos: **sem janela**, limpa só o
+  texto e mantém o flyer (que só muda no "Processar e Atualizar Flyer") — evita perder o último
+  preview por engano. Validado no Chromium (nenhum diálogo; campo vazio; flyer intacto).
+- Saídas revalidadas pixel a pixel vs v0.4.2: **0 diferenças**. Testes: 42.
+
 ## 2026-09-24 — Tema Claude: fonte no conteúdo dos campos + fundo mais escuro (v0.6.1)
 
 **Pedido:** (1) o que é digitado/colado nos campos também com as fontes do Claude; (2) o fundo

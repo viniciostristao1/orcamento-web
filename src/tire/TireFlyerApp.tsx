@@ -29,12 +29,10 @@ const TireFlyerApp: React.FC = () => {
     setPromoData(parsed);
   };
 
+  // Igual à aba de orçamentos: limpa só o texto; o flyer só muda no
+  // "Processar e Atualizar Flyer" (não perde o último preview por engano).
   const handleClear = () => {
-    if (window.confirm("Deseja realmente limpar todos os dados?")) {
-      setInputText("");
-      // Limpa também o flyer para feedback visual imediato
-      setPromoData({ measure: "", tires: [] });
-    }
+    setInputText("");
   };
 
   const handleDownload = async () => {
