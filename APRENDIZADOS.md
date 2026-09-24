@@ -5,6 +5,15 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Histórico com valor bruto (v0.9.1)
+
+**Pedido:** no resumo que aparece nos cartões do histórico, não mostrar valor líquido — mostrar
+**bruto**.
+
+**Feito:** o item "Líquido" (`valorLiquidoFinal`) virou **"Bruto"** usando `totalGeral`
+(revisão aprovada + orçamento adicional, sem o desconto). Os outros itens (Revisão, Peças,
+Serviços) já eram brutos. Testes: 51; nada mudou nos PNGs de saída.
+
 ## 2026-09-24 — Backup geral dentro de Configurações (v0.9.0)
 
 **Pedido:** o "Centro de Dados" (backup) deve ficar na engrenagem **Configurações**, depois do

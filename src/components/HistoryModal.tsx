@@ -217,7 +217,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 <span>Revisão: <span className="text-slate-300">{r.revAprovadaInput}</span></span>
                 <span>Peças: <span className="text-slate-300">{formatCurrency(r.totalPecasGeral)}</span></span>
                 <span>Serviços: <span className="text-slate-300">{formatCurrency(r.totalServicosGeral)}</span></span>
-                <span>Líquido: <span className="text-blue-300 text-lg">{formatCurrency(r.valorLiquidoFinal)}</span></span>
+                <span>Bruto: <span className="text-blue-300 text-lg">{formatCurrency(r.totalGeral)}</span></span>
               </div>
             </div>
             );

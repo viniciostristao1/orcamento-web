@@ -112,7 +112,8 @@ serifada).
   conteúdo, antes `px-8 py-6`/`p-8`) — praticamente sem espaço acima de Total Revisão/Peças/etc.
 - **Busca no histórico** (v0.2.5): botão **Pesquisar** entre "Restaurar backup" e "Limpar
   tudo" → campo que filtra por **data ou placa** (`filtrarHistorico`, ignora `/ - . : e espaços`;
-  ex.: `24/09`, `2026`, `abc-1d23`), com contador `N de M`.
+  ex.: `24/09`, `2026`, `abc-1d23`), com contador `N de M`. O resumo de cada cartão mostra
+  **valores brutos** (v0.9.1): Revisão, Peças, Serviços e **Bruto** (`totalGeral`, sem desconto).
 - **Interface 25% menor** (v0.3.0): classe **`.ui-compacta { zoom: 0.75 }`** aplicada em
   header, grade de entrada, cartão de resumo, botões da tabela e painel do histórico
   (equivale a usar o Chrome a 75%). `main` = `max-w-[1050px] px-[30px]` para casar as
@@ -131,8 +132,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.9.0`** com
-  `Orcamento-v0.9.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.9.1`** com
+  `Orcamento-v0.9.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
