@@ -5,6 +5,24 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Tire Flyer mais compacto (campo, preview e topo) (v0.7.1)
+
+**Pedido:** (1) reduzir pela metade a altura do campo "DADOS DA TABELA"; (2) reduzir pela
+metade o **visual** do flyer (o PNG não); (3) deixar pouco espaço entre "DASHBOARD TIRE FLYER"
+e a barra de cima.
+
+**Feito:**
+- Textarea `h-[500px]` → **`h-[250px]`** (altura do campo pela metade).
+- Preview: coluna passou de `w-[750px]` → **`w-[375px]`** e o flyer visual com
+  **`transform: scale(0.5)`** (transform não afeta a captura). A altura do container é medida
+  com `ResizeObserver` (`alturaFlyer * 0.5`) para não sobrar buraco no layout.
+- Topo: `main` usa `pt-3` nas abas que não são orçamentos e o root do Tire Flyer `pt-1` →
+  **gap de ~68px para 15px** entre o header e o título.
+- **⚠️ Pegadinha resolvida:** a primeira tentativa usou `zoom: 0.5` aninhado (0,75 × 0,5) e o
+  **PNG saiu 1500x3724** (4px menor) — o zoom aninhado arredonda o `clientHeight` que o
+  html-to-image usa. Com `transform` + altura medida, o PNG voltou a **1500x3728 com 0
+  diferenças** (nos dois temas). Testes: 44.
+
 ## 2026-09-24 — Nova aba "Whats" (contatos/agenda do WhatsApp) (v0.7.0)
 
 **Pedido:** terceira aba (ao lado de Tire Flyer) com o app **ZapZap Manager** do AI Studio —
