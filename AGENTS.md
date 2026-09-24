@@ -58,6 +58,10 @@ serifada).
 - **Botões são ícone-only** (v0.8.0): sempre com `aria-label` + `title` com o texto da ação —
   é o que os testes e o Playwright usam (`getByRole('button', { name: … })`). Abas e opções de
   tema continuam com texto.
+- **Totais do documento** (v0.8.5): no Resumo Financeiro o rótulo é **"TOTAL"** =
+  itens **marcados** + revisão aprovada (o Parcelamento usa essa mesma base); a caixa
+  **"TOTAL GERAL"** (todos os itens + revisão) só aparece **quando há item desmarcado**, logo
+  abaixo de "Itens Não Realizados".
 - **Impressão = imagem do PNG** (v0.8.2): o botão IMPRIMIR/PDF gera o PNG e imprime a **imagem a
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
@@ -121,8 +125,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.4`** com
-  `Orcamento-v0.8.4.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.5`** com
+  `Orcamento-v0.8.5.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

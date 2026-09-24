@@ -39,4 +39,11 @@ describe('restaurarFontesReduzidas', () => {
     const svg = 'a{font-size: 11.9px}';
     expect(restaurarFontesReduzidas(svg, ['12.5px'])).toBe('a{font-size: 12.5px}');
   });
+
+  it('não confunde 10px com 30px (substring)', () => {
+    const svg = 'a{font-size: 9.9px} b{font-size: 29.9px}';
+    // ordem de 10px antes de 30px: antes virava "210px" no 30px
+    expect(restaurarFontesReduzidas(svg, ['10px', '30px'])).toBe('a{font-size: 10px} b{font-size: 30px}');
+    expect(restaurarFontesReduzidas(svg, ['30px', '10px'])).toBe('a{font-size: 10px} b{font-size: 30px}');
+  });
 });

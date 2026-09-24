@@ -16,9 +16,11 @@ export const restaurarFontesReduzidas = (svg: string, fontSizes: Iterable<string
     const px = parseFloat(tamanho);
     if (!Number.isFinite(px)) continue;
     const reduzido = `${Math.floor(px) - 0.1}px`;
-    if (reduzido !== tamanho) {
-      corrigido = corrigido.split(reduzido).join(tamanho);
-    }
+    if (reduzido === tamanho) continue;
+    // Troca só ocorrências "inteiras": sem isso, o reduzido de 10px ("9.9px")
+    // casaria dentro do de 30px ("29.9px") e viraria 210px (texto gigante).
+    const escapado = reduzido.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    corrigido = corrigido.replace(new RegExp(`(?<![\\d.])${escapado}`, 'g'), tamanho);
   }
   return corrigido;
 };

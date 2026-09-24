@@ -5,6 +5,30 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — TOTAL no resumo + caixa TOTAL GERAL + correção da fonte gigante (v0.8.5)
+
+**Pedido:** no documento gerado, o "TOTAL GERAL" do Resumo Financeiro vira **"TOTAL"** = itens
+**marcados** + revisão aprovada; e **abaixo da caixa "Itens Não Realizados"** criar uma caixa
+**"TOTAL GERAL"** (só quando houver item desmarcado) com **tudo** (todos os itens + revisão).
+
+**Feito (`QuoteTable`):**
+- `totalSelecionado = revisaoAprovada + totalOrcamento` (marcados) → **"TOTAL:"** no Resumo
+  Financeiro.
+- `totalCompleto = revisaoAprovada + soma de todos os itens` → nova caixa **"TOTAL GERAL:"**
+  (fundo `slate-50`, borda `slate-300`) depois da caixa de não realizados, condicional a
+  `naoRealizados.itens.length > 0`.
+- O **Parcelamento** passa a usar `totalSelecionado / numParcelas` (antes vinha do valor cheio e
+  destoava do TOTAL). Com tudo marcado, o valor é idêntico ao de antes.
+- **⚠️ Bug pego no teste (e corrigido):** o valor do novo TOTAL GERAL saiu **gigante** no PNG.
+  Causa: `restaurarFontesReduzidas` trocava por substring e o reduzido de 10px (`9.9px`) casava
+  dentro do de 30px (`29.9px`), virando **210px**. Fix: regex com limite numérico
+  (`(?<![\d.])`) + teste de colisão 10px/30px.
+- O **PNG do orçamento mudou de propósito** (rótulo "TOTAL" + caixa nova); o **flyer segue
+  0 diferenças**. Testes: **46**.
+
+**Gotcha:** a checagem "PNG idêntico à v0.4.2" deixa de valer para o orçamento a partir daqui —
+foi uma mudança pedida no layout de saída.
+
 ## 2026-09-24 — Lembrar o último orçamento digitado (v0.8.4)
 
 **Pedido:** ao reabrir o app, em vez do exemplo embutido, vir o **último orçamento** que o

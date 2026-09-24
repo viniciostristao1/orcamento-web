@@ -30,6 +30,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
   // Itens desmarcados (não realizados) e a soma — a caixa só aparece se houver algum.
   const naoRealizados = itensNaoRealizados(summary, selecionados);
 
+  // Valores do documento: "TOTAL" = itens marcados + revisão aprovada;
+  // "TOTAL GERAL" (só com algum desmarcado) = todos os itens + revisão.
+  const totalSelecionado = summary.revisaoAprovada + summary.totalOrcamento;
+  const totalCompleto = summary.revisaoAprovada + summary.items.reduce((acc, i) => acc + i.value, 0);
+  const parcelaSelecionada = totalSelecionado / summary.numParcelas;
+
   // Impressão: em vez de re-renderizar o HTML na largura do papel (o que mudava
   // a proporção das colunas e quebrava linhas diferentes), geramos a MESMA
   // imagem do PNG e imprimimos ela a 100% da largura — proporções idênticas.
@@ -216,18 +222,18 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
               
               <div className="flex justify-between items-center text-slate-400">
                 <span className="font-bold uppercase tracking-wide text-2xl">Parcelamento ({summary.numParcelas}x):</span>
-                <span className="font-bold text-2xl">{summary.numParcelas} x {formatCurrency(summary.valorParcela)}</span>
+                <span className="font-bold text-2xl">{summary.numParcelas} x {formatCurrency(parcelaSelecionada)}</span>
               </div>
 
               <div className="h-px bg-blue-600 my-2 opacity-40"></div>
               
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-none">Total Geral:</span>
+                  <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-none">Total:</span>
                   <span className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Revisão + Adicional</span>
                 </div>
                 <span className="text-2xl font-bold text-slate-950">
-                  {formatCurrency(summary.totalGeral)}
+                  {formatCurrency(totalSelecionado)}
                 </span>
               </div>
             </div>
@@ -262,6 +268,19 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
                     {formatCurrency(naoRealizados.total)}
                   </span>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* TOTAL GERAL — tudo (itens marcados + não realizados + revisão).
+              Só aparece quando há algum item desmarcado. */}
+          {naoRealizados.itens.length > 0 && (
+            <div className="mt-3 bg-slate-50 border-2 border-slate-300 rounded-[2rem] px-6 py-4 sm:px-10">
+              <div className="flex justify-between items-center max-w-xl mx-auto">
+                <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-none">Total Geral:</span>
+                <span className="text-3xl font-bold text-slate-950">
+                  {formatCurrency(totalCompleto)}
+                </span>
               </div>
             </div>
           )}
