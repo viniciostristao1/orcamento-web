@@ -25,6 +25,7 @@ const App: React.FC = () => {
   const [revPecas, setRevPecas] = useState<number>(1000.00);
   const [desconto, setDesconto] = useState<number>(5);
   const [parcelas, setParcelas] = useState<number>(3);
+  const [placa, setPlaca] = useState<string>("");
   const [summary, setSummary] = useState<QuoteSummary | null>(null);
   const [historicoAberto, setHistoricoAberto] = useState(false);
 
@@ -49,6 +50,7 @@ const App: React.FC = () => {
       revPecasInput,
       desconto,
       parcelas,
+      placa: placa.trim(),
       ...retratoDoResumo(result),
     });
     
@@ -68,6 +70,7 @@ const App: React.FC = () => {
     setRevPecasInput(r.revPecasInput);
     setDesconto(r.desconto);
     setParcelas(r.parcelas);
+    setPlaca(r.placa ?? '');
     setHistoricoAberto(false);
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
@@ -128,54 +131,66 @@ const App: React.FC = () => {
 
           <div className="xl:col-span-4 space-y-8">
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500">
-              <div className="space-y-6">
-                <div className="space-y-2">
+              <div className="space-y-4">
+                <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Total Revisão (R$)</label>
                   <input 
                     type="text" 
-                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-5 text-2xl font-black text-white focus:border-emerald-500 outline-none" 
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
                     value={revAprovadaInput} 
                     onChange={(e) => setRevAprovadaInput(e.target.value)} 
                     placeholder="0,00"
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
                   <input 
                     type="text" 
-                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-5 text-2xl font-black text-white focus:border-emerald-500 outline-none" 
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
                     value={revPecasInput} 
                     onChange={(e) => setRevPecasInput(e.target.value)}
                     placeholder="0,00"
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Desconto em Peças (%)</label>
                   <div className="relative">
                     <input 
                       type="number" 
-                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-5 text-2xl font-black text-amber-500 focus:border-amber-500 outline-none" 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 pr-12 text-xl font-black text-amber-500 focus:border-amber-500 outline-none" 
                       value={desconto} 
                       onChange={(e) => setDesconto(parseFloat(e.target.value))} 
                     />
-                    <Percent size={24} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-700" />
+                    <Percent size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700" />
                   </div>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Parcelas</label>
-                  <select className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-5 text-2xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
+                  <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
                     {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
                   </select>
                 </div>
 
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Placa</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white uppercase tracking-widest focus:border-blue-500 outline-none" 
+                    value={placa} 
+                    onChange={(e) => setPlaca(e.target.value.toUpperCase())} 
+                    placeholder="Ex.: ABC1D23"
+                    maxLength={8}
+                  />
+                </div>
+
                 <button 
                   onClick={handleGenerate} 
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-6 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-4 uppercase tracking-[0.2em] active:scale-[0.98] mt-6 text-xl"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl shadow-2xl transition-all flex items-center justify-center gap-4 uppercase tracking-[0.2em] active:scale-[0.98] mt-2 text-lg"
                 >
-                  <Sparkles size={28} /> Processar Tudo
+                  <Sparkles size={24} /> Processar Tudo
                 </button>
               </div>
             </NeonCard>

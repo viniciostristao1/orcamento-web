@@ -18,6 +18,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('ao processar, mostra o resumo com os valores calculados', () => {
     render(<App />);
+    fireEvent.change(screen.getByPlaceholderText('Ex.: ABC1D23'), { target: { value: 'ABC1D23' } });
     fireEvent.click(screen.getByText(/Processar Tudo/i));
 
     // Resumo líquido (nos cartões) e a tabela de saída
@@ -36,5 +37,6 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo.length).toBe(1);
     expect(salvo[0].descReparo).toContain('PASTILHAS');
     expect(salvo[0].numItens).toBe(3);
+    expect(salvo[0].placa).toBe('ABC1D23');
   });
 });

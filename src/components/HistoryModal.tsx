@@ -118,6 +118,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   {r.criadoEm}
                   <span className="text-slate-600"> · </span>
                   <span className="text-blue-300">{itens} {itens === 1 ? 'item' : 'itens'}</span>
+                  {r.placa ? (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-amber-300">{r.placa}</span>
+                    </>
+                  ) : null}
                 </span>
                 <div className="flex items-center gap-2">
                   <button

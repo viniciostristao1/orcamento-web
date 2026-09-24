@@ -33,12 +33,17 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
-- Testes: **18 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **19 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.2`** com
-  `Orcamento-v0.2.2.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
+  histórico; **não** entra no PNG/tabela de saída (decisão do usuário). No histórico aparece
+  depois do nº de itens: `data · N itens · PLACA`.
+- **Card direito compacto** (v0.2.3): inputs de Total Revisão/Peças/Desconto/Parcelas/Placa com
+  `px-4 py-2.5 text-xl` (antes `p-5 text-2xl`), `space-y-4` e botão `py-4` — menos altura.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.3`** com
+  `Orcamento-v0.2.3.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -109,6 +114,8 @@ npm run build        # gera dist/index.html (arquivo único)
   ou trocar de PC). Salvar a cada "Processar Tudo". O `localStorage` no `file://` é por origem
   do navegador — para não depender disso, o Release publica também o `Orcamento.html` de nome
   estável (abrir sempre do mesmo caminho) e há o backup JSON.
+- **Placa** é dado **só do histórico** (não aparece no PNG enviado ao cliente) e **entra na
+  comparação de duplicidade**: mesma placa substitui o último; placa diferente = novo registro.
 - **Sem IA, sem servidor, sem login, sem nuvem.**
 
 ## 7. Decisões do usuário (registradas)

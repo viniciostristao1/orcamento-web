@@ -51,6 +51,16 @@ describe('histórico (localStorage)', () => {
     expect(lista[0].descReparo).toBe('2 Y');
   });
 
+  it('placa: mesma placa substitui; placa diferente vira outro registro', () => {
+    adicionarAoHistorico({ ...base, placa: 'ABC1D23' });
+    adicionarAoHistorico({ ...base, placa: 'ABC1D23' });
+    expect(listarHistorico().length).toBe(1);
+    adicionarAoHistorico({ ...base, placa: 'XYZ9A87' });
+    const lista = listarHistorico();
+    expect(lista.length).toBe(2);
+    expect(lista[0].placa).toBe('XYZ9A87');
+  });
+
   it('conta os itens da descrição (linhas que começam com número)', () => {
     expect(contarItensDaDescricao('01 TR PASTILHAS\n02 OXI\n03 TR BORRACHA')).toBe(3);
     expect(contarItensDaDescricao('sem numero\n\n 4 COM ESPACO')).toBe(1);

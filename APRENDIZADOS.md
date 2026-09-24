@@ -5,6 +5,27 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Campo Placa (só no histórico) + card direito compacto (v0.2.3)
+
+**Pedido:** (1) campo de **placa** abaixo de Parcelas; (2) a placa aparece **apenas no
+histórico**, depois da quantidade de itens; (3) reduzir a altura/aproveitar melhor o espaço dos
+campos da direita (Total Revisão, Peças na Revisão, Desconto, Parcelas).
+
+**Feito:**
+- `placa` no `App.tsx` (input `uppercase`, `maxLength={8}`, placeholder `Ex.: ABC1D23`); salva
+  `placa: placa.trim()` no histórico e restaura ao "Abrir". **Não** entra no `QuoteTable`/PNG.
+- `HistoryModal`: linha `data · N itens · PLACA` (placa em âmbar; some se vazia).
+- `OrcamentoSalvo.placa?: string` (opcional → histórico antigo segue ok) e placa incluída no
+  `mesmosDados`: mesma placa substitui o topo (evita duplicar), placa diferente = **outro
+  registro** (não deixa um carro sobrescrever o outro).
+- Card direito compacto: `space-y-6`→`space-y-4`, `space-y-2`→`space-y-1`, inputs
+  `p-5 text-2xl`→`px-4 py-2.5 text-xl`, ícone `%` 24→20/`right-6`→`right-4`, botão
+  `py-6 mt-6 text-xl`→`py-4 mt-2 text-lg`. Testes: 19.
+
+**Gotcha:** ao comparar registros do histórico, placa vazia (`undefined`/`''`) tem de ser
+equivalente — usar `(a.placa ?? '') === (b.placa ?? '')`, senão todo registro antigo (sem o
+campo) pareceria diferente após a atualização.
+
 ## 2026-09-24 — Histórico: nº de itens + fonte maior (v0.2.2)
 
 **Pedido:** na tela do Histórico, fonte um pouco maior e, ao lado de data/hora, o **número de

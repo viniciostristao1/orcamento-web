@@ -11,6 +11,8 @@ export interface OrcamentoSalvo {
   revPecasInput: string;
   desconto: number;
   parcelas: number;
+  // Placa do veículo (opcional; aparece só na lista do histórico).
+  placa?: string;
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -51,7 +53,8 @@ const mesmosDados = (a: OrcamentoSalvo, b: Omit<OrcamentoSalvo, 'id' | 'criadoEm
   a.revAprovadaInput === b.revAprovadaInput &&
   a.revPecasInput === b.revPecasInput &&
   a.desconto === b.desconto &&
-  a.parcelas === b.parcelas;
+  a.parcelas === b.parcelas &&
+  (a.placa ?? '') === (b.placa ?? ''); // placa identifica o veículo: placa diferente = outro orçamento
 
 /**
  * Salva um orçamento. Se o mais recente tiver os MESMOS dados, substitui
