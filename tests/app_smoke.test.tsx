@@ -234,6 +234,20 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].naoRealizados).toEqual([1]);
   });
 
+  it('histórico: ao abrir, o documento usa a data/hora do registro (não a atual)', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([registro('9', 'ABC1D23', '01/08/2026 09:00:00')]),
+    );
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir orçamento' }));
+
+    expect(screen.getByText('01/08/2026 09:00:00')).toBeTruthy();
+    const salvo = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+    expect(salvo[0].criadoEm).toBe('01/08/2026 09:00:00'); // não re-salvou com a data de agora
+  });
+
   it('histórico: abas Todos | Não Realizados', () => {
     const comDesmarcados = { ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), naoRealizados: [1, 2] };
     localStorage.setItem(
@@ -255,12 +269,12 @@ describe('App — smoke test (render + processar)', () => {
 
     // janelinha "Ver itens do orçamento": item 1 está em naoRealizados -> não aprovado
     fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[0]);
-    expect(screen.getByText('Itens do orçamento')).toBeTruthy();
+    expect(screen.getByText('ITENS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.getAllByText('01 TESTE').length).toBeGreaterThan(1);
     expect(document.querySelectorAll('[data-situacao="naoAprovado"]')).toHaveLength(1);
     expect(document.querySelectorAll('[data-situacao="aprovado"]')).toHaveLength(0);
     fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
-    expect(screen.queryByText('Itens do orçamento')).toBeNull();
+    expect(screen.queryByText('ITENS DO ORÇAMENTO')).toBeNull();
   });
 
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {

@@ -282,8 +282,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-5 py-4 bg-slate-950/60 border-b border-slate-800/60">
-                <h3 className="titulo-tema text-lg font-black text-slate-100 uppercase tracking-widest">
-                  Itens do orçamento
+                <h3 className="titulo-tema text-2xl font-black text-slate-100 uppercase tracking-widest">
+                  ITENS DO ORÇAMENTO
                 </h3>
                 <button
                   type="button"

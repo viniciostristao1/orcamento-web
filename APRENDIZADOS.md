@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Título do popup maior + data/hora do histórico no documento (v0.13.1)
+
+**Pedidos:** (1) no "Ver itens do orçamento", título **ITENS DO ORÇAMENTO** maior e tudo em
+maiúsculas; (2) ao abrir um orçamento do histórico, o documento deve mostrar a **data/hora do
+registro** (de quando foi criado), não a de agora.
+
+**Feito:**
+- Título do popup: `text-lg` → **`text-2xl`** e texto-fonte em maiúsculas (no tema Claude o
+  `.titulo-tema` tira o `text-transform`, então precisa estar maiúsculo no código).
+- `abrirDoHistorico` faz `setSummary({ ...result, currentTime: r.criadoEm })` — o "Data:" do
+  documento (e o nome do arquivo do PNG) passam a refletir a criação. O registro **não** é
+  re-salvo com a data atual.
+- Testes: **60** (novo caso conferindo a data do registro no documento); flyer com PNG idêntico.
+
 ## 2026-09-24 — Busca por nome, itens aprovados/recusados no histórico + zoom do modal (v0.13.0)
 
 **Pedidos:** (1) no orçamento, o campo "PLACA" vira **PLACA, NOME, CONTATO** com limite maior,

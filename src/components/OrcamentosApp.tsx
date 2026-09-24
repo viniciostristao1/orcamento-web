@@ -92,7 +92,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
     const result = processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais);
-    setSummary(result);
+    // O documento mostra a data/hora de quando o orçamento foi criado
+    // (a do histórico), não a de agora.
+    setSummary({ ...result, currentTime: r.criadoEm });
     // Restaura a marcação salva (registros da aba "Não Realizados").
     const desmarcados = new Set(r.naoRealizados ?? []);
     setSelecionados(new Set(result.items.map((i) => i.id).filter((id) => !desmarcados.has(id))));
