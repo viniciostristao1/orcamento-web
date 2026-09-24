@@ -46,7 +46,8 @@ prazo/à vista, estoque/sob encomenda), também exportado em PNG para o WhatsApp
   `utils/parser.ts`, `components/Flyer.tsx` + Tailwind/build 1:1 do AI Studio). O flyer exporta
   com o `exportarPng` local (mesma correção de fontes) em `pixelRatio: 2` → **1500px**; o
   `zoom: .75` do wrapper não afeta a captura (medido). "Histórico" só aparece na aba de
-  orçamentos.
+  orçamentos. O `main` é condicional (v0.4.1): orçamentos `max-w-[1050px]`, Tire Flyer
+  `max-w-[1600px]` — o campo "Dados da Tabela" fica largo (~882px em 1366) sem rolagem lateral.
 - Build de arquivo único **validado** (`dist/index.html` ~677 kB, CSS+JS+fontes embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
@@ -76,8 +77,8 @@ prazo/à vista, estoque/sob encomenda), também exportado em PNG para o WhatsApp
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.4.0`** com
-  `Orcamento-v0.4.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.4.1`** com
+  `Orcamento-v0.4.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

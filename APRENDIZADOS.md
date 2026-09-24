@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Tire Flyer: campo "Dados da Tabela" mais largo (v0.4.1)
+
+**Pedido:** o textarea da tabela de pneus era estreito — tinha que rolar para o lado para ver
+as colunas.
+
+**Feito:** o `main` do shell virou condicional por aba: **orçamentos seguem `max-w-[1050px]`**
+(nada muda) e o **Tire Flyer usa `max-w-[1600px]`** (como o app original do AI Studio). Com o
+`zoom: .75` da seção, o textarea passou de ~490px para **~882px** (tela 1366) / **~1194px**
+(1600+) de largura lógica; medido `scrollWidth == clientWidth` em 1366/1600/1920 → a tabela
+padrão aparece **sem rolagem horizontal**. As duas colunas (entrada + preview) continuam.
+
+**Sem regressão:** flyer segue 750px lógicos e o PNG segue **1500x3728** (`pixelRatio: 2`);
+main da aba de orçamentos continua 1050. Testes: 40 (nenhum novo — só layout).
+
 ## 2026-09-24 — Nova aba "TIRE FLYER" (promoção de pneus) (v0.4.0)
 
 **Pedido:** uma nova aba no header (onde está "Toyota Weiand Lajeado") com o app **Tire Flyer**
