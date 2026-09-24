@@ -5,6 +5,14 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Aba Whats com o título colado no topo (v0.7.6)
+
+**Pedido:** reduzir o espaço entre "PAINEL WHATSAPP" e a barra superior (Toyota Weiand Lajeado).
+
+**Feito:** root da aba Whats de `py-10` → **`pt-1 pb-20`** e o cabeçalho interno de
+`mb-10 pb-8` → `mb-8 pb-6` — mesmo padrão do Tire Flyer. Gap medido no Chromium: **15px**
+(antes ~42px). PNGs do orçamento/flyer: **0 diferenças**. Testes: 44.
+
 ## 2026-09-24 — Ajustes de layout do Orçamentos + Claude mais escuro (v0.7.5)
 
 **Pedidos (em sequência):** (1) Histórico no cabeçalho do card **1. Descrição do Reparo**, ao

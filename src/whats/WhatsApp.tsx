@@ -74,8 +74,8 @@ const WhatsApp: React.FC = () => {
   const isBroadcastingDay = today.getDate() === 1;
 
   return (
-    <div className="ui-compacta py-10 text-slate-200 pb-20">
-      <header className="mb-10 border-b border-slate-800 pb-8">
+    <div className="ui-compacta pt-1 pb-20 text-slate-200">
+      <header className="mb-8 border-b border-slate-800 pb-6">
         <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase mb-1">
           PAINEL <span className="text-blue-500">WHATSAPP</span>
         </h1>
