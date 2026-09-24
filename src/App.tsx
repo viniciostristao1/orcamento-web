@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { processQuote, formatCurrency, parseBrazilianNumber } from './utils/quoteLogic';
+import { processQuote, formatCurrency, parseBrazilianNumber, recalcularComSelecao } from './utils/quoteLogic';
 import { QuoteSummary } from './types';
 import NeonCard from './components/NeonCard';
 import QuoteTable from './components/QuoteTable';
@@ -27,6 +27,7 @@ const App: React.FC = () => {
   const [parcelas, setParcelas] = useState<number>(3);
   const [placa, setPlaca] = useState<string>("");
   const [summary, setSummary] = useState<QuoteSummary | null>(null);
+  const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
   const [historicoAberto, setHistoricoAberto] = useState(false);
 
   // Estados locais para os inputs de texto para permitir digitação livre (como vírgulas e pontos)
@@ -40,6 +41,7 @@ const App: React.FC = () => {
     
     const result = processQuote(descReparo, orcamentoRaw, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
     setSummary(result);
+    setSelecionados(new Set(result.items.map((i) => i.id))); // começa com todos marcados
 
     // Histórico local (localStorage): salva a cada "Processar Tudo".
     adicionarAoHistorico({
@@ -74,13 +76,30 @@ const App: React.FC = () => {
     setHistoricoAberto(false);
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
-    setSummary(processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais));
+    const result = processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais);
+    setSummary(result);
+    setSelecionados(new Set(result.items.map((i) => i.id)));
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
   };
 
+  // Marca/desmarca um item: os totais refletem só os marcados.
+  const alternarItem = (id: number) => {
+    setSelecionados((prev) => {
+      const s = new Set(prev);
+      if (s.has(id)) {
+        s.delete(id);
+      } else {
+        s.add(id);
+      }
+      return s;
+    });
+  };
+
+  const visivel = summary ? recalcularComSelecao(summary, selecionados) : null;
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 pb-32">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-200 pb-24">
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden ui-compacta">
         <div className="max-w-[1400px] mx-auto px-10 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Car className="text-blue-500" size={32} />
@@ -99,8 +118,8 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto px-10 pt-12">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 print:hidden">
+      <main className="max-w-[1050px] mx-auto px-[30px] pt-8">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 print:hidden ui-compacta">
           <div className="xl:col-span-8 space-y-10">
             <NeonCard title="1. Descrição do Reparo" borderColor="blue-500" actions={<ClearButton onClick={() => setDescReparo('')}/>}>
               <textarea 
@@ -197,34 +216,34 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div id="result-section" className="mt-20">
-          {summary && (
-            <div className="space-y-12">
-              <div className="max-w-[1200px] mx-auto print:hidden">
+        <div id="result-section" className="mt-14">
+          {visivel && (
+            <div className="space-y-8">
+              <div className="max-w-[1200px] mx-auto print:hidden ui-compacta">
                 <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="p-6 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                       <span className="text-[10px] font-black text-slate-500 uppercase block mb-2">Total Peças</span>
-                      <span className="text-2xl font-black text-white">{formatCurrency(summary.totalPecasGeral)}</span>
+                      <span className="text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
                     </div>
                     <div className="p-6 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                       <span className="text-[10px] font-black text-slate-500 uppercase block mb-2">Total Serviços</span>
-                      <span className="text-2xl font-black text-white">{formatCurrency(summary.totalServicosGeral)}</span>
+                      <span className="text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
                     </div>
                     <div className="p-6 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
-                      <span className="text-[10px] font-black text-emerald-500 uppercase block mb-2">Desc. ({summary.descontoPercentual}%)</span>
-                      <span className="text-2xl font-black text-emerald-400">- {formatCurrency(summary.valorDescontoTotal)}</span>
+                      <span className="text-[10px] font-black text-emerald-500 uppercase block mb-2">Desc. ({visivel.descontoPercentual}%)</span>
+                      <span className="text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
                     </div>
                     <div className="p-6 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
                       <span className="text-[10px] font-black text-blue-400 uppercase block mb-2 underline">Valor Líquido</span>
-                      <span className="text-3xl font-black text-blue-300">{formatCurrency(summary.valorLiquidoFinal)}</span>
+                      <span className="text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
                     </div>
                   </div>
                 </NeonCard>
               </div>
 
               <div className="max-w-4xl mx-auto">
-                <QuoteTable summary={summary} />
+                <QuoteTable summary={visivel} selecionados={selecionados} onToggleItem={alternarItem} />
               </div>
             </div>
           )}

@@ -34,6 +34,13 @@ body {
   }
 }
 
+/* Interface 25% menor (equivale a usar o Chrome a 75%).
+   Aplicada por seção — o documento de saída (#printable-quote) fica no tamanho
+   original de propósito, para o PNG enviado ao cliente não mudar. */
+.ui-compacta {
+  zoom: 0.75;
+}
+
 @media print {
   html,
   body {
@@ -41,6 +48,12 @@ body {
   }
 
   .no-print {
+    display: none !important;
+  }
+
+  /* itens desmarcados e caixinhas de seleção não saem na impressão */
+  [data-fora],
+  [data-ui] {
     display: none !important;
   }
 }

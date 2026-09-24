@@ -33,7 +33,7 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
-- Testes: **21 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **25 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
@@ -46,8 +46,18 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
 - **Busca no histórico** (v0.2.5): botão **Pesquisar** entre "Restaurar backup" e "Limpar
   tudo" → campo que filtra por **data ou placa** (`filtrarHistorico`, ignora `/ - . : e espaços`;
   ex.: `24/09`, `2026`, `abc-1d23`), com contador `N de M`.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.5`** com
-  `Orcamento-v0.2.5.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Interface 25% menor** (v0.3.0): classe **`.ui-compacta { zoom: 0.75 }`** aplicada em
+  header, grade de entrada, cartão de resumo, botões da tabela e painel do histórico
+  (equivale a usar o Chrome a 75%). `main` = `max-w-[1050px] px-[30px]` para casar as
+  larguras. **O documento de saída (`#printable-quote`) NÃO é escalado** — o PNG do cliente
+  continua igual.
+- **Seleção de itens** (v0.3.0): caixinhas na coluna "Item" da tabela; só as marcadas entram
+  no orçamento. Totais/desconto/líquido recalculados por `recalcularComSelecao`; desmarcadas
+  ficam riscadas/opacas na tela e **saem do PNG e da impressão** (`data-fora`/`data-ui` +
+  `filter` do `html-to-image` + CSS `@media print`). Ao processar/abrir do histórico, todas
+  começam marcadas.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.3.0`** com
+  `Orcamento-v0.3.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -113,7 +123,11 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Export = PNG** (decisão do usuário: é o formato que ele manda no WhatsApp). PDF/Excel não
   são necessários; não trocar o fluxo sem pedido.
 - **Layout de saída é contrato**: a tabela/resumo devem continuar iguais aos do AI Studio
-  (o cliente recebe esse print).
+  (o cliente recebe esse print). ⚠️ Por isso a interface usa `zoom: .75` **por seção** e o
+  `#printable-quote` fica fora — não usar zoom em `body`/`main` (mudaria a captura do PNG).
+- **Item desmarcado não sai no cliente**: esconder sempre por `data-fora` (linha) e `data-ui`
+  (caixinha) — CSS `@media print` **e** `filter` no `toPng`; `print:hidden` sozinho NÃO vale
+  para a captura do PNG (ela é da tela, não de impressão).
 - **Histórico**: `localStorage` + **backup/restaurar JSON** (o usuário pode limpar o navegador
   ou trocar de PC). Salvar a cada "Processar Tudo". O `localStorage` no `file://` é por origem
   do navegador — para não depender disso, o Release publica também o `Orcamento.html` de nome
@@ -128,6 +142,9 @@ npm run build        # gera dist/index.html (arquivo único)
 - Uso **local no PC** (arquivo no Chrome), não precisa hospedar.
 - **Histórico + exportar PNG** (o app original só exporta PNG; suficiente para o WhatsApp).
 - Manter o layout de saída do AI Studio.
+- **Interface a 75%** (v0.3.0): o usuário usava o Chrome a 75%; o app já vem nesse tamanho.
+- **Seleção de itens no orçamento** (v0.3.0): caixinhas para marcar/desmarcar; desmarcado não
+  entra no PNG do cliente.
 
 ## 8. Pendências
 

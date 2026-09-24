@@ -61,6 +61,18 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].placa).toBe('ABC1D23');
   });
 
+  it('caixinhas: desmarcar um item recalcula os totais', () => {
+    render(<App />);
+    fireEvent.click(screen.getByText(/Processar Tudo/i));
+    expect(screen.getAllByText(/2\.821,94/).length).toBeGreaterThan(0); // total peças cheio
+
+    const checks = screen.getAllByRole('checkbox');
+    expect(checks.length).toBe(3); // um por item
+    fireEvent.click(checks[0]); // desmarca o item 1 (peças 1.438,24)
+
+    expect(screen.getAllByText(/1\.383,70/).length).toBeGreaterThan(0); // 2.821,94 − 1.438,24
+  });
+
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {
     localStorage.setItem(
       'orcamentos_historico_v1',

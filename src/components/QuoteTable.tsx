@@ -6,9 +6,11 @@ import * as htmlToImage from 'html-to-image';
 
 interface QuoteTableProps {
   summary: QuoteSummary;
+  selecionados: Set<number>;
+  onToggleItem: (id: number) => void;
 }
 
-const QuoteTable: React.FC<QuoteTableProps> = ({ summary }) => {
+const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem }) => {
   const printableRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = (e: React.MouseEvent) => {
@@ -27,6 +29,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary }) => {
         pixelRatio: 3, // Qualidade ainda maior para exportação
         backgroundColor: '#ffffff',
         cacheBust: true,
+        // no PNG não entram as caixinhas (data-ui) nem os itens desmarcados (data-fora)
+        filter: (node) => {
+          const el = node as HTMLElement;
+          return !(el.dataset?.fora || el.dataset?.ui);
+        },
       });
       
       const link = document.createElement('a');
@@ -42,7 +49,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary }) => {
   return (
     <div className="w-full space-y-6 animate-in fade-in zoom-in-95 duration-700">
       {/* Action Buttons */}
-      <div className="flex flex-wrap justify-center gap-4 print:hidden">
+      <div className="flex flex-wrap justify-center gap-4 print:hidden ui-compacta">
         <button 
           type="button"
           onClick={handlePrint}
@@ -86,15 +93,34 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary }) => {
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-slate-200">
-                {summary.items.map((item) => (
-                  <tr key={item.id} className="even:bg-slate-50/50">
-                    <td className="py-2 px-6 text-center font-bold text-slate-500 text-2xl border-r-2 border-slate-200">{item.id}</td>
-                    <td className="py-2 px-6 font-bold text-slate-900 text-2xl uppercase leading-none">{item.description}</td>
+                {summary.items.map((item) => {
+                  const marcado = selecionados.has(item.id);
+                  return (
+                  <tr
+                    key={item.id}
+                    data-fora={marcado ? undefined : '1'}
+                    className={`even:bg-slate-50/50 ${marcado ? '' : 'opacity-45'}`}
+                  >
+                    <td className="py-2 px-6 text-center font-bold text-slate-500 text-2xl border-r-2 border-slate-200">
+                      <span className="inline-flex items-center justify-center gap-2">
+                        <input
+                          type="checkbox"
+                          data-ui="1"
+                          checked={marcado}
+                          onChange={() => onToggleItem(item.id)}
+                          title="Incluir este item no orçamento"
+                          className="w-5 h-5 accent-blue-600 cursor-pointer print:hidden"
+                        />
+                        <span>{item.id}</span>
+                      </span>
+                    </td>
+                    <td className={`py-2 px-6 font-bold text-slate-900 text-2xl uppercase leading-none ${marcado ? '' : 'line-through'}`}>{item.description}</td>
                     <td className="py-2 px-6 text-right font-bold text-slate-950 text-2xl border-l-2 border-slate-200 bg-slate-50/30">
                       {formatCurrency(item.value)}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
               <tfoot className="border-t-2 border-blue-600">
                 <tr className="bg-blue-50/50 text-blue-900">

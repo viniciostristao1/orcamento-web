@@ -5,6 +5,40 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Interface a 75% + caixinhas para escolher os itens (v0.3.0)
+
+**Pedidos:** (1) a interface ficava confortável só com o Chrome a 75% → deixar o app já nesse
+tamanho (fonte, campos etc.); (2) caixinhas ao lado dos itens para marcar/desmarcar — só as
+marcadas entram no orçamento.
+
+**Feito (1) — escala 75% sem tocar no documento de saída:**
+- `index.css`: `.ui-compacta { zoom: 0.75 }`. Aplicada **por seção** (header, grade de
+  entrada, cartão de resumo, botões da tabela e **painel** do histórico). O
+  `#printable-quote` fica **fora** de propósito: o PNG que vai ao cliente não muda.
+- `main` → `max-w-[1050px] px-[30px]` (1400/0.75 e 40/0.75) para o conteúdo ocupar a mesma
+  largura/posição que o usuário via com o navegador a 75%. Gaps externos ajustados
+  (`pt-8`, `mt-14`, `space-y-8`, `pb-24`).
+- No modal, o zoom foi no **painel**, não no overlay `fixed inset-0` (evita quirks de
+  `position: fixed` + `zoom`); `max-h-[85vh]` dentro do zoom fica ~64vh físicos — ok.
+
+**Feito (2) — seleção de itens:**
+- `recalcularComSelecao(summary, selecionados)` em `quoteLogic.ts` (pura e testada): deriva as
+  peças da revisão (`totalPecasGeral − soma das peças adicionais`) e refaz peças/serviços/
+  desconto/líquido/adicional só com os marcados. `items` continua completo para a tabela.
+- `App`: estado `selecionados: Set<number>` (reset para todos ao processar/abrir do
+  histórico); cartões e tabela usam o resumo recalculado.
+- `QuoteTable`: checkbox na célula "Item" (`data-ui="1"`), linha desmarcada com `opacity-45` +
+  riscado e `data-fora="1"`.
+- **Tirar do PNG/impressão:** `print:hidden` **não** resolve a captura (html-to-image é da
+  tela, não de impressão) → usados `data-fora`/`data-ui` + regra `@media print { [data-fora],
+  [data-ui] { display:none } }` **e** `filter` no `toPng` (ignora esses nós). O PNG sai
+  exatamente como antes quando tudo está marcado.
+
+**Testes: 25** (3 novos do recálculo + 1 de UI desmarcando um item e vendo o total cair).
+
+**Gotcha:** `Set` no estado do React → sempre criar um `new Set(prev)` ao alternar; mutar o
+mesmo Set não re-renderiza.
+
 ## 2026-09-24 — Pesquisar no histórico por data ou placa (v0.2.5)
 
 **Pedido:** botão de busca no histórico (entre "Restaurar backup" e "Limpar tudo") por **data

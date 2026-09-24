@@ -135,3 +135,39 @@ export const processQuote = (
 
 export const formatCurrency = (value: number): string => 
   value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
+
+/**
+ * Recalcula os totais considerando só os itens MARCADOS (caixinhas da tabela).
+ * `items` continua com todos (a tabela mostra as desmarcadas riscadas); os
+ * totais, o desconto e o líquido refletem apenas as marcadas.
+ */
+export const recalcularComSelecao = (
+  summary: QuoteSummary,
+  selecionados: Set<number>
+): QuoteSummary => {
+  const marcados = summary.items.filter(i => selecionados.has(i.id));
+
+  const pecasAdicional = marcados.reduce((acc, i) => acc + i.pecasValue, 0);
+  const servicosAdicional = marcados.reduce((acc, i) => acc + i.servicosValue, 0);
+
+  // Quanto das peças veio da revisão aprovada (o que NÃO é adicional).
+  const pecasDeRevisao =
+    summary.totalPecasGeral - summary.items.reduce((acc, i) => acc + i.pecasValue, 0);
+
+  const totalPecasGeral = pecasDeRevisao + pecasAdicional;
+  const totalServicosGeral = (summary.revisaoAprovada - pecasDeRevisao) + servicosAdicional;
+
+  const fatorDesc = (100 - summary.descontoPercentual) / 100;
+  const valorLiquidoFinal = (totalPecasGeral * fatorDesc) + totalServicosGeral;
+  const valorDescontoTotal = (totalPecasGeral + totalServicosGeral) - valorLiquidoFinal;
+  const totalOrcamento = marcados.reduce((acc, i) => acc + i.value, 0);
+
+  return {
+    ...summary,
+    totalOrcamento,
+    totalPecasGeral,
+    totalServicosGeral,
+    valorDescontoTotal,
+    valorLiquidoFinal,
+  };
+};

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { formatCurrency, parseBrazilianNumber, processQuote } from '../src/utils/quoteLogic';
+import {
+  formatCurrency,
+  parseBrazilianNumber,
+  processQuote,
+  recalcularComSelecao,
+} from '../src/utils/quoteLogic';
 
 const DESC = `01 TR PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS
 02 OXI
@@ -86,5 +91,36 @@ describe('processQuote — ajustes manuais e descrição solta', () => {
     const s = processQuote('1 RET\n2 OXI', '', 0, 0, 0, 1);
     expect(s.items[0].description).toBe('RETIFICA DOS DISCOS');
     expect(s.items[1].description).toBe('HIGIENIZAÇÃO DO AR CONDICIONADO');
+  });
+});
+
+describe('recalcularComSelecao — caixinhas por item', () => {
+  const s = processQuote(DESC, ORCAMENTO, 1766.23, 1000, 5, 3);
+  const todos = new Set(s.items.map((i) => i.id));
+
+  it('todos marcados = resumo original', () => {
+    const r = recalcularComSelecao(s, todos);
+    expect(r.totalOrcamento).toBeCloseTo(s.totalOrcamento, 2);
+    expect(r.totalPecasGeral).toBeCloseTo(s.totalPecasGeral, 2);
+    expect(r.totalServicosGeral).toBeCloseTo(s.totalServicosGeral, 2);
+    expect(r.valorDescontoTotal).toBeCloseTo(s.valorDescontoTotal, 2);
+    expect(r.valorLiquidoFinal).toBeCloseTo(s.valorLiquidoFinal, 2);
+  });
+
+  it('desmarcar um item tira o valor dele dos adicionais e dos totais', () => {
+    const sem3 = new Set(todos);
+    sem3.delete(3);
+    const r = recalcularComSelecao(s, sem3);
+    // item 3 = peças 174,10 + serviços 42,90
+    expect(r.totalPecasGeral).toBeCloseTo(s.totalPecasGeral - 174.1, 2);
+    expect(r.totalServicosGeral).toBeCloseTo(s.totalServicosGeral - 42.9, 2);
+    expect(r.totalOrcamento).toBeCloseTo(s.totalOrcamento - (174.1 + 42.9), 2);
+  });
+
+  it('nenhum marcado = só a revisão aprovada', () => {
+    const r = recalcularComSelecao(s, new Set());
+    expect(r.totalOrcamento).toBe(0);
+    expect(r.totalPecasGeral).toBeCloseTo(1000, 2); // peças da revisão
+    expect(r.totalServicosGeral).toBeCloseTo(1766.23 - 1000, 2);
   });
 });
