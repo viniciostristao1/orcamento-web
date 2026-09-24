@@ -14,6 +14,10 @@ dados do orçamento copiados do PDF do sistema) e o app **interpreta, agrupa por
 peças/serviços, aplica **desconto em peças (%)**, divide em **parcelas** e monta o resumo +
 tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pelo **WhatsApp**.
 
+O app tem **duas abas** (v0.4.0): **Orçamentos** (acima) e **Tire Flyer** — cola a tabela de
+pneus (TABs) e gera um flyer de promoção **750px** (marcas com cores próprias, preços a
+prazo/à vista, estoque/sob encomenda), também exportado em PNG para o WhatsApp.
+
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
 - **Uso local no PC**: o app final é **UM arquivo `.html`** aberto com duplo clique no Chrome,
   sem servidor e sem internet.
@@ -33,10 +37,17 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
-- Testes: **32 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
-  (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`) e smoke de tela
-  (`tests/app_smoke.test.tsx`, jsdom).
-- Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
+- Testes: **40 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+  (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
+  (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
+- **Aba Tire Flyer** (v0.4.0): `src/App.tsx` = shell com as abas (as duas ficam montadas, a
+  inativa com `hidden`, para não perder o que foi digitado); orçamentos em
+  `src/components/OrcamentosApp.tsx`; pneus em `src/tire/` (`TireFlyerApp.tsx`, `types.ts`,
+  `utils/parser.ts`, `components/Flyer.tsx` + Tailwind/build 1:1 do AI Studio). O flyer exporta
+  com o `exportarPng` local (mesma correção de fontes) em `pixelRatio: 2` → **1500px**; o
+  `zoom: .75` do wrapper não afeta a captura (medido). "Histórico" só aparece na aba de
+  orçamentos.
+- Build de arquivo único **validado** (`dist/index.html` ~677 kB, CSS+JS+fontes embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
   histórico; **não** entra no PNG/tabela de saída (decisão do usuário). No histórico aparece
@@ -65,8 +76,8 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.3.2`** com
-  `Orcamento-v0.3.2.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.4.0`** com
+  `Orcamento-v0.4.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -84,14 +95,20 @@ orcamento_web/
   src/
     main.tsx                 entrada (StrictMode)
     index.css                @import "tailwindcss"; @utility scrollbar-hide; @media print
-    App.tsx                  tela (entradas + resumo + tabela + export)
+    App.tsx                  SHELL: header + abas (Orçamentos | Tire Flyer)
     types.ts                 tipos (QuoteSummary, QuoteItem)
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
     utils/historico.ts       HISTÓRICO local (localStorage) + backup/restaurar JSON
+    utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
+    components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/NeonCard.tsx  card com borda neon
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
     components/HistoryModal.tsx painel do histórico (abrir/excluir/limpar/backup)
-  tests/                     vitest: quote_logic, historico, app_smoke (jsdom)
+    tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
+    tire/components/Flyer.tsx flyer 750px (layout de saída, 1:1 do AI Studio)
+    tire/utils/parser.ts     parse da tabela de pneus (TABs) + preço BRL
+    tire/types.ts            TireData / PromoInfo
+  tests/                     vitest: quote_logic, historico, export_image, tire_flyer, app_smoke
   dist/index.html            BUILD = arquivo único entregue ao usuário
 ```
 
@@ -145,6 +162,9 @@ npm run build        # gera dist/index.html (arquivo único)
   estável (abrir sempre do mesmo caminho) e há o backup JSON.
 - **Placa** é dado **só do histórico** (não aparece no PNG enviado ao cliente) e **entra na
   comparação de duplicidade**: mesma placa substitui o último; placa diferente = novo registro.
+- **Flyer de pneus também é layout de saída**: 750px, `font-sans` do sistema e emojis (igual ao
+  app original) e export em `pixelRatio: 2` (1500px). Não trocar fonte/cor/estrutura nem pôr
+  `zoom` no `body` — o `zoom` do wrapper do preview é seguro (`clientWidth` segue 750).
 - **Sem IA, sem servidor, sem login, sem nuvem.**
 
 ## 7. Decisões do usuário (registradas)
@@ -156,6 +176,8 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Interface a 75%** (v0.3.0): o usuário usava o Chrome a 75%; o app já vem nesse tamanho.
 - **Seleção de itens no orçamento** (v0.3.0): caixinhas para marcar/desmarcar; desmarcado não
   entra no PNG do cliente.
+- **Segunda aba "Tire Flyer"** (v0.4.0), no header ao lado da marca, para o gerador de promoção
+  de pneus; as duas abas ficam montadas para não perder o que foi digitado.
 
 ## 8. Pendências
 

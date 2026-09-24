@@ -82,6 +82,33 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
   });
 
+  it('aba Tire Flyer: renderiza o flyer com os dados padrão', () => {
+    render(<App />);
+    fireEvent.click(screen.getByText('Tire Flyer'));
+
+    expect(screen.getByText('TIRE FLYER')).toBeTruthy();
+    expect(screen.getByText('265/60R18')).toBeTruthy();
+    expect(screen.getByText('Firestone')).toBeTruthy();
+    expect(screen.getByText('Michelin LTX Trail')).toBeTruthy();
+    expect(screen.getByText('ESTOQUE: 12 UN')).toBeTruthy();
+    expect(screen.getAllByText('SOB ENCOMENDA').length).toBe(3); // Firestone, BF Goodrich e Dunlop
+  });
+
+  it('aba Tire Flyer: processar atualiza o flyer', () => {
+    render(<App />);
+    fireEvent.click(screen.getByText('Tire Flyer'));
+    fireEvent.change(screen.getByPlaceholderText('Cole aqui a tabela de pneus...'), {
+      target: {
+        value: `${['205/55R16', 'MARCA', 'À PRAZO', 'À VISTA', 'ESTOQUE'].join('\t')}\n${['1', 'Pirelli', 'R$ 500,00', 'R$ 450,00', '3'].join('\t')}`,
+      },
+    });
+    fireEvent.click(screen.getByText(/Processar e Atualizar Flyer/i));
+
+    expect(screen.getByText('205/55R16')).toBeTruthy();
+    expect(screen.getByText('Pirelli')).toBeTruthy();
+    expect(screen.getByText('ESTOQUE: 3 UN')).toBeTruthy();
+  });
+
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {
     localStorage.setItem(
       'orcamentos_historico_v1',

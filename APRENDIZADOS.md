@@ -5,6 +5,42 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Nova aba "TIRE FLYER" (promoção de pneus) (v0.4.0)
+
+**Pedido:** uma nova aba no header (onde está "Toyota Weiand Lajeado") com o app **Tire Flyer**
+(feito no AI Studio): cola a tabela de pneus e gera um flyer 750px para WhatsApp. Arquivos
+recebidos: `App.tsx`, `types.ts`, `utils/parser.ts`, `components/Flyer.tsx`, `index.html`
+(CDN do Tailwind/html-to-image + Inter), `index.tsx`, `package.json` (**não existe `index.css`**
+— a base é o `<style>` do `index.html`).
+
+**Feito:**
+- `src/App.tsx` virou **shell**: header compartilhado + abas **Orçamentos** / **Tire Flyer**
+  (azul/verde). O botão "Histórico" aparece só na aba de orçamentos. As duas abas ficam
+  **montadas** (a inativa com `hidden`) para trocar de aba **sem perder** o que foi digitado.
+- Orçamentos movido 1:1 para `src/components/OrcamentosApp.tsx` (recebe
+  `historicoAberto`/`onFecharHistorico` do shell; o resto intacto).
+- Tire Flyer em `src/tire/` 1:1 (`types.ts`, `utils/parser.ts`, `components/Flyer.tsx`,
+  `TireFlyerApp.tsx`); única troca: o `window.htmlToImage` (CDN) virou o `exportarPng` local
+  (`../utils/exportImage`), então o flyer também não sofre a **redução de 0,1px** de fonte na
+  captura (mesma causa do vão corrigido na v0.3.2).
+- Aba com `.ui-compacta` (75%) como o resto do app; o preview fica com 562px, mas o `zoom`
+  **não afeta a captura** (testado: `clientWidth` continua 750 → PNG **1500px** com
+  `pixelRatio: 2`, igual ao original).
+- `DEFAULT_INPUT` usa **TABs de verdade** entre colunas (conferido com `cat -A`).
+- Testes: **40** (6 novos de `parsePreco`/`formatarPreco`/`parseInput` + 2 de UI da aba).
+
+**Validação (Playwright no build):** troca de abas, "Histórico" some/volta, "Processar e
+Atualizar Flyer" atualiza o preview, download `Promocao-265-60R18.png` = **1500x3728**
+(750 × 2), e o PNG de orçamento segue 2688 de largura (nada mexido).
+
+**Gotchas:**
+- O flyer usa `font-sans` (stack do sistema) e emojis 🎁/🛡️ — igual ao app original; no Linux
+  headless o emoji vira quadradinho, no Windows renderiza normal. **Não** trocar para Inter sem
+  pedido (muda o layout do PNG que o cliente já recebe).
+- Como `getImageSize` do html-to-image usa `clientWidth`, o `zoom: .75` do wrapper não deforma
+  o PNG. Não "consertar" isso pondo zoom no `body`.
+- `Flyer` tipado com `React.RefObject<HTMLDivElement | null>` (React 19).
+
 ## 2026-09-24 — PNG: último item não realizado longe do "Total Não Realizado" (v0.3.2)
 
 **Pedido:** ao gerar o PNG, o último item da caixa "Itens Não Realizados" ficava **longe**
