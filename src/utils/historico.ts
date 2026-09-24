@@ -11,6 +11,9 @@ export interface OrcamentoSalvo {
   revPecasInput: string;
   desconto: number;
   parcelas: number;
+  // Quantidade de itens do orçamento (para a lista do histórico).
+  // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
+  numItens?: number;
   // Retrato do resultado no momento (só para a lista; ao abrir, é recalculado).
   totalPecasGeral: number;
   totalServicosGeral: number;
@@ -115,10 +118,15 @@ export async function importarBackup(arquivo: File): Promise<number> {
   return importados.length;
 }
 
+/** Conta os itens da descrição (linhas que começam com um número). */
+export function contarItensDaDescricao(descricao: string): number {
+  return descricao.split('\n').filter((l) => /^\s*\d/.test(l)).length;
+}
+
 /** Resumo do resultado para a lista do histórico (sem recalcular). */
 export function retratoDoResumo(s: QuoteSummary): Pick<
   OrcamentoSalvo,
-  'totalPecasGeral' | 'totalServicosGeral' | 'valorDescontoTotal' | 'valorLiquidoFinal' | 'totalGeral'
+  'totalPecasGeral' | 'totalServicosGeral' | 'valorDescontoTotal' | 'valorLiquidoFinal' | 'totalGeral' | 'numItens'
 > {
   return {
     totalPecasGeral: s.totalPecasGeral,
@@ -126,5 +134,6 @@ export function retratoDoResumo(s: QuoteSummary): Pick<
     valorDescontoTotal: s.valorDescontoTotal,
     valorLiquidoFinal: s.valorLiquidoFinal,
     totalGeral: s.totalGeral,
+    numItens: s.items.length,
   };
 }

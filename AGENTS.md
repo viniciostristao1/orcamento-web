@@ -29,14 +29,16 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
 - **Exportar PNG**: já no `QuoteTable` (botão "BAIXAR IMAGEM (ALTA QUALIDADE)",
   `html-to-image` em `pixelRatio: 3`) + "IMPRIMIR / PDF" (impressão do Chrome).
 - **Histórico implementado**: `utils/historico.ts` (localStorage `orcamentos_historico_v1`,
-  salva a cada "Processar Tudo", sem duplicar dados iguais) + `components/HistoryModal.tsx`
-  (abrir/excluir/limpar, **backup e restaurar JSON**). Botão "Histórico" no header.
-- Testes: **17 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+  salva a cada "Processar Tudo", sem duplicar dados iguais; guarda **até 100** orçamentos e o
+  **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
+  restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
+  fonte maior (v0.2.2).
+- Testes: **18 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.1`** com
-  `Orcamento-v0.2.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.2`** com
+  `Orcamento-v0.2.2.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -118,7 +120,7 @@ npm run build        # gera dist/index.html (arquivo único)
 
 ## 8. Pendências
 
-- Usuário **testar no Chrome** (abrir `dist/index.html` pelo arquivo) e validar a lógica com
-  1–2 casos reais (entrada → saída esperada).
-- Publicar o `.html` (repo GitHub + Release → link fixo) — decidir público/privado.
-- Só então considerar a migração concluída.
+- Usuário **testar no Chrome** (abrir o `.html` baixado) e validar a lógica com 1–2 casos
+  reais (entrada → saída esperada). Feedback → nova versão.
+- Se o usuário mandar o `index.css` original do AI Studio, conferir se ele sobrescreve
+  `font-mono` (hoje o textarea usa o mono do sistema, igual ao original).

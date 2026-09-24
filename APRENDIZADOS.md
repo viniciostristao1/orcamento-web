@@ -5,6 +5,24 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Histórico: nº de itens + fonte maior (v0.2.2)
+
+**Pedido:** na tela do Histórico, fonte um pouco maior e, ao lado de data/hora, o **número de
+itens** do orçamento.
+
+**Feito:**
+- `OrcamentoSalvo.numItens?: number`; `retratoDoResumo` agora grava `items.length`. Registros
+  antigos (sem o campo) caem no fallback `contarItensDaDescricao()` (conta linhas que começam
+  com número — mesmo critério do parser).
+- `HistoryModal`: data/hora 11px → **13px** com `· N itens` em azul; descrição `text-sm` →
+  `text-base`; linha Revisão/Peças/Serviços/Líquido `text-xs` → `text-sm` (valor do líquido
+  `text-base`).
+- Testes: 18 (novo caso de `contarItensDaDescricao` + smoke conferindo `numItens: 3` salvo).
+
+**Gotcha:** o campo é **opcional** de propósito — o histórico já salvo no navegador do usuário
+não tem `numItens`; sem o fallback a lista mostraria "undefined" após a atualização. Sempre que
+adicionar campo ao registro do histórico, prever o fallback dos dados antigos.
+
 ## 2026-09-24 — Fonte igual à do AI Studio: Inter + JetBrains Mono embutidas (v0.2.1)
 
 **Problema:** o `.html` saía com a fonte padrão do Tailwind (Segoe UI no Windows), diferente

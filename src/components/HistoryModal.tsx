@@ -3,6 +3,7 @@ import { Database, FolderOpen, Trash2, Upload, X } from 'lucide-react';
 import {
   type OrcamentoSalvo,
   baixarBackup,
+  contarItensDaDescricao,
   importarBackup,
   limparHistorico,
   listarHistorico,
@@ -108,10 +109,16 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
               Nenhum orçamento salvo ainda.
             </p>
           )}
-          {lista.map((r) => (
+          {lista.map((r) => {
+            const itens = r.numItens ?? contarItensDaDescricao(r.descReparo);
+            return (
             <div key={r.id} className="border border-slate-800 rounded-2xl p-4 bg-slate-950/40 hover:border-slate-700 transition-colors">
               <div className="flex items-center justify-between gap-4 mb-2">
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">{r.criadoEm}</span>
+                <span className="text-[13px] font-black uppercase tracking-widest text-slate-500">
+                  {r.criadoEm}
+                  <span className="text-slate-600"> · </span>
+                  <span className="text-blue-300">{itens} {itens === 1 ? 'item' : 'itens'}</span>
+                </span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -130,17 +137,18 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   </button>
                 </div>
               </div>
-              <p className="text-sm text-slate-300 font-bold truncate">
+              <p className="text-base text-slate-300 font-bold truncate">
                 {r.descReparo.split('\n').filter((l) => l.trim()).join(' · ') || '(sem descrição)'}
               </p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-xs font-bold text-slate-500">
+              <div className="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-sm font-bold text-slate-500">
                 <span>Revisão: <span className="text-slate-300">{r.revAprovadaInput}</span></span>
                 <span>Peças: <span className="text-slate-300">{formatCurrency(r.totalPecasGeral)}</span></span>
                 <span>Serviços: <span className="text-slate-300">{formatCurrency(r.totalServicosGeral)}</span></span>
-                <span>Líquido: <span className="text-blue-300 text-sm">{formatCurrency(r.valorLiquidoFinal)}</span></span>
+                <span>Líquido: <span className="text-blue-300 text-base">{formatCurrency(r.valorLiquidoFinal)}</span></span>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

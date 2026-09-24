@@ -35,5 +35,6 @@ describe('App — smoke test (render + processar)', () => {
     const salvo = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
     expect(salvo.length).toBe(1);
     expect(salvo[0].descReparo).toContain('PASTILHAS');
+    expect(salvo[0].numItens).toBe(3);
   });
 });

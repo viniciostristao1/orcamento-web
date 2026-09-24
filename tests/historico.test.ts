@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   adicionarAoHistorico,
+  contarItensDaDescricao,
   importarBackup,
   limparHistorico,
   listarHistorico,
@@ -48,6 +49,12 @@ describe('histórico (localStorage)', () => {
     adicionarAoHistorico({ ...base, descReparo: '2 Y' });
     const lista = listarHistorico();
     expect(lista[0].descReparo).toBe('2 Y');
+  });
+
+  it('conta os itens da descrição (linhas que começam com número)', () => {
+    expect(contarItensDaDescricao('01 TR PASTILHAS\n02 OXI\n03 TR BORRACHA')).toBe(3);
+    expect(contarItensDaDescricao('sem numero\n\n 4 COM ESPACO')).toBe(1);
+    expect(contarItensDaDescricao('')).toBe(0);
   });
 
   it('importa backup mesclando por id (não duplica)', async () => {
