@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Barra de rolagem oculta nos textareas do orçamento (classe usada no App). */
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+}
