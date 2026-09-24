@@ -126,8 +126,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
           <div className="xl:col-span-4 space-y-8">
             {/* Histórico saiu do cabeçalho (deixa o topo igual nas 3 abas) e
-                ficou ao lado do card APROVADO E DESCONTO. */}
-            <div className="flex justify-end -mb-4">
+                fica à direita, ACIMA do card APROVADO E DESCONTO (fora da caixa). */}
+            <div className="flex justify-end">
               <button
                 type="button"
                 onClick={onAbrirHistorico}

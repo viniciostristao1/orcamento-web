@@ -5,6 +5,19 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Fonte do campo de pneus = campo do orçamento + Histórico fora da caixa (v0.7.3)
+
+**Pedido:** (1) o conteúdo de "DADOS DA TABELA" (pneus) com a **mesma fonte/tamanho** do campo
+de "DADOS DO ORÇAMENTO"; (2) o botão **Histórico** estava atrás do card APROVADO E DESCONTO —
+deixá-lo à direita, fora da caixinha.
+
+**Feito:**
+- Textarea dos pneus: `text-base` → **`text-lg leading-relaxed`** (agora igual ao do orçamento:
+  mono 18px, line-height 29,25px — conferido por `getComputedStyle`).
+- Histórico: removido o `-mb-4` que puxava o card por cima do botão (o card pinta depois e
+  cobria a borda inferior). Agora fica **acima e à direita** do card, fora da caixa (vão ~25px).
+- PNGs do orçamento/flyer seguem **0 diferenças**. Testes: 44.
+
 ## 2026-09-24 — Cabeçalho padrão nas 3 abas + Histórico ao lado do APROVADO E DESCONTO (v0.7.2)
 
 **Pedido:** padronizar o cabeçalho das abas (no Orçamentos o botão Histórico fazia o título

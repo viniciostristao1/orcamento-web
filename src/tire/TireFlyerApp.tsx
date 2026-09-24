@@ -92,7 +92,7 @@ const TireFlyerApp: React.FC = () => {
             actions={<ClearButton onClick={handleClear} label="Limpar Texto" />}
           >
             <textarea
-              className="campo-tema w-full h-[250px] p-6 font-mono text-base border border-slate-800 rounded-2xl focus:border-blue-500 outline-none transition-colors resize-none text-emerald-50 placeholder-slate-700 overflow-x-auto whitespace-pre scrollbar-hide"
+              className="campo-tema w-full h-[250px] p-6 text-lg font-mono leading-relaxed border border-slate-800 rounded-2xl focus:border-blue-500 outline-none transition-colors resize-none text-emerald-50 placeholder-slate-700 overflow-x-auto whitespace-pre scrollbar-hide"
               placeholder="Cole aqui a tabela de pneus..."
               value={inputText}
               wrap="off"
