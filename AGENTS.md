@@ -77,7 +77,8 @@ serifada).
   com o `exportarPng` local (mesma correção de fontes) em `pixelRatio: 2` → **1500px**; o
   `zoom: .75` do wrapper não afeta a captura (medido). "Histórico" só aparece na aba de
   orçamentos. O `main` é condicional (v0.4.1, ajustado na v0.4.2): orçamentos
-  `max-w-[1050px] pt-8`, Tire Flyer/Whats `max-w-[1400px] pt-3` — o campo "Dados da Tabela"
+  `max-w-[1050px]`, Tire Flyer/Whats `max-w-[1400px]`; o `pt-3` do `main` vale para as três
+  (v0.8.1) — o campo "Dados da Tabela"
   fica largo (~882px em 1366, ~927px em 1600+) **sem rolagem lateral**. O campo do flyer tem
   `h-[250px]` e o **preview** aparece na metade (`w-[375px]` + `transform: scale(.5)` com altura
   medida por `ResizeObserver`) — **nunca usar `zoom` no preview**: zoom aninhado arredonda o
@@ -111,8 +112,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.0`** com
-  `Orcamento-v0.8.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.1`** com
+  `Orcamento-v0.8.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

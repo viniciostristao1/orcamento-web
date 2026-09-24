@@ -5,6 +5,14 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Menos espaço acima do título ORÇAMENTOS (v0.8.1)
+
+**Pedido:** reduzir o espaço acima do título "ORÇAMENTOS".
+
+**Feito:** o `main` do shell usava `pt-8` na aba de orçamentos; agora é **`pt-3` para as três
+abas** (o Tire Flyer/Whats já somavam o `pt-1` do root). Gap medido: **32px → 12px**. PNGs:
+0 diferenças. Testes: 44.
+
 ## 2026-09-24 — Botões só com ícone + fundo do Claude atrás dos cards em preto (v0.8.0)
 
 **Pedidos:** (1) os botões devem ser **apenas ícone** (Histórico, Limpar, Limpar Texto,
