@@ -5,6 +5,19 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Publicação (repo público + Release) — v0.2.0
+
+**Feito:** repo público **`viniciostristao1/orcamento-web`** criado e código enviado
+(`gh repo create ... --source=. --push`). Release **`v0.2.0`** com **dois assets**:
+`Orcamento-v0.2.0.html` (nome com versão, escolha do usuário) e `Orcamento.html`
+(nome estável, para o link fixo). Links verificados (200):
+- Página: `https://github.com/viniciostristao1/orcamento-web/releases/latest`
+- Arquivo: `https://github.com/viniciostristao1/orcamento-web/releases/latest/download/Orcamento.html`
+
+**Gotcha:** no `file://`, o `localStorage` é atrelado à origem do navegador — abrir sempre o
+**mesmo caminho/arquivo** mantém o histórico; trocar o nome do arquivo pode perdê-lo (por isso
+o asset de nome estável + o backup JSON).
+
 ## 2026-09-24 — Componentes reais + Exportar PNG + Histórico (v0.2.0)
 
 **Feito:**

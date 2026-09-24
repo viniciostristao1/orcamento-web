@@ -35,8 +35,10 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
-- **Falta**: testar no Chrome do usuário e publicar o `.html` (repo GitHub + Release → link
-  fixo).
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release `v0.2.0` com
+  `Orcamento-v0.2.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+  `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
+- **Falta**: o usuário abrir no Chrome e validar com casos reais; feedback → nova versão.
 
 ## 3. Arquitetura / estrutura
 
@@ -81,9 +83,11 @@ npm run build        # gera dist/index.html (arquivo único)
 4. Anexar o bloco em [`APRENDIZADOS.md`](APRENDIZADOS.md) (o que mudou + decisões + gotchas).
 5. Subir a versão em `package.json`.
 6. `git commit && git push`.
-7. Publicar o `dist/index.html` renomeado (ex.: `orcamento.html`) no **Release** do repo e
-   mandar ao usuário o **link fixo (latest)**; ele substitui o arquivo local. **Nunca** mandar
-   link versionado.
+7. Publicar no Release do repo público `viniciostristao1/orcamento-web`:
+   `cp dist/index.html /tmp/Orcamento-vX.Y.Z.html` →
+   `gh release create vX.Y.Z /tmp/Orcamento-vX.Y.Z.html -t "Orçamentos vX.Y.Z" ...` e subir
+   também uma cópia `Orcamento.html` (nome estável) no mesmo Release. Mandar ao usuário a
+   **página `releases/latest`** + o nome do arquivo novo.
 
 ## 6. Regras duras (não quebrar)
 
@@ -94,7 +98,9 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Layout de saída é contrato**: a tabela/resumo devem continuar iguais aos do AI Studio
   (o cliente recebe esse print).
 - **Histórico**: `localStorage` + **backup/restaurar JSON** (o usuário pode limpar o navegador
-  ou trocar de PC). Salvar a cada "Processar Tudo".
+  ou trocar de PC). Salvar a cada "Processar Tudo". O `localStorage` no `file://` é por origem
+  do navegador — para não depender disso, o Release publica também o `Orcamento.html` de nome
+  estável (abrir sempre do mesmo caminho) e há o backup JSON.
 - **Sem IA, sem servidor, sem login, sem nuvem.**
 
 ## 7. Decisões do usuário (registradas)
