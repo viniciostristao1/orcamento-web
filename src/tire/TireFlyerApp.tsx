@@ -78,7 +78,7 @@ const TireFlyerApp: React.FC = () => {
       <div className="max-w-[1150px] mx-auto">
       <header className="mb-8 text-left border-b border-slate-800 pb-6">
         <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase mb-1">
-          DASHBOARD <span className="text-blue-500">TIRE FLYER</span>
+          TIRE <span className="text-blue-500">FLYER</span>
         </h1>
         <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Painel de Controle de Ofertas</p>
       </header>

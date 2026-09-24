@@ -5,6 +5,28 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Títulos das abas, maiúsculas no orçamento, histórico maior, Claude mais escuro (v0.7.7)
+
+**Pedidos (em sequência):** (1) "TIRE FLYER" no lugar de "DASHBOARD TIRE FLYER" (TIRE branco,
+FLYER na cor do tema); (2) título **"ORÇAMENTOS"** acima do card 1, na cor do tema;
+(3) cards **"1. DESCRIÇÃO DO REPARO"** e **"3. AJUSTES MANUAIS (ID VALOR)"** só em maiúsculas
+como o card 2; (4) **fonte maior dentro do histórico**; (5) fundo do **Claude mais escuro**.
+
+**Feito:**
+- Tire Flyer: `<h1>TIRE <span class="text-blue-500">FLYER</span></h1>` (o acento vira laranja no
+  tema Claude via remap).
+- Orçamentos: header interno `ORÇAMENTOS` (texto todo na cor de acento) dentro de `.ui-compacta`,
+  com a mesma borda inferior das outras abas.
+- Títulos dos cards 1 e 3 passaram a ser **maiúsculos no código-fonte** — o tema Claude remove o
+  `text-transform` dos títulos (`.titulo-tema`), então só o texto-fonte garante maiúsculas nos
+  dois temas.
+- Histórico: data `13px→16px`, descrição `base→lg`, linha de valores `sm→base` (Líquido `base→lg`),
+  busca/mensagens `sm→base`.
+- Claude: fundo `#0a0a09 → #070706`, campo `#030303`, painel `#0e0e0d`, bordas
+  `#1c1c1a/#2b2b28`.
+- Testes atualizados (título da aba com `getByRole('heading', …)` e título do card 1 maiúsculo):
+  **44**. PNGs do orçamento/flyer: **0 diferenças**.
+
 ## 2026-09-24 — Aba Whats com o título colado no topo (v0.7.6)
 
 **Pedido:** reduzir o espaço entre "PAINEL WHATSAPP" e a barra superior (Toyota Weiand Lajeado).

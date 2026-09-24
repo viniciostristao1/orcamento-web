@@ -30,7 +30,8 @@ describe('App — smoke test (render + processar)', () => {
   it('renderiza a tela com os textos principais', () => {
     render(<App />);
     expect(screen.getByText(/Toyota Weiand/i)).toBeTruthy();
-    expect(screen.getByText('1. Descrição do Reparo')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' })).toBeTruthy();
+    expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
     expect(screen.getByText(/Processar Tudo/i)).toBeTruthy();
@@ -109,7 +110,7 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByText('Tire Flyer'));
 
-    expect(screen.getByText('TIRE FLYER')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'TIRE FLYER' })).toBeTruthy();
     expect(screen.getByText('265/60R18')).toBeTruthy();
     expect(screen.getByText('Firestone')).toBeTruthy();
     expect(screen.getByText('Michelin LTX Trail')).toBeTruthy();

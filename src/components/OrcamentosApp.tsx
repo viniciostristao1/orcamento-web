@@ -95,10 +95,16 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   return (
     <>
+      <div className="ui-compacta print:hidden">
+        <header className="mb-8 border-b border-slate-800 pb-6">
+          <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase text-blue-500">ORÇAMENTOS</h1>
+        </header>
+      </div>
+
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 print:hidden ui-compacta">
           <div className="xl:col-span-8 space-y-10">
             <NeonCard
-              title="1. Descrição do Reparo"
+              title="1. DESCRIÇÃO DO REPARO"
               borderColor="blue-500"
               actions={
                 <div className="flex items-center gap-2">
@@ -129,7 +135,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
             
-            <NeonCard title="3. Ajustes Manuais (ID VALOR)" borderColor="#f59e0b" actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
+            <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
               <textarea 
                 className="w-full h-32 campo-tema border border-slate-800 rounded-2xl p-6 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
                 placeholder="Ex: 1 50,00" 

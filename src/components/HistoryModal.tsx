@@ -129,7 +129,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Pesquisar por data ou placa… (ex.: 24/09 ou ABC1D23)"
-                className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none"
+                className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-base font-bold text-slate-200 focus:border-blue-500 outline-none"
               />
               {busca && (
                 <button
@@ -142,25 +142,25 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 </button>
               )}
             </div>
-            <span className="text-xs font-bold text-slate-500 whitespace-nowrap">
+            <span className="text-sm font-bold text-slate-500 whitespace-nowrap">
               {visiveis.length} de {lista.length}
             </span>
           </div>
         )}
 
         {msg && (
-          <div className="px-6 py-3 text-sm font-bold text-blue-300 bg-blue-600/10 border-b border-blue-500/20">{msg}</div>
+          <div className="px-6 py-3 text-base font-bold text-blue-300 bg-blue-600/10 border-b border-blue-500/20">{msg}</div>
         )}
 
         {/* Lista */}
         <div className="overflow-y-auto p-4 space-y-3">
           {lista.length === 0 && (
-            <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-sm">
+            <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-base">
               Nenhum orçamento salvo ainda.
             </p>
           )}
           {lista.length > 0 && visiveis.length === 0 && (
-            <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-sm">
+            <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-base">
               Nenhum orçamento encontrado.
             </p>
           )}
@@ -169,7 +169,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
             return (
             <div key={r.id} className="border border-slate-800 rounded-2xl p-4 bg-slate-950/40 hover:border-slate-700 transition-colors">
               <div className="flex items-center justify-between gap-4 mb-2">
-                <span className="text-[13px] font-black uppercase tracking-widest text-slate-500">
+                <span className="text-base font-black uppercase tracking-widest text-slate-500">
                   {r.criadoEm}
                   <span className="text-slate-600"> · </span>
                   <span className="text-blue-300">{itens} {itens === 1 ? 'item' : 'itens'}</span>
@@ -198,14 +198,14 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   </button>
                 </div>
               </div>
-              <p className="text-base text-slate-300 font-bold truncate">
+              <p className="text-lg text-slate-300 font-bold truncate">
                 {r.descReparo.split('\n').filter((l) => l.trim()).join(' · ') || '(sem descrição)'}
               </p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-sm font-bold text-slate-500">
+              <div className="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-base font-bold text-slate-500">
                 <span>Revisão: <span className="text-slate-300">{r.revAprovadaInput}</span></span>
                 <span>Peças: <span className="text-slate-300">{formatCurrency(r.totalPecasGeral)}</span></span>
                 <span>Serviços: <span className="text-slate-300">{formatCurrency(r.totalServicosGeral)}</span></span>
-                <span>Líquido: <span className="text-blue-300 text-base">{formatCurrency(r.valorLiquidoFinal)}</span></span>
+                <span>Líquido: <span className="text-blue-300 text-lg">{formatCurrency(r.valorLiquidoFinal)}</span></span>
               </div>
             </div>
             );

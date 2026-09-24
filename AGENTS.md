@@ -45,7 +45,10 @@ serifada).
   Limpar); **RESUMO LÍQUIDO** na coluna da direita logo abaixo do APROVADO E DESCONTO com os
   valores empilhados; **preview do orçamento na metade** na tela
   (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
-  impressão sai normal). Claude com fundo `#0a0a09`.
+  impressão sai normal). Título interno **ORÇAMENTOS** na cor de acento (v0.7.7) e títulos dos
+  cards em **maiúsculas no texto-fonte** (o tema Claude tira o `text-transform`).
+- **Claude** (v0.7.7): fundo `#070706`, campo `#030303`, painel `#0e0e0d`; textos brancos.
+  Histórico com fontes maiores (data 16px, descrição 18px, valores 16px).
 - Testes: **44 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
@@ -104,8 +107,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.7.6`** com
-  `Orcamento-v0.7.6.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.7.7`** com
+  `Orcamento-v0.7.7.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
