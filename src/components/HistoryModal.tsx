@@ -71,9 +71,11 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
           <button
             type="button"
             onClick={onFechar}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-red-600 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
+            aria-label="Fechar"
+            title="Fechar"
+            className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
           >
-            <X size={16} /> Fechar
+            <X size={18} />
           </button>
         </div>
 
@@ -83,16 +85,20 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
             type="button"
             onClick={() => baixarBackup()}
             disabled={lista.length === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
+            aria-label="Backup (JSON)"
+            title="Backup (JSON)"
+            className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
           >
-            <Database size={16} /> Backup (JSON)
+            <Database size={18} />
           </button>
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
+            aria-label="Restaurar backup"
+            title="Restaurar backup"
+            className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
           >
-            <Upload size={16} /> Restaurar backup
+            <Upload size={18} />
           </button>
           <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={handleRestaurar} />
           <button
@@ -101,21 +107,25 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
               setBuscaAberta((v) => !v);
               setBusca('');
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-xs font-black uppercase border cursor-pointer active:scale-95 ${
+            aria-label="Pesquisar"
+            title="Pesquisar"
+            className={`flex items-center justify-center p-2.5 rounded-xl transition-all border cursor-pointer active:scale-95 ${
               buscaAberta
                 ? 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500'
                 : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
             }`}
           >
-            <Search size={16} /> Pesquisar
+            <Search size={18} />
           </button>
           <button
             type="button"
             onClick={handleLimpar}
             disabled={lista.length === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-red-600 disabled:opacity-40 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95 ml-auto"
+            aria-label="Limpar tudo"
+            title="Limpar tudo"
+            className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95 ml-auto"
           >
-            <Trash2 size={16} /> Limpar tudo
+            <Trash2 size={18} />
           </button>
         </div>
 
@@ -184,9 +194,11 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   <button
                     type="button"
                     onClick={() => onAbrir(r)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all text-xs font-black uppercase cursor-pointer active:scale-95"
+                    aria-label="Abrir orçamento"
+                    title="Abrir orçamento"
+                    className="flex items-center justify-center p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all cursor-pointer active:scale-95"
                   >
-                    <FolderOpen size={15} /> Abrir
+                    <FolderOpen size={16} />
                   </button>
                   <button
                     type="button"

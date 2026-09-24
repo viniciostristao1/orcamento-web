@@ -87,18 +87,20 @@ const BackupManager: React.FC<BackupManagerProps> = ({ contacts, messageTemplate
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10 mt-auto">
         <button
           onClick={handleExport}
-          className="flex items-center justify-center gap-3 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[13px] font-black tracking-widest transition-all shadow-lg shadow-blue-900/30 active:scale-95 uppercase cursor-pointer"
+          aria-label="Exportar base"
+          title="Exportar base"
+          className="flex items-center justify-center py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl transition-all shadow-lg shadow-blue-900/30 active:scale-95 cursor-pointer"
         >
-          <Download size={20} strokeWidth={3} />
-          Exportar Base
+          <Download size={24} strokeWidth={3} />
         </button>
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center justify-center gap-3 py-4 campo-tema hover:bg-slate-800/40 text-slate-400 border border-slate-800 rounded-2xl text-[13px] font-black tracking-widest transition-all active:scale-95 uppercase cursor-pointer"
+          aria-label="Importar"
+          title="Importar"
+          className="flex items-center justify-center py-4 campo-tema hover:bg-slate-800/40 text-slate-400 border border-slate-800 rounded-2xl transition-all active:scale-95 cursor-pointer"
         >
-          <Upload size={20} strokeWidth={3} />
-          Importar
+          <Upload size={24} strokeWidth={3} />
         </button>
       </div>
 

@@ -72,19 +72,21 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
         <button 
           type="button"
           onClick={handlePrint}
-          className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-4 rounded-xl transition-all shadow-lg active:scale-95 text-lg group cursor-pointer"
+          aria-label="Imprimir / PDF"
+          title="Imprimir / PDF"
+          className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
         >
-          <Printer size={22} className="group-hover:scale-110 transition-transform" />
-          IMPRIMIR / PDF
+          <Printer size={24} className="group-hover:scale-110 transition-transform" />
         </button>
         
         <button 
           type="button"
           onClick={handleDownloadImage}
-          className="flex items-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black px-8 py-4 rounded-xl transition-all shadow-lg active:scale-95 text-lg group cursor-pointer"
+          aria-label="Baixar imagem (alta qualidade)"
+          title="Baixar imagem (alta qualidade)"
+          className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
         >
-          <ImageIcon size={22} className="group-hover:scale-110 transition-transform" />
-          BAIXAR IMAGEM (ALTA QUALIDADE)
+          <ImageIcon size={24} className="group-hover:scale-110 transition-transform" />
         </button>
       </div>
 

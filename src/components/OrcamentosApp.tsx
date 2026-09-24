@@ -112,9 +112,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <button
                     type="button"
                     onClick={onAbrirHistorico}
-                    className="relative z-50 flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
+                    aria-label="Histórico"
+                    title="Histórico"
+                    className="relative z-50 flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
                   >
-                    <History size={16} /> Histórico
+                    <History size={18} />
                   </button>
                   <ClearButton onClick={() => setDescReparo('')} />
                 </div>

@@ -127,10 +127,11 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
         <button
           type="submit"
           disabled={count >= 200}
-          className="w-full mt-auto bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-5 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:bg-slate-800 disabled:text-slate-600 shadow-lg shadow-blue-900/30 active:scale-[0.98] text-lg uppercase tracking-tight cursor-pointer"
+          aria-label="Salvar Cliente"
+          title="Salvar Cliente"
+          className="w-full mt-auto bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl flex items-center justify-center transition-all disabled:bg-slate-800 disabled:text-slate-600 shadow-lg shadow-blue-900/30 active:scale-[0.98] cursor-pointer"
         >
-          <PlusCircle size={24} strokeWidth={3} />
-          Salvar Cliente
+          <PlusCircle size={26} strokeWidth={3} />
         </button>
       </form>
     </div>

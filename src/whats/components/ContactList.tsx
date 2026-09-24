@@ -182,16 +182,17 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
 
                         <button
                           onClick={() => handleSend(contact)}
-                          className={`py-1.5 rounded-lg transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-tight active:scale-95 ${
+                          aria-label={sent ? 'Concluído' : (isPast ? 'Atrasado — notificar' : 'Notificar')}
+                          title={sent ? 'Concluído' : (isPast ? 'Atrasado — notificar' : 'Notificar')}
+                          className={`p-2 rounded-lg transition-all flex items-center justify-center active:scale-95 cursor-pointer ${
                             sent 
-                            ? 'text-green-500 bg-green-600/10 border border-green-600/30 px-3' 
+                            ? 'text-green-500 bg-green-600/10 border border-green-600/30' 
                             : isPast 
-                              ? 'text-white bg-rose-600 hover:bg-rose-700 px-3'
-                              : 'text-white bg-blue-600 hover:bg-blue-500 px-4'
+                              ? 'text-white bg-rose-600 hover:bg-rose-700'
+                              : 'text-white bg-blue-600 hover:bg-blue-500'
                           }`}
                         >
-                          {sent ? <CheckCircle2 size={12} strokeWidth={3} /> : <Phone size={12} strokeWidth={2} />}
-                          <span>{sent ? 'CONCLUÍDO' : (isPast ? 'ATRASADO' : 'NOTIFICAR')}</span>
+                          {sent ? <CheckCircle2 size={16} strokeWidth={3} /> : <Phone size={16} strokeWidth={2} />}
                         </button>
 
                         <button

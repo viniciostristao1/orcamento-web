@@ -35,7 +35,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Processar Tudo/i })).toBeTruthy();
-    expect(screen.getByText(/Histórico/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Histórico/i })).toBeTruthy();
   });
 
   it('ao processar, mostra o resumo com os valores calculados', () => {
@@ -88,12 +88,12 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     expect(document.documentElement.dataset.tema).toBe('original');
 
-    fireEvent.click(screen.getByText('Configurações'));
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
     fireEvent.click(screen.getByText('Claude'));
     expect(document.documentElement.dataset.tema).toBe('claude');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('claude');
 
-    fireEvent.click(screen.getByText('Configurações'));
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
     fireEvent.click(screen.getByText('Original'));
     expect(document.documentElement.dataset.tema).toBe('original');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('original');
@@ -126,7 +126,7 @@ describe('App — smoke test (render + processar)', () => {
         value: `${['205/55R16', 'MARCA', 'À PRAZO', 'À VISTA', 'ESTOQUE'].join('\t')}\n${['1', 'Pirelli', 'R$ 500,00', 'R$ 450,00', '3'].join('\t')}`,
       },
     });
-    fireEvent.click(screen.getByText(/Processar e Atualizar Flyer/i));
+    fireEvent.click(screen.getByRole('button', { name: /Processar e Atualizar Flyer/i }));
 
     expect(screen.getByText('205/55R16')).toBeTruthy();
     expect(screen.getByText('Pirelli')).toBeTruthy();
@@ -154,7 +154,7 @@ describe('App — smoke test (render + processar)', () => {
 
     fireEvent.change(screen.getByPlaceholderText('Ex: WEIAND VEICULOS LTDA'), { target: { value: 'JOAO DA SILVA' } });
     fireEvent.change(screen.getByPlaceholderText('555199999999'), { target: { value: '51999999999' } });
-    fireEvent.click(screen.getByText('Salvar Cliente'));
+    fireEvent.click(screen.getByRole('button', { name: /Salvar Cliente/i }));
 
     expect(screen.getByText('JOAO DA SILVA')).toBeTruthy();
     const salvos = JSON.parse(localStorage.getItem('zap_contacts') ?? '[]');
@@ -175,7 +175,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('ABC1D23')).toBeTruthy();
     expect(screen.getByText('XYZ9A87')).toBeTruthy();
 
-    fireEvent.click(screen.getByText(/Pesquisar/i));
+    fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), {
       target: { value: 'abc-1d23' },
     });

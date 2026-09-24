@@ -5,7 +5,7 @@ import { Flyer } from './components/Flyer';
 import { exportarPng } from '../utils/exportImage';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
-import { Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Play, Image as ImageIcon } from 'lucide-react';
 
 const DEFAULT_INPUT = `265/60R18	MARCA/MODELO	À PRAZO 10x	À VISTA (10%)	ESTOQUE
 4265292105	Firestone	R$ 1.115,48	R$ 1.004,28	0
@@ -101,9 +101,12 @@ const TireFlyerApp: React.FC = () => {
 
             <button
               onClick={handleProcess}
-              className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl shadow-2xl transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] active:scale-[0.98] text-lg"
+              type="button"
+              aria-label="Processar e Atualizar Flyer"
+              title="Processar e Atualizar Flyer"
+              className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] cursor-pointer"
             >
-              <Sparkles size={22} /> Processar e Atualizar Flyer
+              <Play size={28} fill="currentColor" />
             </button>
           </NeonCard>
 
@@ -133,9 +136,12 @@ const TireFlyerApp: React.FC = () => {
 
             <button
               onClick={handleDownload}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl shadow-2xl transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] active:scale-[0.98] text-lg"
+              type="button"
+              aria-label="Confirmar e Baixar Imagem"
+              title="Confirmar e Baixar Imagem"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] cursor-pointer"
             >
-              <ImageIcon size={22} /> Confirmar e Baixar Imagem
+              <ImageIcon size={28} />
             </button>
 
             <p className="mt-6 text-[10px] text-slate-600 font-black uppercase tracking-[0.4em] text-center">

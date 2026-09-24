@@ -41,14 +41,15 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ initialTemplate, onSave }
         </div>
         <button
           onClick={handleCopy}
-          className={`px-6 py-3 rounded-2xl border transition-all flex items-center gap-2.5 font-black text-[10px] uppercase tracking-widest shadow-sm ${
+          aria-label={copied ? 'Copiado' : 'Copiar'}
+          title={copied ? 'Copiado' : 'Copiar'}
+          className={`p-3 rounded-2xl border transition-all flex items-center justify-center shadow-sm cursor-pointer ${
             copied 
             ? 'bg-green-600 border-green-700 text-white' 
             : 'campo-tema border-slate-800 text-slate-400 hover:text-slate-100 hover:border-slate-600'
           }`}
         >
-          {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={2} />}
-          <span>{copied ? 'Copiado' : 'Copiar'}</span>
+          {copied ? <Check size={18} strokeWidth={3} /> : <Copy size={18} strokeWidth={2} />}
         </button>
       </div>
       

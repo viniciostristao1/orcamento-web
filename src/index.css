@@ -83,11 +83,11 @@
    títulos e conteúdo dos campos em serifada (aproximação da Tiempos) e cartões
    chapados. Fundo mais escuro que o do claude.ai a pedido do usuário. */
 [data-tema='claude'] {
-  --tema-fundo: #070706;
-  --tema-campo: #030303;
-  --tema-painel: #0e0e0d;
-  --tema-borda-forte: #1c1c1a;
-  --tema-borda-media: #2b2b28;
+  --tema-fundo: #000000;
+  --tema-campo: #000000;
+  --tema-painel: #0a0a09;
+  --tema-borda-forte: #171715;
+  --tema-borda-media: #262624;
   --tema-texto-fraco: #787878;
   --tema-texto-suave: #a1a1a1;
   --tema-texto-medio: #cccccc;

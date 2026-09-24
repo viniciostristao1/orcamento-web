@@ -5,6 +5,25 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Botões só com ícone + fundo do Claude atrás dos cards em preto (v0.8.0)
+
+**Pedidos:** (1) os botões devem ser **apenas ícone** (Histórico, Limpar, Limpar Texto,
+Imprimir/PDF, Baixar imagem etc.); (2) o fundo do tema Claude — o que fica **atrás das
+caixinhas** — mais escuro.
+
+**Feito:**
+- Todos os botões de ação ficaram **ícone-only**, com `aria-label` + `title` mantendo o texto
+  (acessibilidade, tooltip e testes/Playwright por `getByRole('button', { name })`):
+  ClearButton ("Limpar"/"Limpar Texto"), Histórico, Configurações, Imprimir/PDF, Baixar imagem,
+  play do processar (orçamento e flyer), Confirmar e Baixar Imagem, Salvar Cliente, Exportar
+  base, Importar, Copiar/Copiado, Pesquisar, Backup (JSON), Restaurar backup, Fechar,
+  Limpar tudo e Abrir orçamento. O "NOTIFICAR" da aba Whats virou ícone com rótulo por estado
+  (Notificar / Atrasado — notificar / Concluído).
+- Abas e opções de tema (que são escolha, não ação) continuam com texto.
+- Testes atualizados para clicar por `getByRole` — **44**; PNGs: **0 diferenças**.
+- Claude: `--tema-fundo` → **`#000000`** (o que aparece atrás dos cards); painel `#0a0a09` e
+  bordas `#171715/#262624` mantêm os cards visíveis.
+
 ## 2026-09-24 — Títulos centralizados, cards compactos e botão play (v0.7.8)
 
 **Pedidos (em sequência):** (1) remover o subtítulo "Painel de Controle de Ofertas";

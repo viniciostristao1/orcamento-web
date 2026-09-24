@@ -37,14 +37,15 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
       <button
         type="button"
         onClick={() => setAberto((a) => !a)}
+        aria-label="Configurações"
         title="Configurações"
-        className={`flex items-center gap-2 px-5 py-3 rounded-xl transition-all text-xs font-black uppercase border cursor-pointer active:scale-95 ${
+        className={`flex items-center justify-center p-3 rounded-xl transition-all border cursor-pointer active:scale-95 ${
           aberto
             ? 'bg-blue-600 text-white border-blue-500'
             : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
         }`}
       >
-        <Settings size={16} /> Configurações
+        <Settings size={18} />
       </button>
 
       {aberto && (
