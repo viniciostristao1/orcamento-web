@@ -76,28 +76,30 @@
   --tema-sombra-sucesso: oklch(39.3% 0.095 152.535);
   --tema-tracking-widest: 0.1em;
   --tema-fonte-titulo: 'Inter', sans-serif;
+  --tema-fonte-conteudo: 'Inter', sans-serif;
 }
 
 /* Claude = tema escuro (cinzas quentes + laranja), com tipografia própria:
-   títulos em serifada (aproximação da Tiempos) e cartões chapados. */
+   títulos e conteúdo dos campos em serifada (aproximação da Tiempos) e cartões
+   chapados. Fundo mais escuro que o do claude.ai a pedido do usuário. */
 [data-tema='claude'] {
-  --tema-fundo: #262624;
-  --tema-campo: #1f1f1e;
-  --tema-painel: #30302e;
-  --tema-borda-forte: #3e3e3a;
-  --tema-borda-media: #4d4c47;
-  --tema-texto-fraco: #7d7b72;
-  --tema-texto-suave: #a3a19a;
-  --tema-texto-medio: #b8b6ad;
-  --tema-texto-medio2: #d9d7ce;
-  --tema-texto: #ecebe5;
-  --tema-titulo: #f5f4ef;
+  --tema-fundo: #191918;
+  --tema-campo: #111110;
+  --tema-painel: #232321;
+  --tema-borda-forte: #343430;
+  --tema-borda-media: #45443e;
+  --tema-texto-fraco: #6f6d66;
+  --tema-texto-suave: #96948c;
+  --tema-texto-medio: #aeaca3;
+  --tema-texto-medio2: #d3d1c8;
+  --tema-texto: #e7e5de;
+  --tema-titulo: #f2f1ea;
   --tema-acento: #d97757;
   --tema-acento-2: #d97757;
   --tema-acento-claro: #e0956f;
   --tema-acento-clarissimo: #eeb8a4;
   --tema-acento-escuro: #be5b3c;
-  --tema-acento-texto: #f5f4ef;
+  --tema-acento-texto: #f2f1ea;
   --tema-sucesso: #d97757;
   --tema-sucesso-2: #d97757;
   --tema-sucesso-claro: #e0956f;
@@ -107,6 +109,7 @@
   --tema-sombra-sucesso: #3a2118;
   --tema-tracking-widest: 0.05em;
   --tema-fonte-titulo: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --tema-fonte-conteudo: 'Source Serif 4', Georgia, 'Times New Roman', serif;
 }
 
 /* Campo de conteúdo (textarea/input): no Claude fica mais escuro que o painel,
@@ -125,6 +128,14 @@
   font-weight: 600;
   letter-spacing: -0.01em;
   text-transform: none;
+}
+
+/* O que é digitado/colado nos campos também entra na fonte do Claude (inclusive
+   as tabelas mono: as colunas seguem alinhadas porque os TABs viram paradas). */
+[data-tema='claude'] textarea,
+[data-tema='claude'] input,
+[data-tema='claude'] select {
+  font-family: var(--tema-fonte-conteudo);
 }
 
 /* Estilo chapado do Claude: sem brilho neon, sem sombra nos botões, cantos
@@ -177,6 +188,7 @@
   --tema-sombra-sucesso: oklch(39.3% 0.095 152.535);
   --tema-tracking-widest: 0.1em;
   --tema-fonte-titulo: 'Inter', sans-serif;
+  --tema-fonte-conteudo: 'Inter', sans-serif;
 }
 
 /* Base idêntica à do index.html do AI Studio */

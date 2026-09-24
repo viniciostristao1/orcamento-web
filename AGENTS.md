@@ -47,8 +47,9 @@ da interface entre **Original** (azul/slate) e **Claude** (cinzas quentes + lara
   os tokens do Tailwind para `--tema-*`). Botão **Configurações** no header
   (`components/ConfiguracoesTema.tsx`). Logo Toyota transparente no header
   (`src/assets/logo_toyota.png`). No **Claude** os títulos/valores usam a serifada
-  (`@fontsource/source-serif-4`, classe `.titulo-tema`), sem glow nos cards e sem sombra nos
-  botões. **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
+  (`@fontsource/source-serif-4`, classe `.titulo-tema`), **o conteúdo dos campos também**
+  (`--tema-fonte-conteudo`), o fundo é mais escuro (`#191918`), sem glow nos cards e sem
+  sombra nos botões. **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
 - **Aba Tire Flyer** (v0.4.0): `src/App.tsx` = shell com as abas (as duas ficam montadas, a
   inativa com `hidden`, para não perder o que foi digitado); orçamentos em
@@ -88,8 +89,8 @@ da interface entre **Original** (azul/slate) e **Claude** (cinzas quentes + lara
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.6.0`** com
-  `Orcamento-v0.6.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.6.1`** com
+  `Orcamento-v0.6.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

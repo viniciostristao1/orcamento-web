@@ -5,6 +5,25 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Tema Claude: fonte no conteúdo dos campos + fundo mais escuro (v0.6.1)
+
+**Pedido:** (1) o que é digitado/colado nos campos também com as fontes do Claude; (2) o fundo
+do Claude mais escuro.
+
+**Feito:**
+- `--tema-fonte-conteudo` (Original = Inter; Claude = Source Serif 4) + regra
+  `[data-tema='claude'] textarea, input, select { font-family: var(--tema-fonte-conteudo) }`.
+  A serifada entra em tudo que se digita/cola: descrição, **DADOS DO ORÇAMENTO**, ajustes,
+  tabela de pneus, placa e busca do histórico. Na tabela de pneus as colunas continuam
+  alinhadas porque os TABs viram paradas fixas (não depende da fonte ser mono).
+- **Fundo mais escuro** (a pedido): Claude passou de `#262624` → **`#191918`** no fundo,
+  `#111110` no campo, `#232321` no painel; bordas/textos reajustados para manter contraste.
+- Saídas revalidadas pixel a pixel contra a v0.4.2: **0 diferenças** (a regra dos campos só
+  existe sob `[data-tema='claude']`, e os documentos de saída não têm campos). Testes: 42.
+
+**Gotcha:** se algum dia quiser a tabela de pneus em fonte mono no tema Claude, é só remover
+`textarea` da regra (o campo continua com a classe `font-mono` no tema Original).
+
 ## 2026-09-24 — Tema Claude com tipografia e acabamento do Claude (v0.6.0)
 
 **Pedido:** o tema Claude não devia ser só cores — "quero letras e estilo Claude".
