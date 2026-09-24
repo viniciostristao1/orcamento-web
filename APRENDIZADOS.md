@@ -5,6 +5,32 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Fonte igual à do AI Studio: Inter + JetBrains Mono embutidas (v0.2.1)
+
+**Problema:** o `.html` saía com a fonte padrão do Tailwind (Segoe UI no Windows), diferente
+do AI Studio. **Causa:** a fonte não estava nos componentes — vinha do `index.html`/CSS base,
+que não tínhamos.
+
+**Descoberta (index.html do AI Studio):** `body { font-family: 'Inter', sans-serif }`,
+`.font-mono-data { font-family: 'JetBrains Mono', monospace }`, fundo `#020617`,
+`::selection` azul e `.no-print` no print — com as fontes carregadas por `<link>` do Google
+Fonts (Inter 400/700/900 + JetBrains Mono 400/700) e Tailwind via **CDN**.
+
+**Fix (offline, sem CDN):**
+- `npm i @fontsource/inter @fontsource/jetbrains-mono` + `@import "@fontsource/inter/latin-400.css"`
+  (e 700/900) / `@import "@fontsource/jetbrains-mono/latin-400.css"` (e 700) no `src/index.css`.
+  O Vite inlineia os woff2 em **base64** (por causa do `assetsInlineLimit` alto) → continua
+  arquivo único e abre sem internet.
+- `index.css` replicou a base do original: `body` Inter + `#020617`, `.font-mono-data`,
+  `::selection`, `.no-print` e `@media print` com fundo branco.
+- Build passou de 294,67 kB → **646,94 kB** (gzip 354 kB) com 5 pesos de fonte em woff2+woff
+  embutidos. Aceitável para uso local.
+
+**Gotcha:** `font-mono` do Tailwind (textarea do orçamento) continua sendo o stack do sistema
+(Consolas no Windows) — é o mesmo comportamento do original (o `index.html` só definia
+`.font-mono-data`, que os componentes não usam). Se o `index.css` do AI Studio (ainda não
+recebido) sobrescrever `font-mono`, aí embutimos/trocamos para JetBrains.
+
 ## 2026-09-24 — Publicação (repo público + Release) — v0.2.0
 
 **Feito:** repo público **`viniciostristao1/orcamento-web`** criado e código enviado

@@ -1,6 +1,29 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Fontes do app original (AI Studio): Inter (texto) + JetBrains Mono (mono).
+   Embutidas via @fontsource → o build inline no arquivo único (abre offline). */
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-700.css";
+@import "@fontsource/inter/latin-900.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-700.css";
+
+/* Base idêntica à do index.html do AI Studio */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #020617;
+}
+
+.font-mono-data {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: white;
+}
+
 /* Barra de rolagem oculta nos textareas do orçamento (classe usada no App). */
 @utility scrollbar-hide {
   scrollbar-width: none;
@@ -15,5 +38,9 @@
   html,
   body {
     background: #fff !important;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }

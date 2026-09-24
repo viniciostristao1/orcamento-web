@@ -35,9 +35,14 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release `v0.2.0` com
-  `Orcamento-v0.2.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.1`** com
+  `Orcamento-v0.2.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
+- **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
+  (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
+  fundo `#020617`). As duas fontes são **embutidas** via `@fontsource/inter` +
+  `@fontsource/jetbrains-mono` (woff2 em base64 no build) — **nunca** usar `<link>` do Google
+  Fonts (quebraria o offline).
 - **Falta**: o usuário abrir no Chrome e validar com casos reais; feedback → nova versão.
 
 ## 3. Arquitetura / estrutura
@@ -92,7 +97,8 @@ npm run build        # gera dist/index.html (arquivo único)
 ## 6. Regras duras (não quebrar)
 
 - **Arquivo único e offline**: nada de CDN, fonte externa, imagem remota ou `fetch` em
-  runtime — senão não abre no `file://` / sem internet.
+  runtime — senão não abre no `file://` / sem internet. Fontes boas = `@fontsource/*`
+  importado no CSS (o Vite inlineia em base64 por causa do `assetsInlineLimit`).
 - **Export = PNG** (decisão do usuário: é o formato que ele manda no WhatsApp). PDF/Excel não
   são necessários; não trocar o fluxo sem pedido.
 - **Layout de saída é contrato**: a tabela/resumo devem continuar iguais aos do AI Studio
