@@ -129,7 +129,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Pesquisar por data ou placa… (ex.: 24/09 ou ABC1D23)"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none"
+                className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none"
               />
               {busca && (
                 <button

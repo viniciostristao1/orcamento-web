@@ -3,19 +3,10 @@ import { processQuote, formatCurrency, parseBrazilianNumber, recalcularComSeleca
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable from './QuoteTable';
-import { Trash2, Sparkles, Percent } from 'lucide-react';
+import { Sparkles, Percent } from 'lucide-react';
 import HistoryModal from './HistoryModal';
+import ClearButton from './ClearButton';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
-
-const ClearButton = ({ onClick }: { onClick: () => void }) => (
-  <button 
-    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClick(); }}
-    type="button"
-    className="relative z-50 flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-red-600 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
-  >
-    <Trash2 size={16} /> Limpar
-  </button>
-);
 
 interface OrcamentosAppProps {
   historicoAberto: boolean;
@@ -107,7 +98,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           <div className="xl:col-span-8 space-y-10">
             <NeonCard title="1. Descrição do Reparo" borderColor="blue-500" actions={<ClearButton onClick={() => setDescReparo('')}/>}>
               <textarea 
-                className="w-full h-56 bg-slate-950 border border-slate-800 rounded-2xl p-6 text-xl font-medium focus:border-blue-500 outline-none resize-none transition-colors" 
+                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-xl font-medium focus:border-blue-500 outline-none resize-none transition-colors" 
                 value={descReparo} 
                 onChange={(e) => setDescReparo(e.target.value)} 
               />
@@ -115,7 +106,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             
             <NeonCard title="2. DADOS DO ORÇAMENTO" borderColor="blue-600" actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}>
               <textarea 
-                className="w-full h-96 bg-slate-950 border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
+                className="w-full h-96 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
                 value={orcamentoRaw} 
                 onChange={(e) => setOrcamentoRaw(e.target.value)} 
                 wrap="off" 
@@ -124,7 +115,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             
             <NeonCard title="3. Ajustes Manuais (ID VALOR)" borderColor="#f59e0b">
               <textarea 
-                className="w-full h-32 bg-slate-950 border border-slate-800 rounded-2xl p-6 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
+                className="w-full h-32 campo-tema border border-slate-800 rounded-2xl p-6 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
                 placeholder="Ex: 1 50,00" 
                 value={ajustesManuais} 
                 onChange={(e) => setAjustesManuais(e.target.value)} 
@@ -139,7 +130,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Total Revisão (R$)</label>
                   <input 
                     type="text" 
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
+                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
                     value={revAprovadaInput} 
                     onChange={(e) => setRevAprovadaInput(e.target.value)} 
                     placeholder="0,00"
@@ -150,7 +141,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
                   <input 
                     type="text" 
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
+                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
                     value={revPecasInput} 
                     onChange={(e) => setRevPecasInput(e.target.value)}
                     placeholder="0,00"
@@ -162,7 +153,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <div className="relative">
                     <input 
                       type="number" 
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 pr-12 text-xl font-black text-amber-500 focus:border-amber-500 outline-none" 
+                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-12 text-xl font-black text-amber-500 focus:border-amber-500 outline-none" 
                       value={desconto} 
                       onChange={(e) => setDesconto(parseFloat(e.target.value))} 
                     />
@@ -172,7 +163,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 
                 <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Parcelas</label>
-                  <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
+                  <select className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
                     {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
                   </select>
                 </div>
@@ -181,7 +172,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Placa</label>
                   <input 
                     type="text" 
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white uppercase tracking-widest focus:border-blue-500 outline-none" 
+                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white uppercase tracking-widest focus:border-blue-500 outline-none" 
                     value={placa} 
                     onChange={(e) => setPlaca(e.target.value.toUpperCase())} 
                     placeholder="Ex.: ABC1D23"

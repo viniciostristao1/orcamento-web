@@ -24,6 +24,7 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
     <div className={`relative ${className}`}>
       {/* Efeito de brilho de fundo */}
       <div 
+        data-neon-glow
         className="absolute -inset-1 rounded-3xl opacity-10 blur-xl pointer-events-none"
         style={{ backgroundColor: glowColor, zIndex: 0 }}
       ></div>
@@ -34,6 +35,7 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
           <div className={`relative z-30 flex items-center justify-between ${compact ? 'px-6 py-4' : 'px-8 py-6'} bg-slate-950/60 border-b border-slate-800/50`}>
             <div className="flex items-center gap-4">
               <div 
+                data-neon-dot
                 className="w-2 h-8 rounded-full"
                 style={{ backgroundColor: glowColor, boxShadow: `0 0 20px ${glowColor}` }}
               ></div>

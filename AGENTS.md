@@ -16,7 +16,9 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
 
 O app tem **duas abas** (v0.4.0): **Orçamentos** (acima) e **Tire Flyer** — cola a tabela de
 pneus (TABs) e gera um flyer de promoção **750px** (marcas com cores próprias, preços a
-prazo/à vista, estoque/sob encomenda), também exportado em PNG para o WhatsApp.
+prazo/à vista, estoque/sob encomenda), também exportado em PNG para o WhatsApp. As duas abas
+compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
+da interface entre **Original** (azul/slate) e **Claude** (cinzas quentes + laranja).
 
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
 - **Uso local no PC**: o app final é **UM arquivo `.html`** aberto com duplo clique no Chrome,
@@ -37,9 +39,15 @@ prazo/à vista, estoque/sob encomenda), também exportado em PNG para o WhatsApp
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
-- Testes: **40 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **42 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
+- **Temas + logo** (v0.5.0): `data-tema` no `<html>` (`utils/tema.ts`, `localStorage`
+  `orcamentos_tema_v1`) com as paletas em `index.css` (`@theme inline` remapeando os tokens do
+  Tailwind para `--tema-*`). Botão **Configurações** no header (`components/ConfiguracoesTema.tsx`).
+  Logo Toyota transparente no header (`src/assets/logo_toyota.png`). **As saídas não seguem o
+  tema** — `#printable-quote` e o flyer (`data-saida="flyer"`) resetam as variáveis; validado
+  pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs do orçamento e do flyer).
 - **Aba Tire Flyer** (v0.4.0): `src/App.tsx` = shell com as abas (as duas ficam montadas, a
   inativa com `hidden`, para não perder o que foi digitado); orçamentos em
   `src/components/OrcamentosApp.tsx`; pneus em `src/tire/` (`TireFlyerApp.tsx`, `types.ts`,
@@ -78,8 +86,8 @@ prazo/à vista, estoque/sob encomenda), também exportado em PNG para o WhatsApp
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.4.2`** com
-  `Orcamento-v0.4.2.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.5.0`** com
+  `Orcamento-v0.5.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -97,12 +105,16 @@ orcamento_web/
   src/
     main.tsx                 entrada (StrictMode)
     index.css                @import "tailwindcss"; @utility scrollbar-hide; @media print
-    App.tsx                  SHELL: header + abas (Orçamentos | Tire Flyer)
+    App.tsx                  SHELL: header (logo + abas + configurações) + telas
     types.ts                 tipos (QuoteSummary, QuoteItem)
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
     utils/historico.ts       HISTÓRICO local (localStorage) + backup/restaurar JSON
     utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
+    utils/tema.ts            tema da interface (Original/Claude) + persistência
+    assets/logo_toyota.png   logo do header (fundo transparente)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
+    components/ConfiguracoesTema.tsx engrenagem: escolhe o tema
+    components/ClearButton.tsx botão "Limpar" (usado nas duas abas)
     components/NeonCard.tsx  card com borda neon
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
     components/HistoryModal.tsx painel do histórico (abrir/excluir/limpar/backup)
@@ -153,6 +165,9 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Layout de saída é contrato**: a tabela/resumo devem continuar iguais aos do AI Studio
   (o cliente recebe esse print). ⚠️ Por isso a interface usa `zoom: .75` **por seção** e o
   `#printable-quote` fica fora — não usar zoom em `body`/`main` (mudaria a captura do PNG).
+- **O tema NÃO vaza para as saídas**: `#printable-quote` e `[data-saida='flyer']` resetam as
+  variáveis `--tema-*` para os valores originais do Tailwind. Ao remapear/`@theme inline` um
+  token novo que as saídas usem, adicionar o mesmo token no bloco de reset do `index.css`.
 - **Item desmarcado APARECE no cliente** em fonte clara + riscado (mesma altura das demais
   linhas — **nunca usar `opacity` na `<tr>`**, distorce a captura) e entra na caixa "Itens Não
   Realizados" (com a soma). Só a **caixinha de seleção** é escondida: `data-ui` + CSS
@@ -180,6 +195,9 @@ npm run build        # gera dist/index.html (arquivo único)
   entra no PNG do cliente.
 - **Segunda aba "Tire Flyer"** (v0.4.0), no header ao lado da marca, para o gerador de promoção
   de pneus; as duas abas ficam montadas para não perder o que foi digitado.
+- **Temas** (v0.5.0): **Original** (atual) e **Claude** (escuro, cinzas + laranja) escolhidos
+  em **Configurações**; o tema vale só para a interface (PNGs iguais). As duas abas no mesmo
+  estilo (a de pneus foi igualada à de orçamentos) e o logo Toyota no header.
 
 ## 8. Pendências
 

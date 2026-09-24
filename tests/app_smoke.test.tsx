@@ -82,6 +82,29 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
   });
 
+  it('configurações: troca o tema (Original/Claude) e salva a escolha', () => {
+    localStorage.removeItem('orcamentos_tema_v1');
+    render(<App />);
+    expect(document.documentElement.dataset.tema).toBe('original');
+
+    fireEvent.click(screen.getByText('Configurações'));
+    fireEvent.click(screen.getByText('Claude'));
+    expect(document.documentElement.dataset.tema).toBe('claude');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('claude');
+
+    fireEvent.click(screen.getByText('Configurações'));
+    fireEvent.click(screen.getByText('Original'));
+    expect(document.documentElement.dataset.tema).toBe('original');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('original');
+  });
+
+  it('documentos de saída são marcados para não seguir o tema', () => {
+    render(<App />);
+    fireEvent.click(screen.getByText(/Processar Tudo/i));
+    expect(document.querySelector('#printable-quote')).toBeTruthy();
+    expect(document.querySelector('[data-saida="flyer"]')).toBeTruthy();
+  });
+
   it('aba Tire Flyer: renderiza o flyer com os dados padrão', () => {
     render(<App />);
     fireEvent.click(screen.getByText('Tire Flyer'));

@@ -9,10 +9,146 @@
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-700.css";
 
+/* ============================================================================
+   TEMAS DA INTERFACE (Original / Claude)
+   O atributo `data-tema` fica no <html>. As cores da INTERFACE usam os tokens
+   do Tailwind remapeados para variáveis `--tema-*`. Os DOCUMENTOS DE SAÍDA
+   (#printable-quote e o flyer, marcado com data-saida="flyer") resetam essas
+   variáveis para os valores originais — o PNG enviado ao cliente NÃO MUDA.
+   ========================================================================== */
+@theme inline {
+  --color-slate-950: var(--tema-fundo);
+  --color-slate-900: var(--tema-painel);
+  --color-slate-800: var(--tema-borda-forte);
+  --color-slate-700: var(--tema-borda-media);
+  --color-slate-600: var(--tema-texto-fraco);
+  --color-slate-500: var(--tema-texto-suave);
+  --color-slate-400: var(--tema-texto-medio);
+  --color-slate-300: var(--tema-texto-medio2);
+  --color-slate-200: var(--tema-texto);
+  --color-slate-100: var(--tema-titulo);
+  --color-blue-600: var(--tema-acento);
+  --color-blue-500: var(--tema-acento-2);
+  --color-blue-400: var(--tema-acento-claro);
+  --color-blue-300: var(--tema-acento-clarissimo);
+  --color-blue-700: var(--tema-acento-escuro);
+  --color-blue-900: var(--tema-acento-texto);
+  --color-emerald-600: var(--tema-sucesso);
+  --color-emerald-500: var(--tema-sucesso-2);
+  --color-emerald-400: var(--tema-sucesso-claro);
+  --color-emerald-900: var(--tema-sucesso-escuro);
+  --color-amber-500: var(--tema-ambar);
+  --color-amber-300: var(--tema-ambar-claro);
+  --color-green-900: var(--tema-sombra-sucesso);
+}
+
+/* Original = padrão (mesmos valores do Tailwind de hoje). */
+:root {
+  --tema-fundo: oklch(12.9% 0.042 264.695);
+  --tema-campo: oklch(12.9% 0.042 264.695);
+  --tema-painel: oklch(20.8% 0.042 265.755);
+  --tema-borda-forte: oklch(27.9% 0.041 260.031);
+  --tema-borda-media: oklch(37.2% 0.044 257.287);
+  --tema-texto-fraco: oklch(44.6% 0.043 257.281);
+  --tema-texto-suave: oklch(55.4% 0.046 257.417);
+  --tema-texto-medio: oklch(70.4% 0.04 256.788);
+  --tema-texto-medio2: oklch(86.9% 0.022 252.894);
+  --tema-texto: oklch(92.9% 0.013 255.508);
+  --tema-titulo: oklch(96.8% 0.007 247.896);
+  --tema-acento: oklch(54.6% 0.245 262.881);
+  --tema-acento-2: oklch(62.3% 0.214 259.815);
+  --tema-acento-claro: oklch(70.7% 0.165 254.624);
+  --tema-acento-clarissimo: oklch(80.9% 0.105 251.813);
+  --tema-acento-escuro: oklch(48.8% 0.243 264.376);
+  --tema-acento-texto: oklch(37.9% 0.146 265.522);
+  --tema-sucesso: oklch(59.6% 0.145 163.225);
+  --tema-sucesso-2: oklch(69.6% 0.17 162.48);
+  --tema-sucesso-claro: oklch(76.5% 0.177 163.223);
+  --tema-sucesso-escuro: oklch(37.8% 0.077 168.94);
+  --tema-ambar: oklch(76.9% 0.188 70.08);
+  --tema-ambar-claro: oklch(87.9% 0.169 91.605);
+  --tema-sombra-sucesso: oklch(39.3% 0.095 152.535);
+}
+
+/* Claude = tema escuro (cinzas quentes + laranja). */
+[data-tema='claude'] {
+  --tema-fundo: #262624;
+  --tema-campo: #1f1f1e;
+  --tema-painel: #30302e;
+  --tema-borda-forte: #3e3e3a;
+  --tema-borda-media: #4d4c47;
+  --tema-texto-fraco: #7d7b72;
+  --tema-texto-suave: #a3a19a;
+  --tema-texto-medio: #b8b6ad;
+  --tema-texto-medio2: #d9d7ce;
+  --tema-texto: #ecebe5;
+  --tema-titulo: #f5f4ef;
+  --tema-acento: #d97757;
+  --tema-acento-2: #d97757;
+  --tema-acento-claro: #e0956f;
+  --tema-acento-clarissimo: #eeb8a4;
+  --tema-acento-escuro: #be5b3c;
+  --tema-acento-texto: #f5f4ef;
+  --tema-sucesso: #d97757;
+  --tema-sucesso-2: #d97757;
+  --tema-sucesso-claro: #e0956f;
+  --tema-sucesso-escuro: #4a3a34;
+  --tema-ambar: #d97757;
+  --tema-ambar-claro: #e8a08c;
+  --tema-sombra-sucesso: #3a2118;
+}
+
+/* Campo de conteúdo (textarea/input): no Claude fica mais escuro que o painel,
+   criando o contraste de cinzas entre a "barra" do card e o campo. */
+.campo-tema {
+  background-color: var(--tema-campo);
+}
+
+/* NeonCard no Claude: brilho e traço neutros/laranja (os inline styles do
+   componente são neutros aqui para não virar arco-íris no tema). */
+[data-tema='claude'] [data-neon-glow] {
+  background-color: #d97757 !important;
+  opacity: 0.06 !important;
+}
+[data-tema='claude'] [data-neon-dot] {
+  background-color: #d97757 !important;
+  box-shadow: 0 0 20px rgba(217, 119, 87, 0.7) !important;
+}
+
+/* Documentos de saída NÃO seguem o tema: restaura os valores originais do
+   Tailwind nas variáveis, então as classes continuam idênticas às de sempre. */
+#printable-quote,
+[data-saida='flyer'] {
+  --tema-fundo: oklch(12.9% 0.042 264.695);
+  --tema-campo: oklch(12.9% 0.042 264.695);
+  --tema-painel: oklch(20.8% 0.042 265.755);
+  --tema-borda-forte: oklch(27.9% 0.041 260.031);
+  --tema-borda-media: oklch(37.2% 0.044 257.287);
+  --tema-texto-fraco: oklch(44.6% 0.043 257.281);
+  --tema-texto-suave: oklch(55.4% 0.046 257.417);
+  --tema-texto-medio: oklch(70.4% 0.04 256.788);
+  --tema-texto-medio2: oklch(86.9% 0.022 252.894);
+  --tema-texto: oklch(92.9% 0.013 255.508);
+  --tema-titulo: oklch(96.8% 0.007 247.896);
+  --tema-acento: oklch(54.6% 0.245 262.881);
+  --tema-acento-2: oklch(62.3% 0.214 259.815);
+  --tema-acento-claro: oklch(70.7% 0.165 254.624);
+  --tema-acento-clarissimo: oklch(80.9% 0.105 251.813);
+  --tema-acento-escuro: oklch(48.8% 0.243 264.376);
+  --tema-acento-texto: oklch(37.9% 0.146 265.522);
+  --tema-sucesso: oklch(59.6% 0.145 163.225);
+  --tema-sucesso-2: oklch(69.6% 0.17 162.48);
+  --tema-sucesso-claro: oklch(76.5% 0.177 163.223);
+  --tema-sucesso-escuro: oklch(37.8% 0.077 168.94);
+  --tema-ambar: oklch(76.9% 0.188 70.08);
+  --tema-ambar-claro: oklch(87.9% 0.169 91.605);
+  --tema-sombra-sucesso: oklch(39.3% 0.095 152.535);
+}
+
 /* Base idêntica à do index.html do AI Studio */
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #020617;
+  background-color: var(--tema-fundo);
 }
 
 .font-mono-data {

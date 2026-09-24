@@ -30,6 +30,7 @@ export const Flyer: React.FC<FlyerProps> = ({ data, flyerRef }) => {
   return (
     <div 
       ref={flyerRef}
+      data-saida="flyer"
       className="bg-white text-slate-900 w-[750px] shadow-2xl overflow-hidden font-sans border border-slate-200"
       style={{ minHeight: 'auto' }}
     >

@@ -5,6 +5,47 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Temas Original/Claude + logo Toyota + aba de pneus unificada (v0.5.0)
+
+**Pedido (3 partes):** (1) as duas abas com o **mesmo estilo**; (2) **botão de configurações**
+para trocar o tema entre **Original** e um segundo estilo que é **cópia do visual do Claude
+(tema escuro: cinzas + laranja)**, com contraste de cinzas entre a "barra" do card e o campo;
+(3) trocar o carrinho do header pelo **logo novo** (`logo_toyota.PNG`, enviado no repo).
+
+**Decisões do usuário:** o tema muda **só a interface** (os PNGs enviados ao cliente continuam
+iguais); **dois** temas (Original/Claude); no Original a aba de pneus **iguala aos orçamentos**.
+
+**Feito:**
+- **Logo:** o PNG do repo é branco com **fundo preto opaco** (viraria um retângulo no header).
+  Gerei `src/assets/logo_toyota.png` com fundo transparente (alpha = luminância, RGB branco) e
+  usei no lugar do `<Car>` (`h-11 w-auto`). O original ficou em `src/assets/logo_toyota.PNG`.
+- **Aba de pneus unificada:** `TireFlyerApp` agora usa `NeonCard`, tipografia e botões da aba de
+  orçamentos (acento azul); `ClearButton` extraído para componente compartilhado. O **flyer
+  (output) não mudou**.
+- **Sistema de tema:** `data-tema` no `<html>` + `@theme inline` no `index.css` remapeando os
+  tokens do Tailwind para variáveis `--tema-*` (`--color-slate-950: var(--tema-fundo)` etc.).
+  `src/utils/tema.ts` (tipo/leitura/persistência em `localStorage["orcamentos_tema_v1"]`,
+  aplicado **antes do primeiro render** no `main.tsx` para não piscar). Componente
+  `ConfiguracoesTema` (engrenagem no header; fecha com clique fora/Esc).
+- **Saídas intactas (regra dura):** `#printable-quote` e o flyer (`data-saida="flyer"`)
+  **resetam as variáveis** para os valores originais do Tailwind, então o remap global não os
+  atinge. Validado pixel a pixel contra a v0.4.2: **0 pixels diferentes** no orçamento
+  (2688x2736) e no flyer (1500x3728), nos **dois** temas.
+- **Contraste pedido:** campos usam `.campo-tema` (`--tema-campo`) — no Claude (#1f1f1e) ficam
+  mais escuros que o painel (#30302e); o cabeçalho do NeonCard e o fundo do card têm cinzas
+  distintos. `NeonCard` ganhou `data-neon-glow`/`data-neon-dot` para o Claude trocar o brilho
+  colorido por laranja neutro.
+- Testes: **42** (2 novos: alterna e persiste o tema; documentos de saída marcados com os
+  atributos que o CSS usa para o reset).
+
+**Gotchas:**
+- `@theme inline` com `var()` faz a utility emitir `var(--tema-...)` (inclusive nos modificadores
+  de opacidade, via `color-mix`) — é isso que permite resolver o tema por cascata e "resetar"
+  por subtree. Sem o `inline`, a utility usaria o valor resolvido e a troca de tema não pegaria.
+- Ao remapear um token novo, **incluir o token no bloco de reset** de `#printable-quote,
+  [data-saida='flyer']` (valores originais em oklch), senão a saída muda de cor.
+- `body` usa `var(--tema-fundo)`; o `@media print` continua forçando fundo branco.
+
 ## 2026-09-24 — Tire Flyer: largura do campo ajustada (v0.4.2)
 
 **Pedido:** a v0.4.1 deixou a largura "um pouco exagerada"; reduzir um pouco.
