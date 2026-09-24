@@ -5,6 +5,26 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Busca por nome, itens aprovados/recusados no histórico + zoom do modal (v0.13.0)
+
+**Pedidos:** (1) no orçamento, o campo "PLACA" vira **PLACA, NOME, CONTATO** com limite maior,
+para puxar qualquer coisa na lupa do histórico; (2) no "Ver itens do orçamento", **sinalizar os
+itens aprovados e não aprovados** pelo cliente. (3) bônus: o histórico do Flyer estava com a
+fonte menor que o dos orçamentos.
+
+**Feito:**
+- Campo: rótulo **PLACA, NOME, CONTATO**, `maxLength` 8 → **60**, placeholder
+  "Ex.: ABC1D23 / JOÃO / 51 99999-9999" (continua indo só para o histórico, não muda o PNG).
+- `filtrarHistorico` ficou **à prova de acento** (`normalize('NFD')`): buscar `joao` acha
+  **JOÃO** (antes só placa/data não tinham acento, então não aparecia).
+- Janelinha "Ver itens do orçamento": cada linha ganhou **ícone + cor** por situação
+  (`data-situacao="aprovado|naoAprovado"`), com legenda "✓ Aprovado pelo cliente ·
+  ✕ Não aprovado"; quem está em `naoRealizados` sai em vermelho/riscado.
+- **Zoom do histórico do Flyer:** o modal estava DENTRO do `ui-compacta` da aba e recebia o
+  zoom duas vezes (0,75 × 0,75). Agora ele fica fora do container (como no de orçamentos) —
+  fonte igual à do histórico de orçamentos (16px/zoom 1, conferido no Chromium).
+- Testes: **59** (asserts novos no popup e no campo); flyer segue **0 diferenças** no PNG.
+
 ## 2026-09-24 — Histórico do Tire Flyer + card CONTATO (v0.12.0)
 
 **Pedidos:** (1) botão **Histórico** no card "DADOS DA TABELA" do Tire Flyer; (2) trocar

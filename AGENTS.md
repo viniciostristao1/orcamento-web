@@ -121,10 +121,14 @@ serifada).
   tudo" → campo que filtra por **data ou placa** (`filtrarHistorico`, ignora `/ - . : e espaços`;
   ex.: `24/09`, `2026`, `abc-1d23`), com contador `N de M`. O resumo de cada cartão mostra
   **valores brutos** (v0.9.1): Revisão, Peças, Serviços e **Bruto** (`totalGeral`, sem desconto).
-- **Histórico — abas, salvar e ver itens** (v0.11.0): abas **Todos** / **Não Realizados**
-  (`filtrarPorAba`); o botão âmbar do `QuoteTable` ("Salvar com itens não realizados") grava o
-  registro com `naoRealizados: number[]` (e o "Abrir" restaura a marcação); o botão
-  "Ver itens do orçamento" abre uma janelinha com as linhas de `descReparo`.
+- **Histórico — abas, salvar e ver itens** (v0.11.0; destaque na v0.13.0): abas **Todos** /
+  **Não Realizados** (`filtrarPorAba`); o botão âmbar do `QuoteTable` ("Salvar com itens não
+  realizados") grava o registro com `naoRealizados: number[]` (e o "Abrir" restaura a
+  marcação); o botão "Ver itens do orçamento" abre uma janelinha com as linhas de `descReparo`,
+  marcando **✓ aprovado / ✕ não aprovado** (`data-situacao`) conforme `naoRealizados`.
+- **Modais ficam FORA do `ui-compacta`** (v0.13.0): dentro de uma aba com zoom, um modal com o
+  seu próprio `ui-compacta` ficaria com zoom duplo (fonte menor). Renderizar como irmão do
+  container da aba (padrão do `HistoryModal`).
 - **Interface 25% menor** (v0.3.0): classe **`.ui-compacta { zoom: 0.75 }`** aplicada em
   header, grade de entrada, cartão de resumo, botões da tabela e painel do histórico
   (equivale a usar o Chrome a 75%). `main` = `max-w-[1050px] px-[30px]` para casar as
@@ -143,8 +147,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.12.0`** com
-  `Orcamento-v0.12.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.13.0`** com
+  `Orcamento-v0.13.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -238,8 +242,10 @@ npm run build        # gera dist/index.html (arquivo único)
   ou trocar de PC). Salvar a cada "Processar Tudo". O `localStorage` no `file://` é por origem
   do navegador — para não depender disso, o Release publica também o `Orcamento.html` de nome
   estável (abrir sempre do mesmo caminho) e há o backup JSON.
-- **Placa** é dado **só do histórico** (não aparece no PNG enviado ao cliente) e **entra na
-  comparação de duplicidade**: mesma placa substitui o último; placa diferente = novo registro.
+- **Placa, Nome, Contato** (v0.13.0; era só "Placa") é dado **só do histórico** (não aparece no
+  PNG enviado ao cliente), campo livre com `maxLength 60`, e **entra na comparação de
+  duplicidade**: mesmo conteúdo substitui o último; diferente = novo registro. A busca do
+  histórico ignora acentos (`normalizarBusca` com `normalize('NFD')`).
 - **Flyer de pneus também é layout de saída**: 750px, `font-sans` do sistema e emojis (igual ao
   app original) e export em `pixelRatio: 2` (1500px). Não trocar fonte/cor/estrutura nem pôr
   `zoom` no `body` — o `zoom` do wrapper do preview é seguro (`clientWidth` segue 750).

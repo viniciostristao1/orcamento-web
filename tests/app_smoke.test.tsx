@@ -46,7 +46,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('ao processar, mostra o resumo com os valores calculados', () => {
     render(<App />);
-    fireEvent.change(screen.getByPlaceholderText('Ex.: ABC1D23'), { target: { value: 'ABC1D23' } });
+    fireEvent.change(screen.getByPlaceholderText(/ABC1D23 \/ JOÃO/i), { target: { value: 'ABC1D23' } });
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
 
     // Resumo líquido (nos cartões) e a tabela de saída
@@ -253,10 +253,12 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Todos \(2\)/i }));
     expect(screen.getByText('XYZ9A87')).toBeTruthy();
 
-    // janelinha "Ver itens do orçamento"
+    // janelinha "Ver itens do orçamento": item 1 está em naoRealizados -> não aprovado
     fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[0]);
     expect(screen.getByText('Itens do orçamento')).toBeTruthy();
     expect(screen.getAllByText('01 TESTE').length).toBeGreaterThan(1);
+    expect(document.querySelectorAll('[data-situacao="naoAprovado"]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-situacao="aprovado"]')).toHaveLength(0);
     fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
     expect(screen.queryByText('Itens do orçamento')).toBeNull();
   });

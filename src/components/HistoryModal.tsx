@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Database, FolderOpen, List, Search, Trash2, Upload, X } from 'lucide-react';
+import { CheckCircle2, Database, FolderOpen, List, Search, Trash2, Upload, X, XCircle } from 'lucide-react';
 import {
   type AbaHistorico,
   type OrcamentoSalvo,
@@ -295,15 +295,39 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   <X size={18} />
                 </button>
               </div>
+              <div className="flex items-center gap-4 px-5 pt-3 text-[11px] font-black uppercase tracking-widest">
+                <span className="flex items-center gap-1.5 text-green-500">
+                  <CheckCircle2 size={14} /> Aprovado pelo cliente
+                </span>
+                <span className="flex items-center gap-1.5 text-red-400">
+                  <XCircle size={14} /> Não aprovado
+                </span>
+              </div>
               <div className="overflow-y-auto p-5 space-y-2">
                 {itensDe.descReparo
                   .split('\n')
                   .filter((l) => l.trim())
-                  .map((linha, i) => (
-                    <p key={i} className="text-base text-slate-200 font-bold">
-                      {linha}
-                    </p>
-                  ))}
+                  .map((linha, i) => {
+                    const id = parseInt(linha.trim().split(/\s+/)[0], 10);
+                    const naoAprovado =
+                      Number.isFinite(id) && (itensDe.naoRealizados ?? []).includes(id);
+                    return (
+                      <p
+                        key={i}
+                        data-situacao={naoAprovado ? 'naoAprovado' : 'aprovado'}
+                        className="text-base font-bold flex items-start gap-2"
+                      >
+                        {naoAprovado ? (
+                          <XCircle size={18} className="shrink-0 mt-0.5 text-red-400" />
+                        ) : (
+                          <CheckCircle2 size={18} className="shrink-0 mt-0.5 text-green-500" />
+                        )}
+                        <span className={naoAprovado ? 'text-red-300 line-through' : 'text-slate-200'}>
+                          {linha}
+                        </span>
+                      </p>
+                    );
+                  })}
               </div>
             </div>
           </div>

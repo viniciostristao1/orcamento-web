@@ -139,8 +139,16 @@ export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): Orcam
   return aba === 'naoRealizados' ? lista.filter(temNaoRealizados) : lista;
 }
 
-/** Normaliza para busca: maiúsculas e só letras/números (ignora / - . : e espaços). */
-const normalizarBusca = (s: string): string => s.toUpperCase().replace(/[^A-Z0-9]/g, '');
+/**
+ * Normaliza para busca: sem acentos, maiúsculas e só letras/números
+ * (ignora / - . : e espaços) — "JOÃO" casa com "joao".
+ */
+const normalizarBusca = (s: string): string =>
+  (s ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');
 
 /**
  * Filtra o histórico por **data ou placa** (busca "contém", ignorando

@@ -90,7 +90,10 @@ const TireFlyerApp: React.FC = () => {
     }
   };
 
+  // O modal fica FORA do container com zoom: ele já tem o seu próprio
+  // `ui-compacta` — dentro ficaria com zoom duplo (fonte menor).
   return (
+    <>
     <div className="ui-compacta pt-1 pb-12 text-slate-200">
       {/* Conteúdo mais estreito e centralizado: margens laterais no painel
           "DADOS DA TABELA" e no flyer (a largura útil cai ~pela metade). */}
@@ -195,12 +198,14 @@ const TireFlyerApp: React.FC = () => {
       </footer>
       </div>
 
-      <FlyerHistoryModal
-        aberto={historicoAberto}
-        onFechar={() => setHistoricoAberto(false)}
-        onAbrir={abrirDoHistorico}
-      />
     </div>
+
+    <FlyerHistoryModal
+      aberto={historicoAberto}
+      onFechar={() => setHistoricoAberto(false)}
+      onAbrir={abrirDoHistorico}
+    />
+    </>
   );
 };
 
