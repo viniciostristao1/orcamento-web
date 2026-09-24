@@ -73,6 +73,9 @@ const TireFlyerApp: React.FC = () => {
 
   return (
     <div className="ui-compacta pt-1 pb-12 text-slate-200">
+      {/* Conteúdo mais estreito e centralizado: margens laterais no painel
+          "DADOS DA TABELA" e no flyer (a largura útil cai ~pela metade). */}
+      <div className="max-w-[1150px] mx-auto">
       <header className="mb-8 text-left border-b border-slate-800 pb-6">
         <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase mb-1">
           DASHBOARD <span className="text-blue-500">TIRE FLYER</span>
@@ -145,6 +148,7 @@ const TireFlyerApp: React.FC = () => {
       <footer className="mt-32 text-center text-slate-700 text-[9px] font-black uppercase tracking-[0.5em] border-t border-slate-800 pt-12">
         AutoCenter Cloud System &bull; {new Date().getFullYear()}
       </footer>
+      </div>
     </div>
   );
 };

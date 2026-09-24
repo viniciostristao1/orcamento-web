@@ -3,7 +3,7 @@ import { processQuote, formatCurrency, parseBrazilianNumber, recalcularComSeleca
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable from './QuoteTable';
-import { Sparkles, Percent } from 'lucide-react';
+import { Sparkles, Percent, History } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
@@ -11,9 +11,10 @@ import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../u
 interface OrcamentosAppProps {
   historicoAberto: boolean;
   onFecharHistorico: () => void;
+  onAbrirHistorico: () => void;
 }
 
-const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico }) => {
+const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico }) => {
   const [descReparo, setDescReparo] = useState<string>(`01 TR PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS\n02 OXI\n03 TR BORRACHA DAS PALHETAS`);
   const [orcamentoRaw, setOrcamentoRaw] = useState<string>(`1 Serviço GUN126L473025 DISCO DIANTEIRO UM LADO NO VEICULO 1,20000 514,800000 514,80\n1 Peça 142142GC133 *GRAXA COBREADA ALTA TEMPERATURA 1 36,640000 36,64\n1 Peça CARE040201 LIMPADOR PREMIUM UNIVERSAL 1 156,600000 156,60\n1 Peça 044650K401 JOGO PASTILHAS FREIO DIANT.HILUX AP.2016 1 1.245,000000 1.245,00\n3 Serviço GUN126L850091 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0,10000 42,900000 42,90\n3 Peça CARE044907 CAR CONJUNTO VISIB. DO PARABRISA, H20 PARA VEICULOS1 27,100000 27,10\n3 Peça 8521428090 BORRACHA LIMPADOR DI 1 65,000000 65,00\n3 Peça 8521453080 BORRACHA LIMPADOR PA 1 82,000000 82,00\n2 Serviço HIGMOTO HIGIENIZACAO AR CONDICIONADO 0,05000 0,000000 0,00\n2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60\n2 Peça CARE010701 OXY-SANITIZATION APP 1 99,000000 99,00\n1 Serviço RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO 1,00000 250,000000 250,00`);
   const [ajustesManuais, setAjustesManuais] = useState<string>("");
@@ -124,6 +125,18 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           </div>
 
           <div className="xl:col-span-4 space-y-8">
+            {/* Histórico saiu do cabeçalho (deixa o topo igual nas 3 abas) e
+                ficou ao lado do card APROVADO E DESCONTO. */}
+            <div className="flex justify-end -mb-4">
+              <button
+                type="button"
+                onClick={onAbrirHistorico}
+                className="flex items-center gap-2 px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
+              >
+                <History size={16} /> Histórico
+              </button>
+            </div>
+
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
                 <div className="space-y-1">

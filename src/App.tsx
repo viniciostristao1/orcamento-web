@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { History } from 'lucide-react';
 import OrcamentosApp from './components/OrcamentosApp';
 import TireFlyerApp from './tire/TireFlyerApp';
 import WhatsApp from './whats/WhatsApp';
@@ -35,7 +34,7 @@ const App: React.FC = () => {
         <div className="max-w-[1400px] mx-auto px-10 h-20 flex items-center justify-between gap-8">
           <div className="flex items-center gap-4">
             <img src={logoToyota} alt="Toyota" className="h-11 w-auto" />
-            <h1 className="titulo-tema text-2xl font-black tracking-tighter uppercase">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
+            <h1 className="titulo-tema text-2xl font-black tracking-tighter uppercase whitespace-nowrap">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
           </div>
 
           <nav className="flex items-center gap-2">
@@ -58,15 +57,6 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 border-l border-slate-800 pl-6 h-8 flex items-center">Gestão de Vendas</span>
             <ConfiguracoesTema tema={tema} onChange={setTema} />
-            {aba === 'orcamentos' && (
-              <button
-                type="button"
-                onClick={() => setHistoricoAberto(true)}
-                className="flex items-center gap-2 px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
-              >
-                <History size={16} /> Histórico
-              </button>
-            )}
           </div>
         </div>
       </header>
@@ -76,6 +66,7 @@ const App: React.FC = () => {
           <OrcamentosApp
             historicoAberto={historicoAberto}
             onFecharHistorico={() => setHistoricoAberto(false)}
+            onAbrirHistorico={() => setHistoricoAberto(true)}
           />
         </div>
         <div className={aba === 'pneus' ? '' : 'hidden'}>

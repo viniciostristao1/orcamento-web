@@ -5,6 +5,22 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Cabeçalho padrão nas 3 abas + Histórico ao lado do APROVADO E DESCONTO (v0.7.2)
+
+**Pedido:** padronizar o cabeçalho das abas (no Orçamentos o botão Histórico fazia o título
+"TOYOTA WEIAND LAJEADO" quebrar em duas linhas, diferente do Flyer/Whats) e, como o botão
+Histórico cabe ao lado da tabela **APROVADO E DESCONTO**, tirá-lo do topo.
+
+**Feito:**
+- Botão **Histórico saiu do header** (que agora é idêntico nas três abas) e foi para a coluna
+  da direita, **logo acima do card APROVADO E DESCONTO** (`OrcamentosApp`, prop nova
+  `onAbrirHistorico`). O modal continua o mesmo.
+- Marca do header com `whitespace-nowrap` — nunca mais quebra em duas linhas.
+- Validado no Chromium: nas 3 abas a marca tem 1 linha e não há botão de histórico no header;
+  o botão novo abre o modal. PNGs do orçamento/flyer seguem **0 diferenças**. Testes: 44.
+- (Aba Tire Flyer também ganhou o conteúdo centralizado com margens laterais na v0.7.2 —
+  largura útil do painel ~pela metade, `max-w-[1150px] mx-auto`.)
+
 ## 2026-09-24 — Tire Flyer mais compacto (campo, preview e topo) (v0.7.1)
 
 **Pedido:** (1) reduzir pela metade a altura do campo "DADOS DA TABELA"; (2) reduzir pela
