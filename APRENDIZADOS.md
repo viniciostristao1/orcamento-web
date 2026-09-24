@@ -5,6 +5,19 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Último orçamento gerado fica salvo ao reabrir (v0.10.0)
+
+**Pedido:** o visual do orçamento gerado sumia ao reabrir o app ("tenho que gerar sempre para
+ver"); o último deve ficar salvo.
+
+**Feito:** `src/utils/ultimoOrcamento.ts` (`orcamento_ultimo_v1`) guarda o **resumo gerado +
+a marcação dos itens** (`selecionados`). O `OrcamentosApp` inicializa `summary`/`selecionados`
+por ele e re-salva a cada mudança (`summary`/`selecionados`) — o documento aparece ao abrir,
+sem clicar em play. A chave entrou no **backup geral** (`CHAVES_BACKUP`).
+Validado no Chromium: processar → desmarcar item → recarregar → documento presente e com o
+item desmarcado; backup lista `orcamento_ultimo_v1`. Testes: **52**; flyer segue com PNG
+idêntico.
+
 ## 2026-09-24 — Histórico com valor bruto (v0.9.1)
 
 **Pedido:** no resumo que aparece nos cartões do histórico, não mostrar valor líquido — mostrar

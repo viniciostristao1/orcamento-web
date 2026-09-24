@@ -5,6 +5,7 @@ import App from '../src/App';
 import HistoryModal from '../src/components/HistoryModal';
 import type { OrcamentoSalvo } from '../src/utils/historico';
 import { RASCUNHO_KEY } from '../src/utils/rascunho';
+import { ULTIMO_KEY } from '../src/utils/ultimoOrcamento';
 
 const registro = (id: string, placa: string, criadoEm: string): OrcamentoSalvo => ({
   id,
@@ -28,6 +29,7 @@ const registro = (id: string, placa: string, criadoEm: string): OrcamentoSalvo =
 afterEach(() => {
   cleanup();
   localStorage.removeItem(RASCUNHO_KEY);
+  localStorage.removeItem(ULTIMO_KEY);
 });
 
 describe('App — smoke test (render + processar)', () => {
@@ -85,6 +87,22 @@ describe('App — smoke test (render + processar)', () => {
     // remarca: a caixa some de novo
     fireEvent.click(screen.getAllByRole('checkbox')[0]);
     expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
+  });
+
+  it('mantém o último documento gerado ao reabrir (sem processar de novo)', () => {
+    const { unmount } = render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    expect(document.querySelector('#printable-quote')).toBeTruthy();
+    const checks = screen.getAllByRole('checkbox');
+    fireEvent.click(checks[0]); // desmarca um item (marcação também é salva)
+    unmount();
+
+    render(<App />);
+    // o documento aparece na tela sem clicar em Processar Tudo
+    expect(document.querySelector('#printable-quote')).toBeTruthy();
+    expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
+    expect(screen.getByText(/Itens Não Realizados/i)).toBeTruthy();
+    expect(document.querySelectorAll('#printable-quote input[type="checkbox"]')[0]).toHaveProperty('checked', false);
   });
 
   it('lembra o último orçamento digitado (rascunho no localStorage)', () => {

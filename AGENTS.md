@@ -44,6 +44,9 @@ serifada).
 - **Rascunho do orçamento** (v0.8.4): `utils/rascunho.ts` (`orcamento_rascunho_v1`) guarda os
   campos em edição a cada mudança e os restaura ao abrir (sem rascunho, cai no exemplo).
   "Limpar" + reabrir fica vazio. **Tudo é local** (`localStorage`) — nada de VPS/nuvem.
+- **Último documento gerado** (v0.10.0): `utils/ultimoOrcamento.ts` (`orcamento_ultimo_v1`)
+  guarda o resumo + a marcação dos itens; ao abrir, o orçamento já aparece na tela (sem
+  processar de novo). Também entra no backup geral.
 - **Layout do Orçamentos** (v0.7.5): botão **Histórico no cabeçalho do card 1** (ao lado de
   Limpar); **RESUMO LÍQUIDO** na coluna da direita logo abaixo do APROVADO E DESCONTO com os
   valores empilhados; **preview do orçamento na metade** na tela
@@ -66,7 +69,7 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **51 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **52 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
@@ -76,10 +79,10 @@ serifada).
   verde em `green-*` (o `emerald-*` é remapeado para o laranja no tema Claude).
   `@google/genai` do template original **não** entrou (não é usado).
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
-  (`orcamentos_historico_v1`, `orcamento_rascunho_v1`, `orcamentos_tema_v1`, `zap_contacts`,
-  `zap_template`) num JSON; UI na engrenagem **Configurações** ("BACKUP DOS DADOS"). A
-  importação recarrega o app. Aceita também o backup antigo (só histórico). Atenção: tema e
-  template são string pura no localStorage (não JSON).
+  (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
+  `orcamentos_tema_v1`, `zap_contacts`, `zap_template`) num JSON; UI na engrenagem
+  **Configurações** ("BACKUP DOS DADOS"). A importação recarrega o app. Aceita também o backup
+  antigo (só histórico). Atenção: tema e template são string pura no localStorage (não JSON).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
   `localStorage` `orcamentos_tema_v1`) com as paletas em `index.css` (`@theme inline` remapeando
   os tokens do Tailwind para `--tema-*`). Botão **Configurações** no header
@@ -132,8 +135,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.9.1`** com
-  `Orcamento-v0.9.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.10.0`** com
+  `Orcamento-v0.10.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

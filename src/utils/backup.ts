@@ -1,5 +1,6 @@
 import { TEMA_KEY } from './tema';
 import { RASCUNHO_KEY } from './rascunho';
+import { ULTIMO_KEY } from './ultimoOrcamento';
 
 /** Chave do histórico de orçamentos (a mesma usada em utils/historico.ts). */
 export const HISTORICO_KEY = 'orcamentos_historico_v1';
@@ -11,6 +12,7 @@ export const HISTORICO_KEY = 'orcamentos_historico_v1';
  */
 export const CHAVES_BACKUP = [
   HISTORICO_KEY,
+  ULTIMO_KEY,
   RASCUNHO_KEY,
   TEMA_KEY,
   'zap_contacts',
