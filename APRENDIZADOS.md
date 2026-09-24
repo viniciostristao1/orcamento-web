@@ -5,6 +5,28 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Ajustes de layout do Orçamentos + Claude mais escuro (v0.7.5)
+
+**Pedidos (em sequência):** (1) Histórico no cabeçalho do card **1. Descrição do Reparo**, ao
+lado do "Limpar"; (2) **fundo do tema Claude mais escuro**; (3) o **visual** do orçamento gerado
+com **metade do tamanho** (PNG igual); (4) **RESUMO LÍQUIDO na coluna da direita**, logo abaixo
+do APROVADO E DESCONTO, com os valores **empilhados**.
+
+**Feito:**
+- Histórico agora fica no `actions` do card 1 (`[Histórico] [Limpar]`), saiu de cima do card
+  APROVADO E DESCONTO.
+- Claude: fundo `#0f0f0e → #0a0a09`, campo `#050504`, painel `#121211`, bordas
+  `#222220/#333330` (mais escuro, mantendo o contraste painel > página > campo).
+- **Preview do orçamento:** `.preview-orcamento { transform: scale(.5); transform-origin: top
+  center }` com a altura do container medida por `ResizeObserver` (mesma técnica do flyer);
+  `@media print` reseta o transform/altura → **impressão/PDF saem no tamanho normal** e o
+  **PNG continua idêntico** (validado: 0 diferenças).
+- **RESUMO LÍQUIDO** foi para dentro da coluna direita (`xl:col-span-4`), condicional ao
+  `visivel`, com `space-y-3` (Total Peças, Total Serviços, Desc., Valor Líquido um abaixo do
+  outro; padding `p-4` por causa da coluna estreita). Medido: mesma coluna/largura do APROVADO
+  e gap de 24px físicos.
+- Testes: 44. PNGs do orçamento/flyer: **0 diferenças** nos dois temas.
+
 ## 2026-09-24 — Aba Whats sem a "Agenda de Tarefas" + Limpar nos Ajustes Manuais (v0.7.4)
 
 **Pedidos:** (1) remover toda a parte de **Agenda de Tarefas** (Controle Operacional Weiand,

@@ -97,7 +97,22 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     <>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 print:hidden ui-compacta">
           <div className="xl:col-span-8 space-y-10">
-            <NeonCard title="1. Descrição do Reparo" borderColor="blue-500" actions={<ClearButton onClick={() => setDescReparo('')}/>}>
+            <NeonCard
+              title="1. Descrição do Reparo"
+              borderColor="blue-500"
+              actions={
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={onAbrirHistorico}
+                    className="relative z-50 flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
+                  >
+                    <History size={16} /> Histórico
+                  </button>
+                  <ClearButton onClick={() => setDescReparo('')} />
+                </div>
+              }
+            >
               <textarea 
                 className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-xl font-medium focus:border-blue-500 outline-none resize-none transition-colors" 
                 value={descReparo} 
@@ -125,18 +140,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           </div>
 
           <div className="xl:col-span-4 space-y-8">
-            {/* Histórico saiu do cabeçalho (deixa o topo igual nas 3 abas) e
-                fica à direita, ACIMA do card APROVADO E DESCONTO (fora da caixa). */}
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={onAbrirHistorico}
-                className="flex items-center gap-2 px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all text-xs font-black uppercase border border-slate-700 cursor-pointer active:scale-95"
-              >
-                <History size={16} /> Histórico
-              </button>
-            </div>
-
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
                 <div className="space-y-1">
@@ -201,38 +204,38 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 </button>
               </div>
             </NeonCard>
+
+            {/* RESUMO LÍQUIDO logo abaixo do APROVADO E DESCONTO, com os
+                valores empilhados (um abaixo do outro). */}
+            {visivel && (
+              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981">
+                <div className="space-y-3">
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                    <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Peças</span>
+                    <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
+                  </div>
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                    <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Serviços</span>
+                    <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
+                  </div>
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase block mb-1.5">Desc. ({visivel.descontoPercentual}%)</span>
+                    <span className="titulo-tema text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
+                  </div>
+                  <div className="p-4 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
+                    <span className="text-[10px] font-black text-blue-400 uppercase block mb-1.5 underline">Valor Líquido</span>
+                    <span className="titulo-tema text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
+                  </div>
+                </div>
+              </NeonCard>
+            )}
           </div>
         </div>
 
         <div id="result-section" className="mt-14">
           {visivel && (
-            <div className="space-y-8">
-              <div className="max-w-[1200px] mx-auto print:hidden ui-compacta">
-                <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="p-6 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-2">Total Peças</span>
-                      <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
-                    </div>
-                    <div className="p-6 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-2">Total Serviços</span>
-                      <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
-                    </div>
-                    <div className="p-6 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
-                      <span className="text-[10px] font-black text-emerald-500 uppercase block mb-2">Desc. ({visivel.descontoPercentual}%)</span>
-                      <span className="titulo-tema text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
-                    </div>
-                    <div className="p-6 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
-                      <span className="text-[10px] font-black text-blue-400 uppercase block mb-2 underline">Valor Líquido</span>
-                      <span className="titulo-tema text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
-                    </div>
-                  </div>
-                </NeonCard>
-              </div>
-
-              <div className="max-w-4xl mx-auto">
-                <QuoteTable summary={visivel} selecionados={selecionados} onToggleItem={alternarItem} />
-              </div>
+            <div className="max-w-4xl mx-auto">
+              <QuoteTable summary={visivel} selecionados={selecionados} onToggleItem={alternarItem} />
             </div>
           )}
         </div>

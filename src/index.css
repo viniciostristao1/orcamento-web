@@ -83,11 +83,11 @@
    títulos e conteúdo dos campos em serifada (aproximação da Tiempos) e cartões
    chapados. Fundo mais escuro que o do claude.ai a pedido do usuário. */
 [data-tema='claude'] {
-  --tema-fundo: #0f0f0e;
-  --tema-campo: #080807;
-  --tema-painel: #171716;
-  --tema-borda-forte: #292926;
-  --tema-borda-media: #3b3b36;
+  --tema-fundo: #0a0a09;
+  --tema-campo: #050504;
+  --tema-painel: #121211;
+  --tema-borda-forte: #222220;
+  --tema-borda-media: #333330;
   --tema-texto-fraco: #787878;
   --tema-texto-suave: #a1a1a1;
   --tema-texto-medio: #cccccc;
@@ -223,6 +223,13 @@ body {
   zoom: 0.75;
 }
 
+/* Preview do orçamento gerado na tela: metade do tamanho (só o visual).
+   O PNG continua no tamanho real e a impresão sai normal (ver @media print). */
+.preview-orcamento {
+  transform: scale(0.5);
+  transform-origin: top center;
+}
+
 @media print {
   html,
   body {
@@ -231,6 +238,14 @@ body {
 
   .no-print {
     display: none !important;
+  }
+
+  /* o preview em metade do tamanho vale só na tela */
+  .preview-orcamento {
+    transform: none !important;
+  }
+  .preview-orcamento-holder {
+    height: auto !important;
   }
 
   /* caixinhas de seleção não saem na impressão (os itens desmarcados SAEM,

@@ -41,6 +41,11 @@ serifada).
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
 - **Ajustes Manuais** (v0.7.4) tem o mesmo botão **Limpar** dos cards 1 e 2.
+- **Layout do Orçamentos** (v0.7.5): botão **Histórico no cabeçalho do card 1** (ao lado de
+  Limpar); **RESUMO LÍQUIDO** na coluna da direita logo abaixo do APROVADO E DESCONTO com os
+  valores empilhados; **preview do orçamento na metade** na tela
+  (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
+  impressão sai normal). Claude com fundo `#0a0a09`.
 - Testes: **44 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
@@ -99,8 +104,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.7.4`** com
-  `Orcamento-v0.7.4.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.7.5`** com
+  `Orcamento-v0.7.5.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

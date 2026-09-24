@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { QuoteSummary } from '../types';
 import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
 import { Printer, Download, Image as ImageIcon } from 'lucide-react';
@@ -12,6 +12,20 @@ interface QuoteTableProps {
 
 const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem }) => {
   const printableRef = useRef<HTMLDivElement>(null);
+  const [alturaDocumento, setAlturaDocumento] = useState(0);
+
+  // Mede a altura real do documento para o preview em metade do tamanho (só o
+  // visual). O PNG/impressão não mudam: transform não afeta o tamanho do nó.
+  useEffect(() => {
+    const el = printableRef.current;
+    if (!el) return;
+    const medir = () => setAlturaDocumento(el.offsetHeight);
+    medir();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(medir);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Itens desmarcados (não realizados) e a soma — a caixa só aparece se houver algum.
   const naoRealizados = itensNaoRealizados(summary, selecionados);
@@ -75,6 +89,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
       </div>
 
       {/* Printable Document Context */}
+      <div
+        className="preview-orcamento-holder w-full max-w-4xl mx-auto"
+        style={alturaDocumento ? { height: alturaDocumento * 0.5 } : undefined}
+      >
+      <div className="preview-orcamento">
       <div 
         ref={printableRef}
         id="printable-quote" 
@@ -217,6 +236,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
             Documento Gerado Eletronicamente
           </div>
         </div>
+      </div>
+      </div>
       </div>
     </div>
   );
