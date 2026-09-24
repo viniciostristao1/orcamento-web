@@ -3,7 +3,6 @@ import { Send } from 'lucide-react';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import MessageEditor from './components/MessageEditor';
-import BackupManager from './components/BackupManager';
 import { Contact } from './types';
 
 const WhatsApp: React.FC = () => {
@@ -65,11 +64,6 @@ const WhatsApp: React.FC = () => {
     ));
   };
 
-  const handleImport = (data: { contacts: Contact[], messageTemplate: string }) => {
-    setContacts(data.contacts);
-    setMessageTemplate(data.messageTemplate);
-  };
-
   const today = new Date();
   const isBroadcastingDay = today.getDate() === 1;
 
@@ -84,11 +78,6 @@ const WhatsApp: React.FC = () => {
       <main className="max-w-[1700px] mx-auto space-y-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5 space-y-10 h-full flex flex-col">
-            <BackupManager 
-              contacts={contacts} 
-              messageTemplate={messageTemplate} 
-              onImport={handleImport} 
-            />
             <MessageEditor initialTemplate={messageTemplate} onSave={setMessageTemplate} />
           </div>
           <div className="lg:col-span-7 h-full flex">

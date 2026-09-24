@@ -66,14 +66,20 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **45 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **51 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
-- **Aba Whats** (v0.7.0; agenda removida na v0.7.4): `src/whats/` (contatos, template,
-  backup JSON). `localStorage` próprio (`zap_contacts`, `zap_template`). "NOTIFICAR" abre
-  `wa.me` e marca como concluído; status verde em `green-*` (o `emerald-*` é remapeado para o
-  laranja no tema Claude). `@google/genai` do template original **não** entrou (não é usado).
+- **Aba Whats** (v0.7.0; agenda removida na v0.7.4; backup movido na v0.9.0): `src/whats/`
+  (contatos + template; o backup agora é global, em Configurações). `localStorage` próprio
+  (`zap_contacts`, `zap_template`). "NOTIFICAR" abre `wa.me` e marca como concluído; status
+  verde em `green-*` (o `emerald-*` é remapeado para o laranja no tema Claude).
+  `@google/genai` do template original **não** entrou (não é usado).
+- **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
+  (`orcamentos_historico_v1`, `orcamento_rascunho_v1`, `orcamentos_tema_v1`, `zap_contacts`,
+  `zap_template`) num JSON; UI na engrenagem **Configurações** ("BACKUP DOS DADOS"). A
+  importação recarrega o app. Aceita também o backup antigo (só histórico). Atenção: tema e
+  template são string pura no localStorage (não JSON).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
   `localStorage` `orcamentos_tema_v1`) com as paletas em `index.css` (`@theme inline` remapeando
   os tokens do Tailwind para `--tema-*`). Botão **Configurações** no header
@@ -125,8 +131,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.8.5`** com
-  `Orcamento-v0.8.5.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.9.0`** com
+  `Orcamento-v0.9.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

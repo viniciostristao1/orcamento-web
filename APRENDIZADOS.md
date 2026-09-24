@@ -5,6 +5,28 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Backup geral dentro de Configurações (v0.9.0)
+
+**Pedido:** o "Centro de Dados" (backup) deve ficar na engrenagem **Configurações**, depois do
+tema, e salvar **tudo de todas as abas** — histórico de orçamentos, contatos do Painel Whats,
+etc.
+
+**Feito:**
+- `src/utils/backup.ts`: `montarBackup()` junta num único JSON **todas** as chaves locais —
+  `orcamentos_historico_v1`, `orcamento_rascunho_v1`, `orcamentos_tema_v1`, `zap_contacts`,
+  `zap_template`; `restaurarBackup()` valida e grava de volta (e ainda aceita o **backup antigo**
+  do histórico, lista direta ou `{ orcamentos }`); `nomeArquivoBackup()` gera
+  `backup-toyota-DD-MM-AAAA.json`.
+- `ConfiguracoesTema`: seção **"BACKUP DOS DADOS"** logo abaixo do tema, com botões
+  (ícone-only) **Exportar** e **Importar**; a importação avisa o resumo e **recarrega o app**
+  para aplicar tudo.
+- O card **"Centro de Dados" foi removido da aba Whats** (o backup agora é global) — o
+  `BackupManager.tsx` foi apagado.
+- **Gotcha corrigido no teste:** o tema e o template são **texto puro** no localStorage (não
+  JSON); o `JSON.parse` falhava e a chave ficava de fora do backup. Agora tenta JSON e cai para
+  a string crua (teste cobre).
+- Testes: **51** (4 de backup + asserts no smoke); flyer continua **0 diferenças** no PNG.
+
 ## 2026-09-24 — TOTAL no resumo + caixa TOTAL GERAL + correção da fonte gigante (v0.8.5)
 
 **Pedido:** no documento gerado, o "TOTAL GERAL" do Resumo Financeiro vira **"TOTAL"** = itens

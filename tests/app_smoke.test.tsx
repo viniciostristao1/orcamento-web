@@ -104,6 +104,9 @@ describe('App — smoke test (render + processar)', () => {
     expect(document.documentElement.dataset.tema).toBe('original');
 
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    // backup fica no mesmo menu, depois do tema
+    expect(screen.getByRole('button', { name: /Exportar backup/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Importar backup/i })).toBeTruthy();
     fireEvent.click(screen.getByText('Claude'));
     expect(document.documentElement.dataset.tema).toBe('claude');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('claude');
@@ -156,10 +159,10 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('PAINEL')).toBeTruthy();
     expect(screen.getByText('Novo Contato')).toBeTruthy();
     expect(screen.getByText('Script de Prospecção')).toBeTruthy();
-    expect(screen.getByText('Centro de Dados')).toBeTruthy();
     expect(screen.getByText('Relatório de Envios')).toBeTruthy();
-    // Agenda de Tarefas foi removida do app
+    // Agenda de Tarefas e Centro de Dados saíram da aba (backup foi p/ Configurações)
     expect(screen.queryByText('Agenda de Tarefas')).toBeNull();
+    expect(screen.queryByText('Centro de Dados')).toBeNull();
   });
 
   it('aba Whats: cadastra contato (e salva no localStorage)', () => {
