@@ -5,6 +5,15 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Tema Claude: textos em branco (v0.6.3)
+
+**Pedido:** no tema Claude, as fontes devem ser de cor **branca**.
+
+**Feito:** `--tema-texto`/`--tema-titulo` (texto principal, títulos e valores) passaram para
+`#ffffff` e a escala secundária ficou em cinzas neutros (`#ededed`/`#cccccc`/`#a1a1a1`/`#787878`)
+em vez dos tons quentes — mantém a hierarquia (rótulos um pouco mais apagados) com o texto
+branco. Saídas revalidadas pixel a pixel vs v0.4.2: **0 diferenças**. Testes: 42.
+
 ## 2026-09-24 — Tema Claude ainda mais escuro + "Limpar Texto" sem confirmação (v0.6.2)
 
 **Pedidos:** (1) fundo do Claude mais escuro; (2) o que acontece no "Limpar Texto" da tabela de
