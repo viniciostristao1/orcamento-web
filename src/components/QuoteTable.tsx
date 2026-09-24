@@ -30,10 +30,50 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
   // Itens desmarcados (não realizados) e a soma — a caixa só aparece se houver algum.
   const naoRealizados = itensNaoRealizados(summary, selecionados);
 
-  const handlePrint = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.print();
+  // Impressão: em vez de re-renderizar o HTML na largura do papel (o que mudava
+  // a proporção das colunas e quebrava linhas diferentes), geramos a MESMA
+  // imagem do PNG e imprimimos ela a 100% da largura — proporções idênticas.
+  const [imagemImpressao, setImagemImpressao] = useState<string | null>(null);
+  const printImgRef = useRef<HTMLImageElement>(null);
+
+  const opcoesPng = {
+    quality: 1.0,
+    pixelRatio: 3,
+    backgroundColor: '#ffffff',
+    cacheBust: true,
+    filter: (node: Node) => !(node as HTMLElement).dataset?.ui,
   };
+
+  const handlePrint = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!printableRef.current) return;
+    try {
+      const dataUrl = await exportarPng(printableRef.current, opcoesPng);
+      setImagemImpressao(dataUrl);
+    } catch (error) {
+      console.error('Erro ao preparar impressão:', error);
+      window.print(); // fallback: imprime o documento ao vivo
+    }
+  };
+
+  // Só chama a impressão depois que a imagem está pronta para renderizar.
+  useEffect(() => {
+    if (!imagemImpressao) return;
+    const img = printImgRef.current;
+    const imprimir = () => window.print();
+    if (img && typeof img.decode === 'function') {
+      img.decode().then(imprimir).catch(imprimir);
+    } else {
+      setTimeout(imprimir, 150);
+    }
+  }, [imagemImpressao]);
+
+  // Depois de fechar a janela de impressão, descarta a imagem.
+  useEffect(() => {
+    const limpar = () => setImagemImpressao(null);
+    window.addEventListener('afterprint', limpar);
+    return () => window.removeEventListener('afterprint', limpar);
+  }, []);
 
   const handleDownloadImage = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,18 +82,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
     try {
       // Gera a imagem em alta definição, com as fontes no tamanho real
       // (o exportarPng desfaz a redução de 0.1px do html-to-image)
-      const dataUrl = await exportarPng(printableRef.current, {
-        quality: 1.0,
-        pixelRatio: 3, // Qualidade ainda maior para exportação
-        backgroundColor: '#ffffff',
-        cacheBust: true,
-        // no PNG não entram as caixinhas (data-ui); os itens desmarcados SAEM
-        // riscados/em fonte clara (mesma altura das demais linhas)
-        filter: (node) => {
-          const el = node as HTMLElement;
-          return !el.dataset?.ui;
-        },
-      });
+      const dataUrl = await exportarPng(printableRef.current, opcoesPng);
       
       const link = document.createElement('a');
       link.download = `Orcamento_Toyota_${summary.currentTime.replace(/[/:\s]/g, '_')}.png`;
@@ -66,7 +95,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
   };
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in zoom-in-95 duration-700">
+    <div
+      className="w-full space-y-6 animate-in fade-in zoom-in-95 duration-700"
+      data-impressao={imagemImpressao ? 'imagem' : undefined}
+    >
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-center gap-4 print:hidden ui-compacta">
         <button 
@@ -241,6 +273,14 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
       </div>
       </div>
       </div>
+
+      {/* Área só da impressão: a imagem do PNG (mesmas proporções), a 100% da
+          largura da página. No navegador ela fica escondida. */}
+      {imagemImpressao && (
+        <div className="area-impressao">
+          <img ref={printImgRef} src={imagemImpressao} alt="Orçamento" />
+        </div>
+      )}
     </div>
   );
 };

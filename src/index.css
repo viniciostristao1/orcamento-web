@@ -230,6 +230,44 @@ body {
   transform-origin: top center;
 }
 
+/* Impressão via botão: imprimimos a IMAGEM do PNG (mesmas proporções e quebras
+   de linha do arquivo enviado no WhatsApp), não o HTML re-renderizado. */
+.area-impressao {
+  display: none;
+}
+.area-impressao img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+@page {
+  margin: 10mm;
+}
+@media print {
+  [data-impressao='imagem'] .preview-orcamento-holder,
+  [data-impressao='imagem'] .preview-orcamento {
+    display: none !important;
+  }
+  [data-impressao='imagem'] .area-impressao {
+    display: block !important;
+  }
+  /* a imagem ocupa a largura útil inteira da folha */
+  [data-impressao='imagem'] main,
+  [data-impressao='imagem'] #result-section,
+  [data-impressao='imagem'] #result-section > div {
+    max-width: none !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  /* nada de fundo escuro na folha (o root do app ficaria pintado) */
+  .min-h-screen {
+    background-color: #fff !important;
+  }
+}
+
 @media print {
   html,
   body {

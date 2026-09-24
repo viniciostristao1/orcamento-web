@@ -220,7 +220,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             {/* RESUMO LÍQUIDO logo abaixo do APROVADO E DESCONTO, com os
                 valores empilhados (um abaixo do outro). */}
             {visivel && (
-              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981">
+              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact>
                 <div className="space-y-3">
                   <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                     <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Peças</span>

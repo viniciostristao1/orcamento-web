@@ -5,6 +5,34 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Impressão idêntica ao PNG + RESUMO LÍQUIDO compacto (v0.8.2)
+
+**Pedidos:** (1) a **impressão** saía em formato diferente do PNG — maior, colunas com
+proporção diferente e "HIGIENIZAÇÃO DO AR CONDICIONADO" quebrava em 2 linhas; (2) diminuir o
+espaço **acima e abaixo** do RESUMO LÍQUIDO.
+
+**Causa da impressão:** o navegador re-renderiza o HTML na largura do papel (o layout muda →
+reflui o texto e as colunas), enquanto o PNG é capturado na largura fixa do documento (896px).
+
+**Fix (impressão = imagem do PNG):** o botão IMPRIMIR/PDF agora gera o PNG (via `exportarPng`,
+`pixelRatio: 3`) e imprime **essa imagem a 100% da largura da folha** — mesmo layout, mesmas
+quebras e proporções; a única mudança é a escala para o papel. Implementação:
+`QuoteTable` guarda o data URL em estado, mostra um `.area-impressao` (só `display:block` no
+`@media print`) com a `<img>`, esconde o documento ao vivo
+(`[data-impressao='imagem'] .preview-orcamento-holder { display:none }`) e chama
+`window.print()` após o `img.decode()`; limpa no `afterprint`. Se a geração falhar, cai no
+`window.print()` antigo.
+- `@page { margin: 10mm }`; no print, `main`/`#result-section`/wrapper perdem `max-width` e
+  padding para a imagem ocupar a largura útil; `.min-h-screen` vira branco (senão o fundo
+  escuro do app pintava a folha, mesmo com o body branco).
+- Validado gerando o PDF no Chromium e renderizando a página (pymupdf): 1 página A4, branca,
+  "HIGIENIZAÇÃO DO AR CONDICIONADO" em **uma linha**, colunas idênticas ao PNG.
+
+**RESUMO LÍQUIDO:** ganhou `compact` (era o único card da coluna direita sem) — o vão
+título→1ª caixa caiu de ~42px para **18px** e o de baixo para **13px**.
+
+**Testes:** 44; PNGs do orçamento/flyer: **0 diferenças**.
+
 ## 2026-09-24 — Menos espaço acima do título ORÇAMENTOS (v0.8.1)
 
 **Pedido:** reduzir o espaço acima do título "ORÇAMENTOS".
