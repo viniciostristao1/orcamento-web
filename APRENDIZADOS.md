@@ -5,6 +5,28 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Histórico do Tire Flyer + card CONTATO (v0.12.0)
+
+**Pedidos:** (1) botão **Histórico** no card "DADOS DA TABELA" do Tire Flyer; (2) trocar
+"LAYOUT DE EXPORTAÇÃO" por um card **CONTATO** com campo livre (número, placa, nome do cliente);
+(3) esse contato fica **ao lado de data/hora** para pesquisar no histórico do Tire Flyer.
+
+**Feito:**
+- `src/tire/utils/historicoFlyer.ts` (`flyer_historico_v1`, máx. 100): guarda
+  `criadoEm · contato · medida · inputText · numPneus`; **não duplica** se a tabela e o contato
+  forem os mesmos; `filtrarFlyerHistorico` busca por **contato, data ou medida** e é
+  **à prova de acento** (`normalize('NFD')`, "JOÃO" casa com "joao").
+- `TireFlyerApp`: botão **Histórico** (ícone, ao lado do Limpar Texto) no card da tabela; card
+  **CONTATO** no lugar do LAYOUT (campo livre + aviso "fica só no histórico"); o "Processar e
+  Atualizar Flyer" salva automaticamente no histórico; "Abrir" do histórico restaura tabela e
+  contato (sem re-salvar).
+- `FlyerHistoryModal` (mesmo padrão do histórico de orçamentos, sem abas): lista
+  `data/hora · contato · medida · N pneus`, Pesquisar (contato/data/medida), Abrir, Excluir e
+  Limpar tudo — tudo ícone-only.
+- Backup geral ganhou a chave `flyer_historico_v1`.
+- Testes: **59** (3 novos de histórico + 1 de UI); validado no Chromium (busca "joao" e
+  "265/60" acham; backup lista a chave). Flyer segue **0 diferenças** no PNG.
+
 ## 2026-09-24 — Histórico com abas + salvar não realizados + ver itens (v0.11.0)
 
 **Pedidos:** (1) no histórico, duas abas: **Todos** e **Não Realizados**; (2) um botão ao lado

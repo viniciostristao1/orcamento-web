@@ -5,7 +5,9 @@ import { Flyer } from './components/Flyer';
 import { exportarPng } from '../utils/exportImage';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
-import { Play, Image as ImageIcon } from 'lucide-react';
+import { Play, Image as ImageIcon, History } from 'lucide-react';
+import FlyerHistoryModal from './components/FlyerHistoryModal';
+import { adicionarAoFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
 
 const DEFAULT_INPUT = `265/60R18	MARCA/MODELO	À PRAZO 10x	À VISTA (10%)	ESTOQUE
 4265292105	Firestone	R$ 1.115,48	R$ 1.004,28	0
@@ -20,6 +22,8 @@ const ESCALA_PREVIEW = 0.5;
 const TireFlyerApp: React.FC = () => {
   const [inputText, setInputText] = useState(DEFAULT_INPUT);
   const [promoData, setPromoData] = useState<PromoInfo>(parseInput(DEFAULT_INPUT));
+  const [contato, setContato] = useState('');
+  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [alturaFlyer, setAlturaFlyer] = useState(0);
   const flyerRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +48,21 @@ const TireFlyerApp: React.FC = () => {
     }
     const parsed = parseInput(inputText);
     setPromoData(parsed);
+    // Histórico do Tire Flyer: guarda data/hora + contato para consulta.
+    adicionarAoFlyerHistorico({
+      contato: contato.trim(),
+      medida: parsed.measure,
+      inputText,
+      numPneus: parsed.tires.length,
+    });
+  };
+
+  // Reabre um flyer do histórico (não re-salva para não duplicar).
+  const abrirDoHistorico = (r: FlyerSalvo) => {
+    setInputText(r.inputText);
+    setContato(r.contato ?? '');
+    setPromoData(parseInput(r.inputText));
+    setHistoricoAberto(false);
   };
 
   // Igual à aba de orçamentos: limpa só o texto; o flyer só muda no
@@ -89,7 +108,20 @@ const TireFlyerApp: React.FC = () => {
             title="DADOS DA TABELA"
             borderColor="blue-600"
             compact
-            actions={<ClearButton onClick={handleClear} label="Limpar Texto" />}
+            actions={
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setHistoricoAberto(true)}
+                  aria-label="Histórico do Tire Flyer"
+                  title="Histórico do Tire Flyer"
+                  className="relative z-50 flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
+                >
+                  <History size={18} />
+                </button>
+                <ClearButton onClick={handleClear} label="Limpar Texto" />
+              </div>
+            }
           >
             <textarea
               className="campo-tema w-full h-[250px] p-6 text-lg font-mono leading-relaxed border border-slate-800 rounded-2xl focus:border-blue-500 outline-none transition-colors resize-none text-emerald-50 placeholder-slate-700 overflow-x-auto whitespace-pre scrollbar-hide"
@@ -110,9 +142,16 @@ const TireFlyerApp: React.FC = () => {
             </button>
           </NeonCard>
 
-          <NeonCard title="LAYOUT DE EXPORTAÇÃO" borderColor="blue-500" compact>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-bold uppercase">
-              Ajustado para 750px de largura. Ideal para compartilhamento em grupos de WhatsApp com alta visibilidade.
+          <NeonCard title="CONTATO" borderColor="blue-500" compact>
+            <input
+              type="text"
+              value={contato}
+              onChange={(e) => setContato(e.target.value)}
+              placeholder="Nome, placa, telefone… (ex.: JOÃO / ABC1D23)"
+              className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-lg font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+            />
+            <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase mt-2">
+              Fica só no histórico do Tire Flyer (não sai no flyer enviado ao cliente).
             </p>
           </NeonCard>
         </div>
@@ -155,6 +194,12 @@ const TireFlyerApp: React.FC = () => {
         AutoCenter Cloud System &bull; {new Date().getFullYear()}
       </footer>
       </div>
+
+      <FlyerHistoryModal
+        aberto={historicoAberto}
+        onFechar={() => setHistoricoAberto(false)}
+        onAbrir={abrirDoHistorico}
+      />
     </div>
   );
 };

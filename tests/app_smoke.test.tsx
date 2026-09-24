@@ -41,7 +41,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Processar Tudo/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Histórico/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Histórico' })).toBeTruthy();
   });
 
   it('ao processar, mostra o resumo com os valores calculados', () => {
@@ -152,6 +152,30 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('Michelin LTX Trail')).toBeTruthy();
     expect(screen.getByText('ESTOQUE: 12 UN')).toBeTruthy();
     expect(screen.getAllByText('SOB ENCOMENDA').length).toBe(3); // Firestone, BF Goodrich e Dunlop
+  });
+
+  it('aba Tire Flyer: contato vai para o histórico (com data/hora) e a busca acha', () => {
+    localStorage.removeItem('flyer_historico_v1');
+    render(<App />);
+    fireEvent.click(screen.getByText('Tire Flyer'));
+
+    fireEvent.change(screen.getByPlaceholderText(/Nome, placa, telefone/i), { target: { value: 'JOAO ABC1D23' } });
+    fireEvent.click(screen.getByRole('button', { name: /Processar e Atualizar Flyer/i }));
+
+    const salvos = JSON.parse(localStorage.getItem('flyer_historico_v1') ?? '[]');
+    expect(salvos).toHaveLength(1);
+    expect(salvos[0].contato).toBe('JOAO ABC1D23');
+    expect(salvos[0].medida).toBe('265/60R18');
+    expect(salvos[0].criadoEm).toMatch(/\d{2}\/\d{2}\/\d{4}/);
+
+    // abre o histórico e pesquisa pelo contato
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico do Tire Flyer' }));
+    expect(screen.getByText('JOAO ABC1D23')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por contato, data ou medida/i), {
+      target: { value: 'abc-1d23' },
+    });
+    expect(screen.getByText(/1 de 1/)).toBeTruthy();
   });
 
   it('aba Tire Flyer: processar atualiza o flyer', () => {

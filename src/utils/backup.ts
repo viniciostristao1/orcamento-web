@@ -17,6 +17,7 @@ export const CHAVES_BACKUP = [
   TEMA_KEY,
   'zap_contacts',
   'zap_template',
+  'flyer_historico_v1',
 ] as const;
 
 export interface ResumoBackup {

@@ -69,7 +69,7 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **55 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **59 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
@@ -80,7 +80,7 @@ serifada).
   `@google/genai` do template original **não** entrou (não é usado).
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
-  `orcamentos_tema_v1`, `zap_contacts`, `zap_template`) num JSON; UI na engrenagem
+  `orcamentos_tema_v1`, `zap_contacts`, `zap_template`, `flyer_historico_v1`) num JSON; UI na engrenagem
   **Configurações** ("BACKUP DOS DADOS"). A importação recarrega o app. Aceita também o backup
   antigo (só histórico). Atenção: tema e template são string pura no localStorage (não JSON).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
@@ -92,6 +92,10 @@ serifada).
   (`--tema-fonte-conteudo`), o fundo é bem escuro (`#0f0f0e`, campos `#080807`, cards
   `#171716`), sem glow nos cards e sem sombra nos botões. **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
+- **Histórico do Tire Flyer + CONTATO** (v0.12.0): `tire/utils/historicoFlyer.ts`
+  (`flyer_historico_v1`) salva a cada "Processar" (`data/hora · contato · medida · N pneus`);
+  busca por contato/data/medida (sem acento); card **CONTATO** (campo livre, só no histórico)
+  no lugar do antigo LAYOUT DE EXPORTAÇÃO; modal `FlyerHistoryModal`.
 - **Aba Tire Flyer** (v0.4.0): `src/App.tsx` = shell com as abas (as duas ficam montadas, a
   inativa com `hidden`, para não perder o que foi digitado); orçamentos em
   `src/components/OrcamentosApp.tsx`; pneus em `src/tire/` (`TireFlyerApp.tsx`, `types.ts`,
@@ -139,8 +143,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.11.0`** com
-  `Orcamento-v0.11.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.12.0`** com
+  `Orcamento-v0.12.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
