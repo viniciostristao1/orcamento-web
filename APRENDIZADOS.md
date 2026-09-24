@@ -5,6 +5,30 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Desmarcados riscados no PNG + caixa "Itens Não Realizados" (v0.3.1)
+
+**Pedido (3 partes):** (1) ao desmarcar um item, o PNG saía com linhas mais altas/distorcidas;
+(2) os desmarcados devem **aparecer** no orçamento (fonte mais clara + riscado), em vez de
+sumir; (3) nova caixa **"Itens Não Realizados"** fora do Resumo Financeiro, com a soma dos
+desmarcados — e **só** quando houver algum.
+
+**Feito:**
+- **Altura das linhas:** removido o `opacity-45` da `<tr>` (opacidade na linha + filtro
+  removendo linhas eram os suspeitos da distorção na captura) e removido o `data-fora` e o
+  filtro correspondente — as linhas agora são **sempre** capturadas. O desmarcado troca só
+  cor/decoração: descrição e valor em `text-slate-400 line-through` (não mexe em métrica de
+  layout). Regra `@media print [data-fora]` também removida.
+- **Caixa "Itens Não Realizados":** novo `itensNaoRealizados(summary, selecionados)` em
+  `quoteLogic.ts` (puro; devolve itens + total). Renderizada **dentro do documento**, depois do
+  Resumo Financeiro, em vermelho claro, com cada item riscado e `Total Não Realizado:`; some
+  quando todos estão marcados.
+- Testes: **26** (caso do total dos não realizados + UI: caixa aparece ao desmarcar, some ao
+  remarcar, e não existe com tudo marcado).
+
+**Lição:** para "apagado" em documento que vira imagem, usar **cor de texto** (não `opacity`
+na linha) e **nunca** filtrar a linha inteira — o html-to-image captura a tela e pequenas
+diferenças de estilo podem alterar a métrica das linhas.
+
 ## 2026-09-24 — Interface a 75% + caixinhas para escolher os itens (v0.3.0)
 
 **Pedidos:** (1) a interface ficava confortável só com o Chrome a 75% → deixar o app já nesse

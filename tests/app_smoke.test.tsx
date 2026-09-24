@@ -65,12 +65,21 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByText(/Processar Tudo/i));
     expect(screen.getAllByText(/2\.821,94/).length).toBeGreaterThan(0); // total peças cheio
+    // todos marcados: NÃO existe a caixa de não realizados
+    expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
 
     const checks = screen.getAllByRole('checkbox');
     expect(checks.length).toBe(3); // um por item
     fireEvent.click(checks[0]); // desmarca o item 1 (peças 1.438,24)
 
     expect(screen.getAllByText(/1\.383,70/).length).toBeGreaterThan(0); // 2.821,94 − 1.438,24
+    // apareceu a caixa com a soma do item desmarcado (2.203,04)
+    expect(screen.getByText(/Itens Não Realizados/i)).toBeTruthy();
+    expect(screen.getAllByText(/2\.203,04/).length).toBeGreaterThan(0);
+
+    // remarca: a caixa some de novo
+    fireEvent.click(screen.getAllByRole('checkbox')[0]);
+    expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
   });
 
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {

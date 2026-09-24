@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { QuoteSummary } from '../types';
-import { formatCurrency } from '../utils/quoteLogic';
+import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
 import { Printer, Download, Image as ImageIcon } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 
@@ -12,6 +12,9 @@ interface QuoteTableProps {
 
 const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem }) => {
   const printableRef = useRef<HTMLDivElement>(null);
+
+  // Itens desmarcados (não realizados) e a soma — a caixa só aparece se houver algum.
+  const naoRealizados = itensNaoRealizados(summary, selecionados);
 
   const handlePrint = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,10 +32,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
         pixelRatio: 3, // Qualidade ainda maior para exportação
         backgroundColor: '#ffffff',
         cacheBust: true,
-        // no PNG não entram as caixinhas (data-ui) nem os itens desmarcados (data-fora)
+        // no PNG não entram as caixinhas (data-ui); os itens desmarcados SAEM
+        // riscados/em fonte clara (mesma altura das demais linhas)
         filter: (node) => {
           const el = node as HTMLElement;
-          return !(el.dataset?.fora || el.dataset?.ui);
+          return !el.dataset?.ui;
         },
       });
       
@@ -98,8 +102,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
                   return (
                   <tr
                     key={item.id}
-                    data-fora={marcado ? undefined : '1'}
-                    className={`even:bg-slate-50/50 ${marcado ? '' : 'opacity-45'}`}
+                    className="even:bg-slate-50/50"
                   >
                     <td className="py-2 px-6 text-center font-bold text-slate-500 text-2xl border-r-2 border-slate-200">
                       <span className="inline-flex items-center justify-center gap-2">
@@ -114,8 +117,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
                         <span>{item.id}</span>
                       </span>
                     </td>
-                    <td className={`py-2 px-6 font-bold text-slate-900 text-2xl uppercase leading-none ${marcado ? '' : 'line-through'}`}>{item.description}</td>
-                    <td className="py-2 px-6 text-right font-bold text-slate-950 text-2xl border-l-2 border-slate-200 bg-slate-50/30">
+                    <td className={`py-2 px-6 font-bold text-2xl uppercase leading-none ${marcado ? 'text-slate-900' : 'text-slate-400 line-through'}`}>{item.description}</td>
+                    <td className={`py-2 px-6 text-right font-bold text-2xl border-l-2 border-slate-200 bg-slate-50/30 ${marcado ? 'text-slate-950' : 'text-slate-400 line-through'}`}>
                       {formatCurrency(item.value)}
                     </td>
                   </tr>
@@ -175,6 +178,39 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
               </div>
             </div>
           </div>
+
+          {/* Itens Não Realizados — caixa separada, só quando há itens desmarcados */}
+          {naoRealizados.itens.length > 0 && (
+            <div className="mt-3 bg-red-50/70 border-2 border-red-200 rounded-[2rem] px-6 py-3 sm:px-10 sm:py-4">
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <div className="h-px w-10 bg-red-200"></div>
+                <h3 className="text-xl font-bold text-red-800 uppercase tracking-[0.3em]">Itens Não Realizados</h3>
+                <div className="h-px w-10 bg-red-200"></div>
+              </div>
+
+              <div className="space-y-0.5 max-w-xl mx-auto">
+                {naoRealizados.itens.map((item) => (
+                  <div key={item.id} className="flex justify-between items-start gap-6">
+                    <span className="font-bold uppercase tracking-tight text-slate-500 text-2xl line-through">
+                      {item.id} · {item.description}
+                    </span>
+                    <span className="font-bold text-slate-400 text-2xl line-through whitespace-nowrap">
+                      {formatCurrency(item.value)}
+                    </span>
+                  </div>
+                ))}
+
+                <div className="h-px bg-red-300 my-2 opacity-60"></div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-bold uppercase tracking-widest text-2xl text-red-800 leading-none">Total Não Realizado:</span>
+                  <span className="text-2xl font-bold text-red-700">
+                    {formatCurrency(naoRealizados.total)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div className="mt-4 text-center text-[10px] text-slate-300 font-medium uppercase tracking-[0.4em] print:hidden leading-none">
             Documento Gerado Eletronicamente

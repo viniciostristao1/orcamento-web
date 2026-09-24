@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatCurrency,
+  itensNaoRealizados,
   parseBrazilianNumber,
   processQuote,
   recalcularComSelecao,
@@ -122,5 +123,17 @@ describe('recalcularComSelecao — caixinhas por item', () => {
     expect(r.totalOrcamento).toBe(0);
     expect(r.totalPecasGeral).toBeCloseTo(1000, 2); // peças da revisão
     expect(r.totalServicosGeral).toBeCloseTo(1766.23 - 1000, 2);
+  });
+
+  it('itens não realizados = desmarcados e a soma deles', () => {
+    const sem1e3 = new Set(todos);
+    sem1e3.delete(1);
+    sem1e3.delete(3);
+    const r = itensNaoRealizados(s, sem1e3);
+    expect(r.itens.map((i) => i.id)).toEqual([1, 3]);
+    expect(r.total).toBeCloseTo(2203.04 + 174.1 + 42.9, 2);
+    // todos marcados = nenhum não realizado
+    expect(itensNaoRealizados(s, todos).total).toBe(0);
+    expect(itensNaoRealizados(s, todos).itens).toEqual([]);
   });
 });

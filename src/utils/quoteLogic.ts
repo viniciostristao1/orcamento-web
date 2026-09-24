@@ -137,6 +137,18 @@ export const formatCurrency = (value: number): string =>
   value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
 
 /**
+ * Itens DESMARCADOS (não realizados) e a soma deles — usado na caixa
+ * "Itens Não Realizados" do documento (só aparece se houver algum).
+ */
+export const itensNaoRealizados = (
+  summary: QuoteSummary,
+  selecionados: Set<number>
+): { itens: QuoteItem[]; total: number } => {
+  const itens = summary.items.filter(i => !selecionados.has(i.id));
+  return { itens, total: itens.reduce((acc, i) => acc + i.value, 0) };
+};
+
+/**
  * Recalcula os totais considerando só os itens MARCADOS (caixinhas da tabela).
  * `items` continua com todos (a tabela mostra as desmarcadas riscadas); os
  * totais, o desconto e o líquido refletem apenas as marcadas.

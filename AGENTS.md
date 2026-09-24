@@ -33,7 +33,7 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2).
-- Testes: **25 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **26 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom).
 - Build de arquivo único **validado** (`dist/index.html` ~295 kB, CSS+JS embutidos, sem
   referências externas).
@@ -51,13 +51,16 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
   (equivale a usar o Chrome a 75%). `main` = `max-w-[1050px] px-[30px]` para casar as
   larguras. **O documento de saída (`#printable-quote`) NÃO é escalado** — o PNG do cliente
   continua igual.
-- **Seleção de itens** (v0.3.0): caixinhas na coluna "Item" da tabela; só as marcadas entram
-  no orçamento. Totais/desconto/líquido recalculados por `recalcularComSelecao`; desmarcadas
-  ficam riscadas/opacas na tela e **saem do PNG e da impressão** (`data-fora`/`data-ui` +
-  `filter` do `html-to-image` + CSS `@media print`). Ao processar/abrir do histórico, todas
-  começam marcadas.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.3.0`** com
-  `Orcamento-v0.3.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Seleção de itens** (v0.3.0; ajustado na v0.3.1): caixinhas na coluna "Item" da tabela; só
+  as marcadas entram nos totais. Totais/desconto/líquido recalculados por
+  `recalcularComSelecao`; as **desmarcadas continuam aparecendo no PNG/impressão**, em fonte
+  clara (`text-slate-400`) e riscadas — **sem `opacity` na linha** (dava diferença de altura na
+  captura). Quando há desmarcados, o documento ganha a caixa **"Itens Não Realizados"** (fora
+  do Resumo Financeiro) com os itens e a soma (`itensNaoRealizados`); some quando todos estão
+  marcados. Só a **caixinha** é escondida no PNG/print (`data-ui` + `filter` do `html-to-image`
+  + CSS `@media print`). Ao processar/abrir do histórico, todas começam marcadas.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.3.1`** com
+  `Orcamento-v0.3.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
@@ -125,9 +128,11 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Layout de saída é contrato**: a tabela/resumo devem continuar iguais aos do AI Studio
   (o cliente recebe esse print). ⚠️ Por isso a interface usa `zoom: .75` **por seção** e o
   `#printable-quote` fica fora — não usar zoom em `body`/`main` (mudaria a captura do PNG).
-- **Item desmarcado não sai no cliente**: esconder sempre por `data-fora` (linha) e `data-ui`
-  (caixinha) — CSS `@media print` **e** `filter` no `toPng`; `print:hidden` sozinho NÃO vale
-  para a captura do PNG (ela é da tela, não de impressão).
+- **Item desmarcado APARECE no cliente** em fonte clara + riscado (mesma altura das demais
+  linhas — **nunca usar `opacity` na `<tr>`**, distorce a captura) e entra na caixa "Itens Não
+  Realizados" (com a soma). Só a **caixinha de seleção** é escondida: `data-ui` + CSS
+  `@media print` **e** `filter` no `toPng` (o `print:hidden` sozinho NÃO vale para a captura
+  do PNG, que é de tela).
 - **Histórico**: `localStorage` + **backup/restaurar JSON** (o usuário pode limpar o navegador
   ou trocar de PC). Salvar a cada "Processar Tudo". O `localStorage` no `file://` é por origem
   do navegador — para não depender disso, o Release publica também o `Orcamento.html` de nome

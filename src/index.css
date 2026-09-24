@@ -51,8 +51,8 @@ body {
     display: none !important;
   }
 
-  /* itens desmarcados e caixinhas de seleção não saem na impressão */
-  [data-fora],
+  /* caixinhas de seleção não saem na impressão (os itens desmarcados SAEM,
+     riscados — ver a caixa "Itens Não Realizados") */
   [data-ui] {
     display: none !important;
   }
