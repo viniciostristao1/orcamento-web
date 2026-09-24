@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Sem espaço acima dos campos da direita (v0.2.4)
+
+**Pedido:** remover o espaço acima de Total Revisão, Peças na Revisão, etc. (a v0.2.3 já tinha
+compactado os inputs, mas ainda sobrava respiro).
+
+**Feito:**
+- `NeonCard` ganhou o prop opcional **`compact`** (`px-6 py-4` no cabeçalho e `px-6 py-4` no
+  conteúdo, em vez de `px-8 py-6`/`p-8`). Usado só no card **APROVADO E DESCONTO**.
+- No card direito, grupos de campos de `space-y-4` → **`space-y-2`**.
+- `compact` é opcional (default `false`) — os cards da esquerda e o resumo ficam como eram.
+
+**Gotcha:** para reduzir espaçamento de um card só sem mexer nos outros, prop com default é
+melhor que alterar o `NeonCard` global (o mesmo componente veste as 3 seções da esquerda).
+
 ## 2026-09-24 — Campo Placa (só no histórico) + card direito compacto (v0.2.3)
 
 **Pedido:** (1) campo de **placa** abaixo de Parcelas; (2) a placa aparece **apenas no

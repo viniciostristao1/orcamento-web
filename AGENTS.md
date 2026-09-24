@@ -40,10 +40,11 @@ tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pel
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
   histórico; **não** entra no PNG/tabela de saída (decisão do usuário). No histórico aparece
   depois do nº de itens: `data · N itens · PLACA`.
-- **Card direito compacto** (v0.2.3): inputs de Total Revisão/Peças/Desconto/Parcelas/Placa com
-  `px-4 py-2.5 text-xl` (antes `p-5 text-2xl`), `space-y-4` e botão `py-4` — menos altura.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.3`** com
-  `Orcamento-v0.2.3.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Card direito compacto** (v0.2.3, apertado na v0.2.4): inputs com `px-4 py-2.5 text-xl`,
+  grupos com `space-y-2` e `NeonCard` com o prop **`compact`** (`px-6 py-4` no cabeçalho e no
+  conteúdo, antes `px-8 py-6`/`p-8`) — praticamente sem espaço acima de Total Revisão/Peças/etc.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.2.4`** com
+  `Orcamento-v0.2.4.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

@@ -130,8 +130,8 @@ const App: React.FC = () => {
           </div>
 
           <div className="xl:col-span-4 space-y-8">
-            <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500">
-              <div className="space-y-4">
+            <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
+              <div className="space-y-2">
                 <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Total Revisão (R$)</label>
                   <input 

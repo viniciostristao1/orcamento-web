@@ -6,9 +6,11 @@ interface NeonCardProps {
   className?: string;
   borderColor?: string;
   actions?: React.ReactNode;
+  /** Menos espaço em volta do conteúdo (cabeçalho e área interna menores). */
+  compact?: boolean;
 }
 
-const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", borderColor = "#3b82f6", actions }) => {
+const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", borderColor = "#3b82f6", actions, compact = false }) => {
   const getGlowColor = (color: string) => {
     if (color.includes('blue-500')) return '#3b82f6';
     if (color.includes('blue-600')) return '#2563eb';
@@ -29,7 +31,7 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
       <div className="relative z-10 bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl backdrop-blur-sm">
         {/* Cabeçalho do Card Ampliado */}
         {title && (
-          <div className="relative z-30 flex items-center justify-between px-8 py-6 bg-slate-950/60 border-b border-slate-800/50">
+          <div className={`relative z-30 flex items-center justify-between ${compact ? 'px-6 py-4' : 'px-8 py-6'} bg-slate-950/60 border-b border-slate-800/50`}>
             <div className="flex items-center gap-4">
               <div 
                 className="w-2 h-8 rounded-full"
@@ -44,7 +46,7 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
         )}
 
         {/* Área de Conteúdo Ampliada */}
-        <div className="relative z-20 p-8 flex-grow">
+        <div className={`relative z-20 ${compact ? 'px-6 py-4' : 'p-8'} flex-grow`}>
           {children}
         </div>
       </div>
