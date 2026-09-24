@@ -1,18 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QuoteSummary } from '../types';
 import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
-import { Printer, Download, Image as ImageIcon } from 'lucide-react';
+import { Printer, Download, Image as ImageIcon, Save, Check } from 'lucide-react';
 import { exportarPng } from '../utils/exportImage';
 
 interface QuoteTableProps {
   summary: QuoteSummary;
   selecionados: Set<number>;
   onToggleItem: (id: number) => void;
+  onSalvarNaoRealizados?: () => void;
 }
 
-const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem }) => {
+const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem, onSalvarNaoRealizados }) => {
   const printableRef = useRef<HTMLDivElement>(null);
   const [alturaDocumento, setAlturaDocumento] = useState(0);
+  const [salvoRecente, setSalvoRecente] = useState(false);
+
+  const handleSalvarNaoRealizados = () => {
+    if (!onSalvarNaoRealizados) return;
+    onSalvarNaoRealizados();
+    setSalvoRecente(true);
+    setTimeout(() => setSalvoRecente(false), 2000);
+  };
 
   // Mede a altura real do documento para o preview em metade do tamanho (só o
   // visual). O PNG/impressão não mudam: transform não afeta o tamanho do nó.
@@ -125,6 +134,23 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
           className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
         >
           <ImageIcon size={24} className="group-hover:scale-110 transition-transform" />
+        </button>
+
+        {/* Salva no histórico com a marcação atual (vai para a aba "Não Realizados").
+            Só faz sentido quando há algum item desmarcado. */}
+        <button
+          type="button"
+          onClick={handleSalvarNaoRealizados}
+          disabled={naoRealizados.itens.length === 0 || !onSalvarNaoRealizados}
+          aria-label="Salvar com itens não realizados"
+          title={
+            naoRealizados.itens.length === 0
+              ? 'Desmarque algum item para salvar na aba Não Realizados'
+              : 'Salvar com itens não realizados'
+          }
+          className="flex items-center justify-center bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer"
+        >
+          {salvoRecente ? <Check size={24} strokeWidth={3} /> : <Save size={24} />}
         </button>
       </div>
 

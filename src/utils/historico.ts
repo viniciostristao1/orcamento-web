@@ -16,6 +16,9 @@ export interface OrcamentoSalvo {
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
+  // IDs dos itens desmarcados no momento em que foi salvo (botão próprio).
+  // Opcional: registros comuns não têm — só entram na aba "Não Realizados".
+  naoRealizados?: number[];
   // Retrato do resultado no momento (só para a lista; ao abrir, é recalculado).
   totalPecasGeral: number;
   totalServicosGeral: number;
@@ -124,6 +127,16 @@ export async function importarBackup(arquivo: File): Promise<number> {
 /** Conta os itens da descrição (linhas que começam com um número). */
 export function contarItensDaDescricao(descricao: string): number {
   return descricao.split('\n').filter((l) => /^\s*\d/.test(l)).length;
+}
+
+export type AbaHistorico = 'todos' | 'naoRealizados';
+
+/** Registro salvo pelo botão "salvar com itens não realizados". */
+export const temNaoRealizados = (r: OrcamentoSalvo): boolean => (r.naoRealizados?.length ?? 0) > 0;
+
+/** Filtra pela aba do histórico: "Todos" ou "Não Realizados". */
+export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): OrcamentoSalvo[] {
+  return aba === 'naoRealizados' ? lista.filter(temNaoRealizados) : lista;
 }
 
 /** Normaliza para busca: maiúsculas e só letras/números (ignora / - . : e espaços). */

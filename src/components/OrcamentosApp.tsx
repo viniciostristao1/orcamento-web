@@ -93,8 +93,28 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
     const result = processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais);
     setSummary(result);
-    setSelecionados(new Set(result.items.map((i) => i.id)));
+    // Restaura a marcação salva (registros da aba "Não Realizados").
+    const desmarcados = new Set(r.naoRealizados ?? []);
+    setSelecionados(new Set(result.items.map((i) => i.id).filter((id) => !desmarcados.has(id))));
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
+  };
+
+  // Salva o orçamento atual (com os itens desmarcados) — vai para a aba
+  // "Não Realizados" do histórico. Chamado pelo botão do QuoteTable.
+  const salvarComNaoRealizados = () => {
+    if (!visivel) return;
+    adicionarAoHistorico({
+      descReparo,
+      orcamentoRaw,
+      ajustesManuais,
+      revAprovadaInput,
+      revPecasInput,
+      desconto,
+      parcelas,
+      placa: placa.trim(),
+      naoRealizados: visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id),
+      ...retratoDoResumo(visivel),
+    });
   };
 
   // Marca/desmarca um item: os totais refletem só os marcados.
@@ -266,7 +286,12 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         <div id="result-section" className="mt-14">
           {visivel && (
             <div className="max-w-4xl mx-auto">
-              <QuoteTable summary={visivel} selecionados={selecionados} onToggleItem={alternarItem} />
+              <QuoteTable
+                summary={visivel}
+                selecionados={selecionados}
+                onToggleItem={alternarItem}
+                onSalvarNaoRealizados={salvarComNaoRealizados}
+              />
             </div>
           )}
         </div>

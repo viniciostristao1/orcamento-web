@@ -198,6 +198,45 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvos[0].name).toBe('JOAO DA SILVA');
   });
 
+  it('salva com itens não realizados (vai para a aba do histórico)', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
+    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não realizados/i }));
+
+    const salvo = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+    expect(salvo).toHaveLength(1);
+    expect(salvo[0].naoRealizados).toEqual([1]);
+  });
+
+  it('histórico: abas Todos | Não Realizados', () => {
+    const comDesmarcados = { ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), naoRealizados: [1, 2] };
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([comDesmarcados, registro('2', 'XYZ9A87', '01/08/2026 09:00:00')]),
+    );
+    render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+
+    expect(screen.getByText('ABC1D23')).toBeTruthy();
+    expect(screen.getByText('XYZ9A87')).toBeTruthy();
+    expect(screen.getByText(/2 não realizado\(s\)/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /Não Realizados \(1\)/i }));
+    expect(screen.getByText('ABC1D23')).toBeTruthy();
+    expect(screen.queryByText('XYZ9A87')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /Todos \(2\)/i }));
+    expect(screen.getByText('XYZ9A87')).toBeTruthy();
+
+    // janelinha "Ver itens do orçamento"
+    fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[0]);
+    expect(screen.getByText('Itens do orçamento')).toBeTruthy();
+    expect(screen.getAllByText('01 TESTE').length).toBeGreaterThan(1);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
+    expect(screen.queryByText('Itens do orçamento')).toBeNull();
+  });
+
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {
     localStorage.setItem(
       'orcamentos_historico_v1',

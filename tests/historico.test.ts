@@ -5,10 +5,12 @@ import {
   adicionarAoHistorico,
   contarItensDaDescricao,
   filtrarHistorico,
+  filtrarPorAba,
   importarBackup,
   limparHistorico,
   listarHistorico,
   removerDoHistorico,
+  temNaoRealizados,
 } from '../src/utils/historico';
 
 const base = {
@@ -37,6 +39,16 @@ describe('histórico (localStorage)', () => {
     expect(lista[0].revAprovadaInput).toBe('100,00');
     const depois = removerDoHistorico(lista[0].id);
     expect(depois).toEqual([]);
+  });
+
+  it('filtra por aba (Todos / Não Realizados)', () => {
+    adicionarAoHistorico({ ...base, naoRealizados: [1] });
+    adicionarAoHistorico({ ...base, desconto: 10 }); // comuns não entram na aba
+    const lista = listarHistorico();
+    const comDesmarcados = lista[1];
+    expect(temNaoRealizados(comDesmarcados)).toBe(true);
+    expect(filtrarPorAba(lista, 'todos')).toHaveLength(2);
+    expect(filtrarPorAba(lista, 'naoRealizados')).toEqual([comDesmarcados]);
   });
 
   it('não duplica quando o mais recente tem os mesmos dados', () => {

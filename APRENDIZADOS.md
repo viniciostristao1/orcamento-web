@@ -5,6 +5,27 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Histórico com abas + salvar não realizados + ver itens (v0.11.0)
+
+**Pedidos:** (1) no histórico, duas abas: **Todos** e **Não Realizados**; (2) um botão ao lado
+do PDF/PNG para **salvar** um orçamento que contém itens desmarcados, que vai para a aba "Não
+Realizados"; (3) um botão ao lado de **Abrir orçamento** que abre uma **janelinha com os itens**
+(a descrição do reparo, linha a linha).
+
+**Feito:**
+- `OrcamentoSalvo.naoRealizados?: number[]` (ids desmarcados) + `temNaoRealizados()` e
+  `filtrarPorAba()` em `utils/historico.ts`; `abrirDoHistorico` **restaura a marcação** salva.
+- `HistoryModal`: abas **Todos (N)** / **Não Realizados (M)**; selo vermelho
+  "N não realizado(s)" no cartão; estado vazio próprio por aba.
+- `QuoteTable`: botão novo (âmbar, ícone-only) ao lado de PDF/PNG —
+  **"Salvar com itens não realizados"** (desabilitado sem desmarcados; vira ✓ por 2s).
+  `OrcamentosApp` monta o registro com `naoRealizados` e o retrato do resumo atual.
+- `HistoryModal`: botão **"Ver itens do orçamento"** (ícone `List`) ao lado do "Abrir" →
+  janelinha sobreposta (z-210) com as linhas de `descReparo` uma embaixo da outra; fecha no X
+  ou clicando fora.
+- Testes: **55** (3 novos) — inclui salvar com desmarcados indo para a aba e a janelinha.
+  Flyer segue **0 diferenças**; o orçamento já tinha mudado na v0.8.5 (pedido).
+
 ## 2026-09-24 — Último orçamento gerado fica salvo ao reabrir (v0.10.0)
 
 **Pedido:** o visual do orçamento gerado sumia ao reabrir o app ("tenho que gerar sempre para

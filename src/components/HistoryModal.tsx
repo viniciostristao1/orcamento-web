@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Database, FolderOpen, Search, Trash2, Upload, X } from 'lucide-react';
+import { Database, FolderOpen, List, Search, Trash2, Upload, X } from 'lucide-react';
 import {
+  type AbaHistorico,
   type OrcamentoSalvo,
   baixarBackup,
   contarItensDaDescricao,
   filtrarHistorico,
+  filtrarPorAba,
   importarBackup,
   limparHistorico,
   listarHistorico,
   removerDoHistorico,
+  temNaoRealizados,
 } from '../utils/historico';
 import { formatCurrency } from '../utils/quoteLogic';
 
@@ -23,6 +26,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
   const [msg, setMsg] = useState('');
   const [buscaAberta, setBuscaAberta] = useState(false);
   const [busca, setBusca] = useState('');
+  const [aba, setAba] = useState<AbaHistorico>('todos');
+  // Registro com a janelinha de itens aberta (descrição do reparo, linha a linha).
+  const [itensDe, setItensDe] = useState<OrcamentoSalvo | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -31,12 +37,15 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
       setMsg('');
       setBuscaAberta(false);
       setBusca('');
+      setAba('todos');
+      setItensDe(null);
     }
   }, [aberto]);
 
   if (!aberto) return null;
 
-  const visiveis = filtrarHistorico(lista, busca);
+  const visiveis = filtrarHistorico(filtrarPorAba(lista, aba), busca);
+  const totalNaoRealizados = lista.filter(temNaoRealizados).length;
 
   const handleRestaurar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -158,6 +167,27 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
           </div>
         )}
 
+        {/* Abas: Todos | Não Realizados */}
+        <div className="flex items-center gap-2 px-6 py-3 border-b border-slate-800/60">
+          {([
+            { id: 'todos' as AbaHistorico, rotulo: `Todos (${lista.length})` },
+            { id: 'naoRealizados' as AbaHistorico, rotulo: `Não Realizados (${totalNaoRealizados})` },
+          ]).map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setAba(t.id)}
+              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all cursor-pointer active:scale-95 ${
+                aba === t.id
+                  ? 'bg-blue-600 text-white border-blue-500'
+                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+              }`}
+            >
+              {t.rotulo}
+            </button>
+          ))}
+        </div>
+
         {msg && (
           <div className="px-6 py-3 text-base font-bold text-blue-300 bg-blue-600/10 border-b border-blue-500/20">{msg}</div>
         )}
@@ -171,7 +201,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
           )}
           {lista.length > 0 && visiveis.length === 0 && (
             <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-base">
-              Nenhum orçamento encontrado.
+              {aba === 'naoRealizados'
+                ? 'Nenhum orçamento com itens não realizados.'
+                : 'Nenhum orçamento encontrado.'}
             </p>
           )}
           {visiveis.map((r) => {
@@ -189,8 +221,23 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                       <span className="text-amber-300">{r.placa}</span>
                     </>
                   ) : null}
+                  {temNaoRealizados(r) ? (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-red-300">{r.naoRealizados!.length} não realizado(s)</span>
+                    </>
+                  ) : null}
                 </span>
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setItensDe(r)}
+                    aria-label="Ver itens do orçamento"
+                    title="Ver itens do orçamento"
+                    className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all cursor-pointer active:scale-95"
+                  >
+                    <List size={16} />
+                  </button>
                   <button
                     type="button"
                     onClick={() => onAbrir(r)}
@@ -223,6 +270,44 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
             );
           })}
         </div>
+
+        {/* Janelinha com os itens do orçamento (a descrição do reparo, linha a linha) */}
+        {itensDe && (
+          <div
+            className="fixed inset-0 z-[210] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
+            onClick={() => setItensDe(null)}
+          >
+            <div
+              className="w-full max-w-xl max-h-[80vh] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-5 py-4 bg-slate-950/60 border-b border-slate-800/60">
+                <h3 className="titulo-tema text-lg font-black text-slate-100 uppercase tracking-widest">
+                  Itens do orçamento
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setItensDe(null)}
+                  aria-label="Fechar"
+                  title="Fechar"
+                  className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 text-slate-200 border border-slate-700 rounded-xl transition-all cursor-pointer active:scale-95"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="overflow-y-auto p-5 space-y-2">
+                {itensDe.descReparo
+                  .split('\n')
+                  .filter((l) => l.trim())
+                  .map((linha, i) => (
+                    <p key={i} className="text-base text-slate-200 font-bold">
+                      {linha}
+                    </p>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
