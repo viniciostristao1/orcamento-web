@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { processQuote, formatCurrency, parseBrazilianNumber, recalcularComSelecao } from '../utils/quoteLogic';
+import { processQuote, formatCurrency, formatarValorInput, parseBrazilianNumber, recalcularComSelecao } from '../utils/quoteLogic';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable from './QuoteTable';
-import { Play, Percent, History } from 'lucide-react';
+import { Play, Percent, History, Broom } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
@@ -179,40 +179,71 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
             
-            <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
-              <textarea 
-                className="w-full h-32 campo-tema border border-slate-800 rounded-2xl p-6 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
-                placeholder="Ex: 1 50,00" 
-                value={ajustesManuais} 
-                onChange={(e) => setAjustesManuais(e.target.value)} 
-              />
-            </NeonCard>
           </div>
 
           <div className="xl:col-span-4 space-y-8">
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
-                {/* Total Revisão | Peças na Revisão */}
+                {/* Total Revisão | Peças na Revisão (com vassoura para limpar e
+                    formatação automática de milhar/centavos ao colar ou sair) */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Total Revisão (R$)</label>
-                    <input 
-                      type="text" 
-                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
-                      value={revAprovadaInput} 
-                      onChange={(e) => setRevAprovadaInput(e.target.value)} 
-                      placeholder="0,00"
-                    />
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white focus:border-emerald-500 outline-none" 
+                        value={revAprovadaInput} 
+                        onChange={(e) => setRevAprovadaInput(e.target.value)}
+                        onPaste={(e) => {
+                          const colado = e.clipboardData.getData('text');
+                          if (colado) {
+                            e.preventDefault();
+                            setRevAprovadaInput(formatarValorInput(colado));
+                          }
+                        }}
+                        onBlur={(e) => setRevAprovadaInput(formatarValorInput(e.target.value))}
+                        placeholder="0,00"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRevAprovadaInput('')}
+                        aria-label="Limpar Total Revisão"
+                        title="Limpar Total Revisão"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                      >
+                        <Broom size={16} />
+                      </button>
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
-                    <input 
-                      type="text" 
-                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
-                      value={revPecasInput} 
-                      onChange={(e) => setRevPecasInput(e.target.value)}
-                      placeholder="0,00"
-                    />
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white focus:border-emerald-500 outline-none" 
+                        value={revPecasInput} 
+                        onChange={(e) => setRevPecasInput(e.target.value)}
+                        onPaste={(e) => {
+                          const colado = e.clipboardData.getData('text');
+                          if (colado) {
+                            e.preventDefault();
+                            setRevPecasInput(formatarValorInput(colado));
+                          }
+                        }}
+                        onBlur={(e) => setRevPecasInput(formatarValorInput(e.target.value))}
+                        placeholder="0,00"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRevPecasInput('')}
+                        aria-label="Limpar Peças na Revisão"
+                        title="Limpar Peças na Revisão"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                      >
+                        <Broom size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -260,6 +291,18 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <Play size={28} fill="currentColor" />
                 </button>
               </div>
+            </NeonCard>
+
+            {/* Ajustes Manuais fica entre o APROVADO E DESCONTO e o RESUMO LÍQUIDO;
+                o campo mostra só 3 linhas (rows=3). */}
+            <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
+              <textarea 
+                rows={3}
+                className="w-full campo-tema border border-slate-800 rounded-2xl p-4 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
+                placeholder="Ex: 1 50,00" 
+                value={ajustesManuais} 
+                onChange={(e) => setAjustesManuais(e.target.value)} 
+              />
             </NeonCard>
 
             {/* RESUMO LÍQUIDO logo abaixo do APROVADO E DESCONTO, em pares. */}

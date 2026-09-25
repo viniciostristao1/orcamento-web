@@ -137,6 +137,16 @@ export const formatCurrency = (value: number): string =>
   value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
 
 /**
+ * Formata o que o usuário colou/digitou num campo de valor: milhar com ponto e
+ * centavos com vírgula ("1000" → "1.000,00"; "2.188,92" → "2.188,92").
+ * Sem nenhum dígito devolve como veio (para não zerar um texto em edição).
+ */
+export const formatarValorInput = (valor: string): string => {
+  if (!valor.trim() || !/\d/.test(valor)) return valor;
+  return formatCurrency(parseBrazilianNumber(valor));
+};
+
+/**
  * Itens DESMARCADOS (não realizados) e a soma deles — usado na caixa
  * "Itens Não Realizados" do documento (só aparece se houver algum).
  */

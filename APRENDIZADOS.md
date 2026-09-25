@@ -5,6 +5,24 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Vassoura/formatador nos valores e Ajustes na coluna direita (v0.14.1)
+
+**Pedidos:** (1) botãozinho de **vassoura** para limpar "Total Revisão (R$)" e "Peças na
+Revisão (R$)"; (2) ao colar, o valor vira milhar com ponto e centavos com vírgula
+("1000" → "1.000,00"; "2.188,92" → "2.188,92"); (3) o card **3. AJUSTES MANUAIS (ID VALOR)**
+entre o APROVADO E DESCONTO e o RESUMO LÍQUIDO, com o campo mostrando **só 3 linhas**.
+
+**Feito:**
+- `formatarValorInput()` em `quoteLogic.ts` (reusa `parseBrazilianNumber` + `formatCurrency`;
+  vazio/sem dígito fica como veio). Aplicado no **onPaste** e no **onBlur** dos dois campos
+  (digitar continua livre, como antes).
+- Botão **vassoura** (`Broom` da lucide) dentro de cada campo, ícone-only com
+  `aria-label`/`title` ("Limpar Total Revisão"/"Limpar Peças na Revisão").
+- Card dos ajustes movido para a coluna direita (entre APROVADO E DESCONTO e RESUMO LÍQUIDO) e
+  o textarea trocou `h-32` por **`rows={3}`** + `p-4` — conferido no Chromium: 3 linhas visíveis
+  (altura 89px) e a ordem certa na coluna.
+- Testes: **67** (4 novos de formatação/paste/vassoura).
+
 ## 2026-09-24 — Campos em pares no orçamento + scripts Pneus/Revisão no Whats (v0.14.0)
 
 **Pedidos:** (1) no orçamento, **Total Revisão | Peças na Revisão** lado a lado, **Desconto |

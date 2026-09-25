@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatCurrency,
+  formatarValorInput,
   itensNaoRealizados,
   parseBrazilianNumber,
   processQuote,
@@ -23,6 +24,21 @@ const ORCAMENTO = `1 Serviço GUN126L473025 DISCO DIANTEIRO UM LADO NO VEICULO 1
 2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60
 2 Peça CARE010701 OXY-SANITIZATION APP 1 99,000000 99,00
 1 Serviço RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO 1,00000 250,000000 250,00`;
+
+describe('formatarValorInput (colar/digitar nos campos de valor)', () => {
+  it('inteiro vira reais com centavos', () => {
+    expect(formatarValorInput('1000')).toBe('1.000,00');
+    expect(formatarValorInput('100')).toBe('100,00');
+  });
+  it('mantém o formato brasileiro já colado', () => {
+    expect(formatarValorInput('2.188,92')).toBe('2.188,92');
+    expect(formatarValorInput('2188,92')).toBe('2.188,92');
+  });
+  it('vazio ou sem dígito fica como veio', () => {
+    expect(formatarValorInput('')).toBe('');
+    expect(formatarValorInput('abc')).toBe('abc');
+  });
+});
 
 describe('parseBrazilianNumber', () => {
   it('formato BR com milhar', () => {

@@ -235,6 +235,21 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].naoRealizados).toEqual([1]);
   });
 
+  it('valores: colar formata (milhar/centavos) e a vassoura limpa', () => {
+    render(<App />);
+    const campos = screen.getAllByPlaceholderText('0,00');
+    expect(campos).toHaveLength(2);
+
+    fireEvent.paste(campos[0], { clipboardData: { getData: () => '1000' } });
+    expect((campos[0] as HTMLInputElement).value).toBe('1.000,00');
+
+    fireEvent.paste(campos[1], { clipboardData: { getData: () => '2.188,92' } });
+    expect((campos[1] as HTMLInputElement).value).toBe('2.188,92');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar Total Revisão' }));
+    expect((campos[0] as HTMLInputElement).value).toBe('');
+  });
+
   it('histórico: ao abrir, o documento usa a data/hora do registro (não a atual)', () => {
     localStorage.setItem(
       'orcamentos_historico_v1',
