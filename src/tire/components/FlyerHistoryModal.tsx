@@ -47,7 +47,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
         <div className="flex items-center justify-between px-6 py-5 bg-slate-950/60 border-b border-slate-800/60">
           <div className="flex items-center gap-4">
             <div data-neon-dot className="w-2 h-8 rounded-full bg-blue-500" style={{ boxShadow: '0 0 20px #3b82f6' }}></div>
-            <h3 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-widest">Histórico — Tire Flyer</h3>
+            <h3 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-widest">HISTÓRICO — TIRE FLYER</h3>
           </div>
           <button
             type="button"

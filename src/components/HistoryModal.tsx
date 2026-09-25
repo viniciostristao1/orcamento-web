@@ -81,7 +81,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
         <div className="flex items-center justify-between px-6 py-5 bg-slate-950/60 border-b border-slate-800/60">
           <div className="flex items-center gap-4">
             <div data-neon-dot className="w-2 h-8 rounded-full bg-blue-500" style={{ boxShadow: '0 0 20px #3b82f6' }}></div>
-            <h3 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-widest">Histórico</h3>
+            <h3 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-widest">HISTÓRICO</h3>
           </div>
           <button
             type="button"
@@ -288,7 +288,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-5 py-4 bg-slate-950/60 border-b border-slate-800/60">
-                <h3 className="titulo-tema text-3xl font-black text-slate-100 uppercase tracking-widest">
+                <h3 className="titulo-tema text-[26px] font-black text-slate-100 uppercase tracking-widest">
                   ITENS DO ORÇAMENTO
                 </h3>
                 <button

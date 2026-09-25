@@ -5,6 +5,14 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Títulos dos históricos em maiúsculas e popup menor (v0.13.4)
+
+**Pedido:** onde diz "Histórico" em maiúsculas; e reduzir a fonte de "ITENS DO ORÇAMENTO".
+
+**Feito:** títulos em maiúsculas **no texto-fonte** (o tema Claude tira o `text-transform` do
+`.titulo-tema`): `HISTÓRICO` e `HISTÓRICO — TIRE FLYER`. O título do popup foi de 30px →
+**26px** (`text-[26px]`). Testes: 60.
+
 ## 2026-09-24 — Contagem das abas segue a pesquisa (v0.13.3)
 
 **Pedido:** ao pesquisar no histórico, as abas mostravam o total geral (`Todos (N)`); o correto
