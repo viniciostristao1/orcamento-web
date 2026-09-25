@@ -62,8 +62,8 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-3 flex-1 flex flex-col">
-        {/* Nome + WhatsApp na mesma linha */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Nome | WhatsApp | Dia do Envio | Chassi — tudo lado a lado */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
           <div className="group">
             <label className={labelClasses}>Nome Completo</label>
             <input
@@ -88,10 +88,6 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
               placeholder="555199999999"
             />
           </div>
-        </div>
-
-        {/* Dia do Envio + Chassi na mesma linha */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="group">
             <label className={labelClasses}>Dia do Envio</label>
             <input

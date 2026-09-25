@@ -200,7 +200,8 @@ describe('App — smoke test (render + processar)', () => {
 
     expect(screen.getByText('PAINEL')).toBeTruthy();
     expect(screen.getByText('Novo Contato')).toBeTruthy();
-    expect(screen.getByText('Script de Prospecção')).toBeTruthy();
+    expect(screen.getByText('Script Pneus')).toBeTruthy();
+    expect(screen.getByText('Script Revisão')).toBeTruthy();
     expect(screen.getByText('Relatório de Envios')).toBeTruthy();
     // Agenda de Tarefas e Centro de Dados saíram da aba (backup foi p/ Configurações)
     expect(screen.queryByText('Agenda de Tarefas')).toBeNull();

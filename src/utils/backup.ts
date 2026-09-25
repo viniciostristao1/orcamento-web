@@ -1,6 +1,7 @@
 import { TEMA_KEY } from './tema';
 import { RASCUNHO_KEY } from './rascunho';
 import { ULTIMO_KEY } from './ultimoOrcamento';
+import { SCRIPT_PNEUS_KEY, SCRIPT_REVISAO_KEY } from '../whats/utils/scripts';
 
 /** Chave do histórico de orçamentos (a mesma usada em utils/historico.ts). */
 export const HISTORICO_KEY = 'orcamentos_historico_v1';
@@ -16,7 +17,9 @@ export const CHAVES_BACKUP = [
   RASCUNHO_KEY,
   TEMA_KEY,
   'zap_contacts',
-  'zap_template',
+  SCRIPT_PNEUS_KEY,
+  SCRIPT_REVISAO_KEY,
+  'zap_template', // chave antiga: mantém compatibilidade na restauração
   'flyer_historico_v1',
 ] as const;
 

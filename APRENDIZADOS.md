@@ -5,6 +5,26 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Campos em pares no orçamento + scripts Pneus/Revisão no Whats (v0.14.0)
+
+**Pedidos:** (1) no orçamento, **Total Revisão | Peças na Revisão** lado a lado, **Desconto |
+Parcelas** lado a lado e, no RESUMO LÍQUIDO, **Total Peças | Total Serviços** e **Desc. | Valor
+Líquido** lado a lado; (2) na aba Whats, **Nome, WhatsApp, Dia do Envio e Chassi na mesma
+linha** e o "Script de Prospecção" dividido em **SCRIPT PNEUS** e **SCRIPT REVISÃO** (estreitando
+a coluna dos scripts se preciso).
+
+**Feito:**
+- Orçamentos: pares em `grid-cols-2` (cards APROVADO E DESCONTO e RESUMO LÍQUIDO) — conferido
+  no Chromium que os pares ficam na mesma linha.
+- Whats: formulário em `xl:grid-cols-4` (uma linha); coluna dos scripts de `col-span-5` → **4**
+  e a do formulário de `7` → **8**; `MessageEditor` virou **dois blocos** (cada um com o seu
+  copiar): `src/whats/utils/scripts.ts` (`zap_script_pneus_v1`/`zap_script_revisao_v1`,
+  **migrando** o `zap_template` antigo para o de revisão). O contato (copiar/NOTIFICAR) usa o
+  **script de revisão**; o de pneus é para copiar no editor.
+- Backup geral ganhou as duas chaves (mantendo `zap_template` para compatibilidade).
+- Testes: **63** (`tests/whats_scripts.test.ts` novo, com migração e persistência);
+  flyer segue **0 diferenças**.
+
 ## 2026-09-24 — Formulário do Whats mais compacto (v0.13.5)
 
 **Pedido:** na aba Whats, WhatsApp ao lado direito de **Nome Completo**, **Número do Chassi**

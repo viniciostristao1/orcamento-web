@@ -192,46 +192,50 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           <div className="xl:col-span-4 space-y-8">
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Total Revisão (R$)</label>
-                  <input 
-                    type="text" 
-                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
-                    value={revAprovadaInput} 
-                    onChange={(e) => setRevAprovadaInput(e.target.value)} 
-                    placeholder="0,00"
-                  />
-                </div>
-                
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
-                  <input 
-                    type="text" 
-                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
-                    value={revPecasInput} 
-                    onChange={(e) => setRevPecasInput(e.target.value)}
-                    placeholder="0,00"
-                  />
-                </div>
-                
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Desconto em Peças (%)</label>
-                  <div className="relative">
+                {/* Total Revisão | Peças na Revisão */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Total Revisão (R$)</label>
                     <input 
-                      type="number" 
-                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-12 text-xl font-black text-amber-500 focus:border-amber-500 outline-none" 
-                      value={desconto} 
-                      onChange={(e) => setDesconto(parseFloat(e.target.value))} 
+                      type="text" 
+                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
+                      value={revAprovadaInput} 
+                      onChange={(e) => setRevAprovadaInput(e.target.value)} 
+                      placeholder="0,00"
                     />
-                    <Percent size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
+                    <input 
+                      type="text" 
+                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none" 
+                      value={revPecasInput} 
+                      onChange={(e) => setRevPecasInput(e.target.value)}
+                      placeholder="0,00"
+                    />
                   </div>
                 </div>
-                
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Parcelas</label>
-                  <select className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
-                    {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
-                  </select>
+
+                {/* Desconto em Peças | Parcelas */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Desconto em Peças (%)</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-amber-500 focus:border-amber-500 outline-none" 
+                        value={desconto} 
+                        onChange={(e) => setDesconto(parseFloat(e.target.value))} 
+                      />
+                      <Percent size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Parcelas</label>
+                    <select className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
+                      {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-1">
@@ -258,26 +262,29 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               </div>
             </NeonCard>
 
-            {/* RESUMO LÍQUIDO logo abaixo do APROVADO E DESCONTO, com os
-                valores empilhados (um abaixo do outro). */}
+            {/* RESUMO LÍQUIDO logo abaixo do APROVADO E DESCONTO, em pares. */}
             {visivel && (
               <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact>
-                <div className="space-y-3">
-                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                    <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Peças</span>
-                    <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Peças</span>
+                      <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
+                    </div>
+                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Serviços</span>
+                      <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
+                    </div>
                   </div>
-                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                    <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Serviços</span>
-                    <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
-                  </div>
-                  <div className="p-4 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase block mb-1.5">Desc. ({visivel.descontoPercentual}%)</span>
-                    <span className="titulo-tema text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
-                  </div>
-                  <div className="p-4 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
-                    <span className="text-[10px] font-black text-blue-400 uppercase block mb-1.5 underline">Valor Líquido</span>
-                    <span className="titulo-tema text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-4 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
+                      <span className="text-[10px] font-black text-emerald-500 uppercase block mb-1.5">Desc. ({visivel.descontoPercentual}%)</span>
+                      <span className="titulo-tema text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
+                    </div>
+                    <div className="p-4 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
+                      <span className="text-[10px] font-black text-blue-400 uppercase block mb-1.5 underline">Valor Líquido</span>
+                      <span className="titulo-tema text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
+                    </div>
                   </div>
                 </div>
               </NeonCard>

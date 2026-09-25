@@ -4,31 +4,39 @@ import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import MessageEditor from './components/MessageEditor';
 import { Contact } from './types';
+import {
+  SCRIPT_PNEUS_KEY,
+  SCRIPT_REVISAO_KEY,
+  lerScripts,
+  salvarScriptPneus,
+  salvarScriptRevisao,
+} from './utils/scripts';
 
 const WhatsApp: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>(() => {
     const saved = localStorage.getItem('zap_contacts');
     return saved ? JSON.parse(saved) : [];
   });
-  
-  const [messageTemplate, setMessageTemplate] = useState(() => {
-    const saved = localStorage.getItem('zap_template');
-    return saved || 'Boa tarde, é o Vinícios da Weiand Toyota Lajeado. Tudo bem? Quando se aproximar de 60 mil km já podes agendar a próxima revisão. Fico à disposição!';
-  });
+
+  // Dois scripts: pneus (ofertas) e revisão (usado no NOTIFICAR/copiar contato).
+  const [scriptPneus, setScriptPneus] = useState(() => lerScripts().pneus);
+  const [scriptRevisao, setScriptRevisao] = useState(() => lerScripts().revisao);
 
   useEffect(() => {
     localStorage.setItem('zap_contacts', JSON.stringify(contacts));
   }, [contacts]);
 
   useEffect(() => {
-    localStorage.setItem('zap_template', messageTemplate);
-  }, [messageTemplate]);
+    salvarScriptPneus(scriptPneus);
+    salvarScriptRevisao(scriptRevisao);
+  }, [scriptPneus, scriptRevisao]);
 
   // Sincronizar dados entre abas para evitar perda de dados
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'zap_contacts' && e.newValue) setContacts(JSON.parse(e.newValue));
-      if (e.key === 'zap_template' && e.newValue) setMessageTemplate(e.newValue);
+      if (e.key === SCRIPT_PNEUS_KEY && e.newValue !== null) setScriptPneus(e.newValue);
+      if (e.key === SCRIPT_REVISAO_KEY && e.newValue !== null) setScriptRevisao(e.newValue);
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
@@ -77,10 +85,15 @@ const WhatsApp: React.FC = () => {
 
       <main className="max-w-[1700px] mx-auto space-y-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-5 space-y-10 h-full flex flex-col">
-            <MessageEditor initialTemplate={messageTemplate} onSave={setMessageTemplate} />
+          <div className="lg:col-span-4 space-y-6 h-full flex flex-col">
+            <MessageEditor
+              initialPneus={scriptPneus}
+              initialRevisao={scriptRevisao}
+              onSavePneus={setScriptPneus}
+              onSaveRevisao={setScriptRevisao}
+            />
           </div>
-          <div className="lg:col-span-7 h-full flex">
+          <div className="lg:col-span-8 h-full flex">
             <ContactForm onAdd={addContact} count={contacts.length} />
           </div>
         </div>
@@ -92,7 +105,7 @@ const WhatsApp: React.FC = () => {
             onMarkAsSent={markAsSent}
             onUpdateNote={updateContactNote}
             onUpdateDate={updateContactDate}
-            messageTemplate={messageTemplate} 
+            messageTemplate={scriptRevisao} 
           />
         </div>
       </main>
