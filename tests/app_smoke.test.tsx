@@ -235,6 +235,45 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].naoRealizados).toEqual([1]);
   });
 
+  it('aba Dados: cria tabela com N colunas, adiciona linha e a busca grifa o termo', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    // sub-abas
+    expect(screen.getByRole('button', { name: /PEÇAS \(0\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /O\.S'S \(0\)/i })).toBeTruthy();
+
+    // cria tabela com 3 colunas
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '3' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+
+    const tabela = container.querySelector('table')!;
+    expect(tabela.querySelectorAll('thead input')).toHaveLength(3); // títulos (negrito)
+    expect((tabela.querySelector('thead input') as HTMLInputElement).value).toBe('Coluna 1');
+
+    // adiciona linha e escreve
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    const celulas = container.querySelectorAll('tbody input');
+    expect(celulas).toHaveLength(3);
+    fireEvent.change(celulas[0], { target: { value: 'JOAO ABC1D23' } });
+
+    // busca: grifa a célula e mostra o contador
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), { target: { value: 'joao' } });
+    expect(screen.getByText(/1 em Peças · 0 em O\.S's/i)).toBeTruthy();
+    expect(document.querySelectorAll('[data-marcado="1"]')).toHaveLength(1);
+
+    // termo que só existe em O.S's troca de sub-aba
+    fireEvent.click(screen.getByRole('button', { name: /O\.S'S \(0\)/i }));
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.change(container.querySelectorAll('tbody input')[0], { target: { value: 'OS 4471 MARIA' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), { target: { value: 'maria' } });
+    expect(screen.getByRole('button', { name: /O\.S'S \(1\)/i })).toBeTruthy();
+    expect(document.querySelectorAll('[data-marcado="1"]').length).toBeGreaterThan(0);
+  });
+
   it('valores: colar formata (milhar/centavos) e a vassoura limpa', () => {
     render(<App />);
     const campos = screen.getAllByPlaceholderText('0,00');

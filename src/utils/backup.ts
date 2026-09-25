@@ -21,6 +21,7 @@ export const CHAVES_BACKUP = [
   SCRIPT_REVISAO_KEY,
   'zap_template', // chave antiga: mantém compatibilidade na restauração
   'flyer_historico_v1',
+  'dados_tabelas_v1',
 ] as const;
 
 export interface ResumoBackup {

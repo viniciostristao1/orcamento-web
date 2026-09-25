@@ -14,7 +14,7 @@ dados do orçamento copiados do PDF do sistema) e o app **interpreta, agrupa por
 peças/serviços, aplica **desconto em peças (%)**, divide em **parcelas** e monta o resumo +
 tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pelo **WhatsApp**.
 
-O app tem **três abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
+O app tem **quatro abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
 pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e **Whats** (v0.7.0 —
 contatos, template de mensagem e backup JSON para disparos mensais no WhatsApp). As três abas
 compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
@@ -69,7 +69,7 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **63 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **73 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
@@ -86,7 +86,7 @@ serifada).
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
   `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,
-  `zap_template` legado, `flyer_historico_v1`) num JSON; UI na engrenagem
+  `zap_template` legado, `flyer_historico_v1`, `dados_tabelas_v1`) num JSON; UI na engrenagem
   **Configurações** ("BACKUP DOS DADOS"). A importação recarrega o app. Aceita também o backup
   antigo (só histórico). Atenção: tema e template são string pura no localStorage (não JSON).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
@@ -155,8 +155,11 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.14.6`** com
-  `Orcamento-v0.14.6.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Aba Dados** (v0.15.0): `src/dados/` — tabelas de **PEÇAS** e **O.S's** (`dados_tabelas_v1`),
+  com criar tabela (escolhe colunas 1–12), cabeçalho em negrito, adicionar/remover linhas e
+  **busca que abre a sub-aba e grifa o termo**. Entra no backup geral.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.15.0`** com
+  `Orcamento-v0.15.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
   `ideias/` ("Foco na observação" implementada na v0.14.4).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original

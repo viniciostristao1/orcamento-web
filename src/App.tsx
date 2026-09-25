@@ -2,16 +2,18 @@ import React, { useEffect, useState } from 'react';
 import OrcamentosApp from './components/OrcamentosApp';
 import TireFlyerApp from './tire/TireFlyerApp';
 import WhatsApp from './whats/WhatsApp';
+import DadosApp from './dados/DadosApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
 import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
 import logoToyota from './assets/logo_toyota.png';
 
-type Aba = 'orcamentos' | 'pneus' | 'whats';
+type Aba = 'orcamentos' | 'pneus' | 'whats' | 'dados';
 
 const ABAS: { id: Aba; label: string }[] = [
   { id: 'orcamentos', label: 'Orçamentos' },
   { id: 'pneus', label: 'Tire Flyer' },
   { id: 'whats', label: 'Whats' },
+  { id: 'dados', label: 'Dados' },
 ];
 
 const App: React.FC = () => {
@@ -74,6 +76,9 @@ const App: React.FC = () => {
         </div>
         <div className={aba === 'whats' ? '' : 'hidden'}>
           <WhatsApp />
+        </div>
+        <div className={aba === 'dados' ? '' : 'hidden'}>
+          <DadosApp />
         </div>
       </main>
     </div>

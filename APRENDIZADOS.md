@@ -5,6 +5,28 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Nova aba "DADOS" (tabelas de Peças e O.S's) (v0.15.0)
+
+**Pedido:** uma aba **DADOS** com sub-abas **PEÇAS** e **O.S's**; botão **Criar tabela** no alto
+com escolha do **número de colunas**; **adicionar linhas** por um botão embaixo da tabela; a
+**primeira linha é o cabeçalho em negrito**; e uma **lupa** no alto que abre a sub-aba onde o
+termo está, com o termo **grifado**.
+
+**Feito:**
+- `src/dados/utils/tabelas.ts` (`dados_tabelas_v1`): modelo `{ pecas: TabelaDados[], os: [...] }`
+  com `colunas/titulos/linhas`; funções puras `criarTabela` (colunas 1–12), `adicionarLinha`,
+  `removerLinha`, `atualizarTitulo/Celula`, `removerTabela`, `lerDados/salvarDados` e
+  **`encontrar()`** (conta células/títulos que contêm o termo, **sem acento**).
+- `src/dados/DadosApp.tsx`: barra com a **lupa** (+contador "N em Peças · M em O.S's"), seletor
+  de **colunas** e **Criar tabela**; sub-abas com contagem; tabelas com cabeçalho editável em
+  **negrito**, células editáveis, botão **Adicionar linha** embaixo (e X para excluir a linha);
+  ao pesquisar, **troca sozinho para a sub-aba que tem o termo**, **grifa** a célula
+  (`data-marcado="1"` + fundo âmbar) e rola até ela.
+- Aba **Dados** adicionada ao shell (4ª aba); a chave entrou no **backup geral**.
+- Testes: **73** (6 novos em `tests/dados.test.ts` + caso de UI no smoke); validado no Chromium
+  (criar 4 colunas, títulos em peso 900, busca "pastilhas" grifa 1 célula e "maria" troca para
+  O.S's).
+
 ## 2026-09-24 — Whats em 2 colunas: contato+scripts à esquerda, relatório à direita (v0.14.6)
 
 **Pedidos:** observação/mensagem com **1 linha** (estavam com 3) e novo layout: **NOVO CONTATO à
