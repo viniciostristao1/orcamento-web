@@ -69,15 +69,15 @@ describe('App — smoke test (render + processar)', () => {
   });
 
   it('caixinhas: desmarcar um item recalcula os totais', () => {
-    render(<App />);
+    const { container } = render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     expect(screen.getAllByText(/2\.821,94/).length).toBeGreaterThan(0); // total peças cheio
     // todos marcados: NÃO existe a caixa de não realizados
     expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
 
-    const checks = screen.getAllByRole('checkbox');
-    expect(checks.length).toBe(3); // um por item
-    fireEvent.click(checks[0]); // desmarca o item 1 (peças 1.438,24)
+    const checks = () => container.querySelectorAll<HTMLInputElement>('#printable-quote input[type="checkbox"]');
+    expect(checks().length).toBe(3); // um por item
+    fireEvent.click(checks()[0]); // desmarca o item 1 (peças 1.438,24)
 
     expect(screen.getAllByText(/1\.383,70/).length).toBeGreaterThan(0); // 2.821,94 − 1.438,24
     // apareceu a caixa com a soma do item desmarcado (2.203,04)
@@ -85,7 +85,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getAllByText(/2\.203,04/).length).toBeGreaterThan(0);
 
     // remarca: a caixa some de novo
-    fireEvent.click(screen.getAllByRole('checkbox')[0]);
+    fireEvent.click(checks()[0]);
     expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
   });
 
@@ -254,7 +254,7 @@ describe('App — smoke test (render + processar)', () => {
 
     // adiciona linha e escreve
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
-    const celulas = container.querySelectorAll('tbody input');
+    const celulas = container.querySelectorAll('tbody input[type="text"]');
     expect(celulas).toHaveLength(3);
     fireEvent.change(celulas[0], { target: { value: 'JOAO ABC1D23' } });
 
@@ -274,7 +274,7 @@ describe('App — smoke test (render + processar)', () => {
 
     // excluir a sub-aba (com confirmação)
     const confirmar = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    fireEvent.click(screen.getByRole('button', { name: /Excluir sub-aba/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir sub-aba PREVENTIVA' }));
     expect(screen.queryByRole('button', { name: /PREVENTIVA \(0\)/i })).toBeNull();
     confirmar.mockRestore();
 
@@ -283,7 +283,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
-    fireEvent.change(container.querySelectorAll('tbody input')[0], { target: { value: 'OS 4471 MARIA' } });
+    fireEvent.change(container.querySelectorAll('tbody input[type="text"]')[0], { target: { value: 'OS 4471 MARIA' } });
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), { target: { value: 'maria' } });
     expect(screen.getByRole('button', { name: /O\.S'S \(1\)/i })).toBeTruthy();
     expect(document.querySelectorAll('[data-marcado="1"]').length).toBeGreaterThan(0);

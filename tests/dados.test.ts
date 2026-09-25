@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   ABA_PECAS,
+  alternarMarcada,
   DADOS_KEY,
   adicionarLinha,
   atualizarCelula,
@@ -15,6 +16,7 @@ import {
   lerDados,
   removerAba,
   removerLinha,
+  renomearAba,
   removerTabela,
   salvarDados,
 } from '../src/dados/utils/tabelas';
@@ -79,6 +81,31 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     const d2 = criarTabela(d, d.abas[2].id, 2);
     expect(d2.abas[2].tabelas).toHaveLength(1);
     expect(d2.abas[0].tabelas).toHaveLength(0);
+  });
+
+  it('caixinhas de seleção: com/sem e riscar a linha', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 2, true);
+    const id = d.abas[0].tabelas[0].id;
+    expect(d.abas[0].tabelas[0].comCaixas).toBe(true);
+    d = adicionarLinha(d, ABA_PECAS, id);
+    expect(d.abas[0].tabelas[0].marcados).toEqual([false]);
+    d = alternarMarcada(d, ABA_PECAS, id, 0);
+    expect(d.abas[0].tabelas[0].marcados).toEqual([true]);
+    d = alternarMarcada(d, ABA_PECAS, id, 0);
+    expect(d.abas[0].tabelas[0].marcados).toEqual([false]);
+
+    const sem = criarTabela(estadoInicial(), 'os', 2, false);
+    expect(sem.abas[1].tabelas[0].comCaixas).toBe(false);
+
+    // registros antigos (sem o campo) assumem com caixinhas
+    localStorage.setItem(DADOS_KEY, JSON.stringify({ abas: [{ id: 'x', rotulo: 'X', tabelas: [{ id: 't', colunas: 1, titulos: ['A'], linhas: [] }] }] }));
+    expect(lerDados().abas[0].tabelas[0].comCaixas).toBe(true);
+  });
+
+  it('renomeia sub-abas', () => {
+    const d = renomearAba(estadoInicial(), ABA_PECAS, 'freios');
+    expect(d.abas[0].rotulo).toBe('FREIOS');
+    expect(renomearAba(d, ABA_PECAS, '   ').abas[0].rotulo).toBe('FREIOS');
   });
 
   it('exclui sub-abas (e nunca deixa a lista vazia)', () => {

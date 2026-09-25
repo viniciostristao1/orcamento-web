@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Check, Copy, Plus, Search, Table2, Trash2, X } from 'lucide-react';
+import TituloEditavel from '../components/TituloEditavel';
 import {
   type DadosTabelas,
   MAX_COLUNAS,
@@ -12,7 +13,9 @@ import {
   criarTabela,
   encontrar,
   lerDados,
+  alternarMarcada,
   removerAba,
+  renomearAba,
   removerLinha,
   removerTabela,
   salvarDados,
@@ -25,6 +28,9 @@ const DadosApp: React.FC = () => {
   const [busca, setBusca] = useState('');
   const [criandoAba, setCriandoAba] = useState(false);
   const [nomeAba, setNomeAba] = useState('');
+  const [comCaixas, setComCaixas] = useState(true);
+  const [abaRenomeando, setAbaRenomeando] = useState<string | null>(null);
+  const [nomeSubAba, setNomeSubAba] = useState('');
   const [copiado, setCopiado] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,6 +66,18 @@ const DadosApp: React.FC = () => {
     return () => window.clearTimeout(id);
   }, [busca, abaId]);
 
+  const confirmarRenome = () => {
+    if (abaRenomeando) setDados((d) => renomearAba(d, abaRenomeando, nomeSubAba));
+    setAbaRenomeando(null);
+  };
+
+  const excluirAba = (a: { id: string; rotulo: string }) => {
+    if (!window.confirm(`Apagar a sub-aba "${a.rotulo}" e TODAS as tabelas dela?`)) return;
+    const restantes = dados.abas.filter((x) => x.id !== a.id);
+    setDados(removerAba(dados, a.id));
+    setAbaId(restantes[0]?.id ?? 'pecas');
+  };
+
   const confirmarNovaAba = () => {
     if (!nomeAba.trim()) return;
     const novo = criarAba(dados, nomeAba);
@@ -79,7 +97,7 @@ const DadosApp: React.FC = () => {
   return (
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
       <header className="mb-4 text-center">
-        <h1 className="titulo-tema text-3xl font-black tracking-tighter uppercase">DADOS</h1>
+        <TituloEditavel id="dados" className="titulo-tema text-3xl font-black tracking-tighter uppercase" />
       </header>
 
       <div className="max-w-[1150px] mx-auto">
@@ -121,9 +139,19 @@ const DadosApp: React.FC = () => {
                 </option>
               ))}
             </select>
+            <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={comCaixas}
+                onChange={(e) => setComCaixas(e.target.checked)}
+                aria-label="Com caixinhas de seleção"
+                className="w-4 h-4 accent-blue-600 cursor-pointer"
+              />
+              Caixinhas
+            </label>
             <button
               type="button"
-              onClick={() => setDados((d) => criarTabela(d, aba?.id, colunasNova))}
+              onClick={() => setDados((d) => criarTabela(d, aba?.id, colunasNova, comCaixas))}
               aria-label="Criar tabela"
               title="Criar tabela"
               className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer"
@@ -142,18 +170,58 @@ const DadosApp: React.FC = () => {
         {/* Sub-abas + criar nova */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {dados.abas.map((a) => (
-            <button
+            <div
               key={a.id}
-              type="button"
-              onClick={() => setAbaId(a.id)}
-              className={`px-6 py-2.5 rounded-xl text-base font-black uppercase tracking-widest border transition-all cursor-pointer active:scale-95 ${
-                aba?.id === a.id
-                  ? 'bg-blue-600 text-white border-blue-500'
-                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+              className={`flex items-stretch rounded-xl border overflow-hidden transition-all ${
+                aba?.id === a.id ? 'border-blue-500' : 'border-slate-700'
               }`}
             >
-              {a.rotulo} ({a.tabelas.length})
-            </button>
+              {abaRenomeando === a.id ? (
+                <input
+                  autoFocus
+                  value={nomeSubAba}
+                  onChange={(e) => setNomeSubAba(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') confirmarRenome();
+                    if (e.key === 'Escape') setAbaRenomeando(null);
+                  }}
+                  onBlur={confirmarRenome}
+                  aria-label="Renomear sub-aba"
+                  className="px-5 py-2.5 text-base font-black uppercase tracking-widest campo-tema outline-none w-44"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAbaId(a.id)}
+                  onDoubleClick={() => {
+                    setAbaRenomeando(a.id);
+                    setNomeSubAba(a.rotulo);
+                  }}
+                  title="Duplo clique para renomear"
+                  className={`px-6 py-2.5 text-base font-black uppercase tracking-widest transition-all cursor-pointer ${
+                    aba?.id === a.id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  {a.rotulo} ({a.tabelas.length})
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => excluirAba(a)}
+                disabled={dados.abas.length <= 1}
+                aria-label={`Excluir sub-aba ${a.rotulo}`}
+                title="Excluir esta sub-aba"
+                className={`flex items-center justify-center px-2.5 border-l transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                  aba?.id === a.id
+                    ? 'bg-blue-600/70 hover:bg-red-600 text-white border-blue-500'
+                    : 'bg-slate-800 hover:bg-red-600 hover:text-white text-slate-500 border-slate-700'
+                }`}
+              >
+                <X size={14} strokeWidth={3} />
+              </button>
+            </div>
           ))}
 
           {criandoAba ? (
@@ -201,22 +269,6 @@ const DadosApp: React.FC = () => {
               >
                 <Plus size={18} strokeWidth={3} />
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!aba) return;
-                  if (!window.confirm(`Apagar a sub-aba "${aba.rotulo}" e TODAS as tabelas dela?`)) return;
-                  const restantes = dados.abas.filter((a) => a.id !== aba.id);
-                  setDados(removerAba(dados, aba.id));
-                  setAbaId(restantes[0]?.id ?? 'pecas');
-                }}
-                disabled={dados.abas.length <= 1}
-                aria-label="Excluir sub-aba"
-                title="Excluir a sub-aba aberta"
-                className="flex items-center justify-center p-3 bg-slate-800 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
-              >
-                <Trash2 size={18} />
-              </button>
             </>
           )}
         </div>
@@ -247,7 +299,8 @@ const DadosApp: React.FC = () => {
               window.addEventListener('mouseup', aoSoltar);
             };
 
-            const larguraTotal = tabela.larguras.reduce((a, b) => a + b, 0) + 44;
+            const larguraAcoes = tabela.comCaixas ? 88 : 44;
+            const larguraTotal = tabela.larguras.reduce((a, b) => a + b, 0) + larguraAcoes;
 
             return (
               <div key={tabela.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden mb-6">
@@ -269,7 +322,7 @@ const DadosApp: React.FC = () => {
                       {tabela.larguras.map((largura, coluna) => (
                         <col key={coluna} style={{ width: largura }} />
                       ))}
-                      <col style={{ width: 44 }} />
+                      <col style={{ width: larguraAcoes }} />
                     </colgroup>
                     <thead>
                       <tr>
@@ -315,7 +368,9 @@ const DadosApp: React.FC = () => {
                                   value={valor}
                                   onChange={(e) => setDados((d) => atualizarCelula(d, aba.id, tabela.id, r, coluna, e.target.value))}
                                   data-marcado={marcado ? '1' : undefined}
-                                  className={`w-full bg-transparent px-4 py-2 pr-10 text-xl font-bold outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-200'}`}
+                                  className={`w-full bg-transparent px-4 py-2 pr-10 text-xl font-bold outline-none focus:bg-slate-900 ${
+                                    marcado ? 'text-amber-200' : tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
+                                  }`}
                                 />
                                 {valor && (
                                   <button
@@ -336,6 +391,17 @@ const DadosApp: React.FC = () => {
                             );
                           })}
                           <td className="border border-slate-800 text-center">
+                            <span className="inline-flex items-center gap-1">
+                            {tabela.comCaixas && (
+                              <input
+                                type="checkbox"
+                                checked={tabela.marcados[r] ?? false}
+                                onChange={() => setDados((d) => alternarMarcada(d, aba.id, tabela.id, r))}
+                                aria-label={`Marcar linha ${r + 1}`}
+                                title="Marcar (risca a linha)"
+                                className="w-4 h-4 accent-blue-600 cursor-pointer"
+                              />
+                            )}
                             <button
                               type="button"
                               onClick={() => setDados((d) => removerLinha(d, aba.id, tabela.id, r))}
@@ -345,6 +411,7 @@ const DadosApp: React.FC = () => {
                             >
                               <X size={14} />
                             </button>
+                            </span>
                           </td>
                         </tr>
                       ))}

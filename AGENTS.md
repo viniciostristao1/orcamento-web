@@ -69,7 +69,7 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **76 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **78 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
@@ -86,7 +86,7 @@ serifada).
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
   `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,
-  `zap_template` legado, `flyer_historico_v1`, `dados_tabelas_v1`) num JSON; UI na engrenagem
+  `zap_template` legado, `flyer_historico_v1`, `dados_tabelas_v1`, `rotulos_v1`) num JSON; UI na engrenagem
   **Configurações** ("BACKUP DOS DADOS"). A importação recarrega o app. Aceita também o backup
   antigo (só histórico). Atenção: tema e template são string pura no localStorage (não JSON).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
@@ -155,14 +155,18 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Aba Dados** (v0.15.0; sub-abas dinâmicas na v0.16.0): `src/dados/` — modelo
-  `{ abas: [{ id, rotulo, tabelas }] }` em `dados_tabelas_v1` (PEÇAS e O.S's + criadas pelo
-  botão “+”); **migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12, cabeçalho em
-  negrito, **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover
-  linhas, **copiar célula** (hover) e **busca que abre a sub-aba e grifa o termo**. Entra no
-  backup geral.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.16.1`** com
-  `Orcamento-v0.16.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Aba Dados** (v0.15.0; sub-abas dinâmicas v0.16.0; caixinhas/renomear v0.17.0):
+  `src/dados/` — modelo `{ abas: [{ id, rotulo, tabelas }] }` em `dados_tabelas_v1` (PEÇAS e
+  O.S's + criadas pelo botão “+”, cada uma com **X próprio** para excluir; **duplo clique**
+  renomeia). **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12, opção
+  **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
+  **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
+  **copiar célula** (hover) e **busca que abre a sub-aba e grifa o termo**. Entra no backup.
+- **Rótulos editáveis** (v0.17.0): `utils/rotulos.ts` (`rotulos_v1`) + `RotulosProvider` +
+  `TituloEditavel` — **duplo clique** renomeia os botões das abas do topo e os títulos internos
+  das telas (visual preservado: azul / duas cores / simples). No backup geral.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.17.0`** com
+  `Orcamento-v0.17.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
   `ideias/` ("Foco na observação" implementada na v0.14.4).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original

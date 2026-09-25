@@ -6,6 +6,7 @@ import QuoteTable from './QuoteTable';
 import { Play, Percent, History, Broom } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
+import TituloEditavel from './TituloEditavel';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
 import { lerUltimoOrcamento, salvarUltimoOrcamento } from '../utils/ultimoOrcamento';
@@ -138,7 +139,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     <>
       <div className="ui-compacta print:hidden">
         <header className="mb-4 text-center">
-          <h1 className="titulo-tema text-3xl font-black tracking-tighter uppercase text-blue-500">ORÇAMENTOS</h1>
+          <TituloEditavel id="orcamentos" estilo="acento" className="titulo-tema text-3xl font-black tracking-tighter uppercase" />
         </header>
       </div>
 

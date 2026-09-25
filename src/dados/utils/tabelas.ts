@@ -8,6 +8,10 @@ export interface TabelaDados {
   linhas: string[][];
   /** Largura de cada coluna em px (ajustável arrastando a alça no cabeçalho). */
   larguras: number[];
+  /** Mostra a caixinha de seleção no fim de cada linha (risca a linha quando marcada). */
+  comCaixas: boolean;
+  /** Estado das caixinhas, alinhado com `linhas`. */
+  marcados: boolean[];
 }
 
 export interface AbaDados {
@@ -51,6 +55,7 @@ const normalizarTabela = (t: unknown): TabelaDados | null => {
   const larguras = Array.from({ length: colunas }, (_, i) =>
     limitarLargura(Number(d.larguras?.[i]) || LARGURA_COLUNA_PADRAO),
   );
+  const marcados = Array.from({ length: linhas.length }, (_, i) => Boolean(d.marcados?.[i]));
   return {
     id: String(d.id ?? Date.now()),
     criadoEm: String(d.criadoEm ?? ''),
@@ -58,6 +63,8 @@ const normalizarTabela = (t: unknown): TabelaDados | null => {
     titulos,
     linhas,
     larguras,
+    comCaixas: d.comCaixas !== false,
+    marcados,
   };
 };
 
@@ -146,7 +153,12 @@ const atualizarTabela = (
   ),
 });
 
-export const criarTabela = (dados: DadosTabelas, abaId: string, colunas: number): DadosTabelas => {
+export const criarTabela = (
+  dados: DadosTabelas,
+  abaId: string,
+  colunas: number,
+  comCaixas = true,
+): DadosTabelas => {
   const n = Math.max(1, Math.min(MAX_COLUNAS, Math.floor(colunas) || 1));
   const nova: TabelaDados = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -155,6 +167,8 @@ export const criarTabela = (dados: DadosTabelas, abaId: string, colunas: number)
     titulos: Array.from({ length: n }, (_, i) => `Coluna ${i + 1}`),
     linhas: [],
     larguras: Array.from({ length: n }, () => LARGURA_COLUNA_PADRAO),
+    comCaixas,
+    marcados: [],
   };
   return {
     ...dados,
@@ -208,10 +222,29 @@ export const adicionarLinha = (dados: DadosTabelas, abaId: string, id: string): 
   atualizarTabela(dados, abaId, id, (t) => ({
     ...t,
     linhas: [...t.linhas, Array.from({ length: t.colunas }, () => '')],
+    marcados: [...t.marcados, false],
   }));
 
 export const removerLinha = (dados: DadosTabelas, abaId: string, id: string, linha: number): DadosTabelas =>
-  atualizarTabela(dados, abaId, id, (t) => ({ ...t, linhas: t.linhas.filter((_, r) => r !== linha) }));
+  atualizarTabela(dados, abaId, id, (t) => ({
+    ...t,
+    linhas: t.linhas.filter((_, r) => r !== linha),
+    marcados: t.marcados.filter((_, r) => r !== linha),
+  }));
+
+/** Marca/desmarca a caixinha da linha (risca a linha na tela). */
+export const alternarMarcada = (dados: DadosTabelas, abaId: string, id: string, linha: number): DadosTabelas =>
+  atualizarTabela(dados, abaId, id, (t) => ({
+    ...t,
+    marcados: t.marcados.map((v, r) => (r === linha ? !v : v)),
+  }));
+
+/** Renomeia uma sub-aba. */
+export const renomearAba = (dados: DadosTabelas, id: string, rotulo: string): DadosTabelas => {
+  const nome = rotulo.trim().toUpperCase();
+  if (!nome) return dados;
+  return { ...dados, abas: dados.abas.map((a) => (a.id === id ? { ...a, rotulo: nome } : a)) };
+};
 
 /** Normaliza para busca: sem acentos e minúsculo. */
 export const normalizarBusca = (s: string): string =>

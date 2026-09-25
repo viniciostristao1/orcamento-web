@@ -3,6 +3,7 @@ import { Send } from 'lucide-react';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import MessageEditor from './components/MessageEditor';
+import TituloEditavel from '../components/TituloEditavel';
 import { Contact } from './types';
 import {
   SCRIPT_PNEUS_KEY,
@@ -84,9 +85,7 @@ const WhatsApp: React.FC = () => {
   return (
     <div className="ui-compacta pt-1 pb-20 text-slate-200">
       <header className="mb-4 text-center">
-        <h1 className="titulo-tema text-3xl font-black tracking-tighter uppercase">
-          PAINEL <span className="text-blue-500">WHATSAPP</span>
-        </h1>
+        <TituloEditavel id="whats" estilo="duas-cores" className="titulo-tema text-3xl font-black tracking-tighter uppercase" />
       </header>
 
       {/* Esquerda: NOVO CONTATO + scripts. Direita: RELATÓRIO DE ENVIOS

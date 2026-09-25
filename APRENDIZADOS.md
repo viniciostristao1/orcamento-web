@@ -5,6 +5,31 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Excluir cada sub-aba, caixinhas por linha e renomear abas/títulos (v0.17.0)
+
+**Pedidos:** excluir **uma** sub-aba por vez (o botão antigo parecia apagar tudo); caixinha de
+seleção que **risca a linha** (tabelas com e sem — "até poderia ser sempre"); poder **renomear
+sub-abas**; e **renomear também as abas/títulos principais** (ORÇAMENTOS, TIRE FLYER, PAINEL
+WHATSAPP etc.).
+
+**Feito:**
+- **Excluir sub-aba:** agora cada sub-aba tem o seu próprio **X** (ao lado do nome) — apaga
+  exatamente aquela (com `confirm`); o botão único de lixeira foi removido. `removerAba` nunca
+  deixa a lista vazia.
+- **Caixinhas de seleção:** opção **"Caixinhas"** na criação da tabela (`comCaixas`, padrão
+  ligado) e `marcados: boolean[]` por linha; ao marcar, a **linha fica riscada** (cinza
+  `line-through`). A caixinha fica **no fim da linha**, junto do X de excluir. Registros antigos
+  assumem `comCaixas: true`.
+- **Renomear sub-abas:** **duplo clique** no nome abre um campo (Enter confirma, Esc cancela) —
+  `renomearAba()` em maiúsculas.
+- **Renomear abas e títulos:** novo `utils/rotulos.ts` (`rotulos_v1`) +
+  `RotulosProvider/useRotulos` + `<TituloEditavel>` (duplo clique no título, com o mesmo visual:
+  tudo azul, duas cores ou simples). O shell usa os rótulos nos botões das abas; os títulos
+  internos das 4 telas são editáveis. Entrou no **backup geral**.
+- Testes: **78** (caixinhas com/sem/riscar/legado, renomear sub-aba, exclusão por aba).
+  Validado no Chromium: renomear aba do topo, sub-aba, título interno; marcar linha risca; e
+  excluir apenas a sub-aba escolhida (as outras ficam).
+
 ## 2026-09-24 — Dados: proporção fonte/célula, excluir sub-aba e header ajustado (v0.16.1)
 
 **Pedidos:** o aumento da v0.16.0 foi só de fonte — o usuário queria a **relação fonte/altura**
