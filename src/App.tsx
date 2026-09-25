@@ -45,7 +45,7 @@ const App: React.FC = () => {
                 key={t.id}
                 type="button"
                 onClick={() => setAba(t.id)}
-                className={`px-6 py-3 rounded-xl transition-all text-xs font-black uppercase tracking-[0.2em] border cursor-pointer active:scale-95 ${
+                className={`px-7 py-3.5 rounded-xl transition-all text-sm font-black uppercase tracking-[0.2em] border cursor-pointer active:scale-95 whitespace-nowrap ${
                   aba === t.id
                     ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-900/40'
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
@@ -57,7 +57,7 @@ const App: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-4">
-            <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 border-l border-slate-800 pl-6 h-8 flex items-center">Gestão de Vendas</span>
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 border-l border-slate-800 pl-6 h-8 flex items-center whitespace-nowrap">Gestão de Vendas</span>
             <ConfiguracoesTema tema={tema} onChange={setTema} />
           </div>
         </div>

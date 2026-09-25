@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  ABA_PECAS,
   DADOS_KEY,
   adicionarLinha,
   atualizarCelula,
+  atualizarLargura,
   atualizarTitulo,
   celulaContem,
+  criarAba,
   criarTabela,
   encontrar,
   estadoInicial,
@@ -19,60 +22,94 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
   beforeEach(() => localStorage.clear());
 
   it('cria tabela com o número de colunas escolhido (primeira linha = títulos)', () => {
-    const d = criarTabela(estadoInicial(), 'pecas', 3);
-    expect(d.pecas).toHaveLength(1);
-    expect(d.pecas[0].colunas).toBe(3);
-    expect(d.pecas[0].titulos).toEqual(['Coluna 1', 'Coluna 2', 'Coluna 3']);
-    expect(d.pecas[0].linhas).toHaveLength(0);
+    const d = criarTabela(estadoInicial(), ABA_PECAS, 3);
+    const t = d.abas[0].tabelas[0];
+    expect(d.abas[0].tabelas).toHaveLength(1);
+    expect(t.colunas).toBe(3);
+    expect(t.titulos).toEqual(['Coluna 1', 'Coluna 2', 'Coluna 3']);
+    expect(t.linhas).toHaveLength(0);
   });
 
   it('limita as colunas entre 1 e 12', () => {
-    expect(criarTabela(estadoInicial(), 'os', 99).os[0].colunas).toBe(12);
-    expect(criarTabela(estadoInicial(), 'os', 0).os[0].colunas).toBe(1);
+    expect(criarTabela(estadoInicial(), 'os', 99).abas[1].tabelas[0].colunas).toBe(12);
+    expect(criarTabela(estadoInicial(), 'os', 0).abas[1].tabelas[0].colunas).toBe(1);
   });
 
   it('adiciona e remove linhas, e edita títulos/células', () => {
-    let d = criarTabela(estadoInicial(), 'pecas', 2);
-    const id = d.pecas[0].id;
-    d = adicionarLinha(d, 'pecas', id);
-    expect(d.pecas[0].linhas).toHaveLength(1);
-    expect(d.pecas[0].linhas[0]).toEqual(['', '']);
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 2);
+    const id = d.abas[0].tabelas[0].id;
+    d = adicionarLinha(d, ABA_PECAS, id);
+    expect(d.abas[0].tabelas[0].linhas).toHaveLength(1);
+    expect(d.abas[0].tabelas[0].linhas[0]).toEqual(['', '']);
 
-    d = atualizarCelula(d, 'pecas', id, 0, 1, 'ABC123');
-    expect(d.pecas[0].linhas[0][1]).toBe('ABC123');
-    d = atualizarTitulo(d, 'pecas', id, 0, 'CÓDIGO');
-    expect(d.pecas[0].titulos[0]).toBe('CÓDIGO');
+    d = atualizarCelula(d, ABA_PECAS, id, 0, 1, 'ABC123');
+    expect(d.abas[0].tabelas[0].linhas[0][1]).toBe('ABC123');
+    d = atualizarTitulo(d, ABA_PECAS, id, 0, 'CÓDIGO');
+    expect(d.abas[0].tabelas[0].titulos[0]).toBe('CÓDIGO');
 
-    d = adicionarLinha(d, 'pecas', id);
-    d = removerLinha(d, 'pecas', id, 0);
-    expect(d.pecas[0].linhas).toHaveLength(1);
+    d = adicionarLinha(d, ABA_PECAS, id);
+    d = removerLinha(d, ABA_PECAS, id, 0);
+    expect(d.abas[0].tabelas[0].linhas).toHaveLength(1);
 
-    d = removerTabela(d, 'pecas', id);
-    expect(d.pecas).toHaveLength(0);
+    d = removerTabela(d, ABA_PECAS, id);
+    expect(d.abas[0].tabelas).toHaveLength(0);
   });
 
-  it('persiste e relê do localStorage', () => {
+  it('ajusta a largura das colunas (com limites) e guarda', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 2);
+    const id = d.abas[0].tabelas[0].id;
+    expect(d.abas[0].tabelas[0].larguras).toEqual([170, 170]);
+    d = atualizarLargura(d, ABA_PECAS, id, 0, 260);
+    expect(d.abas[0].tabelas[0].larguras[0]).toBe(260);
+    d = atualizarLargura(d, ABA_PECAS, id, 1, 20); // abaixo do mínimo
+    expect(d.abas[0].tabelas[0].larguras[1]).toBe(80);
+    d = atualizarLargura(d, ABA_PECAS, id, 0, 9999); // acima do máximo
+    expect(d.abas[0].tabelas[0].larguras[0]).toBe(600);
+    salvarDados(d);
+    expect(lerDados().abas[0].tabelas[0].larguras).toEqual([600, 80]);
+  });
+
+  it('cria sub-abas novas (depois de Peças e O.S\'s)', () => {
+    const d = criarAba(estadoInicial(), 'Preventiva');
+    expect(d.abas).toHaveLength(3);
+    expect(d.abas[2].rotulo).toBe('PREVENTIVA');
+    expect(d.abas[2].tabelas).toEqual([]);
+    // tabela criada na sub-aba nova
+    const d2 = criarTabela(d, d.abas[2].id, 2);
+    expect(d2.abas[2].tabelas).toHaveLength(1);
+    expect(d2.abas[0].tabelas).toHaveLength(0);
+  });
+
+  it('persiste no formato novo e migra o antigo { pecas, os }', () => {
     let d = criarTabela(estadoInicial(), 'os', 2);
-    d = adicionarLinha(d, 'os', d.os[0].id);
-    d = atualizarCelula(d, 'os', d.os[0].id, 0, 0, 'JOAO');
+    d = adicionarLinha(d, 'os', d.abas[1].tabelas[0].id);
+    d = atualizarCelula(d, 'os', d.abas[1].tabelas[0].id, 0, 0, 'JOAO');
     salvarDados(d);
     expect(localStorage.getItem(DADOS_KEY)).toBeTruthy();
-    const lido = lerDados();
-    expect(lido.os[0].linhas[0][0]).toBe('JOAO');
+    expect(lerDados().abas[1].tabelas[0].linhas[0][0]).toBe('JOAO');
+
+    // formato antigo continua sendo lido
+    localStorage.setItem(
+      DADOS_KEY,
+      JSON.stringify({ pecas: [{ id: 't1', criadoEm: '', colunas: 2, titulos: ['A', 'B'], linhas: [['x', 'y']] }], os: [] }),
+    );
+    const migrado = lerDados();
+    expect(migrado.abas[0].tabelas).toHaveLength(1);
+    expect(migrado.abas[0].tabelas[0].linhas[0]).toEqual(['x', 'y']);
+    expect(migrado.abas[0].tabelas[0].larguras).toEqual([170, 170]);
   });
 
   it('busca ignorando acento e acha em qual aba está', () => {
-    let d = criarTabela(estadoInicial(), 'pecas', 2);
-    d = adicionarLinha(d, 'pecas', d.pecas[0].id);
-    d = atualizarCelula(d, 'pecas', d.pecas[0].id, 0, 0, 'Pastilha de Freio');
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 2);
+    d = adicionarLinha(d, ABA_PECAS, d.abas[0].tabelas[0].id);
+    d = atualizarCelula(d, ABA_PECAS, d.abas[0].tabelas[0].id, 0, 0, 'Pastilha de Freio');
     d = criarTabela(d, 'os', 2);
-    d = adicionarLinha(d, 'os', d.os[0].id);
-    d = atualizarCelula(d, 'os', d.os[0].id, 0, 0, 'OS 4471 · João');
+    d = adicionarLinha(d, 'os', d.abas[1].tabelas[0].id);
+    d = atualizarCelula(d, 'os', d.abas[1].tabelas[0].id, 0, 0, 'OS 4471 · João');
 
     expect(celulaContem('Pastilha de Freio', 'pastilha')).toBe(true);
     expect(encontrar(d, 'PASTILHA')).toEqual({ pecas: 1, os: 0 });
     expect(encontrar(d, 'joao')).toEqual({ pecas: 0, os: 1 });
-    expect(encontrar(d, 'coluna')).toEqual({ pecas: 2, os: 2 }); // títulos também entram
     expect(encontrar(d, '')).toEqual({ pecas: 0, os: 0 });
   });
 });

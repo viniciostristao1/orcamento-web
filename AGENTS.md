@@ -69,7 +69,7 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **73 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **75 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
@@ -155,11 +155,14 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Aba Dados** (v0.15.0): `src/dados/` — tabelas de **PEÇAS** e **O.S's** (`dados_tabelas_v1`),
-  com criar tabela (escolhe colunas 1–12), cabeçalho em negrito, adicionar/remover linhas e
-  **busca que abre a sub-aba e grifa o termo**. Entra no backup geral.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.15.0`** com
-  `Orcamento-v0.15.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Aba Dados** (v0.15.0; sub-abas dinâmicas na v0.16.0): `src/dados/` — modelo
+  `{ abas: [{ id, rotulo, tabelas }] }` em `dados_tabelas_v1` (PEÇAS e O.S's + criadas pelo
+  botão “+”); **migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12, cabeçalho em
+  negrito, **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover
+  linhas, **copiar célula** (hover) e **busca que abre a sub-aba e grifa o termo**. Entra no
+  backup geral.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.16.0`** com
+  `Orcamento-v0.16.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
   `ideias/` ("Foco na observação" implementada na v0.14.4).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original

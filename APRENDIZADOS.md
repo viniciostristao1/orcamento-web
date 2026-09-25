@@ -5,6 +5,32 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Dados: sub-abas dinâmicas, copiar célula, largura de coluna e fontes maiores (v0.16.0)
+
+**Pedidos (em sequência):** tirar o texto "Tabela 1 · O.S's / data · colunas · linhas"; aumentar
+a letra dentro das células; **ajustar a largura de cada coluna**; aumentar as letras das abas e
+sub-abas; **criar mais sub-abas** por um botão ao lado das existentes; e um **botão de copiar**
+dentro de cada célula.
+
+**Feito:**
+- Removido o cabeçalho com texto de cada tabela (ficou só o botão de excluir, à direita).
+- Células: `text-sm` → **`text-lg`** (corpo) e **`text-base`** (títulos), `px-3 py-2` →
+  `px-4 py-3`, coluna mínima 150 → **170px**.
+- **Largura por coluna**: `larguras: number[]` na tabela (padrão 170, limites 80–600),
+  `<colgroup>` + `table-layout: fixed` e uma **alça de arrastar** na borda direita de cada
+  cabeçalho (`data-redimensionar`, delta do mouse dividido pelo zoom 0.75).
+- **Abas e sub-abas maiores**: shell `text-xs px-6 py-3` → `text-sm px-7 py-3.5` (+
+  `whitespace-nowrap` para não quebrar linha); sub-abas `text-xs` → `text-sm px-6 py-3`.
+- **Sub-abas dinâmicas**: modelo mudou para `{ abas: [{ id, rotulo, tabelas }] }` (PEÇAS e O.S's
+  fixas + criadas), com **migração automática** do formato antigo `{ pecas, os }`; botão **“+”**
+  ao lado das sub-abas abre um campo de nome e cria a nova aba. A busca e o contador passaram a
+  considerar todas as abas (ex.: `2 em PREVENTIVA`).
+- **Copiar célula**: botãozinho (aparece no hover/foco) dentro de cada célula com conteúdo,
+  com ✓ por 2s — copia só o valor daquela célula.
+- Testes: **75** (novos: larguras, sub-abas, migração, copiar célula); validado no Chromium
+  (arrastar a coluna 170→330 e persistir, criar sub-aba, copiar "FILTRO DE OLEO", busca
+  trocando de aba). O backup das Configurações inclui `dados_tabelas_v1` (todas as sub-abas).
+
 ## 2026-09-24 — Nova aba "DADOS" (tabelas de Peças e O.S's) (v0.15.0)
 
 **Pedido:** uma aba **DADOS** com sub-abas **PEÇAS** e **O.S's**; botão **Criar tabela** no alto

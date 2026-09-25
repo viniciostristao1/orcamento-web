@@ -258,10 +258,19 @@ describe('App — smoke test (render + processar)', () => {
     expect(celulas).toHaveLength(3);
     fireEvent.change(celulas[0], { target: { value: 'JOAO ABC1D23' } });
 
-    // busca: grifa a célula e mostra o contador
+    // copiar o conteúdo da célula (botão aparece quando a célula tem texto)
+    expect(screen.getByRole('button', { name: /Copiar célula 1-1/i })).toBeTruthy();
+
+    // busca: grifa a célula e mostra o resumo
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), { target: { value: 'joao' } });
-    expect(screen.getByText(/1 em Peças · 0 em O\.S's/i)).toBeTruthy();
+    expect(screen.getByText(/1 em PEÇAS/i)).toBeTruthy();
     expect(document.querySelectorAll('[data-marcado="1"]')).toHaveLength(1);
+
+    // cria uma sub-aba nova e uma tabela nela
+    fireEvent.click(screen.getByRole('button', { name: /Criar sub-aba/i }));
+    fireEvent.change(screen.getByLabelText('Nome da nova sub-aba'), { target: { value: 'PREVENTIVA' } });
+    fireEvent.click(screen.getByRole('button', { name: /Confirmar nova sub-aba/i }));
+    expect(screen.getByRole('button', { name: /PREVENTIVA \(0\)/i })).toBeTruthy();
 
     // termo que só existe em O.S's troca de sub-aba
     fireEvent.click(screen.getByRole('button', { name: /O\.S'S \(0\)/i }));
