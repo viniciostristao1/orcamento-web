@@ -5,6 +5,15 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Coluna direita mais junta e Ajustes com 2 linhas (v0.14.2)
+
+**Pedido:** menos espaço do card **3. AJUSTES MANUAIS (ID VALOR)** em relação ao APROVADO E
+DESCONTO e ao RESUMO LÍQUIDO; e o campo dos ajustes com espaço para **duas linhas**.
+
+**Feito:** coluna direita `space-y-8` → **`space-y-4`** (vão entre os cards caiu de 24px para
+**12px físicos**, medido) e o textarea dos ajustes de `rows={3}` → **`rows={2}`** (altura 68px
+físicos, 2 linhas). Testes: 67.
+
 ## 2026-09-24 — Vassoura/formatador nos valores e Ajustes na coluna direita (v0.14.1)
 
 **Pedidos:** (1) botãozinho de **vassoura** para limpar "Total Revisão (R$)" e "Peças na

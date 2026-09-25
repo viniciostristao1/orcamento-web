@@ -181,7 +181,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             
           </div>
 
-          <div className="xl:col-span-4 space-y-8">
+          <div className="xl:col-span-4 space-y-4">
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
                 {/* Total Revisão | Peças na Revisão (com vassoura para limpar e
@@ -297,7 +297,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 o campo mostra só 3 linhas (rows=3). */}
             <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
               <textarea 
-                rows={3}
+                rows={2}
                 className="w-full campo-tema border border-slate-800 rounded-2xl p-4 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
                 placeholder="Ex: 1 50,00" 
                 value={ajustesManuais} 
