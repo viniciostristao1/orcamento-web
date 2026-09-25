@@ -5,6 +5,16 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — RESUMO LÍQUIDO compacto e rente ao card 2 (v0.14.3)
+
+**Pedidos:** diminuir a altura dos valores do RESUMO LÍQUIDO, deixá-lo **rente ao final do
+card 2. DADOS DO ORÇAMENTO** e diminuir um pouco a altura do botão play.
+
+**Feito:** caixas do RESUMO com `p-4` → **`px-3 py-2`** (e label `mb-1.5` → `mb-0.5`); play com
+`py-5` → **`py-3`** (ícone 26). A coluna direita virou `flex flex-col gap-4` e o RESUMO ganhou
+**`mt-auto`** — ele encosta no fim da coluna; medido no Chromium, o rodapé do RESUMO ficou a
+**6px** do fim do card 2 (praticamente rente). Testes: 67.
+
 ## 2026-09-24 — Coluna direita mais junta e Ajustes com 2 linhas (v0.14.2)
 
 **Pedido:** menos espaço do card **3. AJUSTES MANUAIS (ID VALOR)** em relação ao APROVADO E

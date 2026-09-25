@@ -181,7 +181,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             
           </div>
 
-          <div className="xl:col-span-4 space-y-4">
+          {/* Coluna em flex: o RESUMO LÍQUIDO (mt-auto) encosta no fim da
+              coluna, rente ao final do card 2. */}
+          <div className="xl:col-span-4 flex flex-col gap-4">
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
                 {/* Total Revisão | Peças na Revisão (com vassoura para limpar e
@@ -286,9 +288,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   type="button"
                   aria-label="Processar Tudo"
                   title="Processar Tudo"
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] mt-2 cursor-pointer"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] mt-2 cursor-pointer"
                 >
-                  <Play size={28} fill="currentColor" />
+                  <Play size={26} fill="currentColor" />
                 </button>
               </div>
             </NeonCard>
@@ -307,26 +309,26 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
             {/* RESUMO LÍQUIDO logo abaixo do APROVADO E DESCONTO, em pares. */}
             {visivel && (
-              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact>
+              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact className="mt-auto">
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Peças</span>
+                    <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-0.5">Total Peças</span>
                       <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
                     </div>
-                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-1.5">Total Serviços</span>
+                    <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                      <span className="text-[10px] font-black text-slate-500 uppercase block mb-0.5">Total Serviços</span>
                       <span className="titulo-tema text-2xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="p-4 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
-                      <span className="text-[10px] font-black text-emerald-500 uppercase block mb-1.5">Desc. ({visivel.descontoPercentual}%)</span>
+                    <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-emerald-900/40 text-center">
+                      <span className="text-[10px] font-black text-emerald-500 uppercase block mb-0.5">Desc. ({visivel.descontoPercentual}%)</span>
                       <span className="titulo-tema text-2xl font-black text-emerald-400">- {formatCurrency(visivel.valorDescontoTotal)}</span>
                     </div>
-                    <div className="p-4 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
-                      <span className="text-[10px] font-black text-blue-400 uppercase block mb-1.5 underline">Valor Líquido</span>
-                      <span className="titulo-tema text-3xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
+                    <div className="px-3 py-2 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
+                      <span className="text-[10px] font-black text-blue-400 uppercase block mb-0.5 underline">Valor Líquido</span>
+                      <span className="titulo-tema text-2xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
                     </div>
                   </div>
                 </div>
