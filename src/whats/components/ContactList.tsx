@@ -86,130 +86,142 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
         </div>
       </div>
 
-      <div className="overflow-x-auto custom-scrollbar">
-        <table className="w-full text-left table-fixed border-collapse min-w-[1000px]">
-          <thead>
-            <tr className="bg-slate-950/50 text-[10px] uppercase text-slate-500 tracking-[0.2em] font-bold">
-              <th className="px-10 py-5 w-[82%] border-b border-slate-800">Clientes e Agendamentos</th>
-              <th className="px-10 py-5 text-right w-[18%] border-b border-slate-800">Controles</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {sortedContacts.length === 0 ? (
-              <tr>
-                <td colSpan={2} className="px-10 py-28 text-center border-b border-slate-800/60">
-                  <div className="flex flex-col items-center opacity-30">
-                    <CheckCircle2 size={48} className="text-slate-400 mb-4" />
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Base de dados vazia para este mês.</p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              sortedContacts.map((contact) => {
-                const sent = wasSentThisMonth(contact);
-                const isToday = contact.targetDate === todayStr;
-                const isPast = contact.targetDate < todayStr && !sent;
-                               return (
-                  <tr key={contact.id} className={`group hover:bg-slate-800/40 transition-all duration-300 ${sent ? 'bg-slate-900/40 opacity-60' : ''}`}>
-                    <td className="px-6 py-1.5 align-middle">
-                      <div className="flex items-center gap-4">
-                        <div className="w-[110px] shrink-0">
-                          <div className={`relative flex items-center justify-center gap-1.5 px-2 py-1 rounded-lg font-black border transition-all cursor-pointer group/date overflow-hidden ${
-                            sent ? 'bg-slate-800/40 text-slate-500 border-slate-700/60' :
-                            isToday ? 'bg-blue-600/20 text-blue-400 border-blue-500/40' :
-                            isPast ? 'bg-rose-600 text-white border-rose-700 shadow-sm' :
-                            'bg-slate-800/60 text-slate-200 border-slate-700'
-                          }`}>
-                            <span className="text-[11px] z-10">{formatDateDisplay(contact.targetDate)}</span>
-                            <Edit2 size={8} className={`z-10 transition-opacity ${sent ? 'opacity-0' : 'opacity-40 group-hover/date:opacity-100'}`} />
-                            <input
-                              type="date"
-                              value={contact.targetDate}
-                              onChange={(e) => onUpdateDate(contact.id, e.target.value)}
-                              className="absolute inset-0 opacity-0 cursor-pointer z-20 [color-scheme:dark]"
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="w-[220px] shrink-0">
-                          <span className={`font-extrabold text-base tracking-tight truncate block ${sent ? 'text-slate-400 line-through' : 'text-slate-100'}`}>
-                            {contact.name}
-                          </span>
-                        </div>
-                        
-                        <div className="flex flex-col gap-0.5 w-[140px] shrink-0">
-                          <span className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5 campo-tema px-2 py-0.5 rounded-md border border-slate-800">
-                            <Phone size={9} className="text-slate-500 shrink-0" /> {contact.phone}
-                          </span>
-                          {contact.chassis && (
-                            <button 
-                              onClick={() => handleCopy(contact.chassis!, contact.id, 'chassis')}
-                              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[8px] font-bold transition-all ${
-                                copiedChassisId === contact.id 
-                                ? 'bg-green-600 border-green-700 text-white' 
-                                : 'campo-tema border-slate-800 text-slate-500 hover:text-slate-200 hover:border-slate-600'
-                              }`}
-                            >
-                              <span className="truncate flex-1 text-left">{contact.chassis}</span>
-                              <ClipboardCopy size={8} className="opacity-30 shrink-0" />
-                            </button>
-                          )}
-                        </div>
+      {sortedContacts.length === 0 ? (
+        <div className="px-10 py-28 text-center">
+          <div className="flex flex-col items-center opacity-30">
+            <CheckCircle2 size={48} className="text-slate-400 mb-4" />
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Base de dados vazia para este mês.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-4">
+          {sortedContacts.map((contact) => {
+            const sent = wasSentThisMonth(contact);
+            const isToday = contact.targetDate === todayStr;
+            const isPast = contact.targetDate < todayStr && !sent;
+            return (
+              <div
+                key={contact.id}
+                className={`bg-slate-950/60 border border-slate-800 rounded-2xl p-4 transition-colors hover:border-slate-700 ${sent ? 'opacity-70' : ''}`}
+              >
+                {/* Cliente + dia do envio (editável clicando na data) */}
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <span className={`text-lg font-black tracking-tight truncate ${sent ? 'text-slate-400 line-through' : 'text-slate-100'}`}>
+                    {contact.name}
+                  </span>
+                  <label
+                    className={`relative shrink-0 flex items-center justify-center gap-1.5 px-2 py-1 rounded-lg font-black border text-sm cursor-pointer transition-all overflow-hidden ${
+                      sent ? 'bg-slate-800/40 text-slate-500 border-slate-700/60' :
+                      isToday ? 'bg-blue-600/20 text-blue-400 border-blue-500/40' :
+                      isPast ? 'bg-rose-600 text-white border-rose-700' :
+                      'bg-slate-800/60 text-slate-200 border-slate-700'
+                    }`}
+                    title="Alterar dia do envio"
+                  >
+                    <span className="z-10">{formatDateDisplay(contact.targetDate)}</span>
+                    <Edit2 size={10} className={`z-10 ${sent ? 'opacity-0' : 'opacity-40'}`} />
+                    <input
+                      type="date"
+                      value={contact.targetDate}
+                      onChange={(e) => onUpdateDate(contact.id, e.target.value)}
+                      className="absolute inset-0 opacity-0 cursor-pointer z-20 [color-scheme:dark]"
+                    />
+                  </label>
+                </div>
 
-                        <div className="relative group/note flex-1">
-                          <textarea
-                            placeholder="Notas..."
-                            value={contact.internalNote || ''}
-                            onChange={(e) => onUpdateNote(contact.id, e.target.value)}
-                            className="w-full text-xs campo-tema px-3 py-1 rounded-lg border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-7 leading-tight text-slate-100 font-bold"
-                          />
-                        </div>
-                      </div>
-                    </td>
+                {/* Observação (em destaque) */}
+                <textarea
+                  placeholder="Observação..."
+                  value={contact.internalNote || ''}
+                  onChange={(e) => onUpdateNote(contact.id, e.target.value)}
+                  className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-slate-200 font-bold mb-3"
+                />
 
-                    <td className="px-6 py-1.5 text-right align-middle">
-                      <div className="flex justify-end items-center gap-1.5">
-                        <button
-                          onClick={() => handleCopy(contact.customMessage || messageTemplate, contact.id, 'msg')}
-                          className={`p-2 rounded-lg border transition-all ${
-                            copiedId === contact.id 
-                            ? 'bg-green-600 border-green-700 text-white' 
+                {/* Contato + situação + ações */}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-2 min-w-0 text-xs font-bold text-slate-500">
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      <Phone size={11} className="text-slate-500 shrink-0" /> {contact.phone}
+                    </span>
+                    {contact.chassis && (
+                      <button
+                        onClick={() => handleCopy(contact.chassis!, contact.id, 'chassis')}
+                        aria-label="Copiar chassi"
+                        title="Copiar chassi"
+                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold transition-all cursor-pointer ${
+                          copiedChassisId === contact.id
+                            ? 'bg-green-600 border-green-700 text-white'
                             : 'campo-tema border-slate-800 text-slate-500 hover:text-slate-200 hover:border-slate-600'
-                          }`}
-                        >
-                          {copiedId === contact.id ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={2} />}
-                        </button>
+                        }`}
+                      >
+                        <span className="truncate max-w-[110px]">{contact.chassis}</span>
+                        <ClipboardCopy size={10} className="opacity-40 shrink-0" />
+                      </button>
+                    )}
+                  </span>
 
-                        <button
-                          onClick={() => handleSend(contact)}
-                          aria-label={sent ? 'Concluído' : (isPast ? 'Atrasado — notificar' : 'Notificar')}
-                          title={sent ? 'Concluído' : (isPast ? 'Atrasado — notificar' : 'Notificar')}
-                          className={`p-2 rounded-lg transition-all flex items-center justify-center active:scale-95 cursor-pointer ${
-                            sent 
-                            ? 'text-green-500 bg-green-600/10 border border-green-600/30' 
-                            : isPast 
-                              ? 'text-white bg-rose-600 hover:bg-rose-700'
-                              : 'text-white bg-blue-600 hover:bg-blue-500'
-                          }`}
-                        >
-                          {sent ? <CheckCircle2 size={16} strokeWidth={3} /> : <Phone size={16} strokeWidth={2} />}
-                        </button>
+                  <span className="flex items-center gap-2 shrink-0">
+                    {sent ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border bg-green-600/10 text-green-500 border-green-600/30">
+                        <CheckCircle2 size={12} strokeWidth={3} /> Concluído
+                      </span>
+                    ) : isToday ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border bg-blue-600/20 text-blue-400 border-blue-500/40">
+                        Hoje
+                      </span>
+                    ) : isPast ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border bg-rose-600 text-white border-rose-700">
+                        Atrasado
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border bg-slate-800 text-slate-400 border-slate-700">
+                        Agendado
+                      </span>
+                    )}
 
-                        <button
-                          onClick={() => onRemove(contact.id)}
-                          className="p-1.5 text-slate-600 hover:text-rose-400"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                    <button
+                      onClick={() => handleCopy(contact.customMessage || messageTemplate, contact.id, 'msg')}
+                      aria-label={copiedId === contact.id ? 'Mensagem copiada' : 'Copiar mensagem'}
+                      title={copiedId === contact.id ? 'Mensagem copiada' : 'Copiar mensagem'}
+                      className={`p-2 rounded-lg border transition-all cursor-pointer ${
+                        copiedId === contact.id
+                          ? 'bg-green-600 border-green-700 text-white'
+                          : 'campo-tema border-slate-800 text-slate-500 hover:text-slate-200 hover:border-slate-600'
+                      }`}
+                    >
+                      {copiedId === contact.id ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={2} />}
+                    </button>
+
+                    <button
+                      onClick={() => handleSend(contact)}
+                      aria-label={sent ? 'Concluído' : isPast ? 'Atrasado — notificar' : 'Notificar'}
+                      title={sent ? 'Concluído' : isPast ? 'Atrasado — notificar' : 'Notificar'}
+                      className={`p-2 rounded-lg transition-all flex items-center justify-center cursor-pointer active:scale-95 ${
+                        sent
+                          ? 'text-green-500 bg-green-600/10 border border-green-600/30'
+                          : isPast
+                            ? 'text-white bg-rose-600 hover:bg-rose-700'
+                            : 'text-white bg-blue-600 hover:bg-blue-500'
+                      }`}
+                    >
+                      {sent ? <CheckCircle2 size={16} strokeWidth={3} /> : <Phone size={16} strokeWidth={2} />}
+                    </button>
+
+                    <button
+                      onClick={() => onRemove(contact.id)}
+                      aria-label="Excluir contato"
+                      title="Excluir contato"
+                      className="p-2 text-slate-600 hover:text-rose-400 transition-colors cursor-pointer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

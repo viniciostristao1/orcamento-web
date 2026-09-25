@@ -5,6 +5,22 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Relatório de Envios: layout "Foco na observação" (v0.14.4)
+
+**Pedido:** o usuário escolheu, entre 10 mockups publicados em `ideias/relatorio-2colunas.md`, a
+**opção 7 — Foco na observação** para a lista de contatos da aba Whats.
+
+**Feito (`ContactList`):** a tabela de linha comprida virou **cartões em 2 colunas**
+(`grid lg:grid-cols-2`), cada contato com:
+- **nome** (18px, riscado quando concluído) + **data editável** (chip com input `date` invisível);
+- **observação em destaque** (caixa editável, mesmo comportamento de antes);
+- rodapé com **telefone**, chip de **chassi copiável**, selo de situação
+  (Concluído/Hoje/Atrasado/Agendado) e as ações (copiar mensagem, notificar, excluir) — todas
+  ícone-only com `aria-label`/`title`, como no resto do app.
+Cabeçalho (Processo mensal / %) e estado vazio mantidos; ordenação por data mantida.
+Os mockups ficaram em `ideias/` com um `.md` para navegação. Testes: 67 (o smoke já cobria
+cadastro/busca do contato); validado no Chromium com 6 contatos em situações diferentes.
+
 ## 2026-09-24 — RESUMO LÍQUIDO compacto e rente ao card 2 (v0.14.3)
 
 **Pedidos:** diminuir a altura dos valores do RESUMO LÍQUIDO, deixá-lo **rente ao final do

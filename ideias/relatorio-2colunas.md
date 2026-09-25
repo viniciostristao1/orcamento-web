@@ -44,7 +44,7 @@ Esquerda: cliente/contato/observação. Direita: data, situação e ícones.
 
 ![2 colunas 6](duas-colunas-06.png)
 
-## Opção 7 — Foco na observação
+## Opção 7 — Foco na observação ✅ (implementada na v0.14.4)
 A nota fica em destaque no meio do cartão.
 **Prós:** ótimo para quem usa muito a observação. **Contras:** nome/data mais discretos.
 

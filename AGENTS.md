@@ -152,9 +152,10 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.14.3`** com
-  `Orcamento-v0.14.3.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
-  `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.14.4`** com
+  `Orcamento-v0.14.4.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+  `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
+  `ideias/` (v1 "Foco na observação" implementada).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,
   fundo `#020617`). As duas fontes são **embutidas** via `@fontsource/inter` +
