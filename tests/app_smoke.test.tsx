@@ -284,6 +284,16 @@ describe('App — smoke test (render + processar)', () => {
     expect(document.querySelectorAll('[data-situacao="neutro"]')).toHaveLength(1);
     expect(document.querySelectorAll('[data-situacao="aprovado"], [data-situacao="naoAprovado"]')).toHaveLength(0);
     fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
+
+    // contagens das abas acompanham a pesquisa
+    fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), { target: { value: 'xyz' } });
+    expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Não Realizados \(0\)/i })).toBeTruthy();
+
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), { target: { value: 'abc' } });
+    expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Não Realizados \(1\)/i })).toBeTruthy();
   });
 
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {

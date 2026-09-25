@@ -5,6 +5,17 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Contagem das abas segue a pesquisa (v0.13.3)
+
+**Pedido:** ao pesquisar no histórico, as abas mostravam o total geral (`Todos (N)`); o correto
+é mostrar a quantidade de resultados da pesquisa.
+
+**Feito:** `HistoryModal` calcula por aba **já com o filtro da busca**
+(`porAba.todos` / `porAba.naoRealizados`) e os rótulos usam essas contagens — sem busca, os
+números continuam sendo os totais. O indicador `N de M` do campo de busca foi mantido.
+Validado no Chromium: 3 registros → `Todos (3) / Não Realizados (2)`; busca "abc" →
+`Todos (1) / Não Realizados (1)`; busca "zzz" → `(0) / (0)`. Testes: 60.
+
 ## 2026-09-24 — "Aprovado/Não aprovado" só nos registros salvos + título maior (v0.13.2)
 
 **Pedido:** no "Ver itens do orçamento" da aba **Todos** não deve aparecer "Aprovado pelo

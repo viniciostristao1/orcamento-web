@@ -44,8 +44,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
 
   if (!aberto) return null;
 
-  const visiveis = filtrarHistorico(filtrarPorAba(lista, aba), busca);
-  const totalNaoRealizados = lista.filter(temNaoRealizados).length;
+  // As contagens das abas seguem a pesquisa (não a lista inteira).
+  const porAba = {
+    todos: filtrarHistorico(lista, busca),
+    naoRealizados: filtrarHistorico(filtrarPorAba(lista, 'naoRealizados'), busca),
+  };
+  const visiveis = porAba[aba];
   // O registro aberto em "Ver itens" tem seleção salva (aprovados/não aprovados)?
   const temSelecao = (itensDe?.naoRealizados?.length ?? 0) > 0;
 
@@ -172,8 +176,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
         {/* Abas: Todos | Não Realizados */}
         <div className="flex items-center gap-2 px-6 py-3 border-b border-slate-800/60">
           {([
-            { id: 'todos' as AbaHistorico, rotulo: `Todos (${lista.length})` },
-            { id: 'naoRealizados' as AbaHistorico, rotulo: `Não Realizados (${totalNaoRealizados})` },
+            { id: 'todos' as AbaHistorico, rotulo: `Todos (${porAba.todos.length})` },
+            { id: 'naoRealizados' as AbaHistorico, rotulo: `Não Realizados (${porAba.naoRealizados.length})` },
           ]).map((t) => (
             <button
               key={t.id}
