@@ -89,9 +89,12 @@ const WhatsApp: React.FC = () => {
         </h1>
       </header>
 
-      <main className="max-w-[1700px] mx-auto space-y-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-4 space-y-6 h-full flex flex-col">
+      {/* Esquerda: NOVO CONTATO + scripts. Direita: RELATÓRIO DE ENVIOS
+          (uma coluna de contatos). */}
+      <main className="max-w-[1700px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div className="space-y-6">
+            <ContactForm onAdd={addContact} count={contacts.length} />
             <MessageEditor
               initialPneus={scriptPneus}
               initialRevisao={scriptRevisao}
@@ -99,20 +102,15 @@ const WhatsApp: React.FC = () => {
               onSaveRevisao={setScriptRevisao}
             />
           </div>
-          <div className="lg:col-span-8 h-full flex">
-            <ContactForm onAdd={addContact} count={contacts.length} />
-          </div>
-        </div>
-        
-        <div className="w-full">
-          <ContactList 
-            contacts={contacts} 
-            onRemove={removeContact} 
+
+          <ContactList
+            contacts={contacts}
+            onRemove={removeContact}
             onMarkAsSent={markAsSent}
             onUpdateNote={updateContactNote}
             onUpdateMessage={updateContactMessage}
             onUpdateDate={updateContactDate}
-            messageTemplate={scriptRevisao} 
+            messageTemplate={scriptRevisao}
           />
         </div>
       </main>

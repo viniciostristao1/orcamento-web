@@ -77,7 +77,10 @@ serifada).
   na v0.14.0): `src/whats/` (contatos + **dois scripts** — pneus e revisão; o de revisão é o
   usado no copiar/NOTIFICAR do contato). `localStorage`: `zap_contacts`,
   `zap_script_pneus_v1`, `zap_script_revisao_v1` (o antigo `zap_template` é migrado para
-  revisão). Formulário com os 4 campos numa linha (`xl:grid-cols-4`); coluna dos scripts 4/12.
+  revisão).   Layout da tela (v0.14.6): grid `lg:grid-cols-2` — esquerda **NOVO CONTATO + SCRIPT PNEUS +
+  SCRIPT REVISÃO** (empilhados, mesma largura); direita **RELATÓRIO DE ENVIOS** em **uma coluna**
+  de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`). Observação e Mensagem
+  Especial do contato ficam lado a lado, **1 linha** (`h-9`, com rolagem interna).
   "NOTIFICAR" abre `wa.me` e marca como concluído; status verde em `green-*` (o `emerald-*` é
   remapeado para o laranja no tema Claude). `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
@@ -152,8 +155,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.14.5`** com
-  `Orcamento-v0.14.5.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.14.6`** com
+  `Orcamento-v0.14.6.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
   `ideias/` ("Foco na observação" implementada na v0.14.4).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original

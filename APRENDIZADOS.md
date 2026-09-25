@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Whats em 2 colunas: contato+scripts à esquerda, relatório à direita (v0.14.6)
+
+**Pedidos:** observação/mensagem com **1 linha** (estavam com 3) e novo layout: **NOVO CONTATO à
+esquerda**, **RELATÓRIO DE ENVIOS à direita** (lado a lado), com o relatório em **uma coluna só**
+(um contato por linha); **SCRIPT PNEUS/REVISÃO abaixo do NOVO CONTATO**, na mesma largura.
+
+**Feito (`WhatsApp` + `ContactList`):**
+- Grid do topo virou `lg:grid-cols-2` (antes 12 colunas com 4/8): esquerda = `ContactForm` +
+  `MessageEditor` (empilhados), direita = `ContactList` (agora dentro da coluna, sem a linha
+  separada abaixo).
+- Cartões do relatório: `lg:grid-cols-2` → **`grid-cols-1`** (uma coluna).
+- Campos Observação/Mensagem Especial: `h-20` → **`h-9`** (1 linha, com `overflow-y-auto`).
+- Validado no Chromium: colunas lado a lado (629px cada), um cartão por linha (603px) e os dois
+  campos com 27px de altura (1 linha). Testes: 67.
+
 ## 2026-09-24 — Títulos menores + observação e mensagem lado a lado no contato (v0.14.5)
 
 **Pedidos:** (1) diminuir a fonte dos títulos **ORÇAMENTOS / TIRE FLYER / PAINEL WHATSAPP**;
