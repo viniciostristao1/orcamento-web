@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
 import HistoryModal from '../src/components/HistoryModal';
 import type { OrcamentoSalvo } from '../src/utils/historico';
@@ -271,6 +271,12 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(screen.getByLabelText('Nome da nova sub-aba'), { target: { value: 'PREVENTIVA' } });
     fireEvent.click(screen.getByRole('button', { name: /Confirmar nova sub-aba/i }));
     expect(screen.getByRole('button', { name: /PREVENTIVA \(0\)/i })).toBeTruthy();
+
+    // excluir a sub-aba (com confirmação)
+    const confirmar = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    fireEvent.click(screen.getByRole('button', { name: /Excluir sub-aba/i }));
+    expect(screen.queryByRole('button', { name: /PREVENTIVA \(0\)/i })).toBeNull();
+    confirmar.mockRestore();
 
     // termo que só existe em O.S's troca de sub-aba
     fireEvent.click(screen.getByRole('button', { name: /O\.S'S \(0\)/i }));

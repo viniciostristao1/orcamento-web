@@ -13,6 +13,7 @@ import {
   encontrar,
   estadoInicial,
   lerDados,
+  removerAba,
   removerLinha,
   removerTabela,
   salvarDados,
@@ -78,6 +79,18 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     const d2 = criarTabela(d, d.abas[2].id, 2);
     expect(d2.abas[2].tabelas).toHaveLength(1);
     expect(d2.abas[0].tabelas).toHaveLength(0);
+  });
+
+  it('exclui sub-abas (e nunca deixa a lista vazia)', () => {
+    let d = criarAba(estadoInicial(), 'Preventiva');
+    const idNova = d.abas[2].id;
+    d = removerAba(d, idNova);
+    expect(d.abas.map((a) => a.rotulo)).toEqual(['PEÇAS', "O.S'S"]);
+
+    // apagando tudo volta o estado inicial
+    d = removerAba(d, 'pecas');
+    d = removerAba(d, 'os');
+    expect(d.abas.map((a) => a.rotulo)).toEqual(['PEÇAS', "O.S'S"]);
   });
 
   it('persiste no formato novo e migra o antigo { pecas, os }', () => {

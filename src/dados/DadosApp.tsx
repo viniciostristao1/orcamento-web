@@ -12,6 +12,7 @@ import {
   criarTabela,
   encontrar,
   lerDados,
+  removerAba,
   removerLinha,
   removerTabela,
   salvarDados,
@@ -125,7 +126,7 @@ const DadosApp: React.FC = () => {
               onClick={() => setDados((d) => criarTabela(d, aba?.id, colunasNova))}
               aria-label="Criar tabela"
               title="Criar tabela"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer"
             >
               <Table2 size={16} /> Criar tabela
             </button>
@@ -145,7 +146,7 @@ const DadosApp: React.FC = () => {
               key={a.id}
               type="button"
               onClick={() => setAbaId(a.id)}
-              className={`px-6 py-3 rounded-xl text-sm font-black uppercase tracking-widest border transition-all cursor-pointer active:scale-95 ${
+              className={`px-6 py-2.5 rounded-xl text-base font-black uppercase tracking-widest border transition-all cursor-pointer active:scale-95 ${
                 aba?.id === a.id
                   ? 'bg-blue-600 text-white border-blue-500'
                   : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
@@ -190,15 +191,33 @@ const DadosApp: React.FC = () => {
               </button>
             </span>
           ) : (
-            <button
-              type="button"
-              onClick={() => setCriandoAba(true)}
-              aria-label="Criar sub-aba"
-              title="Criar sub-aba"
-              className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
-            >
-              <Plus size={18} strokeWidth={3} />
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setCriandoAba(true)}
+                aria-label="Criar sub-aba"
+                title="Criar sub-aba"
+                className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
+              >
+                <Plus size={18} strokeWidth={3} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!aba) return;
+                  if (!window.confirm(`Apagar a sub-aba "${aba.rotulo}" e TODAS as tabelas dela?`)) return;
+                  const restantes = dados.abas.filter((a) => a.id !== aba.id);
+                  setDados(removerAba(dados, aba.id));
+                  setAbaId(restantes[0]?.id ?? 'pecas');
+                }}
+                disabled={dados.abas.length <= 1}
+                aria-label="Excluir sub-aba"
+                title="Excluir a sub-aba aberta"
+                className="flex items-center justify-center p-3 bg-slate-800 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
+              >
+                <Trash2 size={18} />
+              </button>
+            </>
           )}
         </div>
 
@@ -263,7 +282,7 @@ const DadosApp: React.FC = () => {
                                 value={titulo}
                                 onChange={(e) => setDados((d) => atualizarTitulo(d, aba.id, tabela.id, coluna, e.target.value))}
                                 data-marcado={marcado ? '1' : undefined}
-                                className={`w-full bg-transparent px-4 py-3 text-base font-black uppercase outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-100'}`}
+                                className={`w-full bg-transparent px-4 py-2.5 text-lg font-black uppercase outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-100'}`}
                               />
                               {/* alça para ajustar a largura da coluna */}
                               <div
@@ -296,7 +315,7 @@ const DadosApp: React.FC = () => {
                                   value={valor}
                                   onChange={(e) => setDados((d) => atualizarCelula(d, aba.id, tabela.id, r, coluna, e.target.value))}
                                   data-marcado={marcado ? '1' : undefined}
-                                  className={`w-full bg-transparent px-4 py-3 pr-10 text-lg font-bold outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-200'}`}
+                                  className={`w-full bg-transparent px-4 py-2 pr-10 text-xl font-bold outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-200'}`}
                                 />
                                 {valor && (
                                   <button
@@ -337,7 +356,7 @@ const DadosApp: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer"
                   >
                     <Plus size={16} /> Adicionar linha
                   </button>

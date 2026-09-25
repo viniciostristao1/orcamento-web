@@ -69,7 +69,7 @@ serifada).
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **75 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **76 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
   aba Whats (cadastro de contato/tarefa com persistência).
@@ -161,8 +161,8 @@ serifada).
   negrito, **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover
   linhas, **copiar célula** (hover) e **busca que abre a sub-aba e grifa o termo**. Entra no
   backup geral.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.16.0`** com
-  `Orcamento-v0.16.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.16.1`** com
+  `Orcamento-v0.16.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
   `ideias/` ("Foco na observação" implementada na v0.14.4).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original

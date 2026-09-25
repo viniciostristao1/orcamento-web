@@ -5,6 +5,23 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Dados: proporção fonte/célula, excluir sub-aba e header ajustado (v0.16.1)
+
+**Pedidos:** o aumento da v0.16.0 foi só de fonte — o usuário queria a **relação fonte/altura**
+(a letra preenchendo a célula/botão, sem tanto espaço acima e abaixo); e poder **excluir
+sub-abas**.
+
+**Feito:**
+- **Células:** corpo `text-lg py-3` → **`text-xl py-2`** (a fonte passou a ocupar ~59% da altura
+  da célula, medido no Chromium) e títulos `text-base py-3` → `text-lg py-2.5`.
+- **Botões:** sub-abas `text-base py-2.5`; "Criar tabela"/"Adicionar linha" `text-sm px-5 py-2.5`;
+  abas do topo `text-sm px-5 py-2.5` (com `whitespace-nowrap`). O header voltou a caber
+  (container 1050px físicos, sem sobrepor a marca em 1366/1600/1920 — medido).
+- **Excluir sub-aba:** botão de lixeira ao lado do "+" apaga a sub-aba aberta (com `confirm`),
+  selecionando a primeira restante. `removerAba()` nunca deixa a lista vazia (se apagar todas,
+  volta PEÇAS/O.S's) e o loader deixou de "ressuscitar" abas apagadas.
+- Testes: **76** (novo caso de `removerAba` + exclusão no smoke com `confirm` mockado).
+
 ## 2026-09-24 — Dados: sub-abas dinâmicas, copiar célula, largura de coluna e fontes maiores (v0.16.0)
 
 **Pedidos (em sequência):** tirar o texto "Tabela 1 · O.S's / data · colunas · linhas"; aumentar

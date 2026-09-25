@@ -91,9 +91,9 @@ export const lerDados = (storage: Storage = localStorage): DadosTabelas => {
           };
         })
         .filter((a: AbaDados | null): a is AbaDados => a !== null);
-      // garante que PEÇAS e O.S's existam sem descartar o que está salvo
-      const faltantes = estadoInicial().abas.filter((p) => !abas.some((a) => a.id === p.id));
-      return { abas: [...faltantes, ...abas] };
+      // respeita o que está salvo (o usuário pode apagar sub-abas) — mas nunca
+      // devolve uma lista vazia
+      return { abas: abas.length > 0 ? abas : estadoInicial().abas };
     }
 
     // Formato antigo { pecas: [], os: [] } — migra para as abas
@@ -126,6 +126,12 @@ export const criarAba = (dados: DadosTabelas, rotulo: string): DadosTabelas => {
     ...dados,
     abas: [...dados.abas, { id: `${slug(rotulo)}-${Date.now().toString(36)}`, rotulo: nome, tabelas: [] }],
   };
+};
+
+/** Apaga uma sub-aba (e as tabelas dela). Nunca deixa a lista vazia. */
+export const removerAba = (dados: DadosTabelas, id: string): DadosTabelas => {
+  const abas = dados.abas.filter((a) => a.id !== id);
+  return { abas: abas.length > 0 ? abas : estadoInicial().abas };
 };
 
 const atualizarTabela = (

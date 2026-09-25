@@ -33,7 +33,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 pb-24">
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden ui-compacta">
-        <div className="max-w-[1400px] mx-auto px-10 h-20 flex items-center justify-between gap-8">
+        <div className="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <img src={logoToyota} alt="Toyota" className="h-11 w-auto" />
             <h1 className="titulo-tema text-2xl font-black tracking-tighter uppercase whitespace-nowrap">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
@@ -45,7 +45,7 @@ const App: React.FC = () => {
                 key={t.id}
                 type="button"
                 onClick={() => setAba(t.id)}
-                className={`px-7 py-3.5 rounded-xl transition-all text-sm font-black uppercase tracking-[0.2em] border cursor-pointer active:scale-95 whitespace-nowrap ${
+                className={`px-5 py-2.5 rounded-xl transition-all text-sm font-black uppercase tracking-[0.15em] border cursor-pointer active:scale-95 whitespace-nowrap ${
                   aba === t.id
                     ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-900/40'
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
@@ -56,8 +56,8 @@ const App: React.FC = () => {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
-            <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 border-l border-slate-800 pl-6 h-8 flex items-center whitespace-nowrap">Gestão de Vendas</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 border-l border-slate-800 pl-4 h-8 flex items-center whitespace-nowrap">Gestão de Vendas</span>
             <ConfiguracoesTema tema={tema} onChange={setTema} />
           </div>
         </div>
