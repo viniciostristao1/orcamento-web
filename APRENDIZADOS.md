@@ -5,6 +5,16 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Formulário do Whats mais compacto (v0.13.5)
+
+**Pedido:** na aba Whats, WhatsApp ao lado direito de **Nome Completo**, **Número do Chassi**
+ao lado direito de **Dia do Envio**, e remover o máximo de espaço entre os campos.
+
+**Feito (`ContactForm`):** dois grids de 2 colunas — `[Nome | WhatsApp]` e
+`[Dia do Envio | Chassi]`; formulário `space-y-6` → **`space-y-3`**, `gap-6` → `gap-3`,
+inputs `px-5 py-4` → `px-4 py-3`, rótulo `mb-1.5 ml-4` → `mb-1 ml-2` e cabeçalho `mb-10` →
+`mb-5`. Validado no Chromium (campos na mesma linha e vão entre linhas ~23px). Testes: 60.
+
 ## 2026-09-24 — Títulos dos históricos em maiúsculas e popup menor (v0.13.4)
 
 **Pedido:** onde diz "Histórico" em maiúsculas; e reduzir a fonte de "ITENS DO ORÇAMENTO".

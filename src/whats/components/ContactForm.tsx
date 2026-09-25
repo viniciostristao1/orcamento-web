@@ -38,14 +38,14 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
     setCustomMessage('');
   };
 
-  const inputClasses = "w-full px-5 py-4 campo-tema text-slate-100 border border-slate-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/40 outline-none transition-all text-lg font-bold placeholder:text-slate-700 tracking-tight shadow-inner";
-  const labelClasses = "block text-[10px] font-bold text-slate-500 group-focus-within:text-slate-200 transition-colors uppercase mb-1.5 ml-4 tracking-[0.2em]";
+  const inputClasses = "w-full px-4 py-3 campo-tema text-slate-100 border border-slate-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/40 outline-none transition-all text-lg font-bold placeholder:text-slate-700 tracking-tight shadow-inner";
+  const labelClasses = "block text-[10px] font-bold text-slate-500 group-focus-within:text-slate-200 transition-colors uppercase mb-1 ml-2 tracking-[0.2em]";
 
   return (
     <div className="bg-slate-900/60 p-8 sm:p-10 rounded-[2rem] shadow-2xl border border-slate-800 flex-1 flex flex-col relative overflow-hidden h-full">
       <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-slate-800/40 via-slate-700/50 to-slate-800/40"></div>
       
-      <div className="flex items-center justify-between mb-10 mt-2">
+      <div className="flex items-center justify-between mb-5 mt-2">
         <div className="flex items-center gap-4">
           <div className="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-900/30 border border-blue-500/30">
               <Users className="text-white" size={28} />
@@ -61,20 +61,20 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
         </div>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-6 flex-1 flex flex-col">
-        <div className="group">
-          <label className={labelClasses}>Nome Completo</label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={`${inputClasses} uppercase`}
-            placeholder="Ex: WEIAND VEICULOS LTDA"
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <form onSubmit={handleSubmit} className="space-y-3 flex-1 flex flex-col">
+        {/* Nome + WhatsApp na mesma linha */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="group">
+            <label className={labelClasses}>Nome Completo</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={`${inputClasses} uppercase`}
+              placeholder="Ex: WEIAND VEICULOS LTDA"
+            />
+          </div>
           <div className="group font-sans">
             <label className={labelClasses}>
               WhatsApp <span className="text-[10px] text-slate-600 lowercase italic ml-1">({phone.length}/12)</span>
@@ -88,6 +88,10 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
               placeholder="555199999999"
             />
           </div>
+        </div>
+
+        {/* Dia do Envio + Chassi na mesma linha */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="group">
             <label className={labelClasses}>Dia do Envio</label>
             <input
@@ -98,19 +102,18 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
               className={`${inputClasses} [color-scheme:dark]`}
             />
           </div>
-        </div>
-
-        <div className="group">
-          <label className={labelClasses}>Número do Chassi</label>
-          <div className="relative">
-            <Hash size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600" />
-            <input
-              type="text"
-              value={chassis}
-              onChange={(e) => setChassis(e.target.value.toUpperCase())}
-              className={`${inputClasses} uppercase pl-12`}
-              placeholder="OPCIONAL"
-            />
+          <div className="group">
+            <label className={labelClasses}>Número do Chassi</label>
+            <div className="relative">
+              <Hash size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
+              <input
+                type="text"
+                value={chassis}
+                onChange={(e) => setChassis(e.target.value.toUpperCase())}
+                className={`${inputClasses} uppercase pl-10`}
+                placeholder="OPCIONAL"
+              />
+            </div>
           </div>
         </div>
 
