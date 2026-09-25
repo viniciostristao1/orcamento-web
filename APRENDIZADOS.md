@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — "Aprovado/Não aprovado" só nos registros salvos + título maior (v0.13.2)
+
+**Pedido:** no "Ver itens do orçamento" da aba **Todos** não deve aparecer "Aprovado pelo
+cliente"/"Não aprovado" (o orçamento recém-gerado ainda não foi aprovado) — só nos registros
+salvos em **Não Realizados**; e aumentar/maiúscular o título.
+
+**Feito:**
+- `temSelecao = (itensDe?.naoRealizados?.length ?? 0) > 0`: a legenda e os ícones ✓/✕ só
+  aparecem quando o registro foi salvo pelo botão âmbar; nos demais os itens ficam
+  `data-situacao="neutro"` (lista simples, texto claro).
+- Título **ITENS DO ORÇAMENTO**: `text-2xl` → **`text-3xl`** (30px) e texto-fonte em maiúsculas
+  (novamente: no tema Claude o `.titulo-tema` tira o `text-transform`).
+- Testes: **60** (o caso das abas agora confere os dois cenários); flyer com PNG idêntico.
+
 ## 2026-09-24 — Título do popup maior + data/hora do histórico no documento (v0.13.1)
 
 **Pedidos:** (1) no "Ver itens do orçamento", título **ITENS DO ORÇAMENTO** maior e tudo em

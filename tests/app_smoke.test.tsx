@@ -267,14 +267,23 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Todos \(2\)/i }));
     expect(screen.getByText('XYZ9A87')).toBeTruthy();
 
-    // janelinha "Ver itens do orçamento": item 1 está em naoRealizados -> não aprovado
+    // janelinha "Ver itens" do registro salvo: item 1 está em naoRealizados
     fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[0]);
     expect(screen.getByText('ITENS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.getAllByText('01 TESTE').length).toBeGreaterThan(1);
+    expect(screen.getByText(/Aprovado pelo cliente/i)).toBeTruthy();
     expect(document.querySelectorAll('[data-situacao="naoAprovado"]')).toHaveLength(1);
     expect(document.querySelectorAll('[data-situacao="aprovado"]')).toHaveLength(0);
     fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
     expect(screen.queryByText('ITENS DO ORÇAMENTO')).toBeNull();
+
+    // registro comum (sem seleção salva): lista simples, sem aprovado/não aprovado
+    fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[1]);
+    expect(screen.getByText('ITENS DO ORÇAMENTO')).toBeTruthy();
+    expect(screen.queryByText(/Aprovado pelo cliente/i)).toBeNull();
+    expect(document.querySelectorAll('[data-situacao="neutro"]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-situacao="aprovado"], [data-situacao="naoAprovado"]')).toHaveLength(0);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
   });
 
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {

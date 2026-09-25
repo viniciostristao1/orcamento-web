@@ -124,8 +124,10 @@ serifada).
 - **Histórico — abas, salvar e ver itens** (v0.11.0; destaque na v0.13.0): abas **Todos** /
   **Não Realizados** (`filtrarPorAba`); o botão âmbar do `QuoteTable` ("Salvar com itens não
   realizados") grava o registro com `naoRealizados: number[]` (e o "Abrir" restaura a
-  marcação); o botão "Ver itens do orçamento" abre uma janelinha com as linhas de `descReparo`,
-  marcando **✓ aprovado / ✕ não aprovado** (`data-situacao`) conforme `naoRealizados`.
+  marcação); o botão "Ver itens do orçamento" abre uma janelinha com as linhas de `descReparo`.
+  A marcação **✓ aprovado / ✕ não aprovado** (`data-situacao`) só aparece nos registros com
+  `naoRealizados` salvo; nos comuns os itens ficam `data-situacao="neutro"` (ainda não houve
+  aprovação do cliente).
 - **Modais ficam FORA do `ui-compacta`** (v0.13.0): dentro de uma aba com zoom, um modal com o
   seu próprio `ui-compacta` ficaria com zoom duplo (fonte menor). Renderizar como irmão do
   container da aba (padrão do `HistoryModal`).
@@ -147,8 +149,8 @@ serifada).
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.13.1`** com
-  `Orcamento-v0.13.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.13.2`** com
+  `Orcamento-v0.13.2.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`.
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
   (`body` = **Inter**, `.font-mono-data` = **JetBrains Mono**, `::selection`, `.no-print`,

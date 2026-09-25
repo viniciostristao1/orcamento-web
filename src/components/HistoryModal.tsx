@@ -46,6 +46,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
 
   const visiveis = filtrarHistorico(filtrarPorAba(lista, aba), busca);
   const totalNaoRealizados = lista.filter(temNaoRealizados).length;
+  // O registro aberto em "Ver itens" tem seleção salva (aprovados/não aprovados)?
+  const temSelecao = (itensDe?.naoRealizados?.length ?? 0) > 0;
 
   const handleRestaurar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -282,7 +284,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-5 py-4 bg-slate-950/60 border-b border-slate-800/60">
-                <h3 className="titulo-tema text-2xl font-black text-slate-100 uppercase tracking-widest">
+                <h3 className="titulo-tema text-3xl font-black text-slate-100 uppercase tracking-widest">
                   ITENS DO ORÇAMENTO
                 </h3>
                 <button
@@ -295,14 +297,18 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   <X size={18} />
                 </button>
               </div>
-              <div className="flex items-center gap-4 px-5 pt-3 text-[11px] font-black uppercase tracking-widest">
-                <span className="flex items-center gap-1.5 text-green-500">
-                  <CheckCircle2 size={14} /> Aprovado pelo cliente
-                </span>
-                <span className="flex items-center gap-1.5 text-red-400">
-                  <XCircle size={14} /> Não aprovado
-                </span>
-              </div>
+              {/* Aprovação só faz sentido no que foi salvo em "Não Realizados"
+                  (o orçamento recém-gerado ainda não foi aprovado pelo cliente). */}
+              {temSelecao && (
+                <div className="flex items-center gap-4 px-5 pt-3 text-[11px] font-black uppercase tracking-widest">
+                  <span className="flex items-center gap-1.5 text-green-500">
+                    <CheckCircle2 size={14} /> Aprovado pelo cliente
+                  </span>
+                  <span className="flex items-center gap-1.5 text-red-400">
+                    <XCircle size={14} /> Não aprovado
+                  </span>
+                </div>
+              )}
               <div className="overflow-y-auto p-5 space-y-2">
                 {itensDe.descReparo
                   .split('\n')
@@ -310,18 +316,19 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   .map((linha, i) => {
                     const id = parseInt(linha.trim().split(/\s+/)[0], 10);
                     const naoAprovado =
-                      Number.isFinite(id) && (itensDe.naoRealizados ?? []).includes(id);
+                      temSelecao && Number.isFinite(id) && (itensDe.naoRealizados ?? []).includes(id);
                     return (
                       <p
                         key={i}
-                        data-situacao={naoAprovado ? 'naoAprovado' : 'aprovado'}
+                        data-situacao={temSelecao ? (naoAprovado ? 'naoAprovado' : 'aprovado') : 'neutro'}
                         className="text-base font-bold flex items-start gap-2"
                       >
-                        {naoAprovado ? (
-                          <XCircle size={18} className="shrink-0 mt-0.5 text-red-400" />
-                        ) : (
-                          <CheckCircle2 size={18} className="shrink-0 mt-0.5 text-green-500" />
-                        )}
+                        {temSelecao &&
+                          (naoAprovado ? (
+                            <XCircle size={18} className="shrink-0 mt-0.5 text-red-400" />
+                          ) : (
+                            <CheckCircle2 size={18} className="shrink-0 mt-0.5 text-green-500" />
+                          ))}
                         <span className={naoAprovado ? 'text-red-300 line-through' : 'text-slate-200'}>
                           {linha}
                         </span>
