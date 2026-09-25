@@ -7,11 +7,12 @@ interface ContactListProps {
   onRemove: (id: string) => void;
   onMarkAsSent: (id: string) => void;
   onUpdateNote: (id: string, note: string) => void;
+  onUpdateMessage: (id: string, message: string) => void;
   onUpdateDate: (id: string, date: string) => void;
   messageTemplate: string;
 }
 
-const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsSent, onUpdateNote, onUpdateDate, messageTemplate }) => {
+const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsSent, onUpdateNote, onUpdateMessage, onUpdateDate, messageTemplate }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedChassisId, setCopiedChassisId] = useState<string | null>(null);
   const todayStr = new Date().toISOString().split('T')[0];
@@ -129,13 +130,31 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                   </label>
                 </div>
 
-                {/* Observação (em destaque) */}
-                <textarea
-                  placeholder="Observação..."
-                  value={contact.internalNote || ''}
-                  onChange={(e) => onUpdateNote(contact.id, e.target.value)}
-                  className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-slate-200 font-bold mb-3"
-                />
+                {/* Observação e Mensagem Especial lado a lado (rolam se passar da altura) */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div>
+                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                      Observação
+                    </span>
+                    <textarea
+                      placeholder="Anotações sobre o cliente…"
+                      value={contact.internalNote || ''}
+                      onChange={(e) => onUpdateNote(contact.id, e.target.value)}
+                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-20 leading-tight text-slate-200 font-bold overflow-y-auto"
+                    />
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                      Mensagem especial
+                    </span>
+                    <textarea
+                      placeholder="Se vazio, usa o script de revisão…"
+                      value={contact.customMessage || ''}
+                      onChange={(e) => onUpdateMessage(contact.id, e.target.value)}
+                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-20 leading-tight text-emerald-100 font-bold overflow-y-auto"
+                    />
+                  </div>
+                </div>
 
                 {/* Contato + situação + ações */}
                 <div className="flex items-center justify-between gap-3">

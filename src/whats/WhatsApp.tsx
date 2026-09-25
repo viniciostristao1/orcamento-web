@@ -66,6 +66,12 @@ const WhatsApp: React.FC = () => {
     ));
   };
 
+  const updateContactMessage = (id: string, message: string) => {
+    setContacts(prev => prev.map(c => 
+      c.id === id ? { ...c, customMessage: message } : c
+    ));
+  };
+
   const updateContactDate = (id: string, date: string) => {
     setContacts(prev => prev.map(c => 
       c.id === id ? { ...c, targetDate: date } : c
@@ -78,7 +84,7 @@ const WhatsApp: React.FC = () => {
   return (
     <div className="ui-compacta pt-1 pb-20 text-slate-200">
       <header className="mb-4 text-center">
-        <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase">
+        <h1 className="titulo-tema text-3xl font-black tracking-tighter uppercase">
           PAINEL <span className="text-blue-500">WHATSAPP</span>
         </h1>
       </header>
@@ -104,6 +110,7 @@ const WhatsApp: React.FC = () => {
             onRemove={removeContact} 
             onMarkAsSent={markAsSent}
             onUpdateNote={updateContactNote}
+            onUpdateMessage={updateContactMessage}
             onUpdateDate={updateContactDate}
             messageTemplate={scriptRevisao} 
           />

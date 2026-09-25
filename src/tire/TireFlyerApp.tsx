@@ -99,7 +99,7 @@ const TireFlyerApp: React.FC = () => {
           "DADOS DA TABELA" e no flyer (a largura útil cai ~pela metade). */}
       <div className="max-w-[1150px] mx-auto">
       <header className="mb-4 text-center">
-        <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase">
+        <h1 className="titulo-tema text-3xl font-black tracking-tighter uppercase">
           TIRE <span className="text-blue-500">FLYER</span>
         </h1>
       </header>

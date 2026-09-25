@@ -5,6 +5,23 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-24 — Títulos menores + observação e mensagem lado a lado no contato (v0.14.5)
+
+**Pedidos:** (1) diminuir a fonte dos títulos **ORÇAMENTOS / TIRE FLYER / PAINEL WHATSAPP**;
+(2) no Relatório de Envios, **Observação e Mensagem Especial lado a lado** (abaixo do nome),
+podendo ler/escrever várias linhas com **barra de rolagem** aparecendo quando passar da altura.
+
+**Feito:**
+- Títulos das abas: `text-4xl` → **`text-3xl`** (36px → 30px) nas três telas.
+- Cartão do contato: abaixo do nome agora tem **dois campos** (`grid-cols-2`), cada um com
+  rótulo discreto: **Observação** (internalNote) e **Mensagem especial** (`customMessage`),
+  ambos `h-20` com `overflow-y-auto` (a barra lateral aparece ao passar das linhas).
+- `WhatsApp.tsx` ganhou `updateContactMessage` (não existia: só a observação era editável) e
+  passou `onUpdateMessage` para o `ContactList`. O copiar/notificar já usava
+  `customMessage || script de revisão`, então a mensagem salva continua sendo a usada.
+- Validado no Chromium: campos no mesmo `top` (lado a lado), valores carregados do
+  localStorage e `overflow-y: auto`. Testes: 67.
+
 ## 2026-09-24 — Relatório de Envios: layout "Foco na observação" (v0.14.4)
 
 **Pedido:** o usuário escolheu, entre 10 mockups publicados em `ideias/relatorio-2colunas.md`, a

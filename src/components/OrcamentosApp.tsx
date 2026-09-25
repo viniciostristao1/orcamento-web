@@ -138,7 +138,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     <>
       <div className="ui-compacta print:hidden">
         <header className="mb-4 text-center">
-          <h1 className="titulo-tema text-4xl font-black tracking-tighter uppercase text-blue-500">ORÇAMENTOS</h1>
+          <h1 className="titulo-tema text-3xl font-black tracking-tighter uppercase text-blue-500">ORÇAMENTOS</h1>
         </header>
       </div>
 
