@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Settings, Check, Download, Upload } from 'lucide-react';
+import { Settings, Download, Upload } from 'lucide-react';
 import type { Tema } from '../utils/tema';
 import { montarBackup, nomeArquivoBackup, restaurarBackup } from '../utils/backup';
 
@@ -8,9 +8,15 @@ interface ConfiguracoesTemaProps {
   onChange: (tema: Tema) => void;
 }
 
-const OPCOES: { id: Tema; nome: string; descricao: string }[] = [
-  { id: 'original', nome: 'Original', descricao: 'Visual do app (azul e cinza-escuro)' },
-  { id: 'claude', nome: 'Claude', descricao: 'Tema escuro (cinzas quentes e laranja)' },
+// `fundo`/`acento` alimentam a mini-amostra de cor ao lado de cada tema.
+const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento: string }[] = [
+  { id: 'azul', nome: 'Azul', descricao: 'Visual clássico (azul e cinza-escuro)', fundo: '#0f172a', acento: '#3b82f6' },
+  { id: 'terracota', nome: 'Terracota', descricao: 'Escuro com laranja terroso', fundo: '#000000', acento: '#d97757' },
+  { id: 'papel', nome: 'Claro Papel', descricao: 'Modo claro, fundo papel', fundo: '#eef0f3', acento: '#2563eb' },
+  { id: 'executivo', nome: 'Executivo Premium', descricao: 'Marinho com dourado, títulos serifados', fundo: '#0b1020', acento: '#c9a24a' },
+  { id: 'whatsapp', nome: 'Verde WhatsApp', descricao: 'Escuro com o verde do Zap', fundo: '#0b141a', acento: '#25d366' },
+  { id: 'tecnico', nome: 'Monocromático Técnico', descricao: 'Cinza com laranja, bem sóbrio', fundo: '#101012', acento: '#ff6a00' },
+  { id: 'suave', nome: 'Suave Arredondado', descricao: 'Escuro quente, coral e cantos macios', fundo: '#1a1720', acento: '#ff7a66' },
 ];
 
 const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange }) => {
@@ -93,35 +99,39 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pt-2 pb-3">
             Tema da interface
           </p>
-          {OPCOES.map((opcao) => {
-            const ativo = tema === opcao.id;
-            return (
-              <button
-                key={opcao.id}
-                type="button"
-                onClick={() => { onChange(opcao.id); setAberto(false); }}
-                className={`w-full flex items-start gap-3 px-3 py-3 rounded-xl text-left border transition-colors cursor-pointer ${
-                  ativo
-                    ? 'bg-blue-600/10 border-blue-500/40'
-                    : 'border-transparent hover:bg-slate-900'
-                }`}
-              >
-                <span
-                  className={`mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                    ativo ? 'border-blue-500 bg-blue-600' : 'border-slate-600'
+          <div className="max-h-[46vh] overflow-y-auto pr-1 -mr-1">
+            {OPCOES.map((opcao) => {
+              const ativo = tema === opcao.id;
+              return (
+                <button
+                  key={opcao.id}
+                  type="button"
+                  onClick={() => { onChange(opcao.id); setAberto(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left border transition-colors cursor-pointer ${
+                    ativo
+                      ? 'bg-blue-600/10 border-blue-500/40'
+                      : 'border-transparent hover:bg-slate-900'
                   }`}
                 >
-                  {ativo && <Check size={11} className="text-white" />}
-                </span>
-                <span>
-                  <span className="block text-xs font-black uppercase tracking-widest text-slate-200">
-                    {opcao.nome}
+                  <span
+                    className={`w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 ${
+                      ativo ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-600'
+                    }`}
+                    style={{ backgroundColor: opcao.fundo }}
+                    aria-hidden="true"
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: opcao.acento }} />
                   </span>
-                  <span className="block text-[11px] text-slate-500 mt-1">{opcao.descricao}</span>
-                </span>
-              </button>
-            );
-          })}
+                  <span className="min-w-0">
+                    <span className="block text-xs font-black uppercase tracking-widest text-slate-200 truncate">
+                      {opcao.nome}
+                    </span>
+                    <span className="block text-[11px] text-slate-500 mt-0.5 truncate">{opcao.descricao}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
           <div className="h-px bg-slate-800 my-3"></div>
 

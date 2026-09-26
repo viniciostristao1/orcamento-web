@@ -18,8 +18,10 @@ O app tem **quatro abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — c
 pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e **Whats** (v0.7.0 —
 contatos, template de mensagem e backup JSON para disparos mensais no WhatsApp). As três abas
 compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
-da interface entre **Original** (azul/slate) e **Claude** (cinzas escuros + laranja, com
-serifada).
+da interface. São **7 temas** (v0.18.0): **Azul** (era "Original", azul/slate), **Terracota**
+(era "Claude", cinzas + laranja, serifada), **Claro Papel** (modo claro), **Executivo Premium**
+(marinho + dourado), **Verde WhatsApp**, **Monocromático Técnico** (cinza + laranja) e **Suave
+Arredondado** (coral). O tema vale **só para a interface** — o PNG do cliente não muda.
 
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
 - **Uso local no PC**: o app final é **UM arquivo `.html`** aberto com duplo clique no Chrome,
@@ -98,6 +100,14 @@ serifada).
   (`--tema-fonte-conteudo`), o fundo é bem escuro (`#0f0f0e`, campos `#080807`, cards
   `#171716`), sem glow nos cards e sem sombra nos botões. **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
+  - **7 temas (v0.18.0):** `Claude` foi renomeado p/ `terracota` e `original` p/ `azul`
+    (`lerTemaSalvo` **migra** os nomes antigos). 5 temas novos = `papel` (modo **claro**),
+    `executivo` (marinho+dourado, Fraunces), `whatsapp` (verde), `tecnico` (cinza+laranja),
+    `suave` (coral, cantos macios) — cada um é um bloco `[data-tema='x']` com os ~26 tokens
+    `--tema-*` + fontes `@fontsource` novas (space-grotesk, fraunces, manrope, poppins, chivo).
+    ⚠️ Ao mexer em modo claro: literais **não** remapeados pelo `@theme inline` (ex.:
+    `text-emerald-100`) não seguem o tema e podem sumir no fundo branco — usar tokens (600/500/400/900).
+    O seletor tem mini-amostra de cor + rolagem. Validado por screenshot headless do `dist`.
 - **Histórico do Tire Flyer + CONTATO** (v0.12.0): `tire/utils/historicoFlyer.ts`
   (`flyer_historico_v1`) salva a cada "Processar" (`data/hora · contato · medida · N pneus`);
   busca por contato/data/medida (sem acento); card **CONTATO** (campo livre, só no histórico)

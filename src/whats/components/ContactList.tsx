@@ -151,7 +151,7 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                       placeholder="Se vazio, usa o script de revisão…"
                       value={contact.customMessage || ''}
                       onChange={(e) => onUpdateMessage(contact.id, e.target.value)}
-                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-emerald-100 font-bold overflow-y-auto"
+                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-emerald-600 font-bold overflow-y-auto"
                     />
                   </div>
                 </div>

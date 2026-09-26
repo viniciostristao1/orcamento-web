@@ -116,23 +116,41 @@ describe('App — smoke test (render + processar)', () => {
     expect(textareaDepois.value).toBe('01 TESTE PERSISTIDO');
   });
 
-  it('configurações: troca o tema (Original/Claude) e salva a escolha', () => {
+  it('configurações: troca entre os temas e salva a escolha', () => {
     localStorage.removeItem('orcamentos_tema_v1');
     render(<App />);
-    expect(document.documentElement.dataset.tema).toBe('original');
+    expect(document.documentElement.dataset.tema).toBe('azul');
 
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
     // backup fica no mesmo menu, depois do tema
     expect(screen.getByRole('button', { name: /Exportar backup/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Importar backup/i })).toBeTruthy();
-    fireEvent.click(screen.getByText('Claude'));
-    expect(document.documentElement.dataset.tema).toBe('claude');
-    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('claude');
+
+    fireEvent.click(screen.getByText('Terracota'));
+    expect(document.documentElement.dataset.tema).toBe('terracota');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('terracota');
+
+    // um dos temas novos
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByText('Verde WhatsApp'));
+    expect(document.documentElement.dataset.tema).toBe('whatsapp');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('whatsapp');
 
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-    fireEvent.click(screen.getByText('Original'));
-    expect(document.documentElement.dataset.tema).toBe('original');
-    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('original');
+    fireEvent.click(screen.getByText('Azul'));
+    expect(document.documentElement.dataset.tema).toBe('azul');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('azul');
+  });
+
+  it('migra os nomes de tema antigos (original→azul, claude→terracota)', () => {
+    localStorage.setItem('orcamentos_tema_v1', 'claude');
+    const { unmount } = render(<App />);
+    expect(document.documentElement.dataset.tema).toBe('terracota');
+    unmount();
+
+    localStorage.setItem('orcamentos_tema_v1', 'original');
+    render(<App />);
+    expect(document.documentElement.dataset.tema).toBe('azul');
   });
 
   it('documentos de saída são marcados para não seguir o tema', () => {

@@ -8,11 +8,23 @@
 @import "@fontsource/inter/latin-900.css";
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-700.css";
-/* Serifada do tema Claude (aproximação livre da Tiempos, que é paga) —
+/* Serifada do tema Terracota (aproximação livre da Tiempos, que é paga) —
    aplicada só nos títulos da interface via .titulo-tema. */
 @import "@fontsource/source-serif-4/latin-400.css";
 @import "@fontsource/source-serif-4/latin-600.css";
 @import "@fontsource/source-serif-4/latin-700.css";
+/* Fontes dos temas novos (Papel, Executivo, WhatsApp, Técnico, Suave).
+   Todas @fontsource → embutidas em base64 no build (abrem offline). */
+@import "@fontsource/space-grotesk/latin-500.css";
+@import "@fontsource/space-grotesk/latin-700.css";
+@import "@fontsource/fraunces/latin-400.css";
+@import "@fontsource/fraunces/latin-600.css";
+@import "@fontsource/manrope/latin-400.css";
+@import "@fontsource/manrope/latin-700.css";
+@import "@fontsource/poppins/latin-500.css";
+@import "@fontsource/poppins/latin-700.css";
+@import "@fontsource/chivo/latin-400.css";
+@import "@fontsource/chivo/latin-700.css";
 
 /* ============================================================================
    TEMAS DA INTERFACE (Original / Claude)
@@ -82,7 +94,7 @@
 /* Claude = tema escuro (cinzas quentes + laranja), com tipografia própria:
    títulos e conteúdo dos campos em serifada (aproximação da Tiempos) e cartões
    chapados. Fundo mais escuro que o do claude.ai a pedido do usuário. */
-[data-tema='claude'] {
+[data-tema='terracota'] {
   --tema-fundo: #000000;
   --tema-campo: #000000;
   --tema-painel: #060605;
@@ -124,7 +136,7 @@
 .titulo-tema {
   font-family: var(--tema-fonte-titulo);
 }
-[data-tema='claude'] .titulo-tema {
+[data-tema='terracota'] .titulo-tema {
   font-weight: 600;
   letter-spacing: -0.01em;
   text-transform: none;
@@ -132,30 +144,247 @@
 
 /* O que é digitado/colado nos campos também entra na fonte do Claude (inclusive
    as tabelas mono: as colunas seguem alinhadas porque os TABs viram paradas). */
-[data-tema='claude'] textarea,
-[data-tema='claude'] input,
-[data-tema='claude'] select {
+[data-tema='terracota'] textarea,
+[data-tema='terracota'] input,
+[data-tema='terracota'] select {
   font-family: var(--tema-fonte-conteudo);
 }
 
 /* Estilo chapado do Claude: sem brilho neon, sem sombra nos botões, cantos
    menores nos cards. Só atingem a interface (saídas não têm botões/NeonCard). */
-[data-tema='claude'] button {
+[data-tema='terracota'] button {
   box-shadow: none;
 }
-[data-tema='claude'] [data-neon-glow] {
+[data-tema='terracota'] [data-neon-glow] {
   display: none !important;
 }
-[data-tema='claude'] [data-neon-dot] {
+[data-tema='terracota'] [data-neon-dot] {
   background-color: #d97757 !important;
   box-shadow: none !important;
 }
-[data-tema='claude'] [data-neon-card],
-[data-tema='claude'] [data-neon-box] {
+[data-tema='terracota'] [data-neon-card],
+[data-tema='terracota'] [data-neon-box] {
   border-radius: 1.25rem !important;
 }
-[data-tema='claude'] [data-neon-box] {
+[data-tema='terracota'] [data-neon-box] {
   box-shadow: none !important;
+}
+
+/* ============================================================================
+   TEMAS NOVOS (mesma mecânica: só trocam paleta + fontes da INTERFACE; as
+   saídas continuam resetadas mais abaixo, então o PNG do cliente não muda).
+   ========================================================================== */
+
+/* Claro Papel = modo claro, fundo papel, azul. Space Grotesk + Inter. */
+[data-tema='papel'] {
+  --tema-fundo: #eef0f3;
+  --tema-campo: #ffffff;
+  --tema-painel: #ffffff;
+  --tema-borda-forte: #cfd6de;
+  --tema-borda-media: #cbd5e1;
+  --tema-texto-fraco: #94a3b8;
+  --tema-texto-suave: #64748b;
+  --tema-texto-medio: #475569;
+  --tema-texto-medio2: #334155;
+  --tema-texto: #1e293b;
+  --tema-titulo: #0f172a;
+  --tema-acento: #2563eb;
+  --tema-acento-2: #2563eb;
+  --tema-acento-claro: #3b82f6;
+  --tema-acento-clarissimo: #93c5fd;
+  --tema-acento-escuro: #1d4ed8;
+  --tema-acento-texto: #1e3a8a;
+  --tema-sucesso: #16a34a;
+  --tema-sucesso-2: #22c55e;
+  --tema-sucesso-claro: #16a34a;
+  --tema-sucesso-escuro: #bbf7d0;
+  --tema-ambar: #d97706;
+  --tema-ambar-claro: #b45309;
+  --tema-sombra-sucesso: #86efac;
+  --tema-tracking-widest: 0.1em;
+  --tema-fonte-titulo: 'Space Grotesk', sans-serif;
+  --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* Executivo Premium = marinho + dourado, títulos serifados. Fraunces + Manrope. */
+[data-tema='executivo'] {
+  --tema-fundo: #0b1020;
+  --tema-campo: #0b1020;
+  --tema-painel: #121a33;
+  --tema-borda-forte: #26315a;
+  --tema-borda-media: #38446e;
+  --tema-texto-fraco: #6b7391;
+  --tema-texto-suave: #8b93a7;
+  --tema-texto-medio: #aab2c6;
+  --tema-texto-medio2: #cdd3e0;
+  --tema-texto: #eef1f7;
+  --tema-titulo: #ffffff;
+  --tema-acento: #c9a24a;
+  --tema-acento-2: #d4af5f;
+  --tema-acento-claro: #e0bd6a;
+  --tema-acento-clarissimo: #ecd08c;
+  --tema-acento-escuro: #a9843a;
+  --tema-acento-texto: #2a2010;
+  --tema-sucesso: #c9a24a;
+  --tema-sucesso-2: #d4af5f;
+  --tema-sucesso-claro: #e0bd6a;
+  --tema-sucesso-escuro: #3a2f18;
+  --tema-ambar: #d4af5f;
+  --tema-ambar-claro: #ecd08c;
+  --tema-sombra-sucesso: #2a2010;
+  --tema-tracking-widest: 0.06em;
+  --tema-fonte-titulo: 'Fraunces', Georgia, serif;
+  --tema-fonte-conteudo: 'Manrope', sans-serif;
+}
+
+/* Verde WhatsApp = escuro com verde do Zap. Poppins + Inter. */
+[data-tema='whatsapp'] {
+  --tema-fundo: #0b141a;
+  --tema-campo: #0b141a;
+  --tema-painel: #111b21;
+  --tema-borda-forte: #233138;
+  --tema-borda-media: #2f3f47;
+  --tema-texto-fraco: #6b7a84;
+  --tema-texto-suave: #8696a0;
+  --tema-texto-medio: #aebac2;
+  --tema-texto-medio2: #cdd6db;
+  --tema-texto: #e9edef;
+  --tema-titulo: #ffffff;
+  --tema-acento: #25d366;
+  --tema-acento-2: #25d366;
+  --tema-acento-claro: #4ae585;
+  --tema-acento-clarissimo: #7ef0a6;
+  --tema-acento-escuro: #1da851;
+  --tema-acento-texto: #06331a;
+  --tema-sucesso: #25d366;
+  --tema-sucesso-2: #22c55e;
+  --tema-sucesso-claro: #4ae585;
+  --tema-sucesso-escuro: #0b3d24;
+  --tema-ambar: #f5b400;
+  --tema-ambar-claro: #ffd24d;
+  --tema-sombra-sucesso: #0b3d24;
+  --tema-tracking-widest: 0.08em;
+  --tema-fonte-titulo: 'Poppins', sans-serif;
+  --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* Monocromático Técnico = cinza + laranja, chapado. Space Grotesk + Chivo. */
+[data-tema='tecnico'] {
+  --tema-fundo: #101012;
+  --tema-campo: #101012;
+  --tema-painel: #1a1a1d;
+  --tema-borda-forte: #2d2d31;
+  --tema-borda-media: #3a3a3f;
+  --tema-texto-fraco: #6f6f72;
+  --tema-texto-suave: #8a8a8a;
+  --tema-texto-medio: #adadad;
+  --tema-texto-medio2: #d0d0d0;
+  --tema-texto: #f5f5f5;
+  --tema-titulo: #ffffff;
+  --tema-acento: #ff6a00;
+  --tema-acento-2: #ff7a1a;
+  --tema-acento-claro: #ff8a3d;
+  --tema-acento-clarissimo: #ffab6e;
+  --tema-acento-escuro: #d95700;
+  --tema-acento-texto: #2a1200;
+  --tema-sucesso: #ff6a00;
+  --tema-sucesso-2: #ff7a1a;
+  --tema-sucesso-claro: #ff8a3d;
+  --tema-sucesso-escuro: #3a1c08;
+  --tema-ambar: #ffab00;
+  --tema-ambar-claro: #ffc74d;
+  --tema-sombra-sucesso: #3a1c08;
+  --tema-tracking-widest: 0.1em;
+  --tema-fonte-titulo: 'Space Grotesk', sans-serif;
+  --tema-fonte-conteudo: 'Chivo', sans-serif;
+}
+
+/* Suave Arredondado = carvão quente, coral/teal, cantos macios. Poppins + Manrope. */
+[data-tema='suave'] {
+  --tema-fundo: #1a1720;
+  --tema-campo: #1a1720;
+  --tema-painel: #241f2c;
+  --tema-borda-forte: #3a3145;
+  --tema-borda-media: #473c54;
+  --tema-texto-fraco: #877d90;
+  --tema-texto-suave: #a99fb0;
+  --tema-texto-medio: #c4bcca;
+  --tema-texto-medio2: #ddd6e2;
+  --tema-texto: #f5eef0;
+  --tema-titulo: #ffffff;
+  --tema-acento: #ff7a66;
+  --tema-acento-2: #ff8f7d;
+  --tema-acento-claro: #ffa593;
+  --tema-acento-clarissimo: #ffc4b8;
+  --tema-acento-escuro: #e5604c;
+  --tema-acento-texto: #3a120c;
+  --tema-sucesso: #34d3c0;
+  --tema-sucesso-2: #4bddcc;
+  --tema-sucesso-claro: #6fe6d8;
+  --tema-sucesso-escuro: #123a36;
+  --tema-ambar: #ffb25c;
+  --tema-ambar-claro: #ffc98c;
+  --tema-sombra-sucesso: #123a36;
+  --tema-tracking-widest: 0.06em;
+  --tema-fonte-titulo: 'Poppins', sans-serif;
+  --tema-fonte-conteudo: 'Manrope', sans-serif;
+}
+
+/* Interface chapada nos temas novos (sem brilho neon, sem sombra nos botões). */
+[data-tema='papel'] button,
+[data-tema='executivo'] button,
+[data-tema='whatsapp'] button,
+[data-tema='tecnico'] button,
+[data-tema='suave'] button {
+  box-shadow: none;
+}
+[data-tema='papel'] [data-neon-glow],
+[data-tema='executivo'] [data-neon-glow],
+[data-tema='whatsapp'] [data-neon-glow],
+[data-tema='tecnico'] [data-neon-glow],
+[data-tema='suave'] [data-neon-glow] {
+  display: none !important;
+}
+[data-tema='papel'] [data-neon-dot],
+[data-tema='executivo'] [data-neon-dot],
+[data-tema='whatsapp'] [data-neon-dot],
+[data-tema='tecnico'] [data-neon-dot],
+[data-tema='suave'] [data-neon-dot] {
+  background-color: var(--tema-acento) !important;
+  box-shadow: none !important;
+}
+[data-tema='papel'] [data-neon-box],
+[data-tema='executivo'] [data-neon-box],
+[data-tema='whatsapp'] [data-neon-box],
+[data-tema='tecnico'] [data-neon-box],
+[data-tema='suave'] [data-neon-box] {
+  box-shadow: none !important;
+}
+
+/* Executivo: títulos serifados em caixa normal (como o Terracota). */
+[data-tema='executivo'] .titulo-tema {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+/* Suave = cantos bem arredondados; Técnico = cantos retos. */
+[data-tema='suave'] [data-neon-card],
+[data-tema='suave'] [data-neon-box] {
+  border-radius: 1.5rem !important;
+}
+[data-tema='tecnico'] [data-neon-card],
+[data-tema='tecnico'] [data-neon-box] {
+  border-radius: 0.375rem !important;
+}
+
+/* O texto digitado/colado usa a fonte de conteúdo do tema. Os campos de dados
+   mono continuam mono (.font-mono-data tem prioridade), e as saídas resetam a
+   fonte logo abaixo — o PNG do cliente segue em Inter. */
+textarea,
+input,
+select {
+  font-family: var(--tema-fonte-conteudo);
 }
 
 /* Documentos de saída NÃO seguem o tema: restaura os valores originais do

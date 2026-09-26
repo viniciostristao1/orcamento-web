@@ -5,6 +5,47 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-26 — 5 temas novos + renomear os 2 antigos (v0.18.0)
+
+**Pedido:** integrar 5 temas da galeria de mockups (Claro Papel, Executivo Premium, Verde
+WhatsApp, Monocromático Técnico, Suave Arredondado) ao seletor de Configurações, ao lado dos
+dois atuais — que passam a se chamar **Azul** (era "Original") e **Terracota** (era "Claude").
+
+**Feito:**
+- **`utils/tema.ts`:** o type `Tema` virou união de 7 (`azul`, `terracota`, `papel`,
+  `executivo`, `whatsapp`, `tecnico`, `suave`). `lerTemaSalvo` agora **migra** os nomes antigos
+  (`original→azul`, `claude→terracota`) e valida contra a lista — quem já tinha um tema salvo
+  não perde nada.
+- **`index.css`:** renomeei todos os `[data-tema='claude']` → `[data-tema='terracota']` e
+  acrescentei **5 blocos de paleta** novos (os mesmos ~26 tokens `--tema-*` de sempre), mais
+  regras estruturais: interface chapada (sem brilho neon / sem sombra de botão) nos 5 temas
+  novos; Executivo com títulos serifados em caixa normal (como o Terracota); Suave com cantos
+  1,5rem e Técnico com 0,375rem. Regra base nova `textarea,input,select { font-family:
+  var(--tema-fonte-conteudo) }` — os campos de dados **mono continuam mono** porque
+  `.font-mono-data` tem especificidade maior; as saídas resetam a fonte (PNG do cliente igual).
+- **Fontes:** 5 famílias novas via `@fontsource` (space-grotesk, fraunces, manrope, poppins,
+  chivo), pesos 400–700 — **embutidas no build** (regra de offline mantida). O `dist` cresceu de
+  ~0,68 MB para ~1,4 MB por causa disso (aceitável p/ uso local).
+- **`ConfiguracoesTema.tsx`:** 7 opções com **mini-amostra de cor** (quadradinho do fundo +
+  ponto do acento) e lista com **rolagem** (`max-h-[46vh] overflow-y-auto`), já que agora são 7.
+- **Contraste no tema claro (Papel):** único ponto que quebrava era o textarea "mensagem
+  especial" (Whats) com `text-emerald-100` (verde claríssimo, some no branco) — não passava
+  pelos tokens. Troquei por `text-emerald-600`, que É remapeado p/ `--tema-sucesso` e fica
+  legível em todos os temas.
+
+**Gotchas / decisões:**
+- **`text-emerald-100` não é remapeado** pelo `@theme inline` (só 600/500/400/900 são). Literais
+  fora da lista não seguem o tema — cuidado ao introduzir modo claro.
+- **Validação por screenshot headless** do `dist` (sem Playwright): script injeta
+  `document.documentElement.dataset.tema` num `setInterval` + clica a aba, e renderiza com
+  `chrome-headless-shell --virtual-time-budget`. Conferido: os 5 temas nas abas Orçamentos/Whats
+  + Papel também no Tire Flyer. Sem branco-no-branco nem placeholder ilegível.
+- **O tema NÃO vaza para as saídas** segue valendo (o reset de `#printable-quote` e
+  `[data-saida='flyer']` já cobre todos os tokens + as fontes).
+- Testes: **79** (o smoke de tema foi atualizado p/ os nomes novos + teste de migração).
+
+---
+
 ## 2026-09-24 — Excluir cada sub-aba, caixinhas por linha e renomear abas/títulos (v0.17.0)
 
 **Pedidos:** excluir **uma** sub-aba por vez (o botão antigo parecia apagar tudo); caixinha de

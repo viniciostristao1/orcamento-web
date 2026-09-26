@@ -1,12 +1,37 @@
-export type Tema = 'original' | 'claude';
+export type Tema =
+  | 'azul'
+  | 'terracota'
+  | 'papel'
+  | 'executivo'
+  | 'whatsapp'
+  | 'tecnico'
+  | 'suave';
 
 export const TEMA_KEY = 'orcamentos_tema_v1';
 
+const TEMAS_VALIDOS: readonly Tema[] = [
+  'azul',
+  'terracota',
+  'papel',
+  'executivo',
+  'whatsapp',
+  'tecnico',
+  'suave',
+];
+
+/** Nomes antigos → novos (usuários que já tinham um tema salvo não perdem nada). */
+const LEGADO: Record<string, Tema> = {
+  original: 'azul',
+  claude: 'terracota',
+};
+
 export const lerTemaSalvo = (): Tema => {
   try {
-    return localStorage.getItem(TEMA_KEY) === 'claude' ? 'claude' : 'original';
+    const bruto = localStorage.getItem(TEMA_KEY) ?? '';
+    const migrado = LEGADO[bruto] ?? bruto;
+    return (TEMAS_VALIDOS as readonly string[]).includes(migrado) ? (migrado as Tema) : 'azul';
   } catch {
-    return 'original';
+    return 'azul';
   }
 };
 
