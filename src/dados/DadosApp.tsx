@@ -423,9 +423,11 @@ const DadosApp: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer"
+                    aria-label="Adicionar linha"
+                    title="Adicionar linha"
+                    className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
                   >
-                    <Plus size={16} /> Adicionar linha
+                    <Plus size={18} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>

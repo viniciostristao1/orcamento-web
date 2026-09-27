@@ -373,12 +373,16 @@
 [data-tema='grafite'] [data-neon-dot] { background-color: var(--tema-acento) !important; box-shadow: none !important; }
 [data-tema='grafite'] [data-neon-box] { box-shadow: none !important; }
 [data-tema='grafite'] thead th { background-color: var(--tema-painel) !important; }
-/* cabeçalho da tabela discreto (cinza, peso normal, caixa normal) — como no Claude */
+/* Grafite: TÍTULOS das colunas em NEGRITO (caixa normal), e as CÉLULAS do corpo em
+   peso normal — o inverso do estranho "célula em negrito, título não". */
 [data-tema='grafite'] thead th input {
-  color: var(--tema-texto-suave);
-  font-weight: 500;
+  color: var(--tema-texto);
+  font-weight: 700;
   text-transform: none;
   letter-spacing: 0;
+}
+[data-tema='grafite'] tbody td input {
+  font-weight: 400;
 }
 
 /* Interface chapada nos temas novos (sem brilho neon, sem sombra nos botões). */

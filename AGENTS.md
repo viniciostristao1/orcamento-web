@@ -113,7 +113,8 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
     `text-emerald-100`) não seguem o tema e podem sumir no fundo branco — usar tokens (600/500/400/900).
     ⚠️ Estilo de tabela por tema (grafite): as células da aba Dados usam `border-slate-800`
     (`--tema-borda-forte`) = grade; regras `[data-tema='grafite'] thead th{...}` deixam o cabeçalho
-    mais claro + cinza/normal. NÃO usar `[data-tema='x'] textarea{font}` (quebra o mono dos dados).
+    mais claro, títulos em **negrito** e as células do corpo em peso normal (v0.19.1). NÃO usar
+    `[data-tema='x'] textarea{font}` (quebra o mono dos dados). "Adicionar linha" = só um "+".
     O seletor tem mini-amostra de cor + rolagem. Validado por screenshot headless do `dist`.
 - **Histórico do Tire Flyer + CONTATO** (v0.12.0): `tire/utils/historicoFlyer.ts`
   (`flyer_historico_v1`) salva a cada "Processar" (`data/hora · contato · medida · N pneus`);

@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-27 — Ajustes Grafite: negrito nos títulos + botão "+" (v0.19.1)
+
+Feedback do usuário sobre o tema Grafite:
+- **Tabela (aba Dados):** estava "célula em negrito, título não" (estranho). Invertido SÓ no
+  grafite: `[data-tema='grafite'] thead th input { font-weight:700 }` (títulos das colunas em
+  **negrito**, caixa normal) + `tbody td input { font-weight:400 }` (células em peso normal).
+- **Botão "Adicionar linha"** virou só um **"+"** (ícone, `w-9 h-9`, `aria-label`), sem o texto.
+- **Item 3 (dúvida do usuário):** excluir sub-aba em Dados **tem confirmação** (`window.confirm`
+  em `excluirAba`) mas **NÃO tem desfazer** (exclusão direta). Oferecido adicionar undo se quiser.
+- **Item 2 (ícone de vassoura):** o usuário não gostou do `Broom` (Total Revisão/Peças na Revisão)
+  e quer ver opções + aplicar um ícone de limpar em PLACA/NOME/CONTATO e no Contato do Tire Flyer.
+  Entregue como **galeria-Artifact de opções de ícone** ([[feedback-ideias-layout-link-imagens]]);
+  aplicar após a escolha.
+
 ## 2026-09-27 — 8º tema "Grafite" (estilo das tabelas do Claude.ai) (v0.19.0)
 
 **Pedido:** copiar o estilo de tabela do Claude.ai (print que o usuário mandou: dashboard
