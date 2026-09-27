@@ -73,10 +73,11 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **78 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **85 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
-  (`tests/tire_flyer.test.ts`) e smoke de tela (`tests/app_smoke.test.tsx`, jsdom), incluindo a
-  aba Whats (cadastro de contato/tarefa com persistência).
+  (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`) e smoke de tela
+  (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
+  persistência) e a troca de layout do Tire Flyer.
 - **Aba Whats** (v0.7.0; agenda removida na v0.7.4; backup global na v0.9.0; scripts divididos
   na v0.14.0): `src/whats/` (contatos + **dois scripts** — pneus e revisão; o de revisão é o
   usado no copiar/NOTIFICAR do contato). `localStorage`: `zap_contacts`,
@@ -90,7 +91,8 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
   `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,
-  `zap_template` legado, `flyer_historico_v1`, `dados_tabelas_v1`, `rotulos_v1`) num JSON; UI na engrenagem
+  `zap_template` legado, `flyer_historico_v1`, `flyer_layout_v1`, `dados_tabelas_v1`,
+  `rotulos_v1`) num JSON; UI na engrenagem
   **Configurações** ("BACKUP DOS DADOS"). A importação recarrega o app. Aceita também o backup
   antigo (só histórico). Atenção: tema e template são string pura no localStorage (não JSON).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
@@ -133,6 +135,16 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   `h-[250px]` e o **preview** aparece na metade (`w-[375px]` + `transform: scale(.5)` com altura
   medida por `ResizeObserver`) — **nunca usar `zoom` no preview**: zoom aninhado arredonda o
   `clientHeight` e muda o PNG (ver v0.7.1).
+- **Layout de saída do Tire Flyer** (v0.20.0): o usuário escolheu 2 dos 10 mockups publicados em
+  `ideias/tire-flyer-valores.md` (ideias **4 — Tabela de ofertas** e **7 — Etiqueta de preço**)
+  e pediu um **ícone para trocar o layout sem substituir o atual**. `tire/utils/layoutFlyer.ts`
+  (`flyer_layout_v1`) guarda `LayoutFlyer = 'atual' | 'tabela' | 'etiqueta'` (padrão `atual`);
+  `tire/components/SeletorLayoutFlyer.tsx` é o botão **ícone-only** (`aria-label="Layout do
+  flyer"`, menu no padrão do `ConfiguracoesTema`) ao lado do download. O `Flyer.tsx` virou
+  dispatcher (`data-layout` no nó de saída): o clássico fica em `FlyerAtual` **sem mudança** e os
+  novos em `FlyerTabela.tsx`/`FlyerEtiqueta.tsx`; `getBrandStyle` foi para `tire/utils/marcas.ts`.
+  ⚠️ O layout `atual` continua sendo **contrato**: validado pixel a pixel contra a v0.19.2
+  (0 diferenças); a escolha vale para o PNG e é salva no navegador.
 - Build de arquivo único **validado** (`dist/index.html` ~677 kB, CSS+JS+fontes embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
@@ -306,6 +318,10 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Temas** (v0.5.0): **Original** (atual) e **Claude** (escuro, cinzas + laranja) escolhidos
   em **Configurações**; o tema vale só para a interface (PNGs iguais). As duas abas no mesmo
   estilo (a de pneus foi igualada à de orçamentos) e o logo Toyota no header.
+- **Layout do flyer de pneus** (v0.20.0): além do **clássico** (mantido como padrão), o
+  "Tabela de ofertas" e o "Etiqueta de preço" (ideias 4 e 7 da galeria
+  `ideias/tire-flyer-valores.md`), trocados por um ícone ao lado do download — nunca
+  substituindo o layout atual.
 
 ## 8. Pendências
 

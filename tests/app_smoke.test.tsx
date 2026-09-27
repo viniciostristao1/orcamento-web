@@ -30,6 +30,7 @@ afterEach(() => {
   cleanup();
   localStorage.removeItem(RASCUNHO_KEY);
   localStorage.removeItem(ULTIMO_KEY);
+  localStorage.removeItem('flyer_layout_v1');
 });
 
 describe('App — smoke test (render + processar)', () => {
@@ -215,6 +216,35 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('205/55R16')).toBeTruthy();
     expect(screen.getByText('Pirelli')).toBeTruthy();
     expect(screen.getByText('ESTOQUE: 3 UN')).toBeTruthy();
+  });
+
+  it('aba Tire Flyer: ícone troca o layout de saída (clássico/tabela/etiqueta) e salva', () => {
+    localStorage.removeItem('flyer_layout_v1');
+    render(<App />);
+    fireEvent.click(screen.getByText('Tire Flyer'));
+
+    const flyer = () => document.querySelector('[data-saida="flyer"]') as HTMLElement;
+    // padrão = clássico (como sempre foi), sem tabela
+    expect(flyer().dataset.layout).toBe('atual');
+    expect(flyer().querySelector('table')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
+    fireEvent.click(screen.getByText('Tabela de ofertas'));
+    expect(flyer().dataset.layout).toBe('tabela');
+    expect(flyer().querySelector('table')).toBeTruthy();
+    expect(localStorage.getItem('flyer_layout_v1')).toBe('tabela');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
+    fireEvent.click(screen.getByText('Etiqueta de preço'));
+    expect(flyer().dataset.layout).toBe('etiqueta');
+    expect(flyer().querySelector('table')).toBeNull();
+    expect(localStorage.getItem('flyer_layout_v1')).toBe('etiqueta');
+
+    // volta para o clássico
+    fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
+    fireEvent.click(screen.getByText('Clássico'));
+    expect(flyer().dataset.layout).toBe('atual');
+    expect(localStorage.getItem('flyer_layout_v1')).toBe('atual');
   });
 
   it('aba Whats: renderiza os painéis principais', () => {

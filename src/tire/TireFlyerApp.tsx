@@ -9,6 +9,8 @@ import { Play, Image as ImageIcon, History, Eraser } from 'lucide-react';
 import FlyerHistoryModal from './components/FlyerHistoryModal';
 import TituloEditavel from '../components/TituloEditavel';
 import { adicionarAoFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
+import { lerLayoutFlyer, salvarLayoutFlyer, type LayoutFlyer } from './utils/layoutFlyer';
+import SeletorLayoutFlyer from './components/SeletorLayoutFlyer';
 
 const DEFAULT_INPUT = `265/60R18	MARCA/MODELO	À PRAZO 10x	À VISTA (10%)	ESTOQUE
 4265292105	Firestone	R$ 1.115,48	R$ 1.004,28	0
@@ -25,8 +27,14 @@ const TireFlyerApp: React.FC = () => {
   const [promoData, setPromoData] = useState<PromoInfo>(parseInput(DEFAULT_INPUT));
   const [contato, setContato] = useState('');
   const [historicoAberto, setHistoricoAberto] = useState(false);
+  const [layout, setLayout] = useState<LayoutFlyer>(lerLayoutFlyer);
   const [alturaFlyer, setAlturaFlyer] = useState(0);
   const flyerRef = useRef<HTMLDivElement>(null);
+
+  // O layout escolhido vale para o PNG exportado e fica salvo no navegador.
+  useEffect(() => {
+    salvarLayoutFlyer(layout);
+  }, [layout]);
 
   // Mede a altura real do flyer para o container do preview (reduzido pela
   // metade). Usa transform (não zoom): o zoom aninhado arredondava o
@@ -181,20 +189,24 @@ const TireFlyerApp: React.FC = () => {
               <div style={{ transform: `scale(${ESCALA_PREVIEW})`, transformOrigin: 'top left', width: 750 }}>
                 <div className="absolute -inset-4 bg-blue-600/10 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition duration-700"></div>
                 <div className="relative overflow-hidden rounded-2xl border border-slate-200 shadow-2xl">
-                  <Flyer data={promoData} flyerRef={flyerRef} />
+                  <Flyer data={promoData} flyerRef={flyerRef} layout={layout} />
                 </div>
               </div>
             </div>
 
-            <button
-              onClick={handleDownload}
-              type="button"
-              aria-label="Confirmar e Baixar Imagem"
-              title="Confirmar e Baixar Imagem"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] cursor-pointer"
-            >
-              <ImageIcon size={28} />
-            </button>
+            {/* Escolhe o layout da saída (clássico + os dois novos) e baixa o PNG. */}
+            <div className="flex gap-3 w-full">
+              <SeletorLayoutFlyer layout={layout} onChange={setLayout} />
+              <button
+                onClick={handleDownload}
+                type="button"
+                aria-label="Confirmar e Baixar Imagem"
+                title="Confirmar e Baixar Imagem"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] cursor-pointer"
+              >
+                <ImageIcon size={28} />
+              </button>
+            </div>
 
             <p className="mt-6 text-[10px] text-slate-600 font-black uppercase tracking-[0.4em] text-center">
               Wide Pro Flyer v4.2 - Otimizado para 750px

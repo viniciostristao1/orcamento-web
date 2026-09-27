@@ -5,6 +5,41 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-27 — Tire Flyer: seletor de layout de saída (clássico + tabela + etiqueta) (v0.20.0)
+
+**Pedido:** dos 10 mockups publicados em `ideias/tire-flyer-valores.md`, o usuário escolheu as
+ideias **4 (Tabela de ofertas)** e **7 (Etiqueta de preço)** — mas **sem substituir o layout
+atual**: um **ícone** troca o layout de saída entre **Clássico (atual) + os dois novos**.
+
+**Feito:**
+- `tire/utils/layoutFlyer.ts` (`flyer_layout_v1`): `LayoutFlyer = 'atual' | 'tabela' | 'etiqueta'`;
+  sem nada salvo (ou valor inválido) cai em `atual` — o comportamento de sempre é o padrão.
+  Entrou no `CHAVES_BACKUP`.
+- `Flyer.tsx` virou dispatcher: header/footer extraídos (`Header`/`Footer`), `data-layout` no nó
+  de saída (é o que os testes usam) e o clássico isolado em `FlyerAtual` **sem tocar em nenhuma
+  classe**.
+- `FlyerTabela.tsx` (ideia 4: `Pneu · Em até 10x · À vista · Estoque`, zebrada — o layout mais
+  compacto) e `FlyerEtiqueta.tsx` (ideia 7: etiqueta com furo, à vista em destaque e plaquinha
+  escura do 10x). O `getBrandStyle` saiu do `Flyer.tsx` para `tire/utils/marcas.ts`
+  (compartilhado pelos 3 layouts, evita import circular).
+- `SeletorLayoutFlyer.tsx`: botão **ícone-only** (`LayoutTemplate`, `aria-label="Layout do
+  flyer"`) com menu no padrão do `ConfiguracoesTema` (abre para cima, fecha clicando fora/Esc,
+  opções com nome + descrição). Fica **ao lado do download** (linha `flex`, o download virou
+  `flex-1`, mesma altura). A escolha é salva no navegador e vale para o PNG exportado.
+
+**Validação:** typecheck limpo; **85 testes** (+3 de `layoutFlyer` em jsdom, +1 smoke trocando
+os 3 layouts e conferindo a persistência); build single-file ok; no Chromium: troca os 3
+layouts, persiste após reload e o clássico continua **pixel-idêntico** (diff de **0 pixels**,
+1500×3632, contra a captura da v0.19.2).
+
+**Gotchas:**
+- Neste headless Linux, o `font-sans` do flyer caiu no fallback e o **Noto Color Emoji** (instalado
+  no dia) "rouba" os dígitos: saem espaçados, como se fosse fonte monoespaçada larga. É só do
+  fontconfig da VPS — para validar visualmente, injetar `Inter` no nó do flyer (mesma substituição
+  da captura de referência); no Chrome/Windows a stack resolve em Segoe UI e não acontece.
+- O menu do seletor abre **para cima** (`bottom-full`) de propósito: o botão fica embaixo do
+  preview, que pode ser mais alto que a viewport.
+
 ## 2026-09-27 — Ícone Borracha nos "limpar" + Desfazer na exclusão de sub-aba (v0.19.2)
 
 Escolhas do usuário (após a galeria de ícones):
