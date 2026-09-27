@@ -5,7 +5,8 @@ export type Tema =
   | 'executivo'
   | 'whatsapp'
   | 'tecnico'
-  | 'suave';
+  | 'suave'
+  | 'grafite';
 
 export const TEMA_KEY = 'orcamentos_tema_v1';
 
@@ -17,6 +18,7 @@ const TEMAS_VALIDOS: readonly Tema[] = [
   'whatsapp',
   'tecnico',
   'suave',
+  'grafite',
 ];
 
 /** Nomes antigos → novos (usuários que já tinham um tema salvo não perdem nada). */

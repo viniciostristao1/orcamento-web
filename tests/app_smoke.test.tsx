@@ -136,6 +136,12 @@ describe('App — smoke test (render + processar)', () => {
     expect(document.documentElement.dataset.tema).toBe('whatsapp');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('whatsapp');
 
+    // Grafite (estilo tabela Claude)
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByText('Grafite'));
+    expect(document.documentElement.dataset.tema).toBe('grafite');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('grafite');
+
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
     fireEvent.click(screen.getByText('Azul'));
     expect(document.documentElement.dataset.tema).toBe('azul');

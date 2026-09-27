@@ -5,6 +5,40 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-27 — 8º tema "Grafite" (estilo das tabelas do Claude.ai) (v0.19.0)
+
+**Pedido:** copiar o estilo de tabela do Claude.ai (print que o usuário mandou: dashboard
+CSV→tabela) para um NOVO tema — "principalmente nas tabelas": quase-preto, **barra de título/
+cabeçalho mais claro**, linhas de grade sutis, fonte limpa, texto claro.
+
+**Feito:**
+- Novo tema **`grafite`** (8º) — `tema.ts` (type + lista válida), `ConfiguracoesTema.tsx`
+  (opção + amostra), bloco `[data-tema='grafite']` no `index.css` com a paleta amostrada do
+  print: fundo `#0c0c0c`, painel/cabeçalho `#161616` (mais claro), bordas `#242424` (grade
+  sutil), texto `#ecece8`/`#f7f5f6`, muted `#8c8c88`, acento **azul suave `#4c7ef3`** (a
+  referência é grayscale, mas os botões precisam de contraste com texto branco).
+- **Fonte `Plus Jakarta Sans`** (nova, `@fontsource`, latin 400/500/700) — a mais próxima do
+  Google-Sans do print (comparada headless contra Manrope/Figtree antes de escolher).
+- **Tabela (aba Dados) igual ao Claude:** as células já usavam `border-slate-800`
+  (`--tema-borda-forte`) → grade sutil automática; adicionei regras SÓ do grafite:
+  `thead th { background: var(--tema-painel) }` (cabeçalho mais claro) e
+  `thead th input { color: muted; font-weight:500; text-transform:none }` (cabeçalho **cinza,
+  peso normal, caixa normal** — a marca do estilo Claude, vs. o branco/bold/maiúsculo dos
+  outros temas).
+- Estrutural chapado (sem neon/sombra) como os demais temas novos.
+
+**Validação:** typecheck limpo; **81 testes** (o smoke de troca de tema cobre `grafite`);
+**preview headless** do `dist` com uma tabela semeada (Dimensão | Valores) no `localStorage`
+→ bateu com o print (cabeçalho claro, grade sutil, cabeçalho cinza sentence-case).
+
+**Gotchas:**
+- Regra base `textarea,input,select { font-family: var(--tema-fonte-conteudo) }` já aplica a
+  fonte do tema nos campos comuns E preserva o **mono** dos dados (`.font-mono-data`, spec maior).
+  ⚠️ NÃO adicionar `[data-tema='x'] textarea` (spec (0,1,1) > `.font-mono-data` (0,1,0)) senão os
+  dados colados perdem o alinhamento mono (foi o que quase fiz e removi).
+- **O tema NÃO vaza para as saídas** segue valendo — o PNG do cliente (`#printable-quote`) e o
+  flyer resetam os tokens; este tema muda só a INTERFACE (a tabela estilizada é a da aba Dados).
+
 ## 2026-09-27 — Busca do histórico também por item (v0.18.1)
 
 **Pedido:** na lupa do histórico, além de data/placa, poder procurar pelo **item** — ex.:

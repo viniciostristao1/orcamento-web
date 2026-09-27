@@ -25,6 +25,10 @@
 @import "@fontsource/poppins/latin-700.css";
 @import "@fontsource/chivo/latin-400.css";
 @import "@fontsource/chivo/latin-700.css";
+/* Grafite (estilo tabela do Claude.ai): sans humanista limpa. */
+@import "@fontsource/plus-jakarta-sans/latin-400.css";
+@import "@fontsource/plus-jakarta-sans/latin-500.css";
+@import "@fontsource/plus-jakarta-sans/latin-700.css";
 
 /* ============================================================================
    TEMAS DA INTERFACE (Original / Claude)
@@ -328,6 +332,53 @@
   --tema-tracking-widest: 0.06em;
   --tema-fonte-titulo: 'Poppins', sans-serif;
   --tema-fonte-conteudo: 'Manrope', sans-serif;
+}
+
+/* Grafite = estilo das TABELAS do Claude.ai: quase-preto, cabeçalho um tom mais
+   claro, linhas de grade sutis, texto claro, fonte Plus Jakarta Sans. Acento azul
+   suave (a referência é grayscale; azul p/ os botões terem contraste com texto branco). */
+[data-tema='grafite'] {
+  --tema-fundo: #0c0c0c;
+  --tema-campo: #0c0c0c;
+  --tema-painel: #161616;
+  --tema-borda-forte: #242424;
+  --tema-borda-media: #2f2f2f;
+  --tema-texto-fraco: #6e6e6c;
+  --tema-texto-suave: #8c8c88;
+  --tema-texto-medio: #ababa6;
+  --tema-texto-medio2: #cfcfcb;
+  --tema-texto: #ecece8;
+  --tema-titulo: #f7f5f6;
+  --tema-acento: #4c7ef3;
+  --tema-acento-2: #6b93f5;
+  --tema-acento-claro: #8fb0f8;
+  --tema-acento-clarissimo: #b9cdfb;
+  --tema-acento-escuro: #3a63c8;
+  --tema-acento-texto: #0a1428;
+  --tema-sucesso: #3fa968;
+  --tema-sucesso-2: #4cb874;
+  --tema-sucesso-claro: #6fcb90;
+  --tema-sucesso-escuro: #10331f;
+  --tema-ambar: #d9a441;
+  --tema-ambar-claro: #ecc677;
+  --tema-sombra-sucesso: #10331f;
+  --tema-tracking-widest: 0.06em;
+  --tema-fonte-titulo: 'Plus Jakarta Sans', sans-serif;
+  --tema-fonte-conteudo: 'Plus Jakarta Sans', sans-serif;
+}
+/* Grafite: chapado (sem neon/sombra) + o cabeçalho da tabela (Dados) fica mais
+   CLARO que o corpo (a marca do estilo Claude), e o conteúdo usa a fonte do tema. */
+[data-tema='grafite'] button { box-shadow: none; }
+[data-tema='grafite'] [data-neon-glow] { display: none !important; }
+[data-tema='grafite'] [data-neon-dot] { background-color: var(--tema-acento) !important; box-shadow: none !important; }
+[data-tema='grafite'] [data-neon-box] { box-shadow: none !important; }
+[data-tema='grafite'] thead th { background-color: var(--tema-painel) !important; }
+/* cabeçalho da tabela discreto (cinza, peso normal, caixa normal) — como no Claude */
+[data-tema='grafite'] thead th input {
+  color: var(--tema-texto-suave);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* Interface chapada nos temas novos (sem brilho neon, sem sombra nos botões). */

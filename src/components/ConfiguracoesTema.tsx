@@ -17,6 +17,7 @@ const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento
   { id: 'whatsapp', nome: 'Verde WhatsApp', descricao: 'Escuro com o verde do Zap', fundo: '#0b141a', acento: '#25d366' },
   { id: 'tecnico', nome: 'Monocromático Técnico', descricao: 'Cinza com laranja, bem sóbrio', fundo: '#101012', acento: '#ff6a00' },
   { id: 'suave', nome: 'Suave Arredondado', descricao: 'Escuro quente, coral e cantos macios', fundo: '#1a1720', acento: '#ff7a66' },
+  { id: 'grafite', nome: 'Grafite', descricao: 'Tabelas estilo Claude — quase-preto, grade sutil', fundo: '#0c0c0c', acento: '#4c7ef3' },
 ];
 
 const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange }) => {
