@@ -175,8 +175,12 @@ Arredondado** (coral). O tema vale **só para a interface** — o PNG do cliente
 - **Rótulos editáveis** (v0.17.0): `utils/rotulos.ts` (`rotulos_v1`) + `RotulosProvider` +
   `TituloEditavel` — **duplo clique** renomeia os botões das abas do topo e os títulos internos
   das telas (visual preservado: azul / duas cores / simples). No backup geral.
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.17.0`** com
-  `Orcamento-v0.17.0.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Busca do histórico também por ITEM** (v0.18.1): a lupa procura em **data, placa (nome/
+  contato) e descrição dos itens** — ex.: buscar "freio" acha os orçamentos com pastilhas
+  (útil na aba **Não Realizados**); o termo encontrado fica **grifado** na descrição do cartão
+  (`destacarTermo`, NFD/case-insensitive, sem quebrar acentos).
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.18.1`** com
+  `Orcamento-v0.18.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
   `ideias/` ("Foco na observação" implementada na v0.14.4).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original

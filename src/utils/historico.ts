@@ -129,6 +129,20 @@ export function contarItensDaDescricao(descricao: string): number {
   return descricao.split('\n').filter((l) => /^\s*\d/.test(l)).length;
 }
 
+/**
+ * Divide um texto em [antes, termo, depois] para grifar a parte encontrada
+ * (comparação sem acentos e sem diferenciar maiúsculas). Null se não achar.
+ * Os índices são do texto ORIGINAL (NFD mantém o comprimento).
+ */
+export function destacarTermo(texto: string, termo: string): [string, string, string] | null {
+  const t = (termo ?? '').trim().normalize('NFD').toLowerCase();
+  if (!t) return null;
+  const base = (texto ?? '').normalize('NFD').toLowerCase();
+  const idx = base.indexOf(t);
+  if (idx < 0) return null;
+  return [texto.slice(0, idx), texto.slice(idx, idx + t.length), texto.slice(idx + t.length)];
+}
+
 export type AbaHistorico = 'todos' | 'naoRealizados';
 
 /** Registro salvo pelo botão "salvar com itens não realizados". */
@@ -151,14 +165,18 @@ const normalizarBusca = (s: string): string =>
     .replace(/[^A-Z0-9]/g, '');
 
 /**
- * Filtra o histórico por **data ou placa** (busca "contém", ignorando
- * separadores). Termo vazio devolve a lista inteira.
+ * Filtra o histórico por **data, placa (nome/contato) ou item** — busca "contém",
+ * sem acentos e ignorando separadores (ex.: buscar "freio" acha os orçamentos com
+ * pastilhas de freio; útil na aba "Não Realizados"). Termo vazio devolve a lista.
  */
 export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): OrcamentoSalvo[] {
   const t = normalizarBusca(termo);
   if (!t) return lista;
   return lista.filter(
-    (r) => normalizarBusca(r.placa ?? '').includes(t) || normalizarBusca(r.criadoEm).includes(t),
+    (r) =>
+      normalizarBusca(r.placa ?? '').includes(t) ||
+      normalizarBusca(r.criadoEm).includes(t) ||
+      normalizarBusca(r.descReparo).includes(t),
   );
 }
 

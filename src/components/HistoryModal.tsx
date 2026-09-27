@@ -5,6 +5,7 @@ import {
   type OrcamentoSalvo,
   baixarBackup,
   contarItensDaDescricao,
+  destacarTermo,
   filtrarHistorico,
   filtrarPorAba,
   importarBackup,
@@ -153,7 +154,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 type="text"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Pesquisar por data ou placa… (ex.: 24/09 ou ABC1D23)"
+                placeholder="Pesquisar por data, placa ou item… (ex.: 24/09, ABC1D23, freio)"
                 className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-base font-bold text-slate-200 focus:border-blue-500 outline-none"
               />
               {busca && (
@@ -214,6 +215,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
           )}
           {visiveis.map((r) => {
             const itens = r.numItens ?? contarItensDaDescricao(r.descReparo);
+            const descricao = r.descReparo.split('\n').filter((l) => l.trim()).join(' · ') || '(sem descrição)';
+            const grifado = busca.trim() ? destacarTermo(descricao, busca) : null;
             return (
             <div key={r.id} className="border border-slate-800 rounded-2xl p-4 bg-slate-950/40 hover:border-slate-700 transition-colors">
               <div className="flex items-center justify-between gap-4 mb-2">
@@ -264,7 +267,15 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 </div>
               </div>
               <p className="text-lg text-slate-300 font-bold truncate">
-                {r.descReparo.split('\n').filter((l) => l.trim()).join(' · ') || '(sem descrição)'}
+                {grifado ? (
+                  <>
+                    {grifado[0]}
+                    <mark className="bg-amber-500/30 text-amber-100 rounded px-0.5">{grifado[1]}</mark>
+                    {grifado[2]}
+                  </>
+                ) : (
+                  descricao
+                )}
               </p>
               <div className="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-base font-bold text-slate-500">
                 <span>Revisão: <span className="text-slate-300">{r.revAprovadaInput}</span></span>

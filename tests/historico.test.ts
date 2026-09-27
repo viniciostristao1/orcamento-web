@@ -41,6 +41,17 @@ describe('histórico (localStorage)', () => {
     expect(depois).toEqual([]);
   });
 
+  it('filtra por item do orçamento (ex.: "freio")', () => {
+    const lista: OrcamentoSalvo[] = [
+      { ...base, id: 'a', criadoEm: '24/09/2026 10:00:00', descReparo: '01 PASTILHAS DE FREIO' },
+      { ...base, id: 'b', criadoEm: '24/09/2026 11:00:00', descReparo: '01 BORRACHA DAS PALHETAS' },
+    ];
+    expect(filtrarHistorico(lista, 'freio')).toHaveLength(1);
+    expect(filtrarHistorico(lista, 'FREIO')).toHaveLength(1);
+    expect(filtrarHistorico(lista, 'pastilhas')).toHaveLength(1);
+    expect(filtrarHistorico(lista, 'inexistente')).toHaveLength(0);
+  });
+
   it('filtra por aba (Todos / Não Realizados)', () => {
     adicionarAoHistorico({ ...base, naoRealizados: [1] });
     adicionarAoHistorico({ ...base, desconto: 10 }); // comuns não entram na aba

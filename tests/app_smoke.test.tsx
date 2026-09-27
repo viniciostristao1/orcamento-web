@@ -375,13 +375,25 @@ describe('App — smoke test (render + processar)', () => {
 
     // contagens das abas acompanham a pesquisa
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), { target: { value: 'xyz' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), { target: { value: 'xyz' } });
     expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Não Realizados \(0\)/i })).toBeTruthy();
 
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), { target: { value: 'abc' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), { target: { value: 'abc' } });
     expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Não Realizados \(1\)/i })).toBeTruthy();
+  });
+
+  it('histórico: Pesquisar acha por item (ex.: "freio") e grifa', () => {
+    const comFreio = { ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), descReparo: '01 PASTILHAS DE FREIO' };
+    localStorage.setItem('orcamentos_historico_v1', JSON.stringify([comFreio]));
+    render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), {
+      target: { value: 'freio' },
+    });
+    expect(screen.getByText(/1 de 1/)).toBeTruthy();
+    expect(document.querySelector('mark')?.textContent?.toLowerCase()).toBe('freio');
   });
 
   it('histórico: Pesquisar filtra por placa (e some com quem não bate)', () => {
@@ -398,14 +410,14 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('XYZ9A87')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), {
       target: { value: 'abc-1d23' },
     });
     expect(screen.getByText('ABC1D23')).toBeTruthy();
     expect(screen.queryByText('XYZ9A87')).toBeNull();
 
     // Busca por data também
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data ou placa/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), {
       target: { value: '01/08' },
     });
     expect(screen.getByText('XYZ9A87')).toBeTruthy();

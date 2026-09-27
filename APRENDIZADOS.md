@@ -5,6 +5,33 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-27 — Busca do histórico também por item (v0.18.1)
+
+**Pedido:** na lupa do histórico, além de data/placa, poder procurar pelo **item** — ex.:
+buscar "freio" e achar todos os orçamentos com pastilhas de freio (útil na aba **Não
+Realizados**, para saber quem já recusou/tem aquele serviço).
+
+**Feito:**
+- **`utils/historico.ts`:** `filtrarHistorico` agora também testa `r.descReparo` (era só placa
+  + `criadoEm`) — mesma normalização sem acentos/separadores (`normalizarBusca`), então
+  "pastilhas"/"PASTILHAS" e "retifica"/"retífica" funcionam.
+- **`destacarTermo`** (novo, puro): divide o texto em `[antes, termo, depois]` para grifar a
+  parte encontrada. Comparação com `normalize('NFD').toLowerCase()` nos **dois** lados — o NFD
+  **preserva o comprimento**, então os índices do texto original batem (extrair por índice
+  funciona, sem regex/split problemático).
+- **`HistoryModal.tsx`:** o cartão grifa o termo na descrição (`<mark>` âmbar) e o placeholder
+  virou "Pesquisar por data, placa ou item… (ex.: 24/09, ABC1D23, freio)". Os testes que
+  procuravam o placeholder antigo foram atualizados.
+- **Testes:** 81 passando — novo teste puro em `historico.test.ts` (acha por "freio"/"FREIO",
+  não acha termo inexistente) e smoke com fixture de pastilhas conferindo contador + `<mark>`.
+
+**Gotchas / decisões:**
+- O grifo usa comparação NFD (índices alinhados com o original); o **filtro** normaliza mais
+  forte (remove separadores), então uma busca com hífen ("abc-1d23") filtra mas pode não
+  grifar — comportamento aceitável (grifo é dica visual).
+- Validação no Chromium (`valida_busca_item.mjs`, no dir de repro): busca "freio" → "1 de 2"
+  com `<mark>FREIO</mark>`; "palhetas" → "1 de 2" com `PALHETAS` grifado.
+
 ## 2026-09-26 — 5 temas novos + renomear os 2 antigos (v0.18.0)
 
 **Pedido:** integrar 5 temas da galeria de mockups (Claro Papel, Executivo Premium, Verde
