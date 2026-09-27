@@ -73,7 +73,7 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **85 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **86 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
@@ -135,16 +135,19 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   `h-[250px]` e o **preview** aparece na metade (`w-[375px]` + `transform: scale(.5)` com altura
   medida por `ResizeObserver`) — **nunca usar `zoom` no preview**: zoom aninhado arredonda o
   `clientHeight` e muda o PNG (ver v0.7.1).
-- **Layout de saída do Tire Flyer** (v0.20.0): o usuário escolheu 2 dos 10 mockups publicados em
-  `ideias/tire-flyer-valores.md` (ideias **4 — Tabela de ofertas** e **7 — Etiqueta de preço**)
-  e pediu um **ícone para trocar o layout sem substituir o atual**. `tire/utils/layoutFlyer.ts`
-  (`flyer_layout_v1`) guarda `LayoutFlyer = 'atual' | 'tabela' | 'etiqueta'` (padrão `atual`);
-  `tire/components/SeletorLayoutFlyer.tsx` é o botão **ícone-only** (`aria-label="Layout do
-  flyer"`, menu no padrão do `ConfiguracoesTema`) ao lado do download. O `Flyer.tsx` virou
-  dispatcher (`data-layout` no nó de saída): o clássico fica em `FlyerAtual` **sem mudança** e os
-  novos em `FlyerTabela.tsx`/`FlyerEtiqueta.tsx`; `getBrandStyle` foi para `tire/utils/marcas.ts`.
+- **Layouts de saída do Tire Flyer** (v0.20.0; cores na v0.21.0): o usuário escolheu, entre os
+  mockups publicados em `ideias/` (`tire-flyer-valores.md` e `tire-flyer-cores.md`), **6 opções**
+  trocadas por um **ícone, sem substituir o clássico**: `atual` (padrão), `tabela` (ideia 4),
+  `etiqueta` (ideia 7), `laranja` (cores 01 — Queima-Estoque), `racing` (cores 02 — Vermelho) e
+  `encarte` (cores 09 — Amarelo jornal). `tire/utils/layoutFlyer.ts` (`flyer_layout_v1`) guarda a
+  escolha; `SeletorLayoutFlyer.tsx` é o botão **ícone-only** (`aria-label="Layout do flyer"`,
+  menu com rolagem, padrão do `ConfiguracoesTema`) ao lado do download. O `Flyer.tsx` é
+  dispatcher (`data-layout` no nó de saída): o clássico fica em `FlyerAtual` **sem mudança**, os
+  demais em `FlyerTabela.tsx`/`FlyerEtiqueta.tsx` e os 3 coloridos são flyers completos
+  (`FlyerLaranja.tsx`/`FlyerRacing.tsx`/`FlyerEncarte.tsx`, com cabeçalho/rodapé próprios);
+  `getBrandStyle` mora em `tire/utils/marcas.ts`.
   ⚠️ O layout `atual` continua sendo **contrato**: validado pixel a pixel contra a v0.19.2
-  (0 diferenças); a escolha vale para o PNG e é salva no navegador.
+  (0 diferenças) em cada versão; a escolha vale para o PNG e é salva no navegador.
 - Build de arquivo único **validado** (`dist/index.html` ~677 kB, CSS+JS+fontes embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
@@ -318,10 +321,11 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Temas** (v0.5.0): **Original** (atual) e **Claude** (escuro, cinzas + laranja) escolhidos
   em **Configurações**; o tema vale só para a interface (PNGs iguais). As duas abas no mesmo
   estilo (a de pneus foi igualada à de orçamentos) e o logo Toyota no header.
-- **Layout do flyer de pneus** (v0.20.0): além do **clássico** (mantido como padrão), o
-  "Tabela de ofertas" e o "Etiqueta de preço" (ideias 4 e 7 da galeria
-  `ideias/tire-flyer-valores.md`), trocados por um ícone ao lado do download — nunca
-  substituindo o layout atual.
+- **Layout do flyer de pneus** (v0.20.0; cores na v0.21.0): além do **clássico** (mantido como
+  padrão), o "Tabela de ofertas" e o "Etiqueta de preço" (ideias 4 e 7 de
+  `ideias/tire-flyer-valores.md`) + "Laranja Queima-Estoque", "Vermelho Racing" e "Amarelo
+  Encarte" (ideias 01, 02 e 09 de `ideias/tire-flyer-cores.md`), trocados por um ícone ao lado
+  do download — nunca substituindo o layout atual.
 
 ## 8. Pendências
 

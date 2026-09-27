@@ -18,6 +18,13 @@ describe('layout de saída do Tire Flyer (localStorage)', () => {
     expect(lerLayoutFlyer()).toBe('etiqueta');
   });
 
+  it('aceita os layouts coloridos novos', () => {
+    for (const id of ['laranja', 'racing', 'encarte'] as const) {
+      salvarLayoutFlyer(id);
+      expect(lerLayoutFlyer()).toBe(id);
+    }
+  });
+
   it('valor inválido cai no clássico', () => {
     localStorage.setItem(LAYOUT_FLYER_KEY, 'quadrado');
     expect(lerLayoutFlyer()).toBe('atual');

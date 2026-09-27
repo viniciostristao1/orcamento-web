@@ -1,9 +1,16 @@
 /** Layouts de saída do flyer de pneus (o PNG exportado segue o escolhido). */
-export type LayoutFlyer = 'atual' | 'tabela' | 'etiqueta';
+export type LayoutFlyer = 'atual' | 'tabela' | 'etiqueta' | 'laranja' | 'racing' | 'encarte';
 
 export const LAYOUT_FLYER_KEY = 'flyer_layout_v1';
 
-const LAYOUTS_VALIDOS: readonly LayoutFlyer[] = ['atual', 'tabela', 'etiqueta'];
+const LAYOUTS_VALIDOS: readonly LayoutFlyer[] = [
+  'atual',
+  'tabela',
+  'etiqueta',
+  'laranja',
+  'racing',
+  'encarte',
+];
 
 /**
  * Lê o layout salvo. Sem nada salvo (ou valor inválido) cai no `atual`, que é

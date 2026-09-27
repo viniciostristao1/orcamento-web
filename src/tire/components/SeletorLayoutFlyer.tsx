@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LayoutTemplate, LayoutList, Table, Tag } from 'lucide-react';
+import { LayoutTemplate, LayoutList, Table, Tag, Flame, Flag, Newspaper } from 'lucide-react';
 import type { LayoutFlyer } from '../utils/layoutFlyer';
 
 interface SeletorLayoutFlyerProps {
@@ -11,6 +11,9 @@ const OPCOES: { id: LayoutFlyer; nome: string; descricao: string; Icone: typeof 
   { id: 'atual', nome: 'Clássico', descricao: 'Dois quadros por pneu (como é hoje)', Icone: LayoutList },
   { id: 'tabela', nome: 'Tabela de ofertas', descricao: 'Uma linha por pneu, valores em colunas', Icone: Table },
   { id: 'etiqueta', nome: 'Etiqueta de preço', descricao: 'Etiqueta com o à vista em destaque', Icone: Tag },
+  { id: 'laranja', nome: 'Laranja Queima-Estoque', descricao: 'Laranja e preto, à vista em destaque', Icone: Flame },
+  { id: 'racing', nome: 'Vermelho Racing', descricao: 'Faixas vermelho/preto com listra de corrida', Icone: Flag },
+  { id: 'encarte', nome: 'Amarelo Encarte', descricao: 'Tabela estilo encarte de jornal', Icone: Newspaper },
 ];
 
 /**
@@ -60,39 +63,41 @@ export const SeletorLayoutFlyer: React.FC<SeletorLayoutFlyerProps> = ({ layout, 
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pt-2 pb-2">
             Layout do flyer
           </p>
-          {OPCOES.map((opcao) => {
-            const ativo = layout === opcao.id;
-            const Icone = opcao.Icone;
-            return (
-              <button
-                key={opcao.id}
-                type="button"
-                onClick={() => { onChange(opcao.id); setAberto(false); }}
-                aria-label={`Layout ${opcao.nome}`}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left border transition-colors cursor-pointer ${
-                  ativo
-                    ? 'bg-blue-600/10 border-blue-500/40'
-                    : 'border-transparent hover:bg-slate-900'
-                }`}
-              >
-                <span
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
+          <div className="max-h-[52vh] overflow-y-auto pr-1 -mr-1">
+            {OPCOES.map((opcao) => {
+              const ativo = layout === opcao.id;
+              const Icone = opcao.Icone;
+              return (
+                <button
+                  key={opcao.id}
+                  type="button"
+                  onClick={() => { onChange(opcao.id); setAberto(false); }}
+                  aria-label={`Layout ${opcao.nome}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left border transition-colors cursor-pointer ${
                     ativo
-                      ? 'text-blue-400 border-blue-500/40 bg-blue-600/10'
-                      : 'text-slate-400 border-slate-700 bg-slate-900'
+                      ? 'bg-blue-600/10 border-blue-500/40'
+                      : 'border-transparent hover:bg-slate-900'
                   }`}
                 >
-                  <Icone size={18} />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-xs font-black uppercase tracking-widest text-slate-200 truncate">
-                    {opcao.nome}
+                  <span
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
+                      ativo
+                        ? 'text-blue-400 border-blue-500/40 bg-blue-600/10'
+                        : 'text-slate-400 border-slate-700 bg-slate-900'
+                    }`}
+                  >
+                    <Icone size={18} />
                   </span>
-                  <span className="block text-[11px] text-slate-500 mt-0.5 truncate">{opcao.descricao}</span>
-                </span>
-              </button>
-            );
-          })}
+                  <span className="min-w-0">
+                    <span className="block text-xs font-black uppercase tracking-widest text-slate-200 truncate">
+                      {opcao.nome}
+                    </span>
+                    <span className="block text-[11px] text-slate-500 mt-0.5 truncate">{opcao.descricao}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

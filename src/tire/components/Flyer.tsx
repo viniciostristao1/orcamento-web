@@ -5,6 +5,9 @@ import { getBrandStyle } from '../utils/marcas';
 import type { LayoutFlyer } from '../utils/layoutFlyer';
 import { FlyerTabela } from './FlyerTabela';
 import { FlyerEtiqueta } from './FlyerEtiqueta';
+import { FlyerLaranja } from './FlyerLaranja';
+import { FlyerRacing } from './FlyerRacing';
+import { FlyerEncarte } from './FlyerEncarte';
 
 interface FlyerProps {
   data: PromoInfo;
@@ -131,7 +134,16 @@ const FlyerAtual: React.FC<{ data: PromoInfo }> = ({ data }) => (
   </div>
 );
 
+// Layouts "pintados" que trazem cabeçalho, corpo e rodapé próprios.
+const LAYOUTS_COLORIDOS: Partial<Record<LayoutFlyer, React.FC<{ data: PromoInfo }>>> = {
+  laranja: FlyerLaranja,
+  racing: FlyerRacing,
+  encarte: FlyerEncarte,
+};
+
 export const Flyer: React.FC<FlyerProps> = ({ data, flyerRef, layout = 'atual' }) => {
+  const Colorido = LAYOUTS_COLORIDOS[layout];
+
   return (
     <div
       ref={flyerRef}
@@ -140,23 +152,29 @@ export const Flyer: React.FC<FlyerProps> = ({ data, flyerRef, layout = 'atual' }
       className="bg-white text-slate-900 w-[750px] shadow-2xl overflow-hidden font-sans border border-slate-200"
       style={{ minHeight: 'auto' }}
     >
-      <Header measure={data.measure} />
-
-      {data.tires.length === 0 ? (
-        <div className="p-5 bg-slate-50">
-          <div className="h-[200px] flex items-center justify-center text-slate-300 font-bold uppercase tracking-widest text-sm border-2 border-dashed border-slate-200 rounded-[2rem]">
-            Aguardando dados...
-          </div>
-        </div>
-      ) : layout === 'tabela' ? (
-        <FlyerTabela data={data} />
-      ) : layout === 'etiqueta' ? (
-        <FlyerEtiqueta data={data} />
+      {Colorido && data.tires.length > 0 ? (
+        <Colorido data={data} />
       ) : (
-        <FlyerAtual data={data} />
-      )}
+        <>
+          <Header measure={data.measure} />
 
-      <Footer />
+          {data.tires.length === 0 ? (
+            <div className="p-5 bg-slate-50">
+              <div className="h-[200px] flex items-center justify-center text-slate-300 font-bold uppercase tracking-widest text-sm border-2 border-dashed border-slate-200 rounded-[2rem]">
+                Aguardando dados...
+              </div>
+            </div>
+          ) : layout === 'tabela' ? (
+            <FlyerTabela data={data} />
+          ) : layout === 'etiqueta' ? (
+            <FlyerEtiqueta data={data} />
+          ) : (
+            <FlyerAtual data={data} />
+          )}
+
+          <Footer />
+        </>
+      )}
     </div>
   );
 };

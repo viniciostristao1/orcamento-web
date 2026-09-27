@@ -5,6 +5,40 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-27 — Tire Flyer: +3 layouts coloridos (laranja, racing, encarte) (v0.21.0)
+
+**Pedido:** o usuário aprovou 3 ideias da galeria de cores nova
+(`ideias/tire-flyer-cores.md`) para entrarem nas opções que já existiam (clássico, tabela e
+etiqueta): **01 Laranja Queima-Estoque**, **02 Vermelho Racing** e **09 Amarelo Encarte**.
+
+**Feito:**
+- `layoutFlyer.ts`: `LayoutFlyer` agora é `atual | tabela | etiqueta | laranja | racing |
+  encarte` (a validação de valor salvo continua: desconhecido cai em `atual`).
+- **Layouts coloridos são flyers completos** (`FlyerLaranja.tsx`, `FlyerRacing.tsx`,
+  `FlyerEncarte.tsx`): cada um traz **cabeçalho, corpo e rodapé próprios** (paleta fixa em
+  valores hexadecimais/arbitrários — não usam as variáveis de tema, então o tema não vaza e o
+  PNG sai sempre igual). O `Flyer.tsx` virou dispatcher: `LAYOUTS_COLORIDOS` decide entre o
+  corpo colorido (com `data.tires.length > 0`) e o fluxo clássico (Header/Footer compartilhados
+  + `FlyerAtual`/`FlyerTabela`/`FlyerEtiqueta`).
+- `SeletorLayoutFlyer.tsx`: 6 opções com ícones `Flame`/`Flag`/`Newspaper` (+ lista com
+  `max-h-[52vh] overflow-y-auto`, pois agora não cabe tudo sem rolar).
+- Port fiel dos mockups: laranja com dois quadros (10x branco/borda e à vista laranja cheio);
+  racing com listra quadriculada (`repeating-linear-gradient` inline), faixa vermelha do à vista
+  e faixa preta do 10x; encarte com listra hazard, tabela de borda preta, carimbos de estoque e
+  chamada "Consulte disponibilidade".
+
+**Validação:** typecheck limpo; **86 testes** (+1 de leitura dos 3 layouts novos; o smoke agora
+percorre as 6 opções); build single-file ok; no Chromium as 3 saídas batem com os mockups
+aprovados e o clássico segue **pixel-idêntico** (0 diferenças, 1500×3632).
+
+**Gotchas:**
+- Os coloridos **não podem usar as variáveis `--tema-*`** (nem classes que o `@theme inline`
+  remapeia, tipo `bg-emerald-600`): como eles trocam `--acc`/`--hdr` etc. por conta própria,
+  o jeito seguro foi hex literal (`bg-[#ea580c]`, `text-[#b91c1c]`…). O reset de
+  `[data-saida='flyer']` continua valendo para o que sobrou de slate/emerald.
+- O smoke do jsdom não renderiza gradiente/quebra de linha, então a checagem visual desses 3
+  depende do Playwright (feito) — o teste de tela checa `data-layout` + persistência.
+
 ## 2026-09-27 — Tire Flyer: seletor de layout de saída (clássico + tabela + etiqueta) (v0.20.0)
 
 **Pedido:** dos 10 mockups publicados em `ideias/tire-flyer-valores.md`, o usuário escolheu as

@@ -240,6 +240,24 @@ describe('App — smoke test (render + processar)', () => {
     expect(flyer().querySelector('table')).toBeNull();
     expect(localStorage.getItem('flyer_layout_v1')).toBe('etiqueta');
 
+    // layouts coloridos aprovados (01, 02 e 09 da galeria de cores)
+    fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
+    fireEvent.click(screen.getByText('Laranja Queima-Estoque'));
+    expect(flyer().dataset.layout).toBe('laranja');
+    expect(localStorage.getItem('flyer_layout_v1')).toBe('laranja');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
+    fireEvent.click(screen.getByText('Vermelho Racing'));
+    expect(flyer().dataset.layout).toBe('racing');
+    expect(localStorage.getItem('flyer_layout_v1')).toBe('racing');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
+    fireEvent.click(screen.getByText('Amarelo Encarte'));
+    expect(flyer().dataset.layout).toBe('encarte');
+    expect(flyer().querySelector('table')).toBeTruthy();
+    expect(flyer().textContent).toContain('Consulte disponibilidade');
+    expect(localStorage.getItem('flyer_layout_v1')).toBe('encarte');
+
     // volta para o clássico
     fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
     fireEvent.click(screen.getByText('Clássico'));
