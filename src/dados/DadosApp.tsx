@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Plus, Search, Table2, Trash2, X } from 'lucide-react';
 import TituloEditavel from '../components/TituloEditavel';
 import {
+  type AbaDados,
   type DadosTabelas,
   MAX_COLUNAS,
   adicionarLinha,
@@ -32,10 +33,16 @@ const DadosApp: React.FC = () => {
   const [abaRenomeando, setAbaRenomeando] = useState<string | null>(null);
   const [nomeSubAba, setNomeSubAba] = useState('');
   const [copiado, setCopiado] = useState<string | null>(null);
+  // Sub-aba recém-excluída (para o "Desfazer") + timer que esconde o aviso.
+  const [desfazerAba, setDesfazerAba] = useState<{ aba: AbaDados; idx: number } | null>(null);
+  const desfazerTimer = useRef<number | null>(null);
 
   useEffect(() => {
     salvarDados(dados);
   }, [dados]);
+
+  // Limpa o timer do "Desfazer" ao desmontar.
+  useEffect(() => () => { if (desfazerTimer.current) window.clearTimeout(desfazerTimer.current); }, []);
 
   // Se a aba ativa deixar de existir (ou nunca existiu), cai na primeira.
   const aba = dados.abas.find((a) => a.id === abaId) ?? dados.abas[0];
@@ -71,11 +78,27 @@ const DadosApp: React.FC = () => {
     setAbaRenomeando(null);
   };
 
+  // Exclui a sub-aba na hora e oferece "Desfazer" por ~6s (restaura na posição).
   const excluirAba = (a: { id: string; rotulo: string }) => {
-    if (!window.confirm(`Apagar a sub-aba "${a.rotulo}" e TODAS as tabelas dela?`)) return;
+    if (dados.abas.length <= 1) return; // nunca apaga a última
+    const idx = dados.abas.findIndex((x) => x.id === a.id);
+    if (idx < 0) return;
+    const abaRemovida = dados.abas[idx];
     const restantes = dados.abas.filter((x) => x.id !== a.id);
     setDados(removerAba(dados, a.id));
-    setAbaId(restantes[0]?.id ?? 'pecas');
+    if (abaId === a.id) setAbaId(restantes[0]?.id ?? 'pecas');
+    setDesfazerAba({ aba: abaRemovida, idx });
+    if (desfazerTimer.current) window.clearTimeout(desfazerTimer.current);
+    desfazerTimer.current = window.setTimeout(() => setDesfazerAba(null), 6000);
+  };
+
+  const restaurarAba = () => {
+    if (!desfazerAba) return;
+    const { aba: abaSalva, idx } = desfazerAba;
+    setDados((d) => ({ ...d, abas: [...d.abas.slice(0, idx), abaSalva, ...d.abas.slice(idx)] }));
+    setAbaId(abaSalva.id);
+    if (desfazerTimer.current) window.clearTimeout(desfazerTimer.current);
+    setDesfazerAba(null);
   };
 
   const confirmarNovaAba = () => {
@@ -95,6 +118,7 @@ const DadosApp: React.FC = () => {
   };
 
   return (
+    <>
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
       <header className="mb-4 text-center">
         <TituloEditavel id="dados" className="titulo-tema text-3xl font-black tracking-tighter uppercase" />
@@ -436,6 +460,21 @@ const DadosApp: React.FC = () => {
         )}
       </div>
     </div>
+    {desfazerAba && (
+      <div className="fixed left-1/2 bottom-6 -translate-x-1/2 z-[200] flex items-center gap-4 bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3 shadow-2xl max-w-[92vw]">
+        <span className="text-sm font-bold text-slate-200 truncate">
+          Sub-aba “{desfazerAba.aba.rotulo}” excluída
+        </span>
+        <button
+          type="button"
+          onClick={restaurarAba}
+          className="shrink-0 text-sm font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 cursor-pointer"
+        >
+          Desfazer
+        </button>
+      </div>
+    )}
+    </>
   );
 };
 

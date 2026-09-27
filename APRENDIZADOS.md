@@ -5,6 +5,19 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-27 — Ícone Borracha nos "limpar" + Desfazer na exclusão de sub-aba (v0.19.2)
+
+Escolhas do usuário (após a galeria de ícones):
+- **Ícone "limpar campo" = Borracha (`Eraser`)** no lugar da vassoura (`Broom`). Aplicado em:
+  Total Revisão e Peças na Revisão (`OrcamentosApp`), **novo botão** em PLACA/NOME/CONTATO
+  (`OrcamentosApp`) e **novo botão** no **Contato do Tire Flyer** (`TireFlyerApp`) — todos com o
+  mesmo padrão (botão absoluto à direita do input, `pr-10`, `text-slate-600 hover:text-red-400`).
+- **Desfazer na exclusão de sub-aba (Dados):** troquei o `window.confirm` por **exclusão imediata
+  + toast "Desfazer"** (~6s), no padrão dos outros apps VinyApps (Taskix: sem diálogo, com undo).
+  `excluirAba` captura `{aba, idx}` e `removerAba`; `restaurarAba` reinsere na posição original
+  (`abas.slice(0,idx)+aba+slice(idx)`). Toast renderizado **fora do `ui-compacta`** (fragmento no
+  return) p/ o `zoom:0.75` não encolher/reposicionar o `position:fixed`. Timer limpo no unmount.
+
 ## 2026-09-27 — Ajustes Grafite: negrito nos títulos + botão "+" (v0.19.1)
 
 Feedback do usuário sobre o tema Grafite:

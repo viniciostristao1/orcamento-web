@@ -5,7 +5,7 @@ import { Flyer } from './components/Flyer';
 import { exportarPng } from '../utils/exportImage';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
-import { Play, Image as ImageIcon, History } from 'lucide-react';
+import { Play, Image as ImageIcon, History, Eraser } from 'lucide-react';
 import FlyerHistoryModal from './components/FlyerHistoryModal';
 import TituloEditavel from '../components/TituloEditavel';
 import { adicionarAoFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
@@ -145,13 +145,24 @@ const TireFlyerApp: React.FC = () => {
           </NeonCard>
 
           <NeonCard title="CONTATO" borderColor="blue-500" compact>
-            <input
-              type="text"
-              value={contato}
-              onChange={(e) => setContato(e.target.value)}
-              placeholder="Nome, placa, telefone… (ex.: JOÃO / ABC1D23)"
-              className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-lg font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={contato}
+                onChange={(e) => setContato(e.target.value)}
+                placeholder="Nome, placa, telefone… (ex.: JOÃO / ABC1D23)"
+                className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-lg font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setContato('')}
+                aria-label="Limpar Contato"
+                title="Limpar Contato"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+              >
+                <Eraser size={16} />
+              </button>
+            </div>
             <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase mt-2">
               Fica só no histórico do Tire Flyer (não sai no flyer enviado ao cliente).
             </p>

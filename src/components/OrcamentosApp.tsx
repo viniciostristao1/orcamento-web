@@ -3,7 +3,7 @@ import { processQuote, formatCurrency, formatarValorInput, parseBrazilianNumber,
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable from './QuoteTable';
-import { Play, Percent, History, Broom } from 'lucide-react';
+import { Play, Percent, History, Eraser } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import TituloEditavel from './TituloEditavel';
@@ -215,7 +215,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                         title="Limpar Total Revisão"
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
                       >
-                        <Broom size={16} />
+                        <Eraser size={16} />
                       </button>
                     </div>
                   </div>
@@ -244,7 +244,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                         title="Limpar Peças na Revisão"
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
                       >
-                        <Broom size={16} />
+                        <Eraser size={16} />
                       </button>
                     </div>
                   </div>
@@ -274,14 +274,25 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
                 <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">PLACA, NOME, CONTATO</label>
-                  <input 
-                    type="text" 
-                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white uppercase tracking-wide focus:border-blue-500 outline-none" 
-                    value={placa} 
-                    onChange={(e) => setPlaca(e.target.value.toUpperCase())} 
-                    placeholder="Ex.: ABC1D23 / JOÃO / 51 99999-9999"
-                    maxLength={60}
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+                      value={placa}
+                      onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+                      placeholder="Ex.: ABC1D23 / JOÃO / 51 99999-9999"
+                      maxLength={60}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPlaca('')}
+                      aria-label="Limpar Placa, Nome, Contato"
+                      title="Limpar Placa, Nome, Contato"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                    >
+                      <Eraser size={16} />
+                    </button>
+                  </div>
                 </div>
 
                 <button 
