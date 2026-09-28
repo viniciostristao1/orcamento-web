@@ -5,6 +5,44 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Dados: contador na busca; Whats: cartão compacto com lista (v0.28.0)
+
+**Pedidos:** (1) Dados: mostrar a **quantidade de termos dentro do próprio campo de pesquisa**,
+no canto direito antes do X; (2) Whats/Relatório de Envios: **remover o copiar mensagem**,
+acrescentar um **ícone de lista**, mover **Agendado + lista + ligar + excluir para cima, ao lado
+da data**, abrir **telefone e chassi** (copiáveis) pelo ícone de lista e **tirar telefone/chassi
+de baixo da Observação**, deixando o cartão mais baixo; (3) Novo Contato: "Mensagem Especial"
+vira só **"Mensagem"**. Pergunta respondida: o backup leva **tudo da aba Dados**
+(`dados_tabelas_v1` está em `CHAVES_BACKUP` — sub-abas, tabelas, linhas, larguras e caixinhas).
+
+**Feito:**
+- **Dados**: o `<span>` do contador saiu de fora do campo e virou `absolute right-10` (antes do
+  X, que fica em `right-3`) dentro do `div.relative` da busca; input com `pr-24`; contador com
+  `max-w-[55%] truncate` e `pointer-events-none` (só `1 de 2 · 2 em PEÇAS`/“Nenhum resultado”).
+  O span externo que mostrava o resumo foi removido (não duplica).
+- **Whats — cartão do relatório** (`ContactList.tsx`): linha 1 ganhou o `span` de ações
+  (situação, lista, notificar, excluir, data — data editável como antes); o bloco de baixo
+  (telefone/chassi + copiar mensagem) saiu; `copiedId` deu lugar a `copiadoCampo`
+  (`id:phone`/`id:chassis`) e ao estado `detalhesId`; o **ícone de lista** (`List`,
+  `aria-label="Telefone e chassi"`) abre um painel com **telefone** e **chassi** (ou "Sem
+  chassi") em botões que **copiam** com feedback verde de 2s. Cartão fechado = 2 linhas
+  (nome/ações + observação/mensagem), bem mais baixo.
+- **Whats — rótulos**: "Mensagem Especial" → **"Mensagem"** no formulário
+  (`ContactForm.tsx`) e no cartão; o campo continua `customMessage` (dados antigos intactos).
+- **Backup**: conferido que `utils/backup.ts` exporta/restaura `dados_tabelas_v1` — o backup
+  geral **inclui tudo da aba Dados** (e demais chaves).
+
+**Validação:** typecheck/lint limpos; **97 testes** (o smoke do Whats agora: sem "Mensagem
+especial", sem "Copiar mensagem", lista abre e copia telefone/chassi com o clipboard mockado e
+fecha de novo); build autocontido (1.546 kB); Chromium headless (1600px): cartões curtos com
+ações na linha do nome, painel lista visível, `navigator.clipboard.readText()` devolveu
+`51999999999`, e o contador da busca lido direto do campo = `1 de 2 · 2 em PEÇAS`.
+
+**Gotchas:**
+- O painel de detalhes usa os MESMOS botões para ver/copiar (sem modal) — mais simples e não
+  quebra o tema; o chassi ausente mostra "Sem chassi" em vez de some (evita cartão “vazio”).
+- O contador dentro do campo precisa de `pointer-events-none`, senão rouba o clique do X.
+
 ## 2026-09-28 — Dados: busca com Enter (N de M) + células na fonte do orçamento (v0.27.0)
 
 **Pedidos:** (1) na busca, **Enter deve pular para a próxima ocorrência**, rolando até ela e

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Trash2, Phone, CheckCircle2, Copy, Check, ClipboardCopy, Edit2 } from 'lucide-react';
+import { Trash2, Phone, CheckCircle2, Copy, Check, Edit2, List, Hash } from 'lucide-react';
 import { Contact } from '../types';
 
 interface ContactListProps {
@@ -13,8 +13,9 @@ interface ContactListProps {
 }
 
 const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsSent, onUpdateNote, onUpdateMessage, onUpdateDate, messageTemplate }) => {
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [copiedChassisId, setCopiedChassisId] = useState<string | null>(null);
+  // Campo recém-copiado ("id:phone" / "id:chassis") e contato com os detalhes abertos.
+  const [copiadoCampo, setCopiadoCampo] = useState<string | null>(null);
+  const [detalhesId, setDetalhesId] = useState<string | null>(null);
   const todayStr = new Date().toISOString().split('T')[0];
 
   const sortedContacts = useMemo(() => {
@@ -38,15 +39,11 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
     onMarkAsSent(contact.id);
   };
 
-  const handleCopy = (text: string, id: string, type: 'msg' | 'chassis') => {
+  const handleCopy = (text: string, id: string, campo: 'phone' | 'chassis') => {
     navigator.clipboard.writeText(text);
-    if (type === 'msg') {
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } else {
-      setCopiedChassisId(id);
-      setTimeout(() => setCopiedChassisId(null), 2000);
-    }
+    const chave = `${id}:${campo}`;
+    setCopiadoCampo(chave);
+    setTimeout(() => setCopiadoCampo((c) => (c === chave ? null : c)), 2000);
   };
 
   const wasSentThisMonth = (contact: Contact) => {
@@ -105,81 +102,12 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                 key={contact.id}
                 className={`bg-slate-950/60 border border-slate-800 rounded-2xl p-4 transition-colors hover:border-slate-700 ${sent ? 'opacity-70' : ''}`}
               >
-                {/* Cliente + dia do envio (editável clicando na data) */}
+                {/* Cliente + situação + ações + dia (data editável clicando nela) */}
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <span className={`text-lg font-black tracking-tight truncate ${sent ? 'text-slate-400 line-through' : 'text-slate-100'}`}>
                     {contact.name}
                   </span>
-                  <label
-                    className={`relative shrink-0 flex items-center justify-center gap-1.5 px-2 py-1 rounded-lg font-black border text-sm cursor-pointer transition-all overflow-hidden ${
-                      sent ? 'bg-slate-800/40 text-slate-500 border-slate-700/60' :
-                      isToday ? 'bg-blue-600/20 text-blue-400 border-blue-500/40' :
-                      isPast ? 'bg-rose-600 text-white border-rose-700' :
-                      'bg-slate-800/60 text-slate-200 border-slate-700'
-                    }`}
-                    title="Alterar dia do envio"
-                  >
-                    <span className="z-10">{formatDateDisplay(contact.targetDate)}</span>
-                    <Edit2 size={10} className={`z-10 ${sent ? 'opacity-0' : 'opacity-40'}`} />
-                    <input
-                      type="date"
-                      value={contact.targetDate}
-                      onChange={(e) => onUpdateDate(contact.id, e.target.value)}
-                      className="absolute inset-0 opacity-0 cursor-pointer z-20 [color-scheme:dark]"
-                    />
-                  </label>
-                </div>
-
-                {/* Observação e Mensagem Especial lado a lado (rolam se passar da altura) */}
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div>
-                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
-                      Observação
-                    </span>
-                    <textarea
-                      placeholder="Anotações sobre o cliente…"
-                      value={contact.internalNote || ''}
-                      onChange={(e) => onUpdateNote(contact.id, e.target.value)}
-                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-slate-200 font-bold overflow-y-auto"
-                    />
-                  </div>
-                  <div>
-                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
-                      Mensagem especial
-                    </span>
-                    <textarea
-                      placeholder="Se vazio, usa o script de revisão…"
-                      value={contact.customMessage || ''}
-                      onChange={(e) => onUpdateMessage(contact.id, e.target.value)}
-                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-emerald-600 font-bold overflow-y-auto"
-                    />
-                  </div>
-                </div>
-
-                {/* Contato + situação + ações */}
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2 min-w-0 text-xs font-bold text-slate-500">
-                    <span className="flex items-center gap-1.5 whitespace-nowrap">
-                      <Phone size={11} className="text-slate-500 shrink-0" /> {contact.phone}
-                    </span>
-                    {contact.chassis && (
-                      <button
-                        onClick={() => handleCopy(contact.chassis!, contact.id, 'chassis')}
-                        aria-label="Copiar chassi"
-                        title="Copiar chassi"
-                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold transition-all cursor-pointer ${
-                          copiedChassisId === contact.id
-                            ? 'bg-green-600 border-green-700 text-white'
-                            : 'campo-tema border-slate-800 text-slate-500 hover:text-slate-200 hover:border-slate-600'
-                        }`}
-                      >
-                        <span className="truncate max-w-[110px]">{contact.chassis}</span>
-                        <ClipboardCopy size={10} className="opacity-40 shrink-0" />
-                      </button>
-                    )}
-                  </span>
-
-                  <span className="flex items-center gap-2 shrink-0">
+                  <span className="flex items-center gap-1.5 shrink-0">
                     {sent ? (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border bg-green-600/10 text-green-500 border-green-600/30">
                         <CheckCircle2 size={12} strokeWidth={3} /> Concluído
@@ -199,16 +127,17 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                     )}
 
                     <button
-                      onClick={() => handleCopy(contact.customMessage || messageTemplate, contact.id, 'msg')}
-                      aria-label={copiedId === contact.id ? 'Mensagem copiada' : 'Copiar mensagem'}
-                      title={copiedId === contact.id ? 'Mensagem copiada' : 'Copiar mensagem'}
+                      type="button"
+                      onClick={() => setDetalhesId((d) => (d === contact.id ? null : contact.id))}
+                      aria-label="Telefone e chassi"
+                      title="Telefone e chassi"
                       className={`p-2 rounded-lg border transition-all cursor-pointer ${
-                        copiedId === contact.id
-                          ? 'bg-green-600 border-green-700 text-white'
+                        detalhesId === contact.id
+                          ? 'bg-blue-600/20 text-blue-400 border-blue-500/40'
                           : 'campo-tema border-slate-800 text-slate-500 hover:text-slate-200 hover:border-slate-600'
                       }`}
                     >
-                      {copiedId === contact.id ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={2} />}
+                      <List size={14} strokeWidth={2} />
                     </button>
 
                     <button
@@ -234,8 +163,102 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                     >
                       <Trash2 size={16} />
                     </button>
+
+                    <label
+                      className={`relative shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg font-black border text-sm cursor-pointer transition-all overflow-hidden ${
+                        sent ? 'bg-slate-800/40 text-slate-500 border-slate-700/60' :
+                        isToday ? 'bg-blue-600/20 text-blue-400 border-blue-500/40' :
+                        isPast ? 'bg-rose-600 text-white border-rose-700' :
+                        'bg-slate-800/60 text-slate-200 border-slate-700'
+                      }`}
+                      title="Alterar dia do envio"
+                    >
+                      <span className="z-10">{formatDateDisplay(contact.targetDate)}</span>
+                      <Edit2 size={10} className={`z-10 ${sent ? 'opacity-0' : 'opacity-40'}`} />
+                      <input
+                        type="date"
+                        value={contact.targetDate}
+                        onChange={(e) => onUpdateDate(contact.id, e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-20 [color-scheme:dark]"
+                      />
+                    </label>
                   </span>
                 </div>
+
+                {/* Observação e Mensagem lado a lado (rolam se passar da altura) */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                      Observação
+                    </span>
+                    <textarea
+                      placeholder="Anotações sobre o cliente…"
+                      value={contact.internalNote || ''}
+                      onChange={(e) => onUpdateNote(contact.id, e.target.value)}
+                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-slate-200 font-bold overflow-y-auto"
+                    />
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                      Mensagem
+                    </span>
+                    <textarea
+                      placeholder="Se vazio, usa o script de revisão…"
+                      value={contact.customMessage || ''}
+                      onChange={(e) => onUpdateMessage(contact.id, e.target.value)}
+                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-emerald-600 font-bold overflow-y-auto"
+                    />
+                  </div>
+                </div>
+
+                {/* Detalhes (ícone de lista): telefone e chassi, cada um com copiar */}
+                {detalhesId === contact.id && (
+                  <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(contact.phone, contact.id, 'phone')}
+                      aria-label="Copiar telefone"
+                      title="Copiar telefone"
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                        copiadoCampo === `${contact.id}:phone`
+                          ? 'bg-green-600 border-green-700 text-white'
+                          : 'campo-tema border-slate-800 text-slate-300 hover:text-white hover:border-slate-600'
+                      }`}
+                    >
+                      <Phone size={12} className="shrink-0" />
+                      {contact.phone}
+                      {copiadoCampo === `${contact.id}:phone` ? (
+                        <Check size={12} strokeWidth={3} className="shrink-0" />
+                      ) : (
+                        <Copy size={12} className="opacity-40 shrink-0" />
+                      )}
+                    </button>
+
+                    {contact.chassis ? (
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(contact.chassis!, contact.id, 'chassis')}
+                        aria-label="Copiar chassi"
+                        title="Copiar chassi"
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                          copiadoCampo === `${contact.id}:chassis`
+                            ? 'bg-green-600 border-green-700 text-white'
+                            : 'campo-tema border-slate-800 text-slate-300 hover:text-white hover:border-slate-600'
+                        }`}
+                      >
+                        <Hash size={12} className="shrink-0" />
+                        {contact.chassis}
+                        {copiadoCampo === `${contact.id}:chassis` ? (
+                          <Check size={12} strokeWidth={3} className="shrink-0" />
+                        ) : (
+                          <Copy size={12} className="opacity-40 shrink-0" />
+                        )}
+                      </button>
+                    ) : (
+                      <span className="text-xs font-bold text-slate-600">Sem chassi</span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

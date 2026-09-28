@@ -84,10 +84,15 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   `zap_script_pneus_v1`, `zap_script_revisao_v1` (o antigo `zap_template` é migrado para
   revisão).   Layout da tela (v0.14.6): grid `lg:grid-cols-2` — esquerda **NOVO CONTATO + SCRIPT PNEUS +
   SCRIPT REVISÃO** (empilhados, mesma largura); direita **RELATÓRIO DE ENVIOS** em **uma coluna**
-  de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`). Observação e Mensagem
-  Especial do contato ficam lado a lado, **1 linha** (`h-9`, com rolagem interna).
-  "NOTIFICAR" abre `wa.me` e marca como concluído; status verde em `green-*` (o `emerald-*` é
-  remapeado para o laranja no tema Claude). `@google/genai` do template original **não** entrou.
+  de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`). Observação e
+  **Mensagem** (v0.28.0; era "Mensagem Especial") do contato ficam lado a lado, **1 linha**
+  (`h-9`, com rolagem interna). Cartão do relatório (v0.28.0): linha 1 = **nome + situação
+  (Agendado/Hoje/Atrasado/Concluído) + ícone de lista + notificar + excluir + data**; o
+  **telefone/chassi saíram de baixo da observação** e agora só aparecem ao clicar no **ícone de
+  lista** (`List`, painel com telefone e chassi, **cada um com copiar**), deixando o cartão mais
+  baixo; o botão **copiar mensagem** foi removido. "NOTIFICAR" abre `wa.me` e marca como
+  concluído; status verde em `green-*` (o `emerald-*` é remapeado para o laranja no tema Claude).
+  `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
   `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,
@@ -198,7 +203,8 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo** — e desde
   a v0.27.0 **Enter/Shift+Enter percorrem as ocorrências** com contador `N de M · X em ABA`
   (`listarOcorrencias`, índice modular) e **destaque forte** (`data-atual`, âmbar cheio) na
-  atual, trocando de sub-aba se preciso; no
+  atual, trocando de sub-aba se preciso — desde a v0.28.0 o contador fica **dentro do próprio
+  campo de busca**, no canto direito **antes do X**; no
   **cabeçalho da coluna de opções** ficam **adicionar coluna (+)** — escondido no limite de 12 —
   e **ordenar** (v0.24.0), e a **barra de baixo** tem o **+ de adicionar linha à esquerda** e o
   **excluir tabela à direita** (v0.25.1; a dica de arrastar/colar saiu) — desde a v0.26.0 a barra

@@ -276,8 +276,15 @@ const DadosApp: React.FC = () => {
               }}
               placeholder="Pesquisar nas tabelas…"
               title="Enter vai para o próximo resultado (Shift+Enter volta)"
-              className="campo-tema w-full border border-slate-800 rounded-xl pl-11 pr-10 py-3 text-base font-bold text-slate-100 focus:border-blue-500 outline-none"
+              className="campo-tema w-full border border-slate-800 rounded-xl pl-11 pr-24 py-3 text-base font-bold text-slate-100 focus:border-blue-500 outline-none"
             />
+            {buscaAtiva && (
+              <span className="absolute right-10 top-1/2 -translate-y-1/2 max-w-[55%] truncate pointer-events-none text-[10px] font-black uppercase tracking-widest text-slate-500">
+                {ocorrencias.length > 0
+                  ? `${indiceAtual + 1} de ${ocorrencias.length}${resumoBusca ? ` · ${resumoBusca}` : ''}`
+                  : 'Nenhum resultado'}
+              </span>
+            )}
             {busca && (
               <button
                 type="button"
@@ -326,13 +333,6 @@ const DadosApp: React.FC = () => {
             </button>
           </div>
 
-          {buscaAtiva && (
-            <span className="text-xs font-black uppercase tracking-widest text-slate-500">
-              {ocorrencias.length > 0
-                ? `${indiceAtual + 1} de ${ocorrencias.length}${resumoBusca ? ` · ${resumoBusca}` : ''}`
-                : 'Nenhum resultado'}
-            </span>
-          )}
         </div>
 
         {/* Sub-abas + criar nova */}

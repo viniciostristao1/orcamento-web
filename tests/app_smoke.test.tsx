@@ -287,12 +287,33 @@ describe('App — smoke test (render + processar)', () => {
 
     fireEvent.change(screen.getByPlaceholderText('Ex: WEIAND VEICULOS LTDA'), { target: { value: 'JOAO DA SILVA' } });
     fireEvent.change(screen.getByPlaceholderText('555199999999'), { target: { value: '51999999999' } });
+    fireEvent.change(screen.getByPlaceholderText('OPCIONAL'), { target: { value: 'ABC123' } });
     fireEvent.click(screen.getByRole('button', { name: /Salvar Cliente/i }));
 
     expect(screen.getByText('JOAO DA SILVA')).toBeTruthy();
+    // "Mensagem especial" virou só "Mensagem" (no formulário e no cartão)
+    expect(screen.queryByText(/Mensagem especial/i)).toBeNull();
+    expect(screen.getAllByText('Mensagem')).toHaveLength(2);
+    // o copiar mensagem saiu do cartão
+    expect(screen.queryByRole('button', { name: /Copiar mensagem/i })).toBeNull();
+
+    // o ícone de lista abre telefone e chassi, cada um com copiar
+    expect(screen.queryByRole('button', { name: 'Copiar telefone' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Telefone e chassi' }));
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar telefone' }));
+    expect(escrever).toHaveBeenCalledWith('51999999999');
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar chassi' }));
+    expect(escrever).toHaveBeenCalledWith('ABC123');
+    // clicar de novo fecha os detalhes
+    fireEvent.click(screen.getByRole('button', { name: 'Telefone e chassi' }));
+    expect(screen.queryByRole('button', { name: 'Copiar telefone' })).toBeNull();
+
     const salvos = JSON.parse(localStorage.getItem('zap_contacts') ?? '[]');
     expect(salvos.length).toBe(1);
     expect(salvos[0].name).toBe('JOAO DA SILVA');
+    expect(salvos[0].chassis).toBe('ABC123');
   });
 
   it('salva com itens não realizados (vai para a aba do histórico)', () => {

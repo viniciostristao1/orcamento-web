@@ -114,7 +114,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
         </div>
 
         <div className="group">
-          <label className={labelClasses}>Mensagem Especial</label>
+          <label className={labelClasses}>Mensagem</label>
           <textarea
             value={customMessage}
             onChange={(e) => setCustomMessage(e.target.value)}
