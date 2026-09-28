@@ -236,8 +236,12 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   contato) e descrição dos itens** — ex.: buscar "freio" acha os orçamentos com pastilhas
   (útil na aba **Não Realizados**); o termo encontrado fica **grifado** na descrição do cartão
   (`destacarTermo`, NFD/case-insensitive, sem quebrar acentos).
-- **Publicado**: repo público `viniciostristao1/orcamento-web` — Release **`v0.18.1`** com
-  `Orcamento-v0.18.1.html` (+ cópia de nome estável `Orcamento.html`). Página fixa:
+- **Publicado**: repo público `viniciostristao1/orcamento-web` — cada Release tem
+  `Orcamento-vX.Y.Z.html` + a cópia de nome estável **`Orcamento.html`**. ⚠️ **Contrato**: TODA
+  release precisa subir a cópia `Orcamento.html` — o **link fixo do usuário** é
+  `https://github.com/viniciostristao1/orcamento-web/releases/latest/download/Orcamento.html`
+  (sempre a versão mais nova, mesma URL; o usuário baixa e **substitui o arquivo na mesma
+  pasta**, mantendo o caminho para o `localStorage` do histórico). Página:
   `https://github.com/viniciostristao1/orcamento-web/releases/latest`. Mockups de layout em
   `ideias/` ("Foco na observação" implementada na v0.14.4).
 - **Fonte idêntica ao AI Studio**: `src/index.css` replica a base do `index.html` original
@@ -307,8 +311,10 @@ npm run build        # gera dist/index.html (arquivo único)
 7. Publicar no Release do repo público `viniciostristao1/orcamento-web`:
    `cp dist/index.html /tmp/Orcamento-vX.Y.Z.html` →
    `gh release create vX.Y.Z /tmp/Orcamento-vX.Y.Z.html -t "Orçamentos vX.Y.Z" ...` e subir
-   também uma cópia `Orcamento.html` (nome estável) no mesmo Release. Mandar ao usuário a
-   **página `releases/latest`** + o nome do arquivo novo.
+   **sempre** também a cópia `Orcamento.html` (nome estável) no mesmo Release. Mandar ao
+   usuário o **link fixo**
+   `https://github.com/viniciostristao1/orcamento-web/releases/latest/download/Orcamento.html`
+   (ele baixa e substitui o arquivo na mesma pasta) + o nome do arquivo novo.
 
 ## 6. Regras duras (não quebrar)
 
