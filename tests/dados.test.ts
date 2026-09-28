@@ -20,6 +20,7 @@ import {
   renomearAba,
   removerTabela,
   colarBloco,
+  ordenarPorColuna,
   salvarDados,
 } from '../src/dados/utils/tabelas';
 
@@ -85,6 +86,24 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     d = colarBloco(d, ABA_PECAS, id, 0, 1, [['ok']]);
     expect(d.abas[0].tabelas[0].linhas[0][1]).toBe('ok');
     expect(d.abas[0].tabelas[0].linhas).toHaveLength(3);
+  });
+
+  it('ordena por coluna (numérico, vazios por último) e a caixinha acompanha a linha', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 2);
+    const id = d.abas[0].tabelas[0].id;
+    d = adicionarLinha(d, ABA_PECAS, id);
+    d = adicionarLinha(d, ABA_PECAS, id);
+    d = adicionarLinha(d, ABA_PECAS, id);
+    d = atualizarCelula(d, ABA_PECAS, id, 0, 0, '10 UN');
+    d = atualizarCelula(d, ABA_PECAS, id, 2, 0, '8 UN');
+    d = alternarMarcada(d, ABA_PECAS, id, 2); // "8 UN" marcada
+
+    let t = ordenarPorColuna(d, ABA_PECAS, id, 0, 'asc').abas[0].tabelas[0];
+    expect(t.linhas.map((l) => l[0])).toEqual(['8 UN', '10 UN', '']);
+    expect(t.marcados).toEqual([true, false, false]);
+
+    t = ordenarPorColuna(d, ABA_PECAS, id, 0, 'desc').abas[0].tabelas[0];
+    expect(t.linhas.map((l) => l[0])).toEqual(['10 UN', '8 UN', '']);
   });
 
   it('remove coluna (título, largura e células) e nunca deixa a tabela sem colunas', () => {

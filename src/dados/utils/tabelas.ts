@@ -286,6 +286,39 @@ export const colarBloco = (
     return { ...t, linhas, marcados };
   });
 
+/**
+ * Ordena as linhas por uma coluna (A–Z / Z–A). Usa `Intl.Collator` com
+ * `numeric` (então "8 UN" vem antes de "10 UN") e mantém a caixinha de cada
+ * linha junto com ela; valores vazios ficam no fim.
+ */
+export const ordenarPorColuna = (
+  dados: DadosTabelas,
+  abaId: string,
+  id: string,
+  coluna: number,
+  direcao: 'asc' | 'desc',
+): DadosTabelas =>
+  atualizarTabela(dados, abaId, id, (t) => {
+    const collator = new Intl.Collator('pt-BR', { numeric: true, sensitivity: 'base' });
+    const comparar = (a: string, b: string): number => {
+      const va = a.trim();
+      const vb = b.trim();
+      if (va === '' && vb === '') return 0;
+      if (va === '') return 1; // vazios por último
+      if (vb === '') return -1;
+      const c = collator.compare(va, vb);
+      return direcao === 'asc' ? c : -c;
+    };
+    const ordem = t.linhas
+      .map((_, i) => i)
+      .sort((a, b) => comparar(t.linhas[a][coluna] ?? '', t.linhas[b][coluna] ?? ''));
+    return {
+      ...t,
+      linhas: ordem.map((i) => t.linhas[i]),
+      marcados: ordem.map((i) => t.marcados[i] ?? false),
+    };
+  });
+
 /** Marca/desmarca a caixinha da linha (risca a linha na tela). */
 export const alternarMarcada = (dados: DadosTabelas, abaId: string, id: string, linha: number): DadosTabelas =>
   atualizarTabela(dados, abaId, id, (t) => ({

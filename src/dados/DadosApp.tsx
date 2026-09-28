@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Check, Copy, Plus, Search, Table2, Trash2, X } from 'lucide-react';
+import { ArrowUpDown, Check, Copy, Plus, Search, Table2, Trash2, X } from 'lucide-react';
 import TituloEditavel from '../components/TituloEditavel';
+import OrdenarTabela from './components/OrdenarTabela';
 import {
   type AbaDados,
   type DadosTabelas,
@@ -16,6 +17,7 @@ import {
   encontrar,
   lerDados,
   alternarMarcada,
+  ordenarPorColuna,
   removerAba,
   renomearAba,
   removerColuna,
@@ -38,6 +40,8 @@ const DadosApp: React.FC = () => {
   // Seleção de várias células (arrastar / Shift+clique) para copiar o bloco.
   const [selecao, setSelecao] = useState<{ tabelaId: string; r1: number; c1: number; r2: number; c2: number } | null>(null);
   const arrastandoSelecao = useRef(false);
+  // Tabela aberta na janelinha de ordenação (por coluna).
+  const [ordenando, setOrdenando] = useState<{ abaId: string; tabelaId: string; titulos: string[] } | null>(null);
   // Sub-aba recém-excluída (para o "Desfazer") + timer que esconde o aviso.
   const [desfazerAba, setDesfazerAba] = useState<{ aba: AbaDados; idx: number } | null>(null);
   const desfazerTimer = useRef<number | null>(null);
@@ -150,14 +154,12 @@ const DadosApp: React.FC = () => {
     return () => window.removeEventListener('mouseup', soltar);
   }, []);
 
-  // Começa a seleção na célula. Shift+clique estende e clicar DENTRO da
-  // seleção atual mantém o bloco (não zera — dá para focar e copiar).
+  // Começa a seleção na célula: clique simples deixa só ela marcada (desmarca
+  // as demais); Shift+clique estende o bloco atual.
   const iniciarSelecao = (tabelaId: string, r: number, c: number, shift: boolean) => {
-    setSelecao((s) => {
-      if (shift && s && s.tabelaId === tabelaId) return { ...s, r2: r, c2: c };
-      if (s && s.tabelaId === tabelaId && celulaNaSelecao(tabelaId, r, c)) return s;
-      return { tabelaId, r1: r, c1: c, r2: r, c2: c };
-    });
+    setSelecao((s) =>
+      shift && s && s.tabelaId === tabelaId ? { ...s, r2: r, c2: c } : { tabelaId, r1: r, c1: c, r2: r, c2: c },
+    );
     arrastandoSelecao.current = true;
   };
 
@@ -479,19 +481,32 @@ const DadosApp: React.FC = () => {
                             </th>
                           );
                         })}
-                        {/* Cabeçalho da coluna de opções: excluir a tabela fica aqui,
-                            no lugar da barra que existia só para esse botão. */}
+                        {/* Cabeçalho da coluna de opções: ordenar a tabela e excluir
+                            a tabela ficam aqui (no lugar da barra que existia só
+                            para o excluir). */}
                         <th className="border border-slate-800 bg-slate-950/60 p-1 text-center">
-                          <button
-                            type="button"
-                            tabIndex={-1}
-                            onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
-                            aria-label="Excluir tabela"
-                            title="Excluir tabela"
-                            className="inline-flex items-center justify-center p-2 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          <span className="inline-flex items-center justify-center gap-1">
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              onClick={() => { setSelecao(null); setOrdenando({ abaId: aba.id, tabelaId: tabela.id, titulos: [...tabela.titulos] }); }}
+                              aria-label="Ordenar tabela"
+                              title="Ordenar por coluna (A–Z / Z–A)"
+                              className="inline-flex items-center justify-center p-1.5 bg-slate-800 hover:bg-blue-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                            >
+                              <ArrowUpDown size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
+                              aria-label="Excluir tabela"
+                              title="Excluir tabela"
+                              className="inline-flex items-center justify-center p-1.5 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </span>
                         </th>
                       </tr>
                     </thead>
@@ -507,9 +522,7 @@ const DadosApp: React.FC = () => {
                                 key={coluna}
                                 data-selecionada={selecionada ? '1' : undefined}
                                 onMouseEnter={() => estenderSelecao(tabela.id, r, coluna)}
-                                className={`relative group border border-slate-800 p-0 ${
-                                  marcado ? 'bg-amber-500/20' : ''
-                                } ${selecionada ? 'bg-blue-600/30 ring-2 ring-inset ring-blue-500' : ''}`}
+                                className={`relative group border border-slate-800 p-0 ${marcado ? 'bg-amber-500/20' : ''}`}
                               >
                                 <input
                                   type="text"
@@ -519,7 +532,11 @@ const DadosApp: React.FC = () => {
                                   onKeyDown={aoTeclarCelula}
                                   onPaste={(e) => aoColarCelula(e, aba.id, tabela.id, r, coluna)}
                                   data-marcado={marcado ? '1' : undefined}
-                                  className={`w-full bg-transparent px-4 py-2 pr-10 text-xl font-bold outline-none focus:bg-slate-900 ${
+                                  className={`w-full px-4 py-2 pr-10 text-xl font-bold outline-none ${
+                                    selecionada
+                                      ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500'
+                                      : 'bg-transparent focus:bg-slate-900'
+                                  } ${
                                     marcado ? 'text-amber-200' : tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
                                   }`}
                                 />
@@ -608,6 +625,16 @@ const DadosApp: React.FC = () => {
         )}
       </div>
     </div>
+    <OrdenarTabela
+      aberto={Boolean(ordenando)}
+      titulos={ordenando?.titulos ?? []}
+      onFechar={() => setOrdenando(null)}
+      onOrdenar={(coluna, direcao) => {
+        if (!ordenando) return;
+        setDados((d) => ordenarPorColuna(d, ordenando.abaId, ordenando.tabelaId, coluna, direcao));
+        setOrdenando(null);
+      }}
+    />
     {desfazerAba && (
       <div className="fixed left-1/2 bottom-6 -translate-x-1/2 z-[200] flex items-center gap-4 bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3 shadow-2xl max-w-[92vw]">
         <span className="text-sm font-bold text-slate-200 truncate">

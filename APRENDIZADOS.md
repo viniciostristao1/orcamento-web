@@ -5,6 +5,44 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Dados: ordenar por coluna + ajustes na seleção (v0.24.0)
+
+**Pedidos:** (1) um botão **ao lado do excluir tabela** para **ordenar uma coluna** (ex.: ordem
+alfabética); (2) **bug**: ao arrastar a seleção, o destaque começava da **2ª coluna em diante** (a
+1ª só aparecia no que era copiado); (3) ao **clicar numa célula já selecionada**, deixar só ela
+marcada (**desmarcar as demais**).
+
+**Feito:**
+- **Ordenar** (`ordenarPorColuna` em `dados/utils/tabelas.ts`): `Intl.Collator('pt-BR',
+  { numeric: true, sensitivity: 'base' })` — compara "8 UN" < "10 UN" (numérico), ignora
+  acentos/caixa e joga vazios para o fim; reordena `linhas` e `marcados` **juntos**; direção
+  `asc`/`desc`.
+- **UI** (`dados/components/OrdenarTabela.tsx`): botão `ArrowUpDown` no `<th>` de opções (ao lado
+  da lixeira; a lixeira virou `p-1.5` para caberem os dois) que abre a janelinha **"Ordenar por
+  coluna"** com **↑AZ / ↓AZ** por coluna. Como o `.overflow-x-auto` da tabela **cliparia** um
+  dropdown, o painel é **fixo e centrado**, renderizado **fora do `ui-compacta`** (mesmo padrão do
+  toast do Desfazer — o zoom 75% deformaria um `position: fixed` dentro). Fecha no X, no overlay
+  e no Esc.
+- **Bug do destaque:** o `<td>` ficava com `bg-blue-600/30`, mas o input focado tem
+  `focus:bg-slate-900` opaco por cima → a célula âncora (a focada) parecia não selecionada.
+  Passei o destaque para **o próprio input**: quando `selecionada`, ele usa
+  `bg-blue-600/35 ring-2 ring-inset ring-blue-500` (e não aplica o `focus:bg-slate-900`).
+- **Clique desmarca as demais:** `iniciarSelecao` agora sempre faz seleção de **uma célula**
+  (antes, clicar dentro do bloco mantinha o bloco); Shift+clique continua estendendo. Para copiar
+  o bloco: arrastar e logo Ctrl+C (sem clicar de novo).
+
+**Validação:** typecheck limpo; **92 testes** (+1 puro de `ordenarPorColuna` com numérico/vazio/
+caixinha acompanhando; +1 smoke abrindo a janelinha e conferindo A–Z/Z–A; o smoke de seleção
+ganhou o "clicar numa desmarca as demais"); build ok; no Chromium: arrastar marcou **3 células
+com a 1ª destacada** (fundo computado azul 35%), clicar numa deixou **1**, e ordenar a coluna 1
+deu **ARROZ, MORANGO, ZEBRA**.
+
+**Gotchas:**
+- Painel de ordenação dentro do `overflow-x-auto` **não funciona** (clip): fixo + fora do
+  `ui-compacta` resolve sem portal.
+- O destaque tem de ficar no **input**, não no `<td>`: o input preenche a célula e cobre o fundo
+  do `<td>` quando focado (era a causa do "bug" relatado).
+
 ## 2026-09-28 — Dados: selecionar várias células (arrastar/Ctrl+C) e colar de planilha (v0.23.0)
 
 **Pedido:** não dava para **selecionar várias células** para copiar; e ao **colar de uma planilha

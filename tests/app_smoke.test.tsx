@@ -444,6 +444,36 @@ describe('App — smoke test (render + processar)', () => {
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
     fireEvent.keyDown(celulas()[0], { key: 'c', ctrlKey: true });
     expect(escrever).toHaveBeenCalledWith('CARE042501\tVIA TANQUE FLEX\tTUNAP 939');
+
+    // clicar numa célula da seleção deixa só ela marcada (desmarca as demais)
+    fireEvent.mouseDown(celulas()[1]);
+    expect(container.querySelectorAll('[data-selecionada="1"]')).toHaveLength(1);
+  });
+
+  it('aba Dados: ordenar a tabela por uma coluna (A–Z / Z–A)', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+
+    const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    fireEvent.change(celulas()[0], { target: { value: 'ZEBRA' } });
+    fireEvent.change(celulas()[2], { target: { value: 'ARROZ' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ordenar tabela' }));
+    expect(screen.getByText('Ordenar por coluna')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ordenar Coluna 1 crescente' }));
+    expect(celulas()[0].value).toBe('ARROZ');
+    expect(celulas()[2].value).toBe('ZEBRA');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ordenar tabela' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ordenar Coluna 1 decrescente' }));
+    expect(celulas()[0].value).toBe('ZEBRA');
   });
 
   it('valores: colar formata (milhar/centavos) e a vassoura limpa', () => {
