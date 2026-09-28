@@ -5,6 +5,38 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Dados: selecionar várias células (arrastar/Ctrl+C) e colar de planilha (v0.23.0)
+
+**Pedido:** não dava para **selecionar várias células** para copiar; e ao **colar de uma planilha
+do Notion** (`CARE042501\tVIA TANQUE FLEX\tTUNAP 939\tR$ 199,89\t R$ 5,00`) tudo caía numa
+célula só — cada item deveria ir para uma célula.
+
+**Feito:**
+- **Colar bloco:** novo **`colarBloco`** em `dados/utils/tabelas.ts` (puro): recebe a matriz,
+  começa na célula do paste, **cria linhas** quando o bloco passa do fim (com `marcados: false`),
+  escreve o que couber nas colunas existentes e **apara** cada valor. No `DadosApp`, o `onPaste`
+  só intercepta quando o texto tem **TAB/CR/LF** (senão deixa o paste normal, ex.: valor único).
+- **Seleção de bloco:** estado `selecao { tabelaId, r1,c1,r2,c2 }` + `arrastandoSelecao` (ref):
+  `onMouseDown` na célula ancora (Shift+clique estende; clicar **dentro** da seleção **mantém** o
+  bloco — sem isso, focar a célula para copiar zerava a seleção), `onMouseEnter` no `<td>` estende
+  enquanto arrasta, `mouseup` na janela encerra. Destaque `bg-blue-600/30 ring-2 ring-inset` +
+  `data-selecionada` (testes). **Ctrl+C** com +1 célula copia `linhas.slice(...).map(join('\t')).join('\n')`
+  (uma célula só continua sendo o copiar normal do navegador); **Esc** limpa.
+- **Dica** embaixo da tabela: "Arraste sobre as células para selecionar · Ctrl+C copia · cole uma
+  planilha que o TAB distribui".
+
+**Validação:** typecheck limpo; **90 testes** (+1 puro de `colarBloco` cobrindo criação de linha,
+coluna a mais ignorada e paste no meio; +1 smoke com o texto real do Notion, arrastar 3 células e
+Ctrl+C); build ok; no Chromium (Ctrl+V de verdade via clipboard): a linha colou em **5 células**,
+o arrastar marcou **3 células** e o Ctrl+C devolveu `"CARE042501\tVIA TANQUE FLEX\tTUNAP 939"`.
+
+**Gotchas:**
+- `mouseenter` não borbulha; o React trata via delegação e o `fireEvent.mouseEnter` do Testing
+  Library funciona com `onMouseEnter` (usado no teste).
+- `document.getSelection()?.removeAllRanges()` durante o arrastar evita a seleção azul de texto
+  atravessando os inputs.
+- A seleção é por tabela (`tabelaId`); em outra tabela nada fica marcado.
+
 ## 2026-09-28 — Botões "Limpar" com borracha (v0.22.1)
 
 **Pedido:** trocar a **lixeira** pelo **ícone de borracha** nos cards **DESCRIÇÃO DO REPARO**,

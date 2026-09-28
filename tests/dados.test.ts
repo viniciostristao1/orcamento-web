@@ -19,6 +19,7 @@ import {
   removerLinha,
   renomearAba,
   removerTabela,
+  colarBloco,
   salvarDados,
 } from '../src/dados/utils/tabelas';
 
@@ -57,6 +58,33 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
 
     d = removerTabela(d, ABA_PECAS, id);
     expect(d.abas[0].tabelas).toHaveLength(0);
+  });
+
+  it('cola bloco em grade: cria linhas quando precisa e ignora colunas além da tabela', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 3);
+    const id = d.abas[0].tabelas[0].id;
+
+    // cola 2 linhas x 3 colunas numa tabela vazia (cria as linhas)
+    d = colarBloco(d, ABA_PECAS, id, 0, 0, [
+      ['CARE042501', 'VIA TANQUE FLEX', 'TUNAP 939'],
+      ['CARE042502', 'FILTRO DE AR', 'MANN'],
+    ]);
+    let t = d.abas[0].tabelas[0];
+    expect(t.linhas).toHaveLength(2);
+    expect(t.linhas[0]).toEqual(['CARE042501', 'VIA TANQUE FLEX', 'TUNAP 939']);
+    expect(t.linhas[1][0]).toBe('CARE042502');
+    expect(t.marcados).toEqual([false, false]);
+
+    // bloco mais largo que a tabela: o que passa das colunas é ignorado
+    d = colarBloco(d, ABA_PECAS, id, 2, 1, [['X', 'Y', 'Z', 'W']]);
+    t = d.abas[0].tabelas[0];
+    expect(t.linhas[2]).toEqual(['', 'X', 'Y']);
+    expect(t.linhas).toHaveLength(3);
+
+    // bloco no meio não cria linhas extras
+    d = colarBloco(d, ABA_PECAS, id, 0, 1, [['ok']]);
+    expect(d.abas[0].tabelas[0].linhas[0][1]).toBe('ok');
+    expect(d.abas[0].tabelas[0].linhas).toHaveLength(3);
   });
 
   it('remove coluna (título, largura e células) e nunca deixa a tabela sem colunas', () => {

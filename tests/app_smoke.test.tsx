@@ -408,6 +408,44 @@ describe('App — smoke test (render + processar)', () => {
     confirmar.mockRestore();
   });
 
+  it('aba Dados: colar planilha distribui nas células e arrastar seleciona várias para copiar', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '5' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+
+    const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    const tds = () => container.querySelectorAll<HTMLElement>('tbody td');
+
+    // colar do Notion: TAB separa colunas (o espaço extra é aparado)
+    fireEvent.paste(celulas()[0], {
+      clipboardData: { getData: () => 'CARE042501\tVIA TANQUE FLEX\tTUNAP 939\tR$ 199,89\t R$ 5,00' },
+    });
+    expect(Array.from(celulas()).slice(0, 5).map((i) => i.value)).toEqual([
+      'CARE042501',
+      'VIA TANQUE FLEX',
+      'TUNAP 939',
+      'R$ 199,89',
+      'R$ 5,00',
+    ]);
+
+    // arrastar da célula 1-1 até 1-3 seleciona as três
+    fireEvent.mouseDown(celulas()[0]);
+    fireEvent.mouseEnter(tds()[1]);
+    fireEvent.mouseEnter(tds()[2]);
+    expect(container.querySelectorAll('[data-selecionada="1"]')).toHaveLength(3);
+
+    // Ctrl+C copia o bloco (TAB entre colunas)
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    fireEvent.keyDown(celulas()[0], { key: 'c', ctrlKey: true });
+    expect(escrever).toHaveBeenCalledWith('CARE042501\tVIA TANQUE FLEX\tTUNAP 939');
+  });
+
   it('valores: colar formata (milhar/centavos) e a vassoura limpa', () => {
     render(<App />);
     const campos = screen.getAllByPlaceholderText('0,00');

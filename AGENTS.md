@@ -73,7 +73,7 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **88 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **90 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
@@ -199,6 +199,13 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   (não existe mais a barra só com esse botão) e **busca que abre a sub-aba e grifa o termo**.
   ⚠️ Os botões de ação (copiar/excluir) usam **`tabIndex={-1}`** para o TAB pular de célula em
   célula (pedido do usuário). Entra no backup.
+- **Selecionar/colar células em grade** (v0.23.0): **arrastar** com o mouse (ou **Shift+clique**)
+  seleciona um bloco de células (destaque azul, `data-selecionada`); **Ctrl+C** copia o bloco com
+  **TAB entre colunas e Enter entre linhas**; clicar **dentro** da seleção mantém o bloco (para
+  focar/zerar o caret) e **Esc** limpa. **Colar de planilha/Notion**: se o texto tem TAB/Enter,
+  o `onPaste` distribui o bloco a partir da célula via **`colarBloco`** (cria linhas quando passa
+  do fim, ignora colunas além da tabela e apara espaços) — colar simples continua normal.
+  Dica fixa embaixo da tabela ("Arraste… Ctrl+C…").
 - **Rótulos editáveis** (v0.17.0): `utils/rotulos.ts` (`rotulos_v1`) + `RotulosProvider` +
   `TituloEditavel` — **duplo clique** renomeia os botões das abas do topo e os títulos internos
   das telas (visual preservado: azul / duas cores / simples). No backup geral.

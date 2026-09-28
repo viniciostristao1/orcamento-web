@@ -254,6 +254,38 @@ export const removerColuna = (
     };
   });
 
+/**
+ * Cola um bloco (matriz de strings) começando na célula `(linha, coluna)`:
+ * cria linhas quando o bloco passa do fim e ignora colunas além das existentes
+ * (mesmo comportamento de planilha). As linhas novas entram com caixinha
+ * desmarcada.
+ */
+export const colarBloco = (
+  dados: DadosTabelas,
+  abaId: string,
+  id: string,
+  linha: number,
+  coluna: number,
+  bloco: string[][],
+): DadosTabelas =>
+  atualizarTabela(dados, abaId, id, (t) => {
+    if (bloco.length === 0) return t;
+    const linhas = t.linhas.map((l) => [...l]);
+    const marcados = [...t.marcados];
+    bloco.forEach((valores, i) => {
+      const r = linha + i;
+      while (linhas.length <= r) {
+        linhas.push(Array.from({ length: t.colunas }, () => ''));
+        marcados.push(false);
+      }
+      valores.forEach((v, j) => {
+        const c = coluna + j;
+        if (c < t.colunas) linhas[r][c] = v;
+      });
+    });
+    return { ...t, linhas, marcados };
+  });
+
 /** Marca/desmarca a caixinha da linha (risca a linha na tela). */
 export const alternarMarcada = (dados: DadosTabelas, abaId: string, id: string, linha: number): DadosTabelas =>
   atualizarTabela(dados, abaId, id, (t) => ({

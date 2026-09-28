@@ -10,6 +10,7 @@ import {
   atualizarLargura,
   atualizarTitulo,
   celulaContem,
+  colarBloco,
   criarAba,
   criarTabela,
   encontrar,
@@ -34,6 +35,9 @@ const DadosApp: React.FC = () => {
   const [abaRenomeando, setAbaRenomeando] = useState<string | null>(null);
   const [nomeSubAba, setNomeSubAba] = useState('');
   const [copiado, setCopiado] = useState<string | null>(null);
+  // Seleção de várias células (arrastar / Shift+clique) para copiar o bloco.
+  const [selecao, setSelecao] = useState<{ tabelaId: string; r1: number; c1: number; r2: number; c2: number } | null>(null);
+  const arrastandoSelecao = useRef(false);
   // Sub-aba recém-excluída (para o "Desfazer") + timer que esconde o aviso.
   const [desfazerAba, setDesfazerAba] = useState<{ aba: AbaDados; idx: number } | null>(null);
   const desfazerTimer = useRef<number | null>(null);
@@ -137,6 +141,83 @@ const DadosApp: React.FC = () => {
   const excluirColuna = (abaId: string, tabelaId: string, coluna: number) => {
     if (!window.confirm('Tem certeza que deseja excluir esta coluna?')) return;
     setDados((d) => removerColuna(d, abaId, tabelaId, coluna));
+  };
+
+  // Solta o mouse em qualquer lugar encerra o "arrastar para selecionar".
+  useEffect(() => {
+    const soltar = () => { arrastandoSelecao.current = false; };
+    window.addEventListener('mouseup', soltar);
+    return () => window.removeEventListener('mouseup', soltar);
+  }, []);
+
+  // Começa a seleção na célula. Shift+clique estende e clicar DENTRO da
+  // seleção atual mantém o bloco (não zera — dá para focar e copiar).
+  const iniciarSelecao = (tabelaId: string, r: number, c: number, shift: boolean) => {
+    setSelecao((s) => {
+      if (shift && s && s.tabelaId === tabelaId) return { ...s, r2: r, c2: c };
+      if (s && s.tabelaId === tabelaId && celulaNaSelecao(tabelaId, r, c)) return s;
+      return { tabelaId, r1: r, c1: c, r2: r, c2: c };
+    });
+    arrastandoSelecao.current = true;
+  };
+
+  // Passar o mouse (com o botão pressionado) pelas células estende a seleção.
+  const estenderSelecao = (tabelaId: string, r: number, c: number) => {
+    if (!arrastandoSelecao.current) return;
+    setSelecao((s) => (s && s.tabelaId === tabelaId ? (s.r2 === r && s.c2 === c ? s : { ...s, r2: r, c2: c }) : s));
+    document.getSelection()?.removeAllRanges();
+  };
+
+  const celulaNaSelecao = (tabelaId: string, r: number, c: number): boolean => {
+    if (!selecao || selecao.tabelaId !== tabelaId) return false;
+    const rA = Math.min(selecao.r1, selecao.r2);
+    const rB = Math.max(selecao.r1, selecao.r2);
+    const cA = Math.min(selecao.c1, selecao.c2);
+    const cB = Math.max(selecao.c1, selecao.c2);
+    return r >= rA && r <= rB && c >= cA && c <= cB;
+  };
+
+  // Ctrl+C com mais de uma célula selecionada copia o bloco (TAB entre colunas,
+  // Enter entre linhas) — igual a copiar de uma planilha.
+  const aoTeclarCelula = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setSelecao(null);
+      return;
+    }
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'c' || !selecao) return;
+    const tabela = aba?.tabelas.find((t) => t.id === selecao.tabelaId);
+    if (!tabela) return;
+    const rA = Math.min(selecao.r1, selecao.r2);
+    const rB = Math.max(selecao.r1, selecao.r2);
+    const cA = Math.min(selecao.c1, selecao.c2);
+    const cB = Math.max(selecao.c1, selecao.c2);
+    if (rA === rB && cA === cB) return; // uma célula só: deixa o copiar normal
+    e.preventDefault();
+    const texto = tabela.linhas
+      .slice(rA, rB + 1)
+      .map((l) => l.slice(cA, cB + 1).join('\t'))
+      .join('\n');
+    navigator.clipboard.writeText(texto);
+  };
+
+  // Colar de planilha/Notion: TAB separa colunas e Enter separa linhas — o
+  // bloco é distribuído a partir da célula (cria linhas se precisar).
+  const aoColarCelula = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    abaId: string,
+    tabelaId: string,
+    r: number,
+    c: number,
+  ) => {
+    const texto = e.clipboardData.getData('text/plain');
+    if (!texto || (!texto.includes('\t') && !texto.includes('\n') && !texto.includes('\r'))) return;
+    e.preventDefault();
+    const bloco = texto
+      .replace(/\r/g, '')
+      .replace(/\n+$/, '')
+      .split('\n')
+      .map((l) => l.split('\t').map((v) => v.trim()));
+    setDados((d) => colarBloco(d, abaId, tabelaId, r, c, bloco));
   };
 
   return (
@@ -369,6 +450,7 @@ const DadosApp: React.FC = () => {
                                 type="text"
                                 value={titulo}
                                 onChange={(e) => setDados((d) => atualizarTitulo(d, aba.id, tabela.id, coluna, e.target.value))}
+                                onMouseDown={() => setSelecao(null)}
                                 data-marcado={marcado ? '1' : undefined}
                                 className={`w-full bg-transparent px-4 py-2.5 pr-10 text-lg font-black uppercase outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-100'}`}
                               />
@@ -418,16 +500,24 @@ const DadosApp: React.FC = () => {
                         <tr key={r}>
                           {linha.map((valor, coluna) => {
                             const marcado = buscaAtiva && celulaContem(valor, busca);
+                            const selecionada = celulaNaSelecao(tabela.id, r, coluna);
                             const chave = `${tabela.id}-${r}-${coluna}`;
                             return (
                               <td
                                 key={coluna}
-                                className={`relative group border border-slate-800 p-0 ${marcado ? 'bg-amber-500/20' : ''}`}
+                                data-selecionada={selecionada ? '1' : undefined}
+                                onMouseEnter={() => estenderSelecao(tabela.id, r, coluna)}
+                                className={`relative group border border-slate-800 p-0 ${
+                                  marcado ? 'bg-amber-500/20' : ''
+                                } ${selecionada ? 'bg-blue-600/30 ring-2 ring-inset ring-blue-500' : ''}`}
                               >
                                 <input
                                   type="text"
                                   value={valor}
                                   onChange={(e) => setDados((d) => atualizarCelula(d, aba.id, tabela.id, r, coluna, e.target.value))}
+                                  onMouseDown={(e) => iniciarSelecao(tabela.id, r, coluna, e.shiftKey)}
+                                  onKeyDown={aoTeclarCelula}
+                                  onPaste={(e) => aoColarCelula(e, aba.id, tabela.id, r, coluna)}
                                   data-marcado={marcado ? '1' : undefined}
                                   className={`w-full bg-transparent px-4 py-2 pr-10 text-xl font-bold outline-none focus:bg-slate-900 ${
                                     marcado ? 'text-amber-200' : tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
@@ -496,7 +586,7 @@ const DadosApp: React.FC = () => {
                   </table>
                 </div>
 
-                <div className="p-3 border-t border-slate-800 bg-slate-950/30">
+                <div className="p-3 border-t border-slate-800 bg-slate-950/30 flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
@@ -506,6 +596,11 @@ const DadosApp: React.FC = () => {
                   >
                     <Plus size={18} strokeWidth={2.5} />
                   </button>
+                  {tabela.linhas.length > 0 && (
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-600">
+                      Arraste sobre as células para selecionar · Ctrl+C copia · cole uma planilha que o TAB distribui
+                    </span>
+                  )}
                 </div>
               </div>
             );
