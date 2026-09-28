@@ -62,7 +62,7 @@ const TireFlyerApp: React.FC = () => {
       contato: contato.trim(),
       medida: parsed.measure,
       inputText,
-      numPneus: parsed.tires.length,
+      numMarcas: parsed.tires.length,
     });
   };
 

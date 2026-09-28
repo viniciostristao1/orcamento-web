@@ -11,9 +11,7 @@ interface ConfiguracoesTemaProps {
 // `fundo`/`acento` alimentam a mini-amostra de cor ao lado de cada tema.
 const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento: string }[] = [
   { id: 'azul', nome: 'Azul', descricao: 'Visual clássico (azul e cinza-escuro)', fundo: '#0f172a', acento: '#3b82f6' },
-  { id: 'terracota', nome: 'Terracota', descricao: 'Escuro com laranja terroso', fundo: '#000000', acento: '#d97757' },
   { id: 'papel', nome: 'Claro Papel', descricao: 'Modo claro, fundo papel', fundo: '#eef0f3', acento: '#2563eb' },
-  { id: 'executivo', nome: 'Executivo Premium', descricao: 'Marinho com dourado, títulos serifados', fundo: '#0b1020', acento: '#c9a24a' },
   { id: 'whatsapp', nome: 'Verde WhatsApp', descricao: 'Escuro com o verde do Zap', fundo: '#0b141a', acento: '#25d366' },
   { id: 'tecnico', nome: 'Monocromático Técnico', descricao: 'Cinza com laranja, bem sóbrio', fundo: '#101012', acento: '#ff6a00' },
   { id: 'suave', nome: 'Suave Arredondado', descricao: 'Escuro quente, coral e cantos macios', fundo: '#1a1720', acento: '#ff7a66' },

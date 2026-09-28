@@ -43,6 +43,9 @@ const DadosApp: React.FC = () => {
   // Seleção de várias células (arrastar / Shift+clique) para copiar o bloco.
   const [selecao, setSelecao] = useState<{ tabelaId: string; r1: number; c1: number; r2: number; c2: number } | null>(null);
   const arrastandoSelecao = useRef(false);
+  // Refs das células da tabela, para TAB/Enter levarem o foco junto do destaque.
+  const refsCelulas = useRef<Map<string, HTMLInputElement>>(new Map());
+  const chaveCelula = (tabelaId: string, r: number, c: number) => `${tabelaId}:${r}:${c}`;
   // Ocorrência da busca em destaque (Enter pula para a próxima, estilo "1 de N").
   const [ocorrenciaAtual, setOcorrenciaAtual] = useState(0);
   // Tabela aberta na janelinha de ordenação (por coluna).
@@ -206,17 +209,60 @@ const DadosApp: React.FC = () => {
       .map((l) => l.slice(cA, cB + 1).join('\t'))
       .join('\n');
 
+  // TAB/Enter movem o destaque E o foco juntos (como numa planilha): TAB anda
+  // para a direita (na última coluna, desce para a 1ª da linha de baixo) e
+  // Enter desce uma linha; Shift+Tab/Shift+Enter voltam.
+  const moverSelecao = (
+    tabela: TabelaDados,
+    r: number,
+    c: number,
+    destino: 'direita' | 'esquerda' | 'baixo' | 'cima',
+  ) => {
+    let nr = r;
+    let nc = c;
+    if (destino === 'direita') {
+      nc = c + 1;
+      if (nc >= tabela.colunas) {
+        nc = 0;
+        nr = r + 1;
+      }
+    } else if (destino === 'esquerda') {
+      nc = c - 1;
+      if (nc < 0) {
+        nc = tabela.colunas - 1;
+        nr = r - 1;
+      }
+    } else if (destino === 'baixo') {
+      nr = r + 1;
+    } else {
+      nr = r - 1;
+    }
+    if (nr < 0 || nr >= tabela.linhas.length) return; // fora da tabela: não move
+    setSelecao({ tabelaId: tabela.id, r1: nr, c1: nc, r2: nr, c2: nc });
+    refsCelulas.current.get(chaveCelula(tabela.id, nr, nc))?.focus();
+  };
+
   // Atalhos do bloco selecionado: Ctrl+C copia, Ctrl+X recorta (copia e apaga)
   // e Delete/Backspace apagam as células — igual a uma planilha. Com uma célula
   // só, tudo continua nativo (cortar/apagar parte do texto dentro da célula).
-  const aoTeclarCelula = (e: React.KeyboardEvent) => {
+  const aoTeclarCelula = (e: React.KeyboardEvent, tabela: TabelaDados, r: number, c: number) => {
     if (e.key === 'Escape') {
       setSelecao(null);
       return;
     }
-    if (!selecao) return;
-    const tabela = aba?.tabelas.find((t) => t.id === selecao.tabelaId);
-    if (!tabela) return;
+    if (!(e.ctrlKey || e.metaKey || e.altKey)) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        moverSelecao(tabela, r, c, e.shiftKey ? 'esquerda' : 'direita');
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        moverSelecao(tabela, r, c, e.shiftKey ? 'cima' : 'baixo');
+        return;
+      }
+    }
+    if (!selecao || selecao.tabelaId !== tabela.id) return;
     const rA = Math.min(selecao.r1, selecao.r2);
     const rB = Math.max(selecao.r1, selecao.r2);
     const cA = Math.min(selecao.c1, selecao.c2);
@@ -579,9 +625,14 @@ const DadosApp: React.FC = () => {
                                 <input
                                   type="text"
                                   value={valor}
+                                  ref={(el) => {
+                                    const k = chaveCelula(tabela.id, r, coluna);
+                                    if (el) refsCelulas.current.set(k, el);
+                                    else refsCelulas.current.delete(k);
+                                  }}
                                   onChange={(e) => setDados((d) => atualizarCelula(d, aba.id, tabela.id, r, coluna, e.target.value))}
                                   onMouseDown={(e) => iniciarSelecao(tabela.id, r, coluna, e.shiftKey)}
-                                  onKeyDown={aoTeclarCelula}
+                                  onKeyDown={(e) => aoTeclarCelula(e, tabela, r, coluna)}
                                   onPaste={(e) => aoColarCelula(e, aba.id, tabela.id, r, coluna)}
                                   data-marcado={marcado ? '1' : undefined}
                                   data-atual={atualAqui ? '1' : undefined}

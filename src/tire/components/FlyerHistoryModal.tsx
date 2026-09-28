@@ -151,7 +151,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
                   <span className="text-amber-300">{r.medida}</span>
                   <span className="text-slate-600"> · </span>
                   <span className="text-slate-400">
-                    {r.numPneus} {r.numPneus === 1 ? 'pneu' : 'pneus'}
+                    {r.numMarcas} {r.numMarcas === 1 ? 'marca' : 'marcas'}
                   </span>
                 </span>
                 <div className="flex items-center gap-2">

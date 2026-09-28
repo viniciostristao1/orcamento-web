@@ -127,9 +127,13 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByRole('button', { name: /Exportar backup/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Importar backup/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByText('Terracota'));
-    expect(document.documentElement.dataset.tema).toBe('terracota');
-    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('terracota');
+    // temas removidos na v0.29.0 não aparecem mais
+    expect(screen.queryByText('Terracota')).toBeNull();
+    expect(screen.queryByText('Executivo Premium')).toBeNull();
+
+    fireEvent.click(screen.getByText('Claro Papel'));
+    expect(document.documentElement.dataset.tema).toBe('papel');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('papel');
 
     // um dos temas novos
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
@@ -149,11 +153,13 @@ describe('App — smoke test (render + processar)', () => {
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('azul');
   });
 
-  it('migra os nomes de tema antigos (original→azul, claude→terracota)', () => {
-    localStorage.setItem('orcamentos_tema_v1', 'claude');
-    const { unmount } = render(<App />);
-    expect(document.documentElement.dataset.tema).toBe('terracota');
-    unmount();
+  it('migra nomes antigos e descarta os temas removidos (claude/terracota/executivo → azul)', () => {
+    for (const antigo of ['claude', 'terracota', 'executivo']) {
+      localStorage.setItem('orcamentos_tema_v1', antigo);
+      const { unmount } = render(<App />);
+      expect(document.documentElement.dataset.tema).toBe('azul');
+      unmount();
+    }
 
     localStorage.setItem('orcamentos_tema_v1', 'original');
     render(<App />);
@@ -193,9 +199,10 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvos[0].medida).toBe('265/60R18');
     expect(salvos[0].criadoEm).toMatch(/\d{2}\/\d{2}\/\d{4}/);
 
-    // abre o histórico e pesquisa pelo contato
+    // abre o histórico e pesquisa pelo contato (a contagem é de MARCAS, não de pneus)
     fireEvent.click(screen.getByRole('button', { name: 'Histórico do Tire Flyer' }));
     expect(screen.getByText('JOAO ABC1D23')).toBeTruthy();
+    expect(screen.getByText(/\d+ marcas?/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar por contato, data ou medida/i), {
       target: { value: 'abc-1d23' },
@@ -500,6 +507,46 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.keyDown(celulas()[1], { key: 'Backspace' });
     fireEvent.keyDown(celulas()[1], { key: 'Delete' });
     expect(celulas()[1].value).toBe('R$ 100');
+  });
+
+  it('aba Dados: TAB/Enter levam o destaque junto com o foco (como planilha)', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+
+    const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    const destaque = () => Array.from(celulas()).findIndex((i) => i.closest('td')?.dataset.selecionada === '1');
+
+    fireEvent.mouseDown(celulas()[0]);
+    expect(destaque()).toBe(0);
+
+    // TAB anda para a direita (o destaque acompanha o foco)
+    fireEvent.keyDown(celulas()[0], { key: 'Tab' });
+    expect(document.activeElement).toBe(celulas()[1]);
+    expect(destaque()).toBe(1);
+
+    // TAB na última coluna desce para a 1ª da linha de baixo
+    fireEvent.keyDown(celulas()[1], { key: 'Tab' });
+    expect(document.activeElement).toBe(celulas()[2]);
+    expect(destaque()).toBe(2);
+
+    // Enter desce uma linha e Shift+Enter volta
+    fireEvent.keyDown(celulas()[2], { key: 'Enter' });
+    expect(document.activeElement).toBe(celulas()[4]);
+    expect(destaque()).toBe(4);
+    fireEvent.keyDown(celulas()[4], { key: 'Enter', shiftKey: true });
+    expect(document.activeElement).toBe(celulas()[2]);
+
+    // Shift+Tab volta da 1ª coluna para a última da linha de cima
+    fireEvent.keyDown(celulas()[2], { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(celulas()[1]);
+    expect(destaque()).toBe(1);
   });
 
   it('aba Dados: Enter na busca percorre as ocorrências (1 de N) e destaca a atual', () => {

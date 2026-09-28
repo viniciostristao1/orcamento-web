@@ -7,8 +7,12 @@ export interface FlyerSalvo {
   medida: string;
   /** A tabela colada (para reabrir o flyer). */
   inputText: string;
-  numPneus: number;
+  /** Quantas marcas foram cotadas (uma linha da tabela = uma marca). */
+  numMarcas: number;
 }
+
+/** Registro antigo, de antes da v0.29.0 (o campo chamava `numPneus`). */
+type FlyerSalvoAntigo = Omit<FlyerSalvo, 'numMarcas'> & { numMarcas?: number; numPneus?: number };
 
 const CHAVE = 'flyer_historico_v1';
 const MAX = 100;
@@ -18,7 +22,12 @@ export function listarFlyerHistorico(): FlyerSalvo[] {
     const raw = localStorage.getItem(CHAVE);
     if (!raw) return [];
     const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? (arr as FlyerSalvo[]) : [];
+    if (!Array.isArray(arr)) return [];
+    // Migra registros antigos (`numPneus` → `numMarcas`) ao ler.
+    return (arr as FlyerSalvoAntigo[]).map((r) => ({
+      ...r,
+      numMarcas: Number(r.numMarcas ?? r.numPneus ?? 0),
+    }));
   } catch {
     return [];
   }

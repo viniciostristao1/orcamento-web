@@ -5,6 +5,39 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Flyer "MARCAS", temas removidos, técnico sem negrito e TAB/Enter (v0.29.0)
+
+**Pedidos:** (1) no histórico do Tire Flyer, trocar "N PNEUS" por **"N MARCAS"** (a contagem é a
+quantidade de marcas cotadas); (2) **remover os temas Terracota e Executivo Premium**; (3) no
+**Monocromático Técnico**, tirar o **negrito do conteúdo digitado nas células**; (4) **TAB/Enter**
+na tabela Dados devem levar o **destaque** junto com o foco (hoje o grifado ficava parado e só o
+foco andava).
+
+**Feito:**
+- **Flyer**: campo renomeado `numPneus` → `numMarcas` (migração ao ler em
+  `listarFlyerHistorico`: `numMarcas ?? numPneus ?? 0`); o modal mostra `N marca(s)`.
+- **Temas**: `terracota`/`executivo` saíram do type, da lista do `ConfiguracoesTema` e os blocos
+  CSS (+ imports `source-serif-4` e `fraunces`); quem tinha um deles salvo cai no **azul**
+  (`TEMAS_VALIDOS`) e `claude` legado mapeia para `azul`.
+- **Técnico**: `[data-tema='tecnico'] tbody td input[type='text'] { font-weight: 400 }` — só o
+  corpo da tabela Dados (cabeçalho continua negrito; saídas não mudam).
+- **TAB/Enter**: `moverSelecao` (direita/esquerda com quebra de linha, baixo/cima) + mapa
+  `refsCelulas` (`id:linha:coluna` → input): TAB/Shift+Tab e Enter/Shift+Enter levam `setSelecao`
+  de célula única **e** `.focus()`; nas bordas da tabela não move. O handler virou
+  `aoTeclarCelula(e, tabela, r, c)`.
+
+**Validação:** typecheck/lint limpos; **99 testes** (+2: migração `numPneus→numMarcas`; smoke do
+TAB/Enter conferindo foco + `data-selecionada`, quebra de linha e Shift); build caiu de 1.546 kB
+para **1.251 kB** (as fontes serifadas embutidas saíram); Chromium headless: menu com os **6
+temas**, célula do técnico `font-weight: 400`, TAB/Enter movendo destaque + `activeElement`, e
+histórico semeado com `numPneus: 4` exibindo **"4 MARCAS"**.
+
+**Gotchas:**
+- Tipo do registro antigo: `Omit<FlyerSalvo,'numMarcas'> & { numMarcas?: number; numPneus?: number }`
+  — **não** usar `Partial` (deixa `id`/`criadoEm` opcionais e o TS quebra).
+- O destaque e o foco agora são sempre movidos juntos; o `focus:bg-slate-900` continua para
+  indicar onde se edita.
+
 ## 2026-09-28 — Dados: contador na busca; Whats: cartão compacto com lista (v0.28.0)
 
 **Pedidos:** (1) Dados: mostrar a **quantidade de termos dentro do próprio campo de pesquisa**,

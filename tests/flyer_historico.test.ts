@@ -12,7 +12,7 @@ const base = {
   contato: 'JOÃO ABC1D23',
   medida: '265/60R18',
   inputText: '265/60R18\tMARCA\tÀ PRAZO\n1\tFirestone\tR$ 1.000,00',
-  numPneus: 1,
+  numMarcas: 1,
 };
 
 describe('histórico do Tire Flyer (localStorage)', () => {
@@ -23,8 +23,17 @@ describe('histórico do Tire Flyer (localStorage)', () => {
     const lista = listarFlyerHistorico();
     expect(lista).toHaveLength(1);
     expect(lista[0].contato).toBe('JOÃO ABC1D23');
-    expect(lista[0].numPneus).toBe(1);
+    expect(lista[0].numMarcas).toBe(1);
     expect(removerDoFlyerHistorico(lista[0].id)).toEqual([]);
+  });
+
+  it('migra registros antigos (numPneus → numMarcas)', () => {
+    localStorage.setItem(
+      'flyer_historico_v1',
+      JSON.stringify([{ ...base, numPneus: 4, numMarcas: undefined }]),
+    );
+    const lista = listarFlyerHistorico();
+    expect(lista[0].numMarcas).toBe(4);
   });
 
   it('não duplica quando a tabela e o contato são os mesmos', () => {

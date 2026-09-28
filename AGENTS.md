@@ -18,12 +18,11 @@ O app tem **quatro abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — c
 pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e **Whats** (v0.7.0 —
 contatos, template de mensagem e backup JSON para disparos mensais no WhatsApp). As três abas
 compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
-da interface. São **8 temas**: **Azul** (era "Original", azul/slate), **Terracota**
-(era "Claude", cinzas + laranja, serifada), **Claro Papel** (modo claro), **Executivo Premium**
-(marinho + dourado), **Verde WhatsApp**, **Monocromático Técnico** (cinza + laranja), **Suave
-Arredondado** (coral) e **Grafite** (v0.19.0 — estilo das tabelas do Claude.ai: quase-preto,
-cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só para a interface**
-— o PNG do cliente não muda.
+da interface. São **6 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium):
+**Azul** (padrão, era "Original"), **Claro Papel** (modo claro), **Verde WhatsApp**,
+**Monocromático Técnico** (cinza + laranja), **Suave Arredondado** (coral) e **Grafite**
+(v0.19.0 — estilo das tabelas do Claude.ai: quase-preto, cabeçalho mais claro, grade sutil,
+fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do cliente não muda.
 
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
 - **Uso local no PC**: o app final é **UM arquivo `.html`** aberto com duplo clique no Chrome,
@@ -56,10 +55,8 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   `rows={3}`) → RESUMO LÍQUIDO** (pares de valores, v0.14.0/0.14.1); **preview do orçamento na metade** na tela
   (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
   impressão sai normal). Título interno **ORÇAMENTOS** na cor de acento (v0.7.7) e títulos dos
-  cards em **maiúsculas no texto-fonte** (o tema Claude tira o `text-transform`).
-- **Claude** (v0.7.7; fundo atrás dos cards `#000` na v0.8.0; painel/bordas mais escuros na
-  v0.8.3): campo `#000000`, painel `#060605`, bordas `#141412/#212120`; textos brancos.
-  Histórico com fontes maiores (data 16px, descrição 18px, valores 16px).
+  cards em **maiúsculas no texto-fonte**.
+- **Histórico com fontes maiores** (v0.7.7): data 16px, descrição 18px, valores 16px.
 - **Títulos das abas** (v0.8.3): centralizados, sem a linha embaixo e sem subtítulo
   (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards.
 - **Botões são ícone-only** (v0.8.0): sempre com `aria-label` + `title` com o texto da ação —
@@ -91,8 +88,7 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   **telefone/chassi saíram de baixo da observação** e agora só aparecem ao clicar no **ícone de
   lista** (`List`, painel com telefone e chassi, **cada um com copiar**), deixando o cartão mais
   baixo; o botão **copiar mensagem** foi removido. "NOTIFICAR" abre `wa.me` e marca como
-  concluído; status verde em `green-*` (o `emerald-*` é remapeado para o laranja no tema Claude).
-  `@google/genai` do template original **não** entrou.
+  concluído; status verde em `green-*`. `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
   `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,
@@ -104,27 +100,27 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   `localStorage` `orcamentos_tema_v1`) com as paletas em `index.css` (`@theme inline` remapeando
   os tokens do Tailwind para `--tema-*`). Botão **Configurações** no header
   (`components/ConfiguracoesTema.tsx`). Logo Toyota transparente no header
-  (`src/assets/logo_toyota.png`). No **Claude** os títulos/valores usam a serifada
-  (`@fontsource/source-serif-4`, classe `.titulo-tema`), **o conteúdo dos campos também**
-  (`--tema-fonte-conteudo`), o fundo é bem escuro (`#0f0f0e`, campos `#080807`, cards
-  `#171716`), sem glow nos cards e sem sombra nos botões. **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
+  (`src/assets/logo_toyota.png`). **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
-  - **8 temas (v0.18.0 + Grafite na v0.19.0):** `Claude` foi renomeado p/ `terracota` e `original`
-    p/ `azul` (`lerTemaSalvo` **migra** os nomes antigos). Temas novos = `papel` (modo **claro**),
-    `executivo` (marinho+dourado, Fraunces), `whatsapp` (verde), `tecnico` (cinza+laranja),
-    `suave` (coral, cantos macios) e **`grafite`** (estilo tabela do Claude.ai: `#0c0c0c`,
-    cabeçalho `#161616`, grade `#242424`, Plus Jakarta Sans, acento azul) — cada um é um bloco
-    `[data-tema='x']` com os ~26 tokens `--tema-*` + fontes `@fontsource` (space-grotesk, fraunces,
-    manrope, poppins, chivo, **plus-jakarta-sans**).
+  - **6 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`):**
+    `claude`/`original` antigos caem em `azul` (`lerTemaSalvo` **migra**/descarta os nomes antigos,
+    inclusive quem tinha `terracota`/`executivo` salvo). Temas = `azul`, `papel` (modo **claro**),
+    `whatsapp` (verde), `tecnico` (cinza+laranja), `suave` (coral, cantos macios) e **`grafite`**
+    (estilo tabela do Claude.ai: `#0c0c0c`, cabeçalho `#161616`, grade `#242424`, Plus Jakarta
+    Sans, acento azul) — cada um é um bloco `[data-tema='x']` com os ~26 tokens `--tema-*` +
+    fontes `@fontsource` (space-grotesk, manrope, poppins, chivo, **plus-jakarta-sans**).
     ⚠️ Ao mexer em modo claro: literais **não** remapeados pelo `@theme inline` (ex.:
     `text-emerald-100`) não seguem o tema e podem sumir no fundo branco — usar tokens (600/500/400/900).
-    ⚠️ Estilo de tabela por tema (grafite): as células da aba Dados usam `border-slate-800`
-    (`--tema-borda-forte`) = grade; regras `[data-tema='grafite'] thead th{...}` deixam o cabeçalho
-    mais claro, títulos em **negrito** e as células do corpo em peso normal (v0.19.1). NÃO usar
-    `[data-tema='x'] textarea{font}` (quebra o mono dos dados). "Adicionar linha" = só um "+".
+    ⚠️ Estilo de tabela por tema: as células da aba Dados usam `border-slate-800`
+    (`--tema-borda-forte`) = grade; `[data-tema='grafite'] thead th{...}` deixa o cabeçalho mais
+    claro, títulos em **negrito** e o corpo em peso normal (v0.19.1); no **técnico** o conteúdo
+    digitado nas células também fica **sem negrito** (`[data-tema='tecnico'] tbody td input[type='text']`,
+    v0.29.0). NÃO usar `[data-tema='x'] textarea{font}` (quebra o mono dos dados).
+    "Adicionar linha" = só um "+".
     O seletor tem mini-amostra de cor + rolagem. Validado por screenshot headless do `dist`.
 - **Histórico do Tire Flyer + CONTATO** (v0.12.0): `tire/utils/historicoFlyer.ts`
-  (`flyer_historico_v1`) salva a cada "Processar" (`data/hora · contato · medida · N pneus`);
+  (`flyer_historico_v1`) salva a cada "Processar" (`data/hora · contato · medida · N marcas`;
+  era "N pneus" até a v0.29.0 — registros antigos migram `numPneus` → `numMarcas` ao ler);
   busca por contato/data/medida (sem acento); card **CONTATO** (campo livre, só no histórico)
   no lugar do antigo LAYOUT DE EXPORTAÇÃO; modal `FlyerHistoryModal`.
 - **Aba Tire Flyer** (v0.4.0): `src/App.tsx` = shell com as abas (as duas ficam montadas, a
@@ -226,6 +222,9 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   Desde a v0.26.0 **Ctrl+X recorta** (copia e apaga) e **Delete/Backspace apagam** o bloco
   selecionado via **`limparBloco`** — com **uma célula só** os atalhos continuam nativos (editar
   o texto dentro da célula), e nada fora do retângulo muda.
+  Desde a v0.29.0 **TAB/Enter movem o destaque junto com o foco** (`moverSelecao` + mapa de
+  `refsCelulas`): TAB anda para a direita e, na última coluna, desce para a 1ª da linha de baixo;
+  Enter desce uma linha; Shift+Tab/Shift+Enter voltam — parando nas bordas da tabela.
   **Colar de planilha/Notion**: se o texto tem TAB/Enter, o `onPaste` distribui o bloco a partir
   da célula via **`colarBloco`** (cria linhas quando passa do fim, ignora colunas além da tabela
   e apara espaços) — colar simples continua normal.
@@ -271,8 +270,8 @@ orcamento_web/
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
     utils/historico.ts       HISTÓRICO local (localStorage) + backup/restaurar JSON
     utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
-    utils/tema.ts            tema da interface (Original/Claude) + persistência
-                             (fontes/paleta em index.css; .titulo-tema = serifada do Claude)
+    utils/tema.ts            tema da interface (6 temas; azul padrão) + persistência
+                             (fontes/paleta em index.css; .titulo-tema = fonte do tema)
     assets/logo_toyota.png   logo do header (fundo transparente)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/ConfiguracoesTema.tsx engrenagem: escolhe o tema
@@ -364,9 +363,10 @@ npm run build        # gera dist/index.html (arquivo único)
   entra no PNG do cliente.
 - **Segunda aba "Tire Flyer"** (v0.4.0), no header ao lado da marca, para o gerador de promoção
   de pneus; as duas abas ficam montadas para não perder o que foi digitado.
-- **Temas** (v0.5.0): **Original** (atual) e **Claude** (escuro, cinzas + laranja) escolhidos
-  em **Configurações**; o tema vale só para a interface (PNGs iguais). As duas abas no mesmo
-  estilo (a de pneus foi igualada à de orçamentos) e o logo Toyota no header.
+- **Temas** (v0.5.0): escolhidos em **Configurações**; o tema vale só para a interface (PNGs
+  iguais). Hoje são 6 (Azul padrão, Papel, WhatsApp, Técnico, Suave e Grafite) — Terracota e
+  Executivo foram removidos na v0.29.0. As duas abas no mesmo estilo (a de pneus foi igualada à
+  de orçamentos) e o logo Toyota no header.
 - **Layout do flyer de pneus** (v0.20.0; cores na v0.21.0): além do **clássico** (mantido como
   padrão), o "Tabela de ofertas" e o "Etiqueta de preço" (ideias 4 e 7 de
   `ideias/tire-flyer-valores.md`) + "Laranja Queima-Estoque", "Vermelho Racing" e "Amarelo
