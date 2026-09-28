@@ -21,6 +21,7 @@ import {
   renomearAba,
   removerTabela,
   colarBloco,
+  limparBloco,
   ordenarPorColuna,
   salvarDados,
 } from '../src/dados/utils/tabelas';
@@ -87,6 +88,32 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     d = colarBloco(d, ABA_PECAS, id, 0, 1, [['ok']]);
     expect(d.abas[0].tabelas[0].linhas[0][1]).toBe('ok');
     expect(d.abas[0].tabelas[0].linhas).toHaveLength(3);
+  });
+
+  it('limpa um bloco de células (Ctrl+X / Delete) sem tocar no resto', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 3);
+    const id = d.abas[0].tabelas[0].id;
+    d = colarBloco(d, ABA_PECAS, id, 0, 0, [
+      ['A', 'B', 'C'],
+      ['D', 'E', 'F'],
+      ['G', 'H', 'I'],
+    ]);
+
+    // retângulo no meio + coordenadas invertidas (como vem da seleção)
+    d = limparBloco(d, ABA_PECAS, id, 0, 2, 1, 1);
+    let t = d.abas[0].tabelas[0];
+    expect(t.linhas).toEqual([
+      ['A', '', ''],
+      ['D', '', ''],
+      ['G', 'H', 'I'],
+    ]);
+    // não mexe nos títulos nem nas caixinhas
+    expect(t.titulos).toEqual(['Coluna 1', 'Coluna 2', 'Coluna 3']);
+    expect(t.marcados).toEqual([false, false, false]);
+
+    // bloco fora dos limites é ignorado
+    d = limparBloco(d, ABA_PECAS, id, 9, 9, 12, 12);
+    expect(d.abas[0].tabelas[0].linhas[2]).toEqual(['G', 'H', 'I']);
   });
 
   it('adiciona coluna no fim (e respeita o limite de 12)', () => {

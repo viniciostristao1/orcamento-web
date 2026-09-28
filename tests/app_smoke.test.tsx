@@ -377,6 +377,10 @@ describe('App — smoke test (render + processar)', () => {
     const excluirTabela = screen.getByRole('button', { name: 'Excluir tabela' });
     expect(container.querySelector('thead button[aria-label="Excluir tabela"]')).toBeNull();
     expect(excluirTabela.parentElement?.contains(screen.getByRole('button', { name: 'Adicionar linha' }))).toBe(true);
+    // a barra tem a largura da tabela: o excluir fica sob a última coluna/linha
+    expect((excluirTabela.parentElement as HTMLElement).style.width).toBe(
+      (container.querySelector('table') as HTMLTableElement).style.width,
+    );
 
     // os botões de ação ficam fora da ordem do TAB (TAB vai de célula em célula)
     expect(screen.getByRole('button', { name: /Copiar célula 1-1/i }).tabIndex).toBe(-1);
@@ -447,9 +451,34 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.keyDown(celulas()[0], { key: 'c', ctrlKey: true });
     expect(escrever).toHaveBeenCalledWith('CARE042501\tVIA TANQUE FLEX\tTUNAP 939');
 
+    // Delete apaga o bloco todo (sem tocar nas células fora dele)
+    fireEvent.keyDown(celulas()[0], { key: 'Delete' });
+    expect(Array.from(celulas()).slice(0, 5).map((i) => i.value)).toEqual([
+      '',
+      '',
+      '',
+      'R$ 199,89',
+      'R$ 5,00',
+    ]);
+
+    // recoloca e Ctrl+X recorta (copia e apaga)
+    fireEvent.paste(celulas()[0], {
+      clipboardData: { getData: () => 'CARE042501\tVIA TANQUE FLEX\tTUNAP 939' },
+    });
+    escrever.mockClear();
+    fireEvent.keyDown(celulas()[0], { key: 'x', ctrlKey: true });
+    expect(escrever).toHaveBeenCalledWith('CARE042501\tVIA TANQUE FLEX\tTUNAP 939');
+    expect(Array.from(celulas()).slice(0, 3).map((i) => i.value)).toEqual(['', '', '']);
+
     // clicar numa célula da seleção deixa só ela marcada (desmarca as demais)
     fireEvent.mouseDown(celulas()[1]);
     expect(container.querySelectorAll('[data-selecionada="1"]')).toHaveLength(1);
+
+    // com uma célula só, Backspace/Delete continuam editando o texto da célula
+    fireEvent.change(celulas()[1], { target: { value: 'R$ 100' } });
+    fireEvent.keyDown(celulas()[1], { key: 'Backspace' });
+    fireEvent.keyDown(celulas()[1], { key: 'Delete' });
+    expect(celulas()[1].value).toBe('R$ 100');
   });
 
   it('aba Dados: botão ao lado de ordenar/excluir adiciona uma coluna', () => {

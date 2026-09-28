@@ -5,6 +5,7 @@ import OrdenarTabela from './components/OrdenarTabela';
 import {
   type AbaDados,
   type DadosTabelas,
+  type TabelaDados,
   MAX_COLUNAS,
   adicionarColuna,
   adicionarLinha,
@@ -17,6 +18,7 @@ import {
   criarTabela,
   encontrar,
   lerDados,
+  limparBloco,
   alternarMarcada,
   ordenarPorColuna,
   removerAba,
@@ -180,27 +182,39 @@ const DadosApp: React.FC = () => {
     return r >= rA && r <= rB && c >= cA && c <= cB;
   };
 
-  // Ctrl+C com mais de uma célula selecionada copia o bloco (TAB entre colunas,
-  // Enter entre linhas) — igual a copiar de uma planilha.
+  // Texto de um bloco de células (TAB entre colunas, Enter entre linhas) —
+  // mesmo formato de copiar de uma planilha.
+  const textoDoBloco = (tabela: TabelaDados, rA: number, rB: number, cA: number, cB: number): string =>
+    tabela.linhas
+      .slice(rA, rB + 1)
+      .map((l) => l.slice(cA, cB + 1).join('\t'))
+      .join('\n');
+
+  // Atalhos do bloco selecionado: Ctrl+C copia, Ctrl+X recorta (copia e apaga)
+  // e Delete/Backspace apagam as células — igual a uma planilha. Com uma célula
+  // só, tudo continua nativo (cortar/apagar parte do texto dentro da célula).
   const aoTeclarCelula = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setSelecao(null);
       return;
     }
-    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'c' || !selecao) return;
+    if (!selecao) return;
     const tabela = aba?.tabelas.find((t) => t.id === selecao.tabelaId);
     if (!tabela) return;
     const rA = Math.min(selecao.r1, selecao.r2);
     const rB = Math.max(selecao.r1, selecao.r2);
     const cA = Math.min(selecao.c1, selecao.c2);
     const cB = Math.max(selecao.c1, selecao.c2);
-    if (rA === rB && cA === cB) return; // uma célula só: deixa o copiar normal
+    if (rA === rB && cA === cB) return; // uma célula só: deixa o comportamento normal
+    const ctrl = e.ctrlKey || e.metaKey;
+    const tecla = e.key.toLowerCase();
+    if (ctrl && tecla !== 'c' && tecla !== 'x') return;
+    if (!ctrl && e.key !== 'Delete' && e.key !== 'Backspace') return;
     e.preventDefault();
-    const texto = tabela.linhas
-      .slice(rA, rB + 1)
-      .map((l) => l.slice(cA, cB + 1).join('\t'))
-      .join('\n');
-    navigator.clipboard.writeText(texto);
+    if (ctrl) navigator.clipboard.writeText(textoDoBloco(tabela, rA, rB, cA, cB));
+    if ((ctrl && tecla === 'x') || !ctrl) {
+      setDados((d) => limparBloco(d, aba.id, selecao.tabelaId, rA, cA, rB, cB));
+    }
   };
 
   // Colar de planilha/Notion: TAB separa colunas e Enter separa linhas — o
@@ -605,28 +619,33 @@ const DadosApp: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
-                </div>
-
-                <div className="p-3 border-t border-slate-800 bg-slate-950/30 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
-                    aria-label="Adicionar linha"
-                    title="Adicionar linha"
-                    className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                  {/* Barra de baixo com a largura da tabela: o + fica abaixo da
+                      1ª coluna e o excluir tabela abaixo da última coluna/linha
+                      (e rolam juntos quando a tabela é mais larga que o card). */}
+                  <div
+                    style={{ width: larguraTotal }}
+                    className="p-3 border-x border-b border-slate-800 bg-slate-950/30 flex items-center justify-between"
                   >
-                    <Plus size={18} strokeWidth={2.5} />
-                  </button>
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
-                    aria-label="Excluir tabela"
-                    title="Excluir tabela"
-                    className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
+                      aria-label="Adicionar linha"
+                      title="Adicionar linha"
+                      className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                    >
+                      <Plus size={18} strokeWidth={2.5} />
+                    </button>
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
+                      aria-label="Excluir tabela"
+                      title="Excluir tabela"
+                      className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );

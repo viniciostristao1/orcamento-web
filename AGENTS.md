@@ -198,7 +198,10 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo**; no
   **cabeçalho da coluna de opções** ficam **adicionar coluna (+)** — escondido no limite de 12 —
   e **ordenar** (v0.24.0), e a **barra de baixo** tem o **+ de adicionar linha à esquerda** e o
-  **excluir tabela à direita** (v0.25.1; a dica de arrastar/colar saiu). As ações da linha
+  **excluir tabela à direita** (v0.25.1; a dica de arrastar/colar saiu) — desde a v0.26.0 a barra
+  tem **a largura da tabela** (`larguraTotal`), então fica sempre **abaixo da última linha** e a
+  lixeira **abaixo da última coluna** (quando a tabela é mais larga que o card, rolam juntas).
+  As ações da linha
   (caixinha, copiar e excluir) usam **o mesmo tamanho de botão e o mesmo vão** (`w-6 h-6` +
   `gap-1.5`); a largura da coluna de ações é fixa em **92px**.
   ⚠️ Os botões de ação (copiar/excluir) usam **`tabIndex={-1}`** para o TAB pular de célula em
@@ -208,9 +211,12 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   `focus:bg-slate-900` cobria o destaque do `<td>` — a 1ª célula parecia não selecionada);
   **Ctrl+C** copia o bloco com **TAB entre colunas e Enter entre linhas**; **clicar numa célula
   da seleção deixa só ela marcada** (desmarca as demais, pedido do usuário) e **Esc** limpa.
+  Desde a v0.26.0 **Ctrl+X recorta** (copia e apaga) e **Delete/Backspace apagam** o bloco
+  selecionado via **`limparBloco`** — com **uma célula só** os atalhos continuam nativos (editar
+  o texto dentro da célula), e nada fora do retângulo muda.
   **Colar de planilha/Notion**: se o texto tem TAB/Enter, o `onPaste` distribui o bloco a partir
   da célula via **`colarBloco`** (cria linhas quando passa do fim, ignora colunas além da tabela
-  e apara espaços) — colar simples continua normal. Dica fixa embaixo ("Arraste… Ctrl+C…").
+  e apara espaços) — colar simples continua normal.
 - **Ordenar tabela** (v0.24.0): botão **ao lado do excluir tabela** no cabeçalho da coluna de
   opções (`ArrowUpDown`, `aria-label="Ordenar tabela"`) abre a janelinha **"Ordenar por coluna"**
   (`dados/components/OrdenarTabela.tsx`, renderizada **fora do `ui-compacta`** como o toast do

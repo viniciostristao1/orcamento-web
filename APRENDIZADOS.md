@@ -5,6 +5,42 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Dados: Ctrl+X/Delete no bloco + barra de baixo sob a última coluna (v0.26.0)
+
+**Pedidos:** (1) **Ctrl+X não funcionava** quando havia várias células selecionadas, assim como
+**deletar várias células** (Delete/Backspace); (2) o **botão de excluir tabela** deve ficar
+sempre **abaixo da última coluna e linha** (não lá na direita do card quando a tabela é estreita).
+
+**Feito:**
+- **`limparBloco` (puro, `dados/utils/tabelas.ts`)**: apaga o conteúdo de um retângulo de células
+  existentes; aceita coordenadas invertidas (como vêm da seleção), **não** mexe nos títulos, nas
+  caixinhas nem fora do bloco, e ignora retângulos fora dos limites.
+- **`aoTeclarCelula` (DadosApp)**: além do Ctrl+C, agora trata **Ctrl+X** (escreve no clipboard o
+  mesmo texto do Ctrl+C e chama `limparBloco`) e **Delete/Backspace** (limpa o bloco). Com **uma
+  célula só** nada é interceptado — Ctrl+C/X e Backspace/Delete continuam nativos para editar o
+  texto dentro da célula. O texto do bloco saiu para o helper `textoDoBloco` (TAB entre colunas,
+  Enter entre linhas).
+- **Barra de baixo**: saiu de baixo do card e entrou **dentro do `overflow-x-auto`**, com
+  `style={{ width: larguraTotal }}` (mesma largura da `<table>`, `border-x border-b`): o **+**
+  fica sob a 1ª coluna e a **lixeira sob a última coluna**, logo abaixo da última linha; quando a
+  tabela é mais larga que o card, a barra **rola junto** com ela.
+
+**Validação:** `typecheck` + `lint` limpos (só warnings antigos); **95 testes** (+1 puro do
+`limparBloco`; o smoke da seleção agora cobre Delete e Ctrl+X e garante que célula única segue
+editável, e o smoke da barra confere que a largura da barra = largura da tabela); build
+`dist/index.html` autocontido (1.545 kB); conferido no **Chromium headless** (Playwright por CDP
+com o chromium-1243 do cache): tabela 452 / barra 451 px (1px de borda colapsada), `barTop ===
+tableBottom`, lixeira **dentro** do intervalo da última coluna, e arrastar 2×2 + Delete /
+2 células + Ctrl+X apagam exatamente o bloco.
+
+**Gotchas:**
+- O input é sempre "edição": por isso os atalhos só valem para **bloco com mais de uma célula** —
+  senão o usuário não conseguiria apagar/cortar parte do texto de uma célula.
+- `navigator.clipboard.writeText` no headless pode rejeitar (sem permissão) — o recorte **continua
+  limpando** as células (a rejeição não é awaitada, igual ao Ctrl+C existente).
+- A barra com `width: larguraTotal` pode ficar ~1px menor que a `<table>` no modelo de bordas
+  colapsadas — imperceptível (medido: 451 vs 452).
+
 ## 2026-09-28 — Dados: excluir tabela na barra de baixo + dica removida (v0.25.1)
 
 **Pedidos:** (1) remover a frase "Arraste sobre as células para selecionar · Ctrl+C copia · cole

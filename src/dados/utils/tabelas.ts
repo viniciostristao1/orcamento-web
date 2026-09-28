@@ -303,6 +303,34 @@ export const colarBloco = (
   });
 
 /**
+ * Apaga o conteúdo de um bloco retangular de células existentes (recortar com
+ * Ctrl+X ou apagar com Delete/Backspace). Não mexe nos títulos, nas caixinhas
+ * nem em nada fora do retângulo; as coordenadas podem vir invertidas.
+ */
+export const limparBloco = (
+  dados: DadosTabelas,
+  abaId: string,
+  id: string,
+  linha1: number,
+  coluna1: number,
+  linha2: number,
+  coluna2: number,
+): DadosTabelas =>
+  atualizarTabela(dados, abaId, id, (t) => {
+    const rA = Math.max(0, Math.min(linha1, linha2));
+    const rB = Math.min(t.linhas.length - 1, Math.max(linha1, linha2));
+    const cA = Math.max(0, Math.min(coluna1, coluna2));
+    const cB = Math.min(t.colunas - 1, Math.max(coluna1, coluna2));
+    if (rA > rB || cA > cB) return t;
+    return {
+      ...t,
+      linhas: t.linhas.map((l, r) =>
+        r >= rA && r <= rB ? l.map((v, c) => (c >= cA && c <= cB ? '' : v)) : l,
+      ),
+    };
+  });
+
+/**
  * Ordena as linhas por uma coluna (A–Z / Z–A). Usa `Intl.Collator` com
  * `numeric` (então "8 UN" vem antes de "10 UN") e mantém a caixinha de cada
  * linha junto com ela; valores vazios ficam no fim.
