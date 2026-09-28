@@ -483,8 +483,7 @@ const DadosApp: React.FC = () => {
                             </th>
                           );
                         })}
-                        {/* Cabeçalho da coluna de opções: adicionar coluna, ordenar
-                            a tabela e excluir a tabela ficam aqui. */}
+                        {/* Cabeçalho da coluna de opções: adicionar coluna e ordenar. */}
                         <th className="border border-slate-800 bg-slate-950/60 p-1 text-center">
                           <span className="inline-flex items-center justify-center gap-1">
                             {tabela.colunas < MAX_COLUNAS && (
@@ -508,16 +507,6 @@ const DadosApp: React.FC = () => {
                               className="inline-flex items-center justify-center p-1.5 bg-slate-800 hover:bg-blue-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
                             >
                               <ArrowUpDown size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
-                              aria-label="Excluir tabela"
-                              title="Excluir tabela"
-                              className="inline-flex items-center justify-center p-1.5 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
-                            >
-                              <Trash2 size={14} />
                             </button>
                           </span>
                         </th>
@@ -618,7 +607,7 @@ const DadosApp: React.FC = () => {
                   </table>
                 </div>
 
-                <div className="p-3 border-t border-slate-800 bg-slate-950/30 flex items-center gap-3">
+                <div className="p-3 border-t border-slate-800 bg-slate-950/30 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
@@ -628,11 +617,16 @@ const DadosApp: React.FC = () => {
                   >
                     <Plus size={18} strokeWidth={2.5} />
                   </button>
-                  {tabela.linhas.length > 0 && (
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-600">
-                      Arraste sobre as células para selecionar · Ctrl+C copia · cole uma planilha que o TAB distribui
-                    </span>
-                  )}
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
+                    aria-label="Excluir tabela"
+                    title="Excluir tabela"
+                    className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
             );

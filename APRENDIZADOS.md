@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Dados: excluir tabela na barra de baixo + dica removida (v0.25.1)
+
+**Pedidos:** (1) remover a frase "Arraste sobre as células para selecionar · Ctrl+C copia · cole
+uma planilha que o TAB distribui"; (2) tirar o **excluir tabela** do cabeçalho e colocá-lo na
+**mesma barra do adicionar linha, no lado oposto** (à direita).
+
+**Feito:** a barra inferior virou `flex items-center justify-between` com o **+** (adicionar
+linha) à esquerda e a **lixeira** (excluir tabela) à direita — o botão continua com
+`aria-label`/`title` "Excluir tabela" e `tabIndex={-1}`. O `<th>` de opções ficou só com
+**adicionar coluna +** e **ordenar**. O `span` da dica foi removido.
+
+**Validação:** typecheck limpo; **94 testes** (o smoke do excluir tabela agora confere que ele
+**não** está no `thead` e que divide a barra com o adicionar linha); build ok; screenshot do
+`dist` confirma **+** à esquerda e lixeira à direita, sem a frase.
+
 ## 2026-09-28 — Dados: adicionar coluna no cabeçalho + espaçamento das ações da linha (v0.25.0)
 
 **Pedidos:** (1) botão para **adicionar coluna** ao lado do ordenar e do excluir tabela;

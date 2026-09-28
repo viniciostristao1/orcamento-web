@@ -361,7 +361,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(document.querySelectorAll('[data-marcado="1"]').length).toBeGreaterThan(0);
   });
 
-  it('aba Dados: excluir tabela mora no cabeçalho e a linha tem copiar + excluir com confirmação', () => {
+  it('aba Dados: excluir tabela fica na barra de baixo e a linha tem copiar + excluir com confirmação', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);
     fireEvent.click(screen.getByText('Dados'));
@@ -373,8 +373,10 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(celulas[0], { target: { value: 'PNEU A' } });
     fireEvent.change(celulas[1], { target: { value: 'R$ 100' } });
 
-    // o excluir tabela agora fica como título da coluna de opções (thead)
-    expect(container.querySelector('thead button[aria-label="Excluir tabela"]')).toBeTruthy();
+    // o excluir tabela fica na barra de baixo, do lado oposto ao adicionar linha
+    const excluirTabela = screen.getByRole('button', { name: 'Excluir tabela' });
+    expect(container.querySelector('thead button[aria-label="Excluir tabela"]')).toBeNull();
+    expect(excluirTabela.parentElement?.contains(screen.getByRole('button', { name: 'Adicionar linha' }))).toBe(true);
 
     // os botões de ação ficam fora da ordem do TAB (TAB vai de célula em célula)
     expect(screen.getByRole('button', { name: /Copiar célula 1-1/i }).tabIndex).toBe(-1);

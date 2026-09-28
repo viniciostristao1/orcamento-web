@@ -195,9 +195,10 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   opção **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
   **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
   **copiar célula** (hover), **copiar a linha toda** (hover, células com TAB), **excluir linha e
-  excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo** e, no
-  **cabeçalho da coluna de opções** (que substituiu a barra só do excluir): **adicionar coluna
-  (+)** — escondido no limite de 12 —, **ordenar** e **excluir tabela**. As ações da linha
+  excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo**; no
+  **cabeçalho da coluna de opções** ficam **adicionar coluna (+)** — escondido no limite de 12 —
+  e **ordenar** (v0.24.0), e a **barra de baixo** tem o **+ de adicionar linha à esquerda** e o
+  **excluir tabela à direita** (v0.25.1; a dica de arrastar/colar saiu). As ações da linha
   (caixinha, copiar e excluir) usam **o mesmo tamanho de botão e o mesmo vão** (`w-6 h-6` +
   `gap-1.5`); a largura da coluna de ações é fixa em **92px**.
   ⚠️ Os botões de ação (copiar/excluir) usam **`tabIndex={-1}`** para o TAB pular de célula em
