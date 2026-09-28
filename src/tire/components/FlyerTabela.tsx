@@ -49,7 +49,7 @@ export const FlyerTabela: React.FC<FlyerTabelaProps> = ({ data }) => (
                 {tire.brand}
               </td>
               <td className={`px-3.5 py-3 text-center text-[17px] font-extrabold text-slate-600 tabular-nums whitespace-nowrap ${ultima ? '' : 'border-b-2 border-slate-100'}`}>
-                10x de {formatarPreco(tire.priceInstallment)}
+                {formatarPreco(tire.priceInstallment)}
               </td>
               <td className={`px-3.5 py-3 text-center text-[25px] font-black text-[#15803d] tabular-nums whitespace-nowrap ${ultima ? '' : 'border-b-2 border-slate-100'}`}>
                 {formatarPreco(tire.priceCash)}

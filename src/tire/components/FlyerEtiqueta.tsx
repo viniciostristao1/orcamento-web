@@ -48,9 +48,9 @@ export const FlyerEtiqueta: React.FC<FlyerEtiquetaProps> = ({ data }) => (
           </div>
 
           <div className="flex-none bg-slate-900 text-white rounded-2xl px-3.5 py-2.5 text-center">
-            <div className="text-[10px] tracking-[0.14em] font-black text-slate-400 uppercase">ou em até</div>
+            <div className="text-[10px] tracking-[0.14em] font-black text-slate-400 uppercase">ou em até 10x</div>
             <div className="text-[19px] font-black text-[#2ecc71] whitespace-nowrap">
-              10x {formatarPreco(tire.priceInstallment)}
+              {formatarPreco(tire.priceInstallment)}
             </div>
           </div>
         </div>

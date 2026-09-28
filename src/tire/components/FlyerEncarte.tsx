@@ -61,7 +61,7 @@ export const FlyerEncarte: React.FC<FlyerEncarteProps> = ({ data }) => (
                   idx === data.tires.length - 1 ? '' : 'border-b-2 border-[#e5e7eb]'
                 }`}
               >
-                10x de {formatarPreco(tire.priceInstallment)}
+                {formatarPreco(tire.priceInstallment)}
               </td>
               <td
                 className={`px-3.5 py-3 text-center text-2xl font-black text-[#b91c1c] whitespace-nowrap tabular-nums ${

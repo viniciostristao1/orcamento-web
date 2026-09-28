@@ -5,6 +5,23 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Ajustes de texto nos flyers (v0.24.1)
+
+**Pedidos do usuário:**
+1. **Tabela de ofertas** e **Amarelo Encarte**: o título da coluna já diz "EM ATÉ 10X", então a
+   célula não deve repetir "10x de R$ …" — deve mostrar **só o valor**, como a coluna do à vista.
+2. **Etiqueta de preço**: na plaquinha azul-escura, o "10x" deve ficar **na mesma linha do
+   "OU EM ATÉ"** (senão parece "10x de um valor que é unidade").
+
+**Feito:**
+- `FlyerTabela.tsx` e `FlyerEncarte.tsx`: célula do 10x agora imprime só
+  `formatarPreco(tire.priceInstallment)`.
+- `FlyerEtiqueta.tsx`: plaquinha ficou com a 1ª linha **"ou em até 10x"** e a 2ª com o valor.
+
+**Validação:** typecheck limpo; 92 testes passando; build ok; screenshots do `dist` conferidos nos
+3 layouts (tabela, etiqueta e encarte) — as alturas caíram um pouco porque o texto encurtou
+(tabela 897→852, encarte 953→928).
+
 ## 2026-09-28 — Dados: ordenar por coluna + ajustes na seleção (v0.24.0)
 
 **Pedidos:** (1) um botão **ao lado do excluir tabela** para **ordenar uma coluna** (ex.: ordem
