@@ -5,6 +5,46 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Aba Dados: ações por linha/coluna + excluir tabela no cabeçalho + TAB (v0.22.0)
+
+**Pedido (4 itens):** (1) excluir linha deve pedir **"tem certeza?"**; (2) botão do lado da
+caixinha/excluir para **copiar a linha toda** de uma vez; (3) o **excluir tabela** deve subir
+para a **célula do cabeçalho da coluna de opções** (como se fosse o título dela), sumindo com a
+barra que existia só para ele; (4) por fim, uma opção para **excluir coluna**. Depois: (5) com
+**TAB** dentro da célula o foco ia para o **botão copiar** da célula — deve ir para a **célula ao
+lado**.
+
+**Feito (`src/dados/`):**
+- **Excluir linha** (`excluirLinha` no `DadosApp`): `window.confirm('Tem certeza que deseja
+  excluir esta linha?')` antes de `removerLinha`.
+- **Copiar linha** (`copiarLinha`): junta as células com **TAB** (`linha.join('\t').trim()`) e usa
+  o mesmo feedback verde (✓) do copiar célula; botão na célula de ações, entre a caixinha e o X.
+- **Excluir tabela** saiu da barra superior (a `div` inteira foi removida) e virou o conteúdo do
+  `<th>` da coluna de opções (`thead button[aria-label="Excluir tabela"]`).
+- **Excluir coluna** (novo `removerColuna` em `utils/tabelas.ts`): remove título, largura e a
+  célula correspondente em cada linha; **nunca deixa 0 colunas** (guarda `colunas <= 1`); botão
+  X no hover do `<th>` (só aparece com >1 coluna) com `window.confirm` antes.
+- **TAB célula → célula:** todos os botões-ícone de ação (copiar célula, excluir coluna, copiar
+  linha, excluir linha e excluir tabela) receberam **`tabIndex={-1}`** — o TAB agora segue o fluxo
+  natural dos inputs (cabeçalho → linhas). A caixinha continua tabulável.
+- Largura da coluna de ações subiu de 88/44 para **92 (com caixinhas) / 64 (sem)** para caber o
+  terceiro botão.
+
+**Validação:** typecheck limpo; **88 testes** (+1 puro de `removerColuna`; o smoke cobre
+TAB fora da ordem (`tabIndex -1`), copiar linha com TAB, confirmação de linha/coluna e o botão
+de excluir tabela no `thead`); build ok; no Chromium, TAB na 1ª célula foca a 2ª célula
+(`INPUT` com o valor ao lado), copiar linha devolve `"PNEU A\tR$ 100"`, excluir coluna pede
+confirmação e remove (2→1 colunas), e o diário de diálogos registrou só
+`"Tem certeza que deseja excluir esta coluna?"`.
+
+**Gotchas:**
+- Os botões com `opacity-0 group-hover:opacity-100` **continuam clicáveis mesmo invisíveis** —
+  por isso o `<th>` ganhou `pr-10` no input de título (o X de excluir coluna não cobre o texto).
+- `removerColuna` devolve a mesma tabela quando `colunas <= 1` (referência igual): o `setDados`
+  não muda nada, evitando estado inconsistente com o botão escondido.
+- Nos testes jsdom, `navigator.clipboard` não existe: o teste define
+  `Object.defineProperty(navigator, 'clipboard', ...)` antes de clicar em copiar.
+
 ## 2026-09-27 — Tire Flyer: +3 layouts coloridos (laranja, racing, encarte) (v0.21.0)
 
 **Pedido:** o usuário aprovou 3 ideias da galeria de cores nova

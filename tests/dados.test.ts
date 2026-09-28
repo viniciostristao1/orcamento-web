@@ -15,6 +15,7 @@ import {
   estadoInicial,
   lerDados,
   removerAba,
+  removerColuna,
   removerLinha,
   renomearAba,
   removerTabela,
@@ -56,6 +57,30 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
 
     d = removerTabela(d, ABA_PECAS, id);
     expect(d.abas[0].tabelas).toHaveLength(0);
+  });
+
+  it('remove coluna (título, largura e células) e nunca deixa a tabela sem colunas', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 3);
+    const id = d.abas[0].tabelas[0].id;
+    d = adicionarLinha(d, ABA_PECAS, id);
+    d = atualizarCelula(d, ABA_PECAS, id, 0, 0, 'A');
+    d = atualizarCelula(d, ABA_PECAS, id, 0, 1, 'B');
+    d = atualizarCelula(d, ABA_PECAS, id, 0, 2, 'C');
+
+    d = removerColuna(d, ABA_PECAS, id, 1);
+    let t = d.abas[0].tabelas[0];
+    expect(t.colunas).toBe(2);
+    expect(t.titulos).toEqual(['Coluna 1', 'Coluna 3']);
+    expect(t.larguras).toHaveLength(2);
+    expect(t.linhas[0]).toEqual(['A', 'C']);
+
+    // a última coluna não sai
+    d = removerColuna(d, ABA_PECAS, id, 0);
+    t = d.abas[0].tabelas[0];
+    expect(t.colunas).toBe(1);
+    expect(t.titulos).toEqual(['Coluna 3']);
+    d = removerColuna(d, ABA_PECAS, id, 0);
+    expect(d.abas[0].tabelas[0].titulos).toEqual(['Coluna 3']);
   });
 
   it('ajusta a largura das colunas (com limites) e guarda', () => {

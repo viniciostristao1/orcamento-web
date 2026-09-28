@@ -73,7 +73,7 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **86 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **88 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
@@ -188,13 +188,17 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
-- **Aba Dados** (v0.15.0; sub-abas dinâmicas v0.16.0; caixinhas/renomear v0.17.0):
-  `src/dados/` — modelo `{ abas: [{ id, rotulo, tabelas }] }` em `dados_tabelas_v1` (PEÇAS e
-  O.S's + criadas pelo botão “+”, cada uma com **X próprio** para excluir; **duplo clique**
-  renomeia). **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12, opção
-  **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
+- **Aba Dados** (v0.15.0; sub-abas dinâmicas v0.16.0; caixinhas/renomear v0.17.0; ações na
+  v0.22.0): `src/dados/` — modelo `{ abas: [{ id, rotulo, tabelas }] }` em `dados_tabelas_v1`
+  (PEÇAS e O.S's + criadas pelo botão “+”, cada uma com **X próprio** para excluir; **duplo
+  clique** renomeia). **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12,
+  opção **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
   **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
-  **copiar célula** (hover) e **busca que abre a sub-aba e grifa o termo**. Entra no backup.
+  **copiar célula** (hover), **copiar a linha toda** (hover, células com TAB), **excluir linha e
+  excluir coluna com `window.confirm`**, **excluir tabela no cabeçalho da coluna de opções**
+  (não existe mais a barra só com esse botão) e **busca que abre a sub-aba e grifa o termo**.
+  ⚠️ Os botões de ação (copiar/excluir) usam **`tabIndex={-1}`** para o TAB pular de célula em
+  célula (pedido do usuário). Entra no backup.
 - **Rótulos editáveis** (v0.17.0): `utils/rotulos.ts` (`rotulos_v1`) + `RotulosProvider` +
   `TituloEditavel` — **duplo clique** renomeia os botões das abas do topo e os títulos internos
   das telas (visual preservado: azul / duas cores / simples). No backup geral.

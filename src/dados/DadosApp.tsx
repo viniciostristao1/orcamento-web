@@ -17,6 +17,7 @@ import {
   alternarMarcada,
   removerAba,
   renomearAba,
+  removerColuna,
   removerLinha,
   removerTabela,
   salvarDados,
@@ -115,6 +116,27 @@ const DadosApp: React.FC = () => {
     navigator.clipboard.writeText(texto);
     setCopiado(chave);
     window.setTimeout(() => setCopiado((c) => (c === chave ? null : c)), 2000);
+  };
+
+  // Copia a linha inteira (células separadas por TAB — cola em planilha/WhatsApp).
+  const copiarLinha = (linha: string[], chave: string) => {
+    const texto = linha.join('\t').trim();
+    if (!texto) return;
+    navigator.clipboard.writeText(texto);
+    setCopiado(chave);
+    window.setTimeout(() => setCopiado((c) => (c === chave ? null : c)), 2000);
+  };
+
+  // Excluir linha pede confirmação antes (evita perder os dados por engano).
+  const excluirLinha = (abaId: string, tabelaId: string, linha: number) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta linha?')) return;
+    setDados((d) => removerLinha(d, abaId, tabelaId, linha));
+  };
+
+  // Excluir coluna (título + células daquela coluna) também pede confirmação.
+  const excluirColuna = (abaId: string, tabelaId: string, coluna: number) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta coluna?')) return;
+    setDados((d) => removerColuna(d, abaId, tabelaId, coluna));
   };
 
   return (
@@ -323,23 +345,12 @@ const DadosApp: React.FC = () => {
               window.addEventListener('mouseup', aoSoltar);
             };
 
-            const larguraAcoes = tabela.comCaixas ? 88 : 44;
+            // Copiar/excluir linha (+ caixinha) no fim de cada linha.
+            const larguraAcoes = tabela.comCaixas ? 92 : 64;
             const larguraTotal = tabela.larguras.reduce((a, b) => a + b, 0) + larguraAcoes;
 
             return (
               <div key={tabela.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden mb-6">
-                <div className="flex items-center justify-end gap-4 px-4 py-2 border-b border-slate-800 bg-slate-800/30">
-                  <button
-                    type="button"
-                    onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
-                    aria-label="Excluir tabela"
-                    title="Excluir tabela"
-                    className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-
                 <div className="overflow-x-auto">
                   <table className="border-collapse" style={{ tableLayout: 'fixed', width: larguraTotal }}>
                     <colgroup>
@@ -353,14 +364,27 @@ const DadosApp: React.FC = () => {
                         {tabela.titulos.map((titulo, coluna) => {
                           const marcado = buscaAtiva && celulaContem(titulo, busca);
                           return (
-                            <th key={coluna} className={`relative border border-slate-800 p-0 ${marcado ? 'bg-amber-500/20' : 'bg-slate-950/60'}`}>
+                            <th key={coluna} className={`relative group border border-slate-800 p-0 ${marcado ? 'bg-amber-500/20' : 'bg-slate-950/60'}`}>
                               <input
                                 type="text"
                                 value={titulo}
                                 onChange={(e) => setDados((d) => atualizarTitulo(d, aba.id, tabela.id, coluna, e.target.value))}
                                 data-marcado={marcado ? '1' : undefined}
-                                className={`w-full bg-transparent px-4 py-2.5 text-lg font-black uppercase outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-100'}`}
+                                className={`w-full bg-transparent px-4 py-2.5 pr-10 text-lg font-black uppercase outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-100'}`}
                               />
+                              {/* excluir a coluna (título + células dela) — some com 1 coluna só */}
+                              {tabela.titulos.length > 1 && (
+                                <button
+                                  type="button"
+                                  tabIndex={-1}
+                                  onClick={() => excluirColuna(aba.id, tabela.id, coluna)}
+                                  aria-label={`Excluir coluna ${coluna + 1}`}
+                                  title="Excluir coluna"
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-600 hover:text-rose-400 hover:bg-slate-800 transition-all cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                >
+                                  <X size={13} />
+                                </button>
+                              )}
                               {/* alça para ajustar a largura da coluna */}
                               <div
                                 role="separator"
@@ -373,7 +397,20 @@ const DadosApp: React.FC = () => {
                             </th>
                           );
                         })}
-                        <th className="border border-slate-800 bg-slate-950/60"></th>
+                        {/* Cabeçalho da coluna de opções: excluir a tabela fica aqui,
+                            no lugar da barra que existia só para esse botão. */}
+                        <th className="border border-slate-800 bg-slate-950/60 p-1 text-center">
+                          <button
+                            type="button"
+                            tabIndex={-1}
+                            onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
+                            aria-label="Excluir tabela"
+                            title="Excluir tabela"
+                            className="inline-flex items-center justify-center p-2 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -399,6 +436,7 @@ const DadosApp: React.FC = () => {
                                 {valor && (
                                   <button
                                     type="button"
+                                    tabIndex={-1}
                                     onClick={() => copiarCelula(valor, chave)}
                                     aria-label={`Copiar célula ${r + 1}-${coluna + 1}`}
                                     title="Copiar conteúdo da célula"
@@ -415,7 +453,7 @@ const DadosApp: React.FC = () => {
                             );
                           })}
                           <td className="border border-slate-800 text-center">
-                            <span className="inline-flex items-center gap-1">
+                            <span className="inline-flex items-center justify-center gap-1">
                             {tabela.comCaixas && (
                               <input
                                 type="checkbox"
@@ -428,7 +466,22 @@ const DadosApp: React.FC = () => {
                             )}
                             <button
                               type="button"
-                              onClick={() => setDados((d) => removerLinha(d, aba.id, tabela.id, r))}
+                              tabIndex={-1}
+                              onClick={() => copiarLinha(linha, `${tabela.id}-linha-${r}`)}
+                              aria-label={`Copiar linha ${r + 1}`}
+                              title="Copiar a linha toda"
+                              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
+                                copiado === `${tabela.id}-linha-${r}`
+                                  ? 'bg-green-600 text-white'
+                                  : 'text-slate-600 hover:text-slate-200 hover:bg-slate-800'
+                              }`}
+                            >
+                              {copiado === `${tabela.id}-linha-${r}` ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
+                            </button>
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              onClick={() => excluirLinha(aba.id, tabela.id, r)}
                               aria-label={`Excluir linha ${r + 1}`}
                               title="Excluir linha"
                               className="p-1.5 text-slate-600 hover:text-rose-400 transition-colors cursor-pointer"

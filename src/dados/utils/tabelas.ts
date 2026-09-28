@@ -232,6 +232,28 @@ export const removerLinha = (dados: DadosTabelas, abaId: string, id: string, lin
     marcados: t.marcados.filter((_, r) => r !== linha),
   }));
 
+/**
+ * Remove uma coluna: o título, a largura e a célula correspondente em cada
+ * linha. Nunca deixa a tabela sem colunas.
+ */
+export const removerColuna = (
+  dados: DadosTabelas,
+  abaId: string,
+  id: string,
+  coluna: number,
+): DadosTabelas =>
+  atualizarTabela(dados, abaId, id, (t) => {
+    if (t.colunas <= 1) return t;
+    const semColuna = <T,>(arr: T[]): T[] => arr.filter((_, i) => i !== coluna);
+    return {
+      ...t,
+      colunas: t.colunas - 1,
+      titulos: semColuna(t.titulos),
+      larguras: semColuna(t.larguras),
+      linhas: t.linhas.map((l) => semColuna(l)),
+    };
+  });
+
 /** Marca/desmarca a caixinha da linha (risca a linha na tela). */
 export const alternarMarcada = (dados: DadosTabelas, abaId: string, id: string, linha: number): DadosTabelas =>
   atualizarTabela(dados, abaId, id, (t) => ({

@@ -361,6 +361,53 @@ describe('App — smoke test (render + processar)', () => {
     expect(document.querySelectorAll('[data-marcado="1"]').length).toBeGreaterThan(0);
   });
 
+  it('aba Dados: excluir tabela mora no cabeçalho e a linha tem copiar + excluir com confirmação', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    const celulas = container.querySelectorAll('tbody input[type="text"]');
+    fireEvent.change(celulas[0], { target: { value: 'PNEU A' } });
+    fireEvent.change(celulas[1], { target: { value: 'R$ 100' } });
+
+    // o excluir tabela agora fica como título da coluna de opções (thead)
+    expect(container.querySelector('thead button[aria-label="Excluir tabela"]')).toBeTruthy();
+
+    // os botões de ação ficam fora da ordem do TAB (TAB vai de célula em célula)
+    expect(screen.getByRole('button', { name: /Copiar célula 1-1/i }).tabIndex).toBe(-1);
+    expect(screen.getByRole('button', { name: 'Copiar linha 1' }).tabIndex).toBe(-1);
+    expect(screen.getByRole('button', { name: 'Excluir linha 1' }).tabIndex).toBe(-1);
+    expect(screen.getByRole('button', { name: 'Excluir tabela' }).tabIndex).toBe(-1);
+    expect(screen.getByRole('button', { name: 'Excluir coluna 1' }).tabIndex).toBe(-1);
+
+    // copiar a linha toda (TAB entre as células)
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar linha 1' }));
+    expect(escrever).toHaveBeenCalledWith('PNEU A\tR$ 100');
+
+    // excluir linha: cancelar mantém, confirmar remove
+    const confirmar = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir linha 1' }));
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(1);
+    confirmar.mockReturnValue(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir linha 1' }));
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(0);
+
+    // excluir coluna: cancelar mantém, confirmar remove (com 1 coluna o botão some)
+    confirmar.mockReturnValue(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir coluna 1' }));
+    expect(container.querySelectorAll('thead input')).toHaveLength(2);
+    confirmar.mockReturnValue(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir coluna 1' }));
+    expect(container.querySelectorAll('thead input')).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: 'Excluir coluna 1' })).toBeNull();
+    confirmar.mockRestore();
+  });
+
   it('valores: colar formata (milhar/centavos) e a vassoura limpa', () => {
     render(<App />);
     const campos = screen.getAllByPlaceholderText('0,00');
