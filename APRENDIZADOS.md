@@ -5,6 +5,40 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Whats: janelinhas de observação e mensagem no cartão (v0.30.0)
+
+**Pedido:** no Relatório de Envios, criar um **ícone para a observação** e um **ícone para a
+mensagem**, entre o status (Agendado/Hoje/…) e o botão de telefone/chassi; clicando, abre uma
+**janelinha** com o conteúdo, com **lápis** (editar), **v** (confirmar), **x** (fechar) e
+**copiar** — todos bem pequenos.
+
+**Feito (`ContactList.tsx`):**
+- Ícones `StickyNote` (observação) e `MessageSquare` (mensagem) na linha 1, **entre o badge de
+  situação e o `List` (telefone/chassi)**; ficam coloridos quando o campo tem conteúdo (azul /
+  esmeralda) e com moldura azul quando a janelinha está aberta.
+- **Janelinha** inline alinhada à direita (`ml-auto w-80`, borda + sombra): modo leitura mostra o
+  texto (ou "Sem observação." / "Se vazio, usa o script de revisão…") e um header com os
+  botõezinhos `p-1`/ícones `size 12`: **Pencil** → textarea (autoFocus) com **Check** para salvar
+  via `onUpdateNote`/`onUpdateMessage`, **Copy** (verde por 2s; na mensagem vazia copia o
+  `messageTemplate`) e **X** para fechar. Estado `popup {id, campo}`, `editando`, `rascunho`,
+  `copiadoPopup` — uma janelinha por vez, abrir de novo alterna.
+- **Saíram** os dois textareas inline de observação/mensagem (o cartão fechado agora tem só a
+  linha 1: nome + situação + ícones + data). O `data-neon-box`/overflow do painel não atrapalha
+  porque a janelinha é inline (não é dropdown absoluto, que seria cortado pelo `overflow-hidden`).
+
+**Validação:** typecheck/lint limpos; **99 testes** (o smoke do Whats agora confere: sem campos
+inline, ícones na linha, janelinha vazia → edita → confirma → copia → fecha, mensagem vazia copia
+o script com "revisão", e `internalNote` salvo no localStorage); build autocontido (1.254 kB);
+Chromium headless: ordem dos botões = status · observação · mensagem · lista · telefone · excluir ·
+data, clipboard com a observação copiada, edição visível e fechamento funcionando.
+
+**Gotchas:**
+- Os botões de copiar ficaram com `aria-label` específico (**"Copiar observação"** / **"Copiar
+  mensagem"**) porque já existe um "Copiar" no editor de scripts — nomes genéricos quebravam os
+  testes `getByRole`.
+- A janelinha é **inline** (não `absolute`): o painel do relatório tem `overflow-hidden` e cortaria
+  um dropdown nas últimas linhas.
+
 ## 2026-09-28 — Flyer "MARCAS", temas removidos, técnico sem negrito e TAB/Enter (v0.29.0)
 
 **Pedidos:** (1) no histórico do Tire Flyer, trocar "N PNEUS" por **"N MARCAS"** (a contagem é a

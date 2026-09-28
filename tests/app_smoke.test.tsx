@@ -298,11 +298,13 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Salvar Cliente/i }));
 
     expect(screen.getByText('JOAO DA SILVA')).toBeTruthy();
-    // "Mensagem especial" virou só "Mensagem" (no formulário e no cartão)
+    // "Mensagem especial" virou só "Mensagem" (no formulário; no cartão virou janelinha)
     expect(screen.queryByText(/Mensagem especial/i)).toBeNull();
-    expect(screen.getAllByText('Mensagem')).toHaveLength(2);
-    // o copiar mensagem saiu do cartão
+    expect(screen.getAllByText('Mensagem')).toHaveLength(1);
+    // o copiar mensagem saiu do cartão e os campos inline de observação/mensagem também
     expect(screen.queryByRole('button', { name: /Copiar mensagem/i })).toBeNull();
+    expect(screen.queryByPlaceholderText('Anotações sobre o cliente…')).toBeNull();
+    expect(screen.queryByPlaceholderText('Se vazio, usa o script de revisão…')).toBeNull();
 
     // o ícone de lista abre telefone e chassi, cada um com copiar
     expect(screen.queryByRole('button', { name: 'Copiar telefone' })).toBeNull();
@@ -317,10 +319,32 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Telefone e chassi' }));
     expect(screen.queryByRole('button', { name: 'Copiar telefone' })).toBeNull();
 
+    // janelinha da observação: lê, edita (lápis), confirma (v), copia e fecha (x)
+    fireEvent.click(screen.getByRole('button', { name: 'Observação' }));
+    expect(screen.getByText('Sem observação.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Editar' }));
+    fireEvent.change(screen.getByLabelText('Texto da observação'), { target: { value: 'Cliente prefere manhã' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+    expect(screen.getByText('Cliente prefere manhã')).toBeTruthy();
+    escrever.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar observação' }));
+    expect(escrever).toHaveBeenCalledWith('Cliente prefere manhã');
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(screen.queryByText('Cliente prefere manhã')).toBeNull();
+
+    // janelinha da mensagem: vazia mostra o aviso e copia o script de revisão
+    fireEvent.click(screen.getByRole('button', { name: 'Mensagem' }));
+    expect(screen.getByText(/Se vazio, usa o script de revisão/)).toBeTruthy();
+    escrever.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar mensagem' }));
+    expect(escrever).toHaveBeenCalledWith(expect.stringContaining('revisão'));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
     const salvos = JSON.parse(localStorage.getItem('zap_contacts') ?? '[]');
     expect(salvos.length).toBe(1);
     expect(salvos[0].name).toBe('JOAO DA SILVA');
     expect(salvos[0].chassis).toBe('ABC123');
+    expect(salvos[0].internalNote).toBe('Cliente prefere manhã');
   });
 
   it('salva com itens não realizados (vai para a aba do histórico)', () => {

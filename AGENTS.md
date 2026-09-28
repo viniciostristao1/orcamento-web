@@ -81,14 +81,18 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `zap_script_pneus_v1`, `zap_script_revisao_v1` (o antigo `zap_template` é migrado para
   revisão).   Layout da tela (v0.14.6): grid `lg:grid-cols-2` — esquerda **NOVO CONTATO + SCRIPT PNEUS +
   SCRIPT REVISÃO** (empilhados, mesma largura); direita **RELATÓRIO DE ENVIOS** em **uma coluna**
-  de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`). Observação e
-  **Mensagem** (v0.28.0; era "Mensagem Especial") do contato ficam lado a lado, **1 linha**
-  (`h-9`, com rolagem interna). Cartão do relatório (v0.28.0): linha 1 = **nome + situação
-  (Agendado/Hoje/Atrasado/Concluído) + ícone de lista + notificar + excluir + data**; o
-  **telefone/chassi saíram de baixo da observação** e agora só aparecem ao clicar no **ícone de
-  lista** (`List`, painel com telefone e chassi, **cada um com copiar**), deixando o cartão mais
-  baixo; o botão **copiar mensagem** foi removido. "NOTIFICAR" abre `wa.me` e marca como
-  concluído; status verde em `green-*`. `@google/genai` do template original **não** entrou.
+  de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`); o rótulo do 5º campo é
+  só **"Mensagem"** (v0.28.0; era "Mensagem Especial"). Cartão do relatório (v0.28.0; janelinhas
+  na v0.30.0): linha 1 = **nome + situação (Agendado/Hoje/Atrasado/Concluído) + ícone de
+  observação + ícone de mensagem + ícone de lista + notificar + excluir + data**; os ícones de
+  observação (`StickyNote`) e mensagem (`MessageSquare`) ficam **entre o status e o
+  telefone/chassi** e abrem uma **janelinha** (`w-80`, alinhada à direita) com o conteúdo —
+  **lápis** edita, **v** confirma, **copiar** copia (na mensagem vazia, copia o script de
+  revisão) e **x** fecha (tudo `size 12`). Os campos inline de observação/mensagem e o botão
+  **copiar mensagem** saíram; **telefone/chassi** só aparecem no painel do **ícone de lista**
+  (`List`, cada um com copiar); os ícones ficam coloridos quando o campo tem conteúdo. O cartão
+  fechado fica baixinho (2 linhas). "NOTIFICAR" abre `wa.me` e marca como concluído; status verde
+  em `green-*`. `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
   `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,

@@ -1,5 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import { Trash2, Phone, CheckCircle2, Copy, Check, Edit2, List, Hash } from 'lucide-react';
+import {
+  Trash2,
+  Phone,
+  CheckCircle2,
+  Copy,
+  Check,
+  Edit2,
+  List,
+  Hash,
+  StickyNote,
+  MessageSquare,
+  Pencil,
+  X,
+} from 'lucide-react';
 import { Contact } from '../types';
 
 interface ContactListProps {
@@ -16,6 +29,11 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
   // Campo recém-copiado ("id:phone" / "id:chassis") e contato com os detalhes abertos.
   const [copiadoCampo, setCopiadoCampo] = useState<string | null>(null);
   const [detalhesId, setDetalhesId] = useState<string | null>(null);
+  // Janelinha da observação (`note`) ou da mensagem (`message`) de um contato.
+  const [popup, setPopup] = useState<{ id: string; campo: 'note' | 'message' } | null>(null);
+  const [editando, setEditando] = useState(false);
+  const [rascunho, setRascunho] = useState('');
+  const [copiadoPopup, setCopiadoPopup] = useState(false);
   const todayStr = new Date().toISOString().split('T')[0];
 
   const sortedContacts = useMemo(() => {
@@ -44,6 +62,19 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
     const chave = `${id}:${campo}`;
     setCopiadoCampo(chave);
     setTimeout(() => setCopiadoCampo((c) => (c === chave ? null : c)), 2000);
+  };
+
+  // Abre/fecha a janelinha da observação ou da mensagem (uma por vez).
+  const abrirPopup = (id: string, campo: 'note' | 'message') => {
+    setPopup((p) => (p && p.id === id && p.campo === campo ? null : { id, campo }));
+    setEditando(false);
+    setCopiadoPopup(false);
+  };
+
+  const copiarPopup = (texto: string) => {
+    navigator.clipboard.writeText(texto);
+    setCopiadoPopup(true);
+    setTimeout(() => setCopiadoPopup(false), 2000);
   };
 
   const wasSentThisMonth = (contact: Contact) => {
@@ -97,6 +128,12 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
             const sent = wasSentThisMonth(contact);
             const isToday = contact.targetDate === todayStr;
             const isPast = contact.targetDate < todayStr && !sent;
+            const popupAqui = popup?.id === contact.id ? popup : null;
+            const popupTexto = popupAqui
+              ? popupAqui.campo === 'note'
+                ? contact.internalNote || ''
+                : contact.customMessage || ''
+              : '';
             return (
               <div
                 key={contact.id}
@@ -125,6 +162,38 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                         Agendado
                       </span>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={() => abrirPopup(contact.id, 'note')}
+                      aria-label="Observação"
+                      title="Observação"
+                      className={`p-2 rounded-lg border transition-all cursor-pointer ${
+                        popupAqui?.campo === 'note'
+                          ? 'bg-blue-600/20 text-blue-400 border-blue-500/40'
+                          : contact.internalNote
+                            ? 'campo-tema border-slate-700 text-blue-300 hover:text-blue-200 hover:border-slate-600'
+                            : 'campo-tema border-slate-800 text-slate-500 hover:text-slate-200 hover:border-slate-600'
+                      }`}
+                    >
+                      <StickyNote size={14} strokeWidth={2} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => abrirPopup(contact.id, 'message')}
+                      aria-label="Mensagem"
+                      title="Mensagem"
+                      className={`p-2 rounded-lg border transition-all cursor-pointer ${
+                        popupAqui?.campo === 'message'
+                          ? 'bg-blue-600/20 text-blue-400 border-blue-500/40'
+                          : contact.customMessage
+                            ? 'campo-tema border-slate-700 text-emerald-400 hover:text-emerald-300 hover:border-slate-600'
+                            : 'campo-tema border-slate-800 text-slate-500 hover:text-slate-200 hover:border-slate-600'
+                      }`}
+                    >
+                      <MessageSquare size={14} strokeWidth={2} />
+                    </button>
 
                     <button
                       type="button"
@@ -185,31 +254,86 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                   </span>
                 </div>
 
-                {/* Observação e Mensagem lado a lado (rolam se passar da altura) */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
-                      Observação
-                    </span>
-                    <textarea
-                      placeholder="Anotações sobre o cliente…"
-                      value={contact.internalNote || ''}
-                      onChange={(e) => onUpdateNote(contact.id, e.target.value)}
-                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-slate-200 font-bold overflow-y-auto"
-                    />
+                {/* Janelinha da observação/mensagem: ler, editar (lápis), confirmar
+                    (v), copiar e fechar (x) — botõezinhos pequenos. */}
+                {popupAqui && (
+                  <div className="ml-auto mt-2 w-80 max-w-full bg-slate-950 border border-slate-700 rounded-xl shadow-2xl p-3">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        {popupAqui.campo === 'note' ? 'Observação' : 'Mensagem'}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        {editando ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (popupAqui.campo === 'note') onUpdateNote(contact.id, rascunho);
+                              else onUpdateMessage(contact.id, rascunho);
+                              setEditando(false);
+                            }}
+                            aria-label="Confirmar"
+                            title="Confirmar"
+                            className="p-1 rounded-md text-green-500 hover:text-green-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                          >
+                            <Check size={12} strokeWidth={3} />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditando(true);
+                              setRascunho(popupTexto);
+                            }}
+                            aria-label="Editar"
+                            title="Editar"
+                            className="p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
+                          >
+                            <Pencil size={12} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            copiarPopup(popupAqui.campo === 'note' ? popupTexto : popupTexto || messageTemplate)
+                          }
+                          aria-label={popupAqui.campo === 'note' ? 'Copiar observação' : 'Copiar mensagem'}
+                          title={popupAqui.campo === 'note' ? 'Copiar observação' : 'Copiar mensagem'}
+                          className={`p-1 rounded-md transition-colors cursor-pointer ${
+                            copiadoPopup ? 'text-green-500' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
+                          }`}
+                        >
+                          {copiadoPopup ? <Check size={12} strokeWidth={3} /> : <Copy size={12} />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPopup(null);
+                            setEditando(false);
+                          }}
+                          aria-label="Fechar"
+                          title="Fechar"
+                          className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    </div>
+                    {editando ? (
+                      <textarea
+                        autoFocus
+                        value={rascunho}
+                        onChange={(e) => setRascunho(e.target.value)}
+                        aria-label={popupAqui.campo === 'note' ? 'Texto da observação' : 'Texto da mensagem'}
+                        className="w-full text-sm bg-slate-900 px-2.5 py-2 rounded-lg border border-slate-700 focus:border-slate-500 outline-none resize-none h-24 leading-tight text-slate-200 font-bold overflow-y-auto"
+                      />
+                    ) : (
+                      <p className="text-sm text-slate-300 font-bold whitespace-pre-wrap break-words max-h-24 overflow-y-auto">
+                        {popupTexto ||
+                          (popupAqui.campo === 'note' ? 'Sem observação.' : 'Se vazio, usa o script de revisão…')}
+                      </p>
+                    )}
                   </div>
-                  <div>
-                    <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">
-                      Mensagem
-                    </span>
-                    <textarea
-                      placeholder="Se vazio, usa o script de revisão…"
-                      value={contact.customMessage || ''}
-                      onChange={(e) => onUpdateMessage(contact.id, e.target.value)}
-                      className="w-full text-sm bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 focus:border-slate-600 outline-none transition-all resize-none h-9 leading-tight text-emerald-600 font-bold overflow-y-auto"
-                    />
-                  </div>
-                </div>
+                )}
 
                 {/* Detalhes (ícone de lista): telefone e chassi, cada um com copiar */}
                 {detalhesId === contact.id && (
