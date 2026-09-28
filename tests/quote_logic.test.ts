@@ -6,6 +6,7 @@ import {
   parseBrazilianNumber,
   processQuote,
   recalcularComSelecao,
+  resumoAprovacao,
 } from '../src/utils/quoteLogic';
 
 const DESC = `01 TR PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS
@@ -151,5 +152,29 @@ describe('recalcularComSelecao — caixinhas por item', () => {
     // todos marcados = nenhum não realizado
     expect(itensNaoRealizados(s, todos).total).toBe(0);
     expect(itensNaoRealizados(s, todos).itens).toEqual([]);
+  });
+});
+
+describe('resumoAprovacao — janela de itens do histórico', () => {
+  const s = processQuote(DESC, ORCAMENTO, 1766.23, 1000, 5, 3);
+
+  it('soma aprovados, não aprovados, percentual e total', () => {
+    const r = resumoAprovacao(s, [1]);
+    // item 1 = 1.438,24 + 764,80 = 2.203,04; itens 2 e 3 = 209,60 + 217,00
+    expect(r.valoresPorId[1]).toBeCloseTo(2203.04, 2);
+    expect(r.valoresPorId[2]).toBeCloseTo(209.6, 2);
+    expect(r.valoresPorId[3]).toBeCloseTo(217, 2);
+    expect(r.naoAprovado).toBeCloseTo(2203.04, 2);
+    expect(r.aprovado).toBeCloseTo(426.6, 2);
+    expect(r.total).toBeCloseTo(2629.64, 2);
+    expect(r.percentual).toBeCloseTo((426.6 / 2629.64) * 100, 4);
+  });
+
+  it('sem não aprovados = 100% aprovado; sem itens = 0%', () => {
+    const r = resumoAprovacao(s);
+    expect(r.naoAprovado).toBe(0);
+    expect(r.aprovado).toBeCloseTo(r.total, 2);
+    expect(r.percentual).toBe(100);
+    expect(resumoAprovacao({ ...s, items: [] }).percentual).toBe(0);
   });
 });

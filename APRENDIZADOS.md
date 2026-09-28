@@ -5,6 +5,32 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Itens do orçamento com valores/resumo e descrição do flyer (v0.32.0)
+
+**Pedidos:** (1) no histórico (não realizados), embaixo da janela de itens, a soma de
+**aprovado, não aprovado, percentual (aprovado) e total**; (2) **valor de cada id no canto
+direito da descrição** em ITENS DO ORÇAMENTO; (3) ITENS DO ORÇAMENTO com a **mesma fonte do
+título HISTÓRICO**; (4) no Tire Flyer, abaixo do flyer e **na mesma largura do PNG (750px)**,
+uma **caixinha com a descrição** (medida + marcas com 10x e à vista) e **botão copiar** para
+mandar no WhatsApp — com a bolinha **•**.
+
+**Feito:**
+- **`resumoAprovacao` (puro, `quoteLogic`)**: valor por id + aprovado, não aprovado, percentual
+  e total (ids em `naoRealizados` = não aprovados). O `HistoryModal` recalcula o registro aberto
+  com `processQuote` (useMemo) e usa no rodapé do `data-janela-itens`; cada linha ganhou o valor
+  `R$ …` com `ml-auto` (riscado/vermelho quando não aprovado) e o título virou `text-xl` (igual
+  ao "HISTÓRICO"; era `text-[26px]`).
+- **`montarDescricaoWhats` (puro, `tire/utils/descricaoWhats.ts`)**: `MEDIDA PNEU: …`, linha em
+  branco e uma linha por marca no formato `• MARCA - R$ 10x (em até 10x no Cartão) ou R$ à
+  vista (Dinheiro, Pix, Débito).` (preços com `formatarPreco`). A caixinha no `TireFlyerApp`
+  (`max-w-[750px]`, título "Descrição para WhatsApp") tem botão de copiar com feedback verde.
+
+**Validação:** typecheck/lint limpos; **103 testes** (+2 puros do `resumoAprovacao`, +1 do
+`montarDescricaoWhats`, +1 smoke do histórico conferindo valores 2.203,04 / 209,60 / 217,00 e
+resumo 426,60 · 2.203,04 · 16% · 2.629,64, +descrição/copiar no smoke do flyer); build
+autocontido (1.258 kB); Chromium headless: título 20px = HISTÓRICO 20px, resumo correto, caixinha
+com **562px na tela = 750px CSS** (zoom .75) e clipboard com o texto da descrição.
+
 ## 2026-09-29 — Abas sem contagem, títulos no tamanho do orçamento e células menores (v0.31.0)
 
 **Pedidos:** (1) na aba Dados, **tirar a quantidade de tabelas** do lado do nome da sub-aba

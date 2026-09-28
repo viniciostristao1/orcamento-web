@@ -159,6 +159,40 @@ export const itensNaoRealizados = (
 };
 
 /**
+ * Resumo de aprovação dos itens (janela "Itens do orçamento" do histórico):
+ * valor de cada id, soma dos aprovados, soma dos não aprovados (ids em
+ * `naoRealizados`), percentual aprovado e total.
+ */
+export const resumoAprovacao = (
+  summary: QuoteSummary,
+  naoRealizados: number[] = [],
+): {
+  valoresPorId: Record<number, number>;
+  aprovado: number;
+  naoAprovado: number;
+  percentual: number;
+  total: number;
+} => {
+  const nao = new Set(naoRealizados);
+  const valoresPorId: Record<number, number> = {};
+  let aprovado = 0;
+  let naoAprovado = 0;
+  for (const item of summary.items) {
+    valoresPorId[item.id] = item.value;
+    if (nao.has(item.id)) naoAprovado += item.value;
+    else aprovado += item.value;
+  }
+  const total = aprovado + naoAprovado;
+  return {
+    valoresPorId,
+    aprovado,
+    naoAprovado,
+    percentual: total > 0 ? (aprovado / total) * 100 : 0,
+    total,
+  };
+};
+
+/**
  * Recalcula os totais considerando só os itens MARCADOS (caixinhas da tabela).
  * `items` continua com todos (a tabela mostra as desmarcadas riscadas); os
  * totais, o desconto e o líquido refletem apenas as marcadas.

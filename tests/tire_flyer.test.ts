@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatarPreco, parseInput, parsePreco } from '../src/tire/utils/parser';
+import { montarDescricaoWhats } from '../src/tire/utils/descricaoWhats';
 
 const TABELA = [
   ['265/60R18', 'MARCA/MODELO', 'À PRAZO 10x', 'À VISTA (10%)', 'ESTOQUE'],
@@ -57,5 +58,23 @@ describe('parseInput', () => {
       priceCash: 0,
       stock: 0,
     });
+  });
+});
+
+describe('montarDescricaoWhats', () => {
+  it('monta a medida e uma linha por marca (10x no cartão e à vista)', () => {
+    const texto = montarDescricaoWhats(parseInput(TABELA)).replace(/\u00a0/g, ' ');
+    const linhas = texto.split('\n');
+    expect(linhas[0]).toBe('MEDIDA PNEU: 265/60R18');
+    expect(linhas[1]).toBe('');
+    expect(linhas[2]).toBe(
+      '• FIRESTONE - R$ 1.115,48 (em até 10x no Cartão) ou R$ 1.004,28 (Dinheiro, Pix, Débito).',
+    );
+    expect(linhas[3]).toBe('');
+    expect(linhas[4]).toBe(
+      '• BRIDGESTONE DUELER HT - R$ 1.146,72 (em até 10x no Cartão) ou R$ 1.032,40 (Dinheiro, Pix, Débito).',
+    );
+    expect(texto.endsWith('.')).toBe(true);
+    expect(texto.endsWith('\n')).toBe(false);
   });
 });

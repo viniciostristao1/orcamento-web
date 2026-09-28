@@ -5,7 +5,8 @@ import { Flyer } from './components/Flyer';
 import { exportarPng } from '../utils/exportImage';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
-import { Play, Image as ImageIcon, History, Eraser } from 'lucide-react';
+import { Play, Image as ImageIcon, History, Eraser, Copy, Check } from 'lucide-react';
+import { montarDescricaoWhats } from './utils/descricaoWhats';
 import FlyerHistoryModal from './components/FlyerHistoryModal';
 import TituloEditavel from '../components/TituloEditavel';
 import { adicionarAoFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
@@ -29,6 +30,7 @@ const TireFlyerApp: React.FC = () => {
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [layout, setLayout] = useState<LayoutFlyer>(lerLayoutFlyer);
   const [alturaFlyer, setAlturaFlyer] = useState(0);
+  const [copiadoDescricao, setCopiadoDescricao] = useState(false);
   const flyerRef = useRef<HTMLDivElement>(null);
 
   // O layout escolhido vale para o PNG exportado e fica salvo no navegador.
@@ -97,6 +99,15 @@ const TireFlyerApp: React.FC = () => {
         alert('Erro ao gerar imagem. Tente novamente.');
       }
     }
+  };
+
+  // Descrição pronta para o WhatsApp (medida + uma linha por marca), montada a
+  // partir do flyer em preview — com botão de copiar.
+  const descricaoWhats = montarDescricaoWhats(promoData);
+  const copiarDescricao = () => {
+    navigator.clipboard.writeText(descricaoWhats);
+    setCopiadoDescricao(true);
+    window.setTimeout(() => setCopiadoDescricao(false), 2000);
   };
 
   // O modal fica FORA do container com zoom: ele já tem o seu próprio
@@ -212,6 +223,34 @@ const TireFlyerApp: React.FC = () => {
               Wide Pro Flyer v4.2 - Otimizado para 750px
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Descrição para o WhatsApp — caixinha com a mesma largura do flyer
+          gerado (750px), com botão de copiar. */}
+      <div className="max-w-[750px] mx-auto mt-4">
+        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-slate-950/60 border-b border-slate-800/60">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+              Descrição para WhatsApp
+            </span>
+            <button
+              type="button"
+              onClick={copiarDescricao}
+              aria-label={copiadoDescricao ? 'Descrição copiada' : 'Copiar descrição'}
+              title={copiadoDescricao ? 'Descrição copiada' : 'Copiar descrição'}
+              className={`flex items-center justify-center p-2 rounded-lg border transition-all cursor-pointer active:scale-95 ${
+                copiadoDescricao
+                  ? 'bg-green-600 border-green-700 text-white'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+              }`}
+            >
+              {copiadoDescricao ? <Check size={16} strokeWidth={3} /> : <Copy size={16} />}
+            </button>
+          </div>
+          <pre className="p-4 text-base font-bold font-sans text-slate-200 whitespace-pre-wrap">
+            {descricaoWhats}
+          </pre>
         </div>
       </div>
 

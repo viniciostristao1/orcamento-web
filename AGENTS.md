@@ -155,7 +155,12 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `getBrandStyle` mora em `tire/utils/marcas.ts`.
   ⚠️ O layout `atual` continua sendo **contrato**: validado pixel a pixel contra a v0.19.2
   (0 diferenças) em cada versão; a escolha vale para o PNG e é salva no navegador.
-- Build de arquivo único **validado** (`dist/index.html` ~677 kB, CSS+JS+fontes embutidos, sem
+- **Descrição para WhatsApp do Tire Flyer** (v0.32.0): abaixo do flyer, uma caixinha com
+  **a mesma largura do PNG gerado** (`max-w-[750px]`) e botão de copiar — texto montado por
+  `tire/utils/descricaoWhats.ts` (`montarDescricaoWhats`): `MEDIDA PNEU: …`, linha em branco e,
+  por marca, `• MARCA - R$ (à prazo) (em até 10x no Cartão) ou R$ (à vista) (Dinheiro, Pix,
+  Débito).` — a bolinha é `•` (bullet), não asterisco.
+- Build de arquivo único **validado** (`dist/index.html` ~1,26 MB, CSS+JS+fontes embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
   histórico; **não** entra no PNG/tabela de saída (decisão do usuário). No histórico aparece
@@ -170,7 +175,11 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Histórico — abas, salvar e ver itens** (v0.11.0; destaque na v0.13.0): abas **Todos** /
   **Não Realizados** (`filtrarPorAba`); o botão âmbar do `QuoteTable` ("Salvar com itens não
   realizados") grava o registro com `naoRealizados: number[]` (e o "Abrir" restaura a
-  marcação); o botão "Ver itens do orçamento" abre uma janelinha com as linhas de `descReparo`.
+  marcação); o botão "Ver itens do orçamento" abre uma janelinha (`data-janela-itens`) com as
+  linhas de `descReparo` e, desde a v0.32.0, o **valor de cada id no canto direito** (mesmo
+  `item.value` da tabela do documento) e um **resumo embaixo** com **Aprovado · Não aprovado ·
+  % aprovado · Total** (`resumoAprovacao` em `quoteLogic`, recalculando o registro com
+  `processQuote`); o título da janelinha é `text-xl`, igual ao "HISTÓRICO" (era `text-[26px]`).
   A marcação **✓ aprovado / ✕ não aprovado** (`data-situacao`) só aparece nos registros com
   `naoRealizados` salvo; nos comuns os itens ficam `data-situacao="neutro"` (ainda não houve
   aprovação do cliente).

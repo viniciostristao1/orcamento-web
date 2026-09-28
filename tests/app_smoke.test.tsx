@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
 import HistoryModal from '../src/components/HistoryModal';
@@ -183,6 +183,18 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('Michelin LTX Trail')).toBeTruthy();
     expect(screen.getByText('ESTOQUE: 12 UN')).toBeTruthy();
     expect(screen.getAllByText('SOB ENCOMENDA').length).toBe(3); // Firestone, BF Goodrich e Dunlop
+
+    // descrição para o WhatsApp (750px) com o mesmo conteúdo do flyer + copiar
+    expect(screen.getByText(/MEDIDA PNEU: 265\/60R18/)).toBeTruthy();
+    expect(screen.getByText(/• FIRESTONE - R\$ 1\.115,48/)).toBeTruthy();
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar descrição' }));
+    const copiado = String(escrever.mock.calls[0][0]).replace(/\u00a0/g, ' ');
+    expect(copiado).toContain('MEDIDA PNEU: 265/60R18');
+    expect(copiado).toContain(
+      '• FIRESTONE - R$ 1.115,48 (em até 10x no Cartão) ou R$ 1.004,28 (Dinheiro, Pix, Débito).',
+    );
   });
 
   it('aba Tire Flyer: contato vai para o histórico (com data/hora) e a busca acha', () => {
@@ -357,6 +369,31 @@ describe('App — smoke test (render + processar)', () => {
     const salvo = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
     expect(salvo).toHaveLength(1);
     expect(salvo[0].naoRealizados).toEqual([1]);
+  });
+
+  it('histórico: itens mostram o valor por id e o resumo aprovado/não aprovado', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
+    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não realizados/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+    fireEvent.click(screen.getByRole('button', { name: /Não Realizados/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ver itens do orçamento' }));
+
+    const janela = document.querySelector('[data-janela-itens="1"]') as HTMLElement;
+    expect(janela).toBeTruthy();
+    // título no mesmo tamanho do HISTÓRICO
+    expect(janela.querySelector('h3')?.className).toContain('text-xl');
+    // valor de cada id no canto direito (item 1 não aprovado; 2 e 3 aprovados)
+    expect(within(janela).getAllByText('R$ 2.203,04')).toHaveLength(2); // linha do item 1 + resumo
+    expect(within(janela).getByText('R$ 209,60')).toBeTruthy();
+    expect(within(janela).getByText('R$ 217,00')).toBeTruthy();
+    // resumo: aprovado, não aprovado, % aprovado e total
+    expect(within(janela).getByText('R$ 426,60')).toBeTruthy();
+    expect(within(janela).getByText('R$ 2.629,64')).toBeTruthy();
+    expect(within(janela).getByText('16%')).toBeTruthy();
   });
 
   it('aba Dados: cria tabela com N colunas, adiciona linha e a busca grifa o termo', () => {

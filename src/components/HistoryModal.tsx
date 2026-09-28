@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, Database, FolderOpen, List, Search, Trash2, Upload, X, XCircle } from 'lucide-react';
 import {
   type AbaHistorico,
@@ -14,7 +14,7 @@ import {
   removerDoHistorico,
   temNaoRealizados,
 } from '../utils/historico';
-import { formatCurrency } from '../utils/quoteLogic';
+import { formatCurrency, parseBrazilianNumber, processQuote, resumoAprovacao } from '../utils/quoteLogic';
 
 interface HistoryModalProps {
   aberto: boolean;
@@ -42,6 +42,22 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
       setItensDe(null);
     }
   }, [aberto]);
+
+  // Valores do registro aberto em "Ver itens" + resumo de aprovação (o
+  // orçamento é recalculado a partir dos textos salvos, como ao abrir).
+  const resumoItens = useMemo(() => {
+    if (!itensDe) return null;
+    const summary = processQuote(
+      itensDe.descReparo,
+      itensDe.orcamentoRaw,
+      parseBrazilianNumber(itensDe.revAprovadaInput),
+      parseBrazilianNumber(itensDe.revPecasInput),
+      itensDe.desconto,
+      itensDe.parcelas,
+      itensDe.ajustesManuais,
+    );
+    return resumoAprovacao(summary, itensDe.naoRealizados);
+  }, [itensDe]);
 
   if (!aberto) return null;
 
@@ -295,11 +311,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
             onClick={() => setItensDe(null)}
           >
             <div
+              data-janela-itens="1"
               className="w-full max-w-xl max-h-[80vh] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-5 py-4 bg-slate-950/60 border-b border-slate-800/60">
-                <h3 className="titulo-tema text-[26px] font-black text-slate-100 uppercase tracking-widest">
+                <h3 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-widest">
                   ITENS DO ORÇAMENTO
                 </h3>
                 <button
@@ -332,6 +349,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                     const id = parseInt(linha.trim().split(/\s+/)[0], 10);
                     const naoAprovado =
                       temSelecao && Number.isFinite(id) && (itensDe.naoRealizados ?? []).includes(id);
+                    const valor = resumoItens?.valoresPorId[id];
                     return (
                       <p
                         key={i}
@@ -347,10 +365,59 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                         <span className={naoAprovado ? 'text-red-300 line-through' : 'text-slate-200'}>
                           {linha}
                         </span>
+                        {valor !== undefined && (
+                          <span
+                            className={`ml-auto shrink-0 pl-4 ${
+                              naoAprovado ? 'text-red-300 line-through' : 'text-slate-100'
+                            }`}
+                          >
+                            R$ {formatCurrency(valor)}
+                          </span>
+                        )}
                       </p>
                     );
                   })}
               </div>
+
+              {/* Resumo embaixo: aprovado, não aprovado, % aprovado e total */}
+              {temSelecao && resumoItens && (
+                <div className="border-t border-slate-800/60 bg-slate-950/40 px-5 py-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div>
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        Aprovado
+                      </span>
+                      <span className="text-base font-black text-green-500">
+                        R$ {formatCurrency(resumoItens.aprovado)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        Não aprovado
+                      </span>
+                      <span className="text-base font-black text-red-400">
+                        R$ {formatCurrency(resumoItens.naoAprovado)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        % aprovado
+                      </span>
+                      <span className="text-base font-black text-blue-300">
+                        {Math.round(resumoItens.percentual)}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        Total
+                      </span>
+                      <span className="text-base font-black text-slate-100">
+                        R$ {formatCurrency(resumoItens.total)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
