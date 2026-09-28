@@ -94,7 +94,7 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
     <div className="bg-slate-900/60 rounded-[2rem] shadow-2xl border border-slate-800 overflow-hidden mb-12">
       <div className="px-8 sm:px-12 py-8 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center bg-slate-800/30 gap-6">
         <div className="flex flex-col text-center sm:text-left">
-          <h2 className="titulo-tema text-3xl font-black text-slate-100 uppercase tracking-tight">Relatório de Envios</h2>
+          <h2 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-tight">Relatório de Envios</h2>
           <span className="text-[10px] text-slate-500 font-extrabold flex items-center gap-2 uppercase tracking-[0.2em] mt-2 px-4 py-1.5 bg-slate-800/60 text-slate-200 rounded-full border border-slate-700/60 w-fit mx-auto sm:mx-0">
             Acompanhamento de Revisões
           </span>

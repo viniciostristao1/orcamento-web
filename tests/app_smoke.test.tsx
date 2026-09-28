@@ -364,9 +364,10 @@ describe('App — smoke test (render + processar)', () => {
     const { container } = render(<App />);
     fireEvent.click(screen.getByText('Dados'));
 
-    // sub-abas
-    expect(screen.getByRole('button', { name: /PEÇAS \(0\)/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /O\.S'S \(0\)/i })).toBeTruthy();
+    // sub-abas (sem a quantidade de tabelas ao lado do nome)
+    expect(screen.getByRole('button', { name: 'PEÇAS' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: "O.S'S" })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /PEÇAS \(/i })).toBeNull();
 
     // cria tabela com 3 colunas
     fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '3' } });
@@ -394,22 +395,22 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Criar sub-aba/i }));
     fireEvent.change(screen.getByLabelText('Nome da nova sub-aba'), { target: { value: 'PREVENTIVA' } });
     fireEvent.click(screen.getByRole('button', { name: /Confirmar nova sub-aba/i }));
-    expect(screen.getByRole('button', { name: /PREVENTIVA \(0\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'PREVENTIVA' })).toBeTruthy();
 
     // excluir a sub-aba (com confirmação)
     const confirmar = vi.spyOn(window, 'confirm').mockReturnValue(true);
     fireEvent.click(screen.getByRole('button', { name: 'Excluir sub-aba PREVENTIVA' }));
-    expect(screen.queryByRole('button', { name: /PREVENTIVA \(0\)/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'PREVENTIVA' })).toBeNull();
     confirmar.mockRestore();
 
     // termo que só existe em O.S's troca de sub-aba
-    fireEvent.click(screen.getByRole('button', { name: /O\.S'S \(0\)/i }));
+    fireEvent.click(screen.getByRole('button', { name: "O.S'S" }));
     fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
     fireEvent.change(container.querySelectorAll('tbody input[type="text"]')[0], { target: { value: 'OS 4471 MARIA' } });
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), { target: { value: 'maria' } });
-    expect(screen.getByRole('button', { name: /O\.S'S \(1\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: "O.S'S" })).toBeTruthy();
     expect(document.querySelectorAll('[data-marcado="1"]').length).toBeGreaterThan(0);
   });
 
@@ -583,8 +584,8 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
     const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
-    // mesma fonte do campo "DADOS DO ORÇAMENTO" (text-lg) e célula compacta
-    expect(celulas()[0].className).toContain('text-lg');
+    // fonte um pouco menor que a do campo "DADOS DO ORÇAMENTO" (text-base) e célula compacta
+    expect(celulas()[0].className).toContain('text-base');
     expect(celulas()[0].className).toContain('py-1');
     fireEvent.change(celulas()[0], { target: { value: 'PASTILHA FREIO' } });
     fireEvent.change(celulas()[3], { target: { value: 'FREIO TRASEIRO' } });

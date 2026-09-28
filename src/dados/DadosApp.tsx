@@ -424,7 +424,7 @@ const DadosApp: React.FC = () => {
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                 >
-                  {a.rotulo} ({a.tabelas.length})
+                  {a.rotulo}
                 </button>
               )}
               <button
@@ -636,7 +636,7 @@ const DadosApp: React.FC = () => {
                                   onPaste={(e) => aoColarCelula(e, aba.id, tabela.id, r, coluna)}
                                   data-marcado={marcado ? '1' : undefined}
                                   data-atual={atualAqui ? '1' : undefined}
-                                  className={`w-full px-3 py-1 pr-9 text-lg font-bold outline-none ${
+                                  className={`w-full px-2.5 py-1 pr-8 text-base font-bold outline-none ${
                                     atualAqui
                                       ? 'bg-amber-400/80 text-slate-950 ring-2 ring-inset ring-amber-400'
                                       : `${selecionada ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500' : 'bg-transparent focus:bg-slate-900'} ${

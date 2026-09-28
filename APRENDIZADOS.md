@@ -5,6 +5,26 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Abas sem contagem, títulos no tamanho do orçamento e células menores (v0.31.0)
+
+**Pedidos:** (1) na aba Dados, **tirar a quantidade de tabelas** do lado do nome da sub-aba
+("PEÇAS (1)" → "PEÇAS"); (2) **Novo Contato** e **Relatório de Envios** com a mesma fonte do
+título **"DESCRIÇÃO DO REPARO"**; (3) **diminuir um pouco a fonte do conteúdo das células** e,
+junto, a altura das células (sem espaços em branco).
+
+**Feito:**
+- **Dados**: o botão da sub-aba mostra só `{a.rotulo}` (saiu `({a.tabelas.length})`).
+- **Whats**: `<h2>` do Novo Contato `text-2xl` → **`text-xl`** e o do Relatório de Envios
+  `text-3xl` → **`text-xl`** — igual ao `h3` do NeonCard ("1. DESCRIÇÃO DO REPARO", 20px).
+- **Células**: input do corpo `text-lg`/`px-3 pr-9` → **`text-base`/`px-2.5 pr-8`** (cabeçalho
+  fica `text-lg`). Linha real caiu de ~37px para ~33px; 16px de fonte.
+
+**Validação:** typecheck/lint limpos; **99 testes** (o smoke da aba Dados agora exige "PEÇAS"/
+"O.S'S" sem contagem — `queryByRole(/PEÇAS \(/)` nulo — e o da célula confere `text-base`);
+build autocontido (1.254 kB); Chromium headless: fontes medidas **20px = 20px = 20px**
+(DESCRIÇÃO DO REPARO / Novo Contato / Relatório de Envios), abas `["PEÇAS","O.S'S"]` e célula
+16px com linha 25px no zoom (33 reais).
+
 ## 2026-09-29 — Whats: janelinhas de observação e mensagem no cartão (v0.30.0)
 
 **Pedido:** no Relatório de Envios, criar um **ícone para a observação** e um **ícone para a

@@ -82,7 +82,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   revisão).   Layout da tela (v0.14.6): grid `lg:grid-cols-2` — esquerda **NOVO CONTATO + SCRIPT PNEUS +
   SCRIPT REVISÃO** (empilhados, mesma largura); direita **RELATÓRIO DE ENVIOS** em **uma coluna**
   de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`); o rótulo do 5º campo é
-  só **"Mensagem"** (v0.28.0; era "Mensagem Especial"). Cartão do relatório (v0.28.0; janelinhas
+  só **"Mensagem"** (v0.28.0; era "Mensagem Especial"). Os títulos **Novo Contato** e
+  **Relatório de Envios** usam **`text-xl`** desde a v0.31.0 — o mesmo tamanho do título
+  “1. DESCRIÇÃO DO REPARO” (NeonCard `text-xl`); antes eram `text-2xl` e `text-3xl`. Cartão do relatório (v0.28.0; janelinhas
   na v0.30.0): linha 1 = **nome + situação (Agendado/Hoje/Atrasado/Concluído) + ícone de
   observação + ícone de mensagem + ícone de lista + notificar + excluir + data**; os ícones de
   observação (`StickyNote`) e mensagem (`MessageSquare`) ficam **entre o status e o
@@ -196,7 +198,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Aba Dados** (v0.15.0; sub-abas dinâmicas v0.16.0; caixinhas/renomear v0.17.0; ações na
   v0.22.0): `src/dados/` — modelo `{ abas: [{ id, rotulo, tabelas }] }` em `dados_tabelas_v1`
   (PEÇAS e O.S's + criadas pelo botão “+”, cada uma com **X próprio** para excluir; **duplo
-  clique** renomeia). **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12,
+  clique** renomeia; desde a v0.31.0 o nome **não mostra mais a contagem** de tabelas — era
+  “PEÇAS (1)”). **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12,
   opção **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
   **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
   **copiar célula** (hover), **copiar a linha toda** (hover, células com TAB), **excluir linha e
@@ -212,10 +215,10 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   lixeira **abaixo da última coluna** (quando a tabela é mais larga que o card, rolam juntas).
   As ações da linha
   (caixinha, copiar e excluir) usam **o mesmo tamanho de botão e o mesmo vão** (`w-6 h-6` +
-  `gap-1.5`); a largura da coluna de ações é fixa em **92px**. Desde a v0.27.0 as células usam
-  a **fonte do campo “DADOS DO ORÇAMENTO”** (`text-lg`, 18px) com linha **compacta**
-  (`px-3 py-1`, cabeçalho `py-1.5`) — medir fonte/altura pelo `ui-compacta` (as duas telas estão
-  no zoom .75).
+  `gap-1.5`); a largura da coluna de ações é fixa em **92px**. As células do corpo usam
+  **`text-base`** (16px, v0.31.0 — um pouco menor que o `text-lg` da v0.27.0) com linha
+  **compacta** (`px-2.5 py-1`; cabeçalho segue `text-lg` com `py-1.5`) — medir fonte/altura pelo
+  `ui-compacta` (as duas telas estão no zoom .75).
   ⚠️ Os botões de ação (copiar/excluir) usam **`tabIndex={-1}`** para o TAB pular de célula em
   célula (pedido do usuário). Entra no backup.
 - **Selecionar/colar células em grade** (v0.23.0; ajustes na v0.24.0): **arrastar** com o mouse

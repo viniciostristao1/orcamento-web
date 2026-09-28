@@ -51,7 +51,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAdd, count }) => {
               <Users className="text-white" size={28} />
           </div>
           <div>
-            <h2 className="titulo-tema text-2xl font-black text-slate-100 tracking-tight uppercase">Novo Contato</h2>
+            <h2 className="titulo-tema text-xl font-black text-slate-100 tracking-tight uppercase">Novo Contato</h2>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Cadastro de Clientes</p>
           </div>
         </div>
