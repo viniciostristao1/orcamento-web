@@ -6,6 +6,7 @@ import {
   type AbaDados,
   type DadosTabelas,
   MAX_COLUNAS,
+  adicionarColuna,
   adicionarLinha,
   atualizarCelula,
   atualizarLargura,
@@ -428,8 +429,9 @@ const DadosApp: React.FC = () => {
               window.addEventListener('mouseup', aoSoltar);
             };
 
-            // Copiar/excluir linha (+ caixinha) no fim de cada linha.
-            const larguraAcoes = tabela.comCaixas ? 92 : 64;
+            // Copiar/excluir linha (+ caixinha) no fim de cada linha; no
+            // cabeçalho cabem 3 botões (adicionar coluna, ordenar e excluir).
+            const larguraAcoes = 92;
             const larguraTotal = tabela.larguras.reduce((a, b) => a + b, 0) + larguraAcoes;
 
             return (
@@ -481,11 +483,22 @@ const DadosApp: React.FC = () => {
                             </th>
                           );
                         })}
-                        {/* Cabeçalho da coluna de opções: ordenar a tabela e excluir
-                            a tabela ficam aqui (no lugar da barra que existia só
-                            para o excluir). */}
+                        {/* Cabeçalho da coluna de opções: adicionar coluna, ordenar
+                            a tabela e excluir a tabela ficam aqui. */}
                         <th className="border border-slate-800 bg-slate-950/60 p-1 text-center">
                           <span className="inline-flex items-center justify-center gap-1">
+                            {tabela.colunas < MAX_COLUNAS && (
+                              <button
+                                type="button"
+                                tabIndex={-1}
+                                onClick={() => setDados((d) => adicionarColuna(d, aba.id, tabela.id))}
+                                aria-label="Adicionar coluna"
+                                title="Adicionar coluna no fim"
+                                className="inline-flex items-center justify-center p-1.5 bg-slate-800 hover:bg-blue-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                              >
+                                <Plus size={14} strokeWidth={2.5} />
+                              </button>
+                            )}
                             <button
                               type="button"
                               tabIndex={-1}
@@ -560,41 +573,43 @@ const DadosApp: React.FC = () => {
                             );
                           })}
                           <td className="border border-slate-800 text-center">
-                            <span className="inline-flex items-center justify-center gap-1">
-                            {tabela.comCaixas && (
-                              <input
-                                type="checkbox"
-                                checked={tabela.marcados[r] ?? false}
-                                onChange={() => setDados((d) => alternarMarcada(d, aba.id, tabela.id, r))}
-                                aria-label={`Marcar linha ${r + 1}`}
-                                title="Marcar (risca a linha)"
-                                className="w-4 h-4 accent-blue-600 cursor-pointer"
-                              />
-                            )}
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              onClick={() => copiarLinha(linha, `${tabela.id}-linha-${r}`)}
-                              aria-label={`Copiar linha ${r + 1}`}
-                              title="Copiar a linha toda"
-                              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
-                                copiado === `${tabela.id}-linha-${r}`
-                                  ? 'bg-green-600 text-white'
-                                  : 'text-slate-600 hover:text-slate-200 hover:bg-slate-800'
-                              }`}
-                            >
-                              {copiado === `${tabela.id}-linha-${r}` ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
-                            </button>
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              onClick={() => excluirLinha(aba.id, tabela.id, r)}
-                              aria-label={`Excluir linha ${r + 1}`}
-                              title="Excluir linha"
-                              className="p-1.5 text-slate-600 hover:text-rose-400 transition-colors cursor-pointer"
-                            >
-                              <X size={14} />
-                            </button>
+                            {/* Ações com o mesmo tamanho e o mesmo espaçamento
+                                (a caixinha, o copiar e o excluir). */}
+                            <span className="inline-flex items-center justify-center gap-1.5">
+                              {tabela.comCaixas && (
+                                <input
+                                  type="checkbox"
+                                  checked={tabela.marcados[r] ?? false}
+                                  onChange={() => setDados((d) => alternarMarcada(d, aba.id, tabela.id, r))}
+                                  aria-label={`Marcar linha ${r + 1}`}
+                                  title="Marcar (risca a linha)"
+                                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                                />
+                              )}
+                              <button
+                                type="button"
+                                tabIndex={-1}
+                                onClick={() => copiarLinha(linha, `${tabela.id}-linha-${r}`)}
+                                aria-label={`Copiar linha ${r + 1}`}
+                                title="Copiar a linha toda"
+                                className={`flex items-center justify-center w-6 h-6 rounded-md transition-colors cursor-pointer ${
+                                  copiado === `${tabela.id}-linha-${r}`
+                                    ? 'bg-green-600 text-white'
+                                    : 'text-slate-600 hover:text-slate-200 hover:bg-slate-800'
+                                }`}
+                              >
+                                {copiado === `${tabela.id}-linha-${r}` ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
+                              </button>
+                              <button
+                                type="button"
+                                tabIndex={-1}
+                                onClick={() => excluirLinha(aba.id, tabela.id, r)}
+                                aria-label={`Excluir linha ${r + 1}`}
+                                title="Excluir linha"
+                                className="flex items-center justify-center w-6 h-6 rounded-md text-slate-600 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                              >
+                                <X size={14} />
+                              </button>
                             </span>
                           </td>
                         </tr>

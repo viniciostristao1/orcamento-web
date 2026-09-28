@@ -450,6 +450,21 @@ describe('App — smoke test (render + processar)', () => {
     expect(container.querySelectorAll('[data-selecionada="1"]')).toHaveLength(1);
   });
 
+  it('aba Dados: botão ao lado de ordenar/excluir adiciona uma coluna', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+
+    expect(container.querySelectorAll('thead input')).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar coluna' }));
+    expect(container.querySelectorAll('thead input')).toHaveLength(3);
+    expect(container.querySelectorAll('tbody input[type="text"]')).toHaveLength(3);
+  });
+
   it('aba Dados: ordenar a tabela por uma coluna (A–Z / Z–A)', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);

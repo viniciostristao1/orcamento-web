@@ -5,6 +5,31 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Dados: adicionar coluna no cabeçalho + espaçamento das ações da linha (v0.25.0)
+
+**Pedidos:** (1) botão para **adicionar coluna** ao lado do ordenar e do excluir tabela;
+(2) **distribuir melhor** os botões da linha (caixinha, copiar e excluir) — o excluir parecia mais
+afastado do copiar do que a caixinha.
+
+**Feito:**
+- `adicionarColuna` (puro, em `dados/utils/tabelas.ts`): acrescenta **título "Coluna N" +
+  largura padrão + célula vazia** em cada linha; respeita `MAX_COLUNAS` (12). Botão **`+`** no
+  `<th>` de opções (mesmo estilo dos outros), escondido quando a tabela já tem 12 colunas.
+- **Espaçamento das ações:** o copiar e o excluir agora são **quadradinhos `w-6 h-6`** com
+  `gap-1.5` (e o excluir ganhou o mesmo `hover:bg-slate-800` do copiar) — os três ficam com o
+  mesmo tamanho e mesmo vão. A largura da coluna de ações virou **92px fixos** (antes 92/64),
+  que comporta os 3 botões do cabeçalho (86px) e as ações da linha (76px com caixinha).
+
+**Validação:** typecheck limpo; **94 testes** (+1 puro de `adicionarColuna` incluindo o limite;
++1 smoke clicando no "+" e conferindo 2→3 colunas em `thead`/`tbody`); build ok; screenshot do
+`dist` mostra os 3 botões no cabeçalho (+, ordenar, excluir), a coluna nova criada e as ações da
+linha alinhadas.
+
+**Gotchas:**
+- `larguraAcoes` fixo em 92 simplifica o cálculo (as tabelas antigas não guardam essa largura;
+  só as `larguras[]` das colunas de dados são persistidas).
+- Os botões novos também levam `tabIndex={-1}` (TAB continua indo de célula em célula).
+
 ## 2026-09-28 — Ajustes de texto nos flyers (v0.24.1)
 
 **Pedidos do usuário:**

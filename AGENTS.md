@@ -73,7 +73,7 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **92 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
+- Testes: **94 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
   (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
@@ -195,8 +195,11 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   opção **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
   **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
   **copiar célula** (hover), **copiar a linha toda** (hover, células com TAB), **excluir linha e
-  excluir coluna com `window.confirm`**, **excluir tabela no cabeçalho da coluna de opções**
-  (não existe mais a barra só com esse botão) e **busca que abre a sub-aba e grifa o termo**.
+  excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo** e, no
+  **cabeçalho da coluna de opções** (que substituiu a barra só do excluir): **adicionar coluna
+  (+)** — escondido no limite de 12 —, **ordenar** e **excluir tabela**. As ações da linha
+  (caixinha, copiar e excluir) usam **o mesmo tamanho de botão e o mesmo vão** (`w-6 h-6` +
+  `gap-1.5`); a largura da coluna de ações é fixa em **92px**.
   ⚠️ Os botões de ação (copiar/excluir) usam **`tabIndex={-1}`** para o TAB pular de célula em
   célula (pedido do usuário). Entra no backup.
 - **Selecionar/colar células em grade** (v0.23.0; ajustes na v0.24.0): **arrastar** com o mouse

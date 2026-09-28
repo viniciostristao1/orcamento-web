@@ -233,6 +233,22 @@ export const removerLinha = (dados: DadosTabelas, abaId: string, id: string, lin
   }));
 
 /**
+ * Adiciona uma coluna no fim (título "Coluna N", largura padrão e célula vazia
+ * em cada linha). Respeita o limite de `MAX_COLUNAS`.
+ */
+export const adicionarColuna = (dados: DadosTabelas, abaId: string, id: string): DadosTabelas =>
+  atualizarTabela(dados, abaId, id, (t) => {
+    if (t.colunas >= MAX_COLUNAS) return t;
+    return {
+      ...t,
+      colunas: t.colunas + 1,
+      titulos: [...t.titulos, `Coluna ${t.colunas + 1}`],
+      larguras: [...t.larguras, LARGURA_COLUNA_PADRAO],
+      linhas: t.linhas.map((l) => [...l, '']),
+    };
+  });
+
+/**
  * Remove uma coluna: o título, a largura e a célula correspondente em cada
  * linha. Nunca deixa a tabela sem colunas.
  */

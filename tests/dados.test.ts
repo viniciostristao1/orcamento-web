@@ -4,6 +4,7 @@ import {
   ABA_PECAS,
   alternarMarcada,
   DADOS_KEY,
+  adicionarColuna,
   adicionarLinha,
   atualizarCelula,
   atualizarLargura,
@@ -86,6 +87,26 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     d = colarBloco(d, ABA_PECAS, id, 0, 1, [['ok']]);
     expect(d.abas[0].tabelas[0].linhas[0][1]).toBe('ok');
     expect(d.abas[0].tabelas[0].linhas).toHaveLength(3);
+  });
+
+  it('adiciona coluna no fim (e respeita o limite de 12)', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 2);
+    const id = d.abas[0].tabelas[0].id;
+    d = adicionarLinha(d, ABA_PECAS, id);
+    d = atualizarCelula(d, ABA_PECAS, id, 0, 0, 'A');
+
+    d = adicionarColuna(d, ABA_PECAS, id);
+    const t = d.abas[0].tabelas[0];
+    expect(t.colunas).toBe(3);
+    expect(t.titulos).toEqual(['Coluna 1', 'Coluna 2', 'Coluna 3']);
+    expect(t.larguras).toHaveLength(3);
+    expect(t.linhas[0]).toEqual(['A', '', '']);
+
+    // no limite não faz nada
+    let cheia = criarTabela(estadoInicial(), ABA_PECAS, 12);
+    const idCheia = cheia.abas[0].tabelas[0].id;
+    cheia = adicionarColuna(cheia, ABA_PECAS, idCheia);
+    expect(cheia.abas[0].tabelas[0].colunas).toBe(12);
   });
 
   it('ordena por coluna (numérico, vazios por último) e a caixinha acompanha a linha', () => {
