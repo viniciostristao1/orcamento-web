@@ -5,6 +5,43 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Dados: busca com Enter (N de M) + células na fonte do orçamento (v0.27.0)
+
+**Pedidos:** (1) na busca, **Enter deve pular para a próxima ocorrência**, rolando até ela e
+deixando-a evidente, com contador estilo "1 de 2"; (2) o **conteúdo das tabelas** deve ter a
+**mesma fonte do conteúdo do campo "2. DADOS DO ORÇAMENTO"** (`text-lg` = 18px) — e as células
+devem encolher junto (senão sobra espaço em branco ao redor do texto).
+
+**Feito:**
+- **`listarOcorrencias` (puro, `dados/utils/tabelas.ts`)**: lista as células com o termo na
+  ordem da tela (títulos da tabela, depois linhas; por sub-aba e tabela) —
+  `{ abaId, tabelaId, tipo, linha, coluna }`. `encontrar` passou a contar a partir dela (mesmo
+  resultado de antes).
+- **Enter/Shift+Enter no campo de busca** (`irParaOcorrencia`): avança/volta com wrap; se a
+  ocorrência está em outra sub-aba, **troca a sub-aba**. Contador ao lado da busca:
+  `N de M · X em PEÇAS · …`; sem resultado continua "Nenhum resultado". Clicar numa sub-aba
+  pula para a 1ª ocorrência dela (quando há busca ativa).
+- **Destaque da ocorrência atual**: `data-atual="1"` + `bg-amber-400/80 text-slate-950` com
+  `ring` âmbar (bem mais forte que o grifo normal `bg-amber-500/20`); a rolagem antiga
+  (`[data-marcado]`) passou a mirar `[data-atual]`.
+- **Células compactas**: input das células `text-lg` (`px-3 py-1 pr-9`), cabeçalho `text-lg`
+  com `px-3 py-1.5` (era `text-xl`/`px-4 py-2` e `px-4 py-2.5`), botão de copiar célula
+  `right-1 p-1`. Medido no headless: fonte da célula = 18px = fonte do textarea do orçamento;
+  linha 37px reais (era ~46) — o mesmo `text-lg` nas duas telas porque ambas estão sob o
+  `ui-compacta` (zoom .75).
+
+**Validação:** typecheck/lint limpos; **97 testes** (+1 puro de `listarOcorrencias` com ordem e
+coordenadas; +1 smoke: digita "freio" → "1 de 2", Enter → "2 de 2" com `[data-atual]` na 2ª
+célula, Enter de novo volta e Shift+Enter desfaz); build autocontido (1.546 kB); Chromium
+headless: contador `1 de 2 · 2 em PEÇAS` → Enter → `2 de 2` com "FREIO TRASEIRO COMPLETO",
+fontes 18px = 18px, linha 28px no zoom (37 reais) e screenshot com o destaque forte na atual.
+
+**Gotchas:**
+- O índice é **modular** (`ocorrenciaAtual % length`): editar uma célula durante a busca pode
+  encurtar a lista sem quebrar a tela.
+- `getByPlaceholderText` não funcionou no playwright-core 1.63 usado no teste visual (cache
+  chromium-1243) — usar `locator('input[placeholder*=…]')`.
+
 ## 2026-09-28 — Dados: Ctrl+X/Delete no bloco + barra de baixo sob a última coluna (v0.26.0)
 
 **Pedidos:** (1) **Ctrl+X não funcionava** quando havia várias células selecionadas, assim como

@@ -390,20 +390,46 @@ export const celulaContem = (valor: string, termo: string): boolean => {
   return t.length > 0 && normalizarBusca(valor).includes(t);
 };
 
+/** Onde uma célula com o termo buscado está (para o Enter pular de uma em uma). */
+export interface OcorrenciaBusca {
+  abaId: string;
+  tabelaId: string;
+  tipo: 'titulo' | 'celula';
+  /** Linha da célula; `-1` quando o termo está num título. */
+  linha: number;
+  coluna: number;
+}
+
+/**
+ * Lista as células (títulos primeiro, depois as linhas) que contêm o termo, na
+ * mesma ordem em que aparecem na tela — é a lista que o Enter percorre.
+ */
+export const listarOcorrencias = (dados: DadosTabelas, termo: string): OcorrenciaBusca[] => {
+  const lista: OcorrenciaBusca[] = [];
+  if (!normalizarBusca(termo)) return lista;
+  for (const aba of dados.abas) {
+    for (const tabela of aba.tabelas) {
+      tabela.titulos.forEach((v, coluna) => {
+        if (celulaContem(v, termo)) {
+          lista.push({ abaId: aba.id, tabelaId: tabela.id, tipo: 'titulo', linha: -1, coluna });
+        }
+      });
+      tabela.linhas.forEach((linha, r) => {
+        linha.forEach((v, coluna) => {
+          if (celulaContem(v, termo)) {
+            lista.push({ abaId: aba.id, tabelaId: tabela.id, tipo: 'celula', linha: r, coluna });
+          }
+        });
+      });
+    }
+  }
+  return lista;
+};
+
 /** Quantas células (títulos + linhas) de cada aba contêm o termo. */
 export const encontrar = (dados: DadosTabelas, termo: string): Record<string, number> => {
-  const t = normalizarBusca(termo);
   const resultado: Record<string, number> = {};
-  for (const aba of dados.abas) {
-    let total = 0;
-    if (t) {
-      for (const tabela of aba.tabelas) {
-        for (const v of [...tabela.titulos, ...tabela.linhas.flat()]) {
-          if (celulaContem(v, termo)) total++;
-        }
-      }
-    }
-    resultado[aba.id] = total;
-  }
+  for (const aba of dados.abas) resultado[aba.id] = 0;
+  for (const oc of listarOcorrencias(dados, termo)) resultado[oc.abaId]++;
   return resultado;
 };

@@ -481,6 +481,42 @@ describe('App — smoke test (render + processar)', () => {
     expect(celulas()[1].value).toBe('R$ 100');
   });
 
+  it('aba Dados: Enter na busca percorre as ocorrências (1 de N) e destaca a atual', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    // mesma fonte do campo "DADOS DO ORÇAMENTO" (text-lg) e célula compacta
+    expect(celulas()[0].className).toContain('text-lg');
+    expect(celulas()[0].className).toContain('py-1');
+    fireEvent.change(celulas()[0], { target: { value: 'PASTILHA FREIO' } });
+    fireEvent.change(celulas()[3], { target: { value: 'FREIO TRASEIRO' } });
+
+    const buscaInput = screen.getByPlaceholderText(/Pesquisar nas tabelas/i);
+    fireEvent.change(buscaInput, { target: { value: 'freio' } });
+
+    const atuais = () => container.querySelectorAll<HTMLInputElement>('[data-atual="1"]');
+    expect(screen.getByText(/1 de 2/)).toBeTruthy();
+    expect(atuais()).toHaveLength(1);
+    expect(atuais()[0].value).toBe('PASTILHA FREIO');
+
+    // Enter vai para a 2ª ocorrência (e o contador acompanha)
+    fireEvent.keyDown(buscaInput, { key: 'Enter' });
+    expect(screen.getByText(/2 de 2/)).toBeTruthy();
+    expect(atuais()[0].value).toBe('FREIO TRASEIRO');
+
+    // Enter de novo volta para a 1ª; Shift+Enter volta
+    fireEvent.keyDown(buscaInput, { key: 'Enter' });
+    expect(screen.getByText(/1 de 2/)).toBeTruthy();
+    fireEvent.keyDown(buscaInput, { key: 'Enter', shiftKey: true });
+    expect(screen.getByText(/2 de 2/)).toBeTruthy();
+  });
+
   it('aba Dados: botão ao lado de ordenar/excluir adiciona uma coluna', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);

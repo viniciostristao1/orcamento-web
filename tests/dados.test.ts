@@ -15,6 +15,7 @@ import {
   encontrar,
   estadoInicial,
   lerDados,
+  listarOcorrencias,
   removerAba,
   removerColuna,
   removerLinha,
@@ -257,6 +258,28 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     expect(migrado.abas[0].tabelas).toHaveLength(1);
     expect(migrado.abas[0].tabelas[0].linhas[0]).toEqual(['x', 'y']);
     expect(migrado.abas[0].tabelas[0].larguras).toEqual([170, 170]);
+  });
+
+  it('lista as ocorrências da busca na ordem da tela (títulos antes das linhas)', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 2);
+    const idPecas = d.abas[0].tabelas[0].id;
+    d = adicionarLinha(d, ABA_PECAS, idPecas);
+    d = adicionarLinha(d, ABA_PECAS, idPecas);
+    d = atualizarTitulo(d, ABA_PECAS, idPecas, 0, 'FREIO');
+    d = atualizarCelula(d, ABA_PECAS, idPecas, 0, 0, 'pastilha de freio');
+    d = atualizarCelula(d, ABA_PECAS, idPecas, 1, 1, 'Freio traseiro');
+    d = criarTabela(d, 'os', 2);
+    const idOs = d.abas[1].tabelas[0].id;
+    d = adicionarLinha(d, 'os', idOs);
+    d = atualizarCelula(d, 'os', idOs, 0, 0, 'FREIO os 123');
+
+    expect(listarOcorrencias(d, 'freio')).toEqual([
+      { abaId: 'pecas', tabelaId: idPecas, tipo: 'titulo', linha: -1, coluna: 0 },
+      { abaId: 'pecas', tabelaId: idPecas, tipo: 'celula', linha: 0, coluna: 0 },
+      { abaId: 'pecas', tabelaId: idPecas, tipo: 'celula', linha: 1, coluna: 1 },
+      { abaId: 'os', tabelaId: idOs, tipo: 'celula', linha: 0, coluna: 0 },
+    ]);
+    expect(listarOcorrencias(d, '')).toEqual([]);
   });
 
   it('busca ignorando acento e acha em qual aba está', () => {

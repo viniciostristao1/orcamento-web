@@ -195,7 +195,10 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   opção **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
   **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
   **copiar célula** (hover), **copiar a linha toda** (hover, células com TAB), **excluir linha e
-  excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo**; no
+  excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo** — e desde
+  a v0.27.0 **Enter/Shift+Enter percorrem as ocorrências** com contador `N de M · X em ABA`
+  (`listarOcorrencias`, índice modular) e **destaque forte** (`data-atual`, âmbar cheio) na
+  atual, trocando de sub-aba se preciso; no
   **cabeçalho da coluna de opções** ficam **adicionar coluna (+)** — escondido no limite de 12 —
   e **ordenar** (v0.24.0), e a **barra de baixo** tem o **+ de adicionar linha à esquerda** e o
   **excluir tabela à direita** (v0.25.1; a dica de arrastar/colar saiu) — desde a v0.26.0 a barra
@@ -203,7 +206,10 @@ cabeçalho mais claro, grade sutil, fonte Plus Jakarta Sans). O tema vale **só 
   lixeira **abaixo da última coluna** (quando a tabela é mais larga que o card, rolam juntas).
   As ações da linha
   (caixinha, copiar e excluir) usam **o mesmo tamanho de botão e o mesmo vão** (`w-6 h-6` +
-  `gap-1.5`); a largura da coluna de ações é fixa em **92px**.
+  `gap-1.5`); a largura da coluna de ações é fixa em **92px**. Desde a v0.27.0 as células usam
+  a **fonte do campo “DADOS DO ORÇAMENTO”** (`text-lg`, 18px) com linha **compacta**
+  (`px-3 py-1`, cabeçalho `py-1.5`) — medir fonte/altura pelo `ui-compacta` (as duas telas estão
+  no zoom .75).
   ⚠️ Os botões de ação (copiar/excluir) usam **`tabIndex={-1}`** para o TAB pular de célula em
   célula (pedido do usuário). Entra no backup.
 - **Selecionar/colar células em grade** (v0.23.0; ajustes na v0.24.0): **arrastar** com o mouse

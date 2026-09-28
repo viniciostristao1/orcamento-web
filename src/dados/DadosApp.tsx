@@ -16,9 +16,9 @@ import {
   colarBloco,
   criarAba,
   criarTabela,
-  encontrar,
   lerDados,
   limparBloco,
+  listarOcorrencias,
   alternarMarcada,
   ordenarPorColuna,
   removerAba,
@@ -43,6 +43,8 @@ const DadosApp: React.FC = () => {
   // Seleção de várias células (arrastar / Shift+clique) para copiar o bloco.
   const [selecao, setSelecao] = useState<{ tabelaId: string; r1: number; c1: number; r2: number; c2: number } | null>(null);
   const arrastandoSelecao = useRef(false);
+  // Ocorrência da busca em destaque (Enter pula para a próxima, estilo "1 de N").
+  const [ocorrenciaAtual, setOcorrenciaAtual] = useState(0);
   // Tabela aberta na janelinha de ordenação (por coluna).
   const [ordenando, setOrdenando] = useState<{ abaId: string; tabelaId: string; titulos: string[] } | null>(null);
   // Sub-aba recém-excluída (para o "Desfazer") + timer que esconde o aviso.
@@ -59,31 +61,45 @@ const DadosApp: React.FC = () => {
   // Se a aba ativa deixar de existir (ou nunca existiu), cai na primeira.
   const aba = dados.abas.find((a) => a.id === abaId) ?? dados.abas[0];
 
-  const ocorrencias = encontrar(dados, busca);
+  const ocorrencias = listarOcorrencias(dados, busca);
   const buscaAtiva = busca.trim().length > 0;
+  const porAba: Record<string, number> = {};
+  for (const oc of ocorrencias) porAba[oc.abaId] = (porAba[oc.abaId] ?? 0) + 1;
   const resumoBusca = dados.abas
-    .filter((a) => (ocorrencias[a.id] ?? 0) > 0)
-    .map((a) => `${ocorrencias[a.id]} em ${a.rotulo}`)
+    .filter((a) => (porAba[a.id] ?? 0) > 0)
+    .map((a) => `${porAba[a.id]} em ${a.rotulo}`)
     .join(' · ');
+  const indiceAtual = ocorrencias.length > 0 ? ocorrenciaAtual % ocorrencias.length : 0;
+  const ocorrencia = ocorrencias[indiceAtual];
 
-  // Ao pesquisar, abre a sub-aba que tem o termo.
+  // Ao pesquisar, abre a sub-aba que tem o termo e começa pela 1ª ocorrência.
   const handleBusca = (valor: string) => {
     setBusca(valor);
-    const oc = encontrar(dados, valor);
-    if (valor.trim() && (oc[aba?.id] ?? 0) === 0) {
-      const alvo = dados.abas.find((a) => (oc[a.id] ?? 0) > 0);
-      if (alvo) setAbaId(alvo.id);
+    setOcorrenciaAtual(0);
+    const lista = listarOcorrencias(dados, valor);
+    if (valor.trim() && !lista.some((o) => o.abaId === aba?.id) && lista[0]) {
+      setAbaId(lista[0].abaId);
     }
   };
 
-  // Leva até a primeira célula encontrada (que fica grifada).
+  // Enter/pula para a ocorrência seguinte (Shift+Enter volta), trocando de
+  // sub-aba se o termo estiver em outra — e rola até ela, que fica destacada.
+  const irParaOcorrencia = (passo: number) => {
+    if (ocorrencias.length === 0) return;
+    const i = ((indiceAtual + passo) % ocorrencias.length + ocorrencias.length) % ocorrencias.length;
+    setOcorrenciaAtual(i);
+    const alvo = ocorrencias[i];
+    if (alvo && alvo.abaId !== aba?.id) setAbaId(alvo.abaId);
+  };
+
+  // Leva até a ocorrência em destaque (a que o Enter está percorrendo).
   useEffect(() => {
     if (!busca.trim()) return;
     const id = window.setTimeout(() => {
-      document.querySelector('[data-marcado="1"]')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      document.querySelector('[data-atual="1"]')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 60);
     return () => window.clearTimeout(id);
-  }, [busca, abaId]);
+  }, [busca, ocorrenciaAtual, abaId]);
 
   const confirmarRenome = () => {
     if (abaRenomeando) setDados((d) => renomearAba(d, abaRenomeando, nomeSubAba));
@@ -253,7 +269,13 @@ const DadosApp: React.FC = () => {
               type="text"
               value={busca}
               onChange={(e) => handleBusca(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter' || !busca.trim()) return;
+                e.preventDefault();
+                irParaOcorrencia(e.shiftKey ? -1 : 1);
+              }}
               placeholder="Pesquisar nas tabelas…"
+              title="Enter vai para o próximo resultado (Shift+Enter volta)"
               className="campo-tema w-full border border-slate-800 rounded-xl pl-11 pr-10 py-3 text-base font-bold text-slate-100 focus:border-blue-500 outline-none"
             />
             {busca && (
@@ -306,7 +328,9 @@ const DadosApp: React.FC = () => {
 
           {buscaAtiva && (
             <span className="text-xs font-black uppercase tracking-widest text-slate-500">
-              {resumoBusca || 'Nenhum resultado'}
+              {ocorrencias.length > 0
+                ? `${indiceAtual + 1} de ${ocorrencias.length}${resumoBusca ? ` · ${resumoBusca}` : ''}`
+                : 'Nenhum resultado'}
             </span>
           )}
         </div>
@@ -336,7 +360,13 @@ const DadosApp: React.FC = () => {
               ) : (
                 <button
                   type="button"
-                  onClick={() => setAbaId(a.id)}
+                  onClick={() => {
+                    setAbaId(a.id);
+                    if (buscaAtiva) {
+                      const i = ocorrencias.findIndex((o) => o.abaId === a.id);
+                      if (i >= 0) setOcorrenciaAtual(i);
+                    }
+                  }}
                   onDoubleClick={() => {
                     setAbaRenomeando(a.id);
                     setNomeSubAba(a.rotulo);
@@ -447,6 +477,9 @@ const DadosApp: React.FC = () => {
             // cabeçalho cabem 3 botões (adicionar coluna, ordenar e excluir).
             const larguraAcoes = 92;
             const larguraTotal = tabela.larguras.reduce((a, b) => a + b, 0) + larguraAcoes;
+            // Ocorrência da busca que está em destaque (Enter percorre).
+            const atual =
+              ocorrencia && ocorrencia.abaId === aba.id && ocorrencia.tabelaId === tabela.id ? ocorrencia : null;
 
             return (
               <div key={tabela.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden mb-6">
@@ -462,15 +495,17 @@ const DadosApp: React.FC = () => {
                       <tr>
                         {tabela.titulos.map((titulo, coluna) => {
                           const marcado = buscaAtiva && celulaContem(titulo, busca);
+                          const atualAqui = atual?.tipo === 'titulo' && atual.coluna === coluna;
                           return (
-                            <th key={coluna} className={`relative group border border-slate-800 p-0 ${marcado ? 'bg-amber-500/20' : 'bg-slate-950/60'}`}>
+                            <th key={coluna} className={`relative group border border-slate-800 p-0 ${atualAqui ? 'bg-amber-400/80' : marcado ? 'bg-amber-500/20' : 'bg-slate-950/60'}`}>
                               <input
                                 type="text"
                                 value={titulo}
                                 onChange={(e) => setDados((d) => atualizarTitulo(d, aba.id, tabela.id, coluna, e.target.value))}
                                 onMouseDown={() => setSelecao(null)}
                                 data-marcado={marcado ? '1' : undefined}
-                                className={`w-full bg-transparent px-4 py-2.5 pr-10 text-lg font-black uppercase outline-none focus:bg-slate-900 ${marcado ? 'text-amber-200' : 'text-slate-100'}`}
+                                data-atual={atualAqui ? '1' : undefined}
+                                className={`w-full bg-transparent px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none focus:bg-slate-900 ${atualAqui ? 'text-slate-950 ring-2 ring-inset ring-amber-400' : marcado ? 'text-amber-200' : 'text-slate-100'}`}
                               />
                               {/* excluir a coluna (título + células dela) — some com 1 coluna só */}
                               {tabela.titulos.length > 1 && (
@@ -532,13 +567,14 @@ const DadosApp: React.FC = () => {
                           {linha.map((valor, coluna) => {
                             const marcado = buscaAtiva && celulaContem(valor, busca);
                             const selecionada = celulaNaSelecao(tabela.id, r, coluna);
+                            const atualAqui = atual?.tipo === 'celula' && atual.linha === r && atual.coluna === coluna;
                             const chave = `${tabela.id}-${r}-${coluna}`;
                             return (
                               <td
                                 key={coluna}
                                 data-selecionada={selecionada ? '1' : undefined}
                                 onMouseEnter={() => estenderSelecao(tabela.id, r, coluna)}
-                                className={`relative group border border-slate-800 p-0 ${marcado ? 'bg-amber-500/20' : ''}`}
+                                className={`relative group border border-slate-800 p-0 ${marcado && !atualAqui ? 'bg-amber-500/20' : ''}`}
                               >
                                 <input
                                   type="text"
@@ -548,12 +584,13 @@ const DadosApp: React.FC = () => {
                                   onKeyDown={aoTeclarCelula}
                                   onPaste={(e) => aoColarCelula(e, aba.id, tabela.id, r, coluna)}
                                   data-marcado={marcado ? '1' : undefined}
-                                  className={`w-full px-4 py-2 pr-10 text-xl font-bold outline-none ${
-                                    selecionada
-                                      ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500'
-                                      : 'bg-transparent focus:bg-slate-900'
-                                  } ${
-                                    marcado ? 'text-amber-200' : tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
+                                  data-atual={atualAqui ? '1' : undefined}
+                                  className={`w-full px-3 py-1 pr-9 text-lg font-bold outline-none ${
+                                    atualAqui
+                                      ? 'bg-amber-400/80 text-slate-950 ring-2 ring-inset ring-amber-400'
+                                      : `${selecionada ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500' : 'bg-transparent focus:bg-slate-900'} ${
+                                          marcado ? 'text-amber-200' : tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
+                                        }`
                                   }`}
                                 />
                                 {valor && (
@@ -563,7 +600,7 @@ const DadosApp: React.FC = () => {
                                     onClick={() => copiarCelula(valor, chave)}
                                     aria-label={`Copiar célula ${r + 1}-${coluna + 1}`}
                                     title="Copiar conteúdo da célula"
-                                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100 ${
+                                    className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-md transition-all cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100 ${
                                       copiado === chave
                                         ? 'bg-green-600 text-white opacity-100'
                                         : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
