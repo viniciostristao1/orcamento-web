@@ -5,6 +5,19 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-28 — Botões "Limpar" com borracha (v0.22.1)
+
+**Pedido:** trocar a **lixeira** pelo **ícone de borracha** nos cards **DESCRIÇÃO DO REPARO**,
+**DADOS DO ORÇAMENTO** e **DADOS DA TABELA** (Tire Flyer).
+
+**Feito:** como os três (e também o **AJUSTES MANUAIS**, que usa o mesmo botão) vêm do
+`components/ClearButton.tsx`, bastou trocar `Trash2` → **`Eraser`** lá dentro — os quatro
+botões "Limpar" ficam iguais, no mesmo padrão já adotado na v0.19.2 para os limpadores de
+campo. `aria-label`/`title` não mudaram (testes e Playwright seguem iguais).
+
+**Validação:** typecheck limpo; 88 testes passando; build ok; no Chromium, os 4 botões
+(Limpar ×3 + Limpar Texto do Tire Flyer) renderizam o `path` do `Eraser`.
+
 ## 2026-09-28 — Aba Dados: ações por linha/coluna + excluir tabela no cabeçalho + TAB (v0.22.0)
 
 **Pedido (4 itens):** (1) excluir linha deve pedir **"tem certeza?"**; (2) botão do lado da
