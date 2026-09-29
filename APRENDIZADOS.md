@@ -5,6 +5,43 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Clique edita a nota e alça de 6 pontinhos reordena (até entre tabelas) (v0.36.0)
+
+**Pedidos:** (1) clicar dentro da nota deve colocar o **cursor de edição no ponto clicado**;
+(2) um botão/ícone de **6 pontinhos** para arrastar a nota e trocar a ordem, inclusive
+**colocando entre duas tabelas ou acima de uma tabela**.
+
+**Feito:**
+- **Clique edita**: a nota agora tem **um textarea sempre montado** (`readOnly={!editando}` +
+  `onFocus → setEditandoNota`), então o clique posiciona o caret nativamente no ponto clicado e
+  já libera a digitação (validado: clique no fim de "Primeira nota" → `selectionStart 13` e o
+  texto digitado entrou ali). O lápis continua alternando (foca/desfoca) e o `<p>` de leitura
+  saiu; o vazio virou `placeholder="(vazia)"`.
+- **Reordenação por blocos**: `AbaDados` ganhou **`ordem: string[]`** (ids de tabelas + notas
+  misturados). `criarTabela`/`criarNota` acrescentam o id, `removerTabela`/`removerNota` tiram,
+  e `normalizarOrdem` no `lerDados` descarta ids mortos e anexa o que não tem posição
+  (compatível com dados antigos). O `DadosApp` agrupa blocos consecutivos de notas numa linha
+  `flex-wrap` (tabelas viram cards entre eles).
+- **Arrastar**: alça `GripVertical` (`data-alca-nota`, `draggable`) no header da nota; o card
+  inteiro é imagem do drag (`setDragImage`). Cada bloco (nota **e tabela**) tem
+  `onDragOver/onDragLeave/onDrop` (destaque `ring` azul; a nota arrastada fica `opacity-50`).
+  `moverNota(dados, abaId, notaId, destinoId)` reordena `ordem` por splice — arrastar para cima
+  solta antes do alvo, para baixo solta depois (DnD clássico), permitindo acima/entre tabelas.
+
+**Validação:** typecheck/lint limpos; **106 testes** (+1 puro do `moverNota` cobrindo acima/entre
+as duas tabelas, ids inexistentes e `ordem` no criar/remover/migrar; smoke reescrito: clique →
+`readOnly=false` e edição, lista, copiar, resize, **drag da 1ª nota na 2ª**, **drop da nota na
+tabela** (nota passa a vir antes no DOM), busca com `data-atual`, borracha, fechar); build
+autocontido; Chromium headless: clique no fim da linha deixou o caret em 13 e digitou ali, e o
+`dragTo` da 2ª nota na tabela resultou em `["n2","TABELA","n1"]`.
+
+**Gotchas:**
+- Ao reordenar, o grupo `flex-wrap` das notas troca de key (primeiro id) e o DOM remonta — em
+  teste, **re-consultar** o textarea/botões depois de arrastar (referências antigas ficam
+  destacadas). Sem perda de dados (o estado mora no React).
+- `dragTo` do Playwright não funciona no meio da cadeia se o alvo casar um card escondido da
+  outra aba — usar um alvo visível (ex.: `table`) e deixar o evento borbulhar até o card.
+
 ## 2026-09-29 — Nota sem negrito, ícone de lista e DESCRIÇÃO = DADOS DO ORÇAMENTO (v0.35.0)
 
 **Pedidos:** (1) o texto da **nota** sem negrito, como as células das tabelas; (2) novo **ícone

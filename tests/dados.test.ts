@@ -28,6 +28,7 @@ import {
   limparBloco,
   limitarNotaAltura,
   limitarNotaLargura,
+  moverNota,
   NOTA_ALTURA_PADRAO,
   NOTA_LARGURA_PADRAO,
   ordenarPorColuna,
@@ -133,6 +134,7 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     expect(nota.texto).toBe('');
     expect(nota.largura).toBe(NOTA_LARGURA_PADRAO);
     expect(nota.altura).toBe(NOTA_ALTURA_PADRAO);
+    expect(d.abas[0].ordem).toEqual([nota.id]);
 
     d = atualizarTextoNota(d, ABA_PECAS, nota.id, 'Trocar óleo na próxima visita');
     expect(d.abas[0].notas[0].texto).toBe('Trocar óleo na próxima visita');
@@ -151,6 +153,32 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
 
     d = removerNota(d, ABA_PECAS, nota.id);
     expect(d.abas[0].notas).toEqual([]);
+    expect(d.abas[0].ordem).toEqual([]);
+  });
+
+  it('arrastar a nota muda a ordem dos blocos (acima/entre tabelas)', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 1);
+    const t1 = d.abas[0].tabelas[0].id;
+    d = criarTabela(d, ABA_PECAS, 1);
+    const t2 = d.abas[0].tabelas[1].id;
+    d = criarNota(d, ABA_PECAS);
+    const n1 = d.abas[0].notas[0].id;
+    expect(d.abas[0].ordem).toEqual([t1, t2, n1]);
+
+    // arrastando para cima e soltando na 1ª tabela → nota acima de tudo
+    d = moverNota(d, ABA_PECAS, n1, t1);
+    expect(d.abas[0].ordem).toEqual([n1, t1, t2]);
+
+    // solta na 1ª tabela de novo (agora abaixo dela) → nota entre as duas
+    d = moverNota(d, ABA_PECAS, n1, t1);
+    expect(d.abas[0].ordem).toEqual([t1, n1, t2]);
+
+    // arrastando para baixo e soltando na 2ª tabela → nota depois das duas
+    d = moverNota(d, ABA_PECAS, n1, t2);
+    expect(d.abas[0].ordem).toEqual([t1, t2, n1]);
+
+    // destino inexistente não muda nada
+    expect(moverNota(d, ABA_PECAS, n1, 'x').abas[0].ordem).toEqual([t1, t2, n1]);
   });
 
   it('adiciona coluna no fim (e respeita o limite de 12)', () => {
@@ -259,6 +287,8 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     expect(lerDados().abas[0].tabelas[0].comCaixas).toBe(true);
     // registros antigos (sem `notas`) viram lista vazia
     expect(lerDados().abas[0].notas).toEqual([]);
+    // e sem `ordem` o bloco entra no fim (as tabelas primeiro)
+    expect(lerDados().abas[0].ordem).toEqual(['t']);
   });
 
   it('renomeia sub-abas', () => {

@@ -28,6 +28,11 @@ export interface AbaDados {
   rotulo: string;
   tabelas: TabelaDados[];
   notas: NotaDados[];
+  /**
+   * Ordem dos blocos na tela (ids de tabelas e notas misturados) — permite
+   * deixar uma nota acima/entre tabelas arrastando pela alça de 6 pontinhos.
+   */
+  ordem: string[];
 }
 
 export interface DadosTabelas {
@@ -53,8 +58,8 @@ export const ABA_OS = 'os';
 
 export const estadoInicial = (): DadosTabelas => ({
   abas: [
-    { id: ABA_PECAS, rotulo: 'PEÇAS', tabelas: [], notas: [] },
-    { id: ABA_OS, rotulo: "O.S'S", tabelas: [], notas: [] },
+    { id: ABA_PECAS, rotulo: 'PEÇAS', tabelas: [], notas: [], ordem: [] },
+    { id: ABA_OS, rotulo: "O.S'S", tabelas: [], notas: [], ordem: [] },
   ],
 });
 
@@ -109,6 +114,19 @@ const normalizarNota = (n: unknown): NotaDados | null => {
 const normalizarNotas = (lista: unknown): NotaDados[] =>
   (Array.isArray(lista) ? lista : []).map(normalizarNota).filter((n): n is NotaDados => n !== null);
 
+/**
+ * Normaliza a ordem dos blocos: mantém só ids que existem e acrescenta no fim
+ * o que ficou de fora (registros antigos não tinham `ordem`).
+ */
+const normalizarOrdem = (bruta: unknown, tabelas: TabelaDados[], notas: NotaDados[]): string[] => {
+  const validos = new Set<string>([...tabelas.map((t) => t.id), ...notas.map((n) => n.id)]);
+  const ordem = (Array.isArray(bruta) ? bruta : []).map(String).filter((id) => validos.has(id));
+  const vistos = new Set(ordem);
+  for (const t of tabelas) if (!vistos.has(t.id)) { ordem.push(t.id); vistos.add(t.id); }
+  for (const n of notas) if (!vistos.has(n.id)) { ordem.push(n.id); vistos.add(n.id); }
+  return ordem;
+};
+
 const slug = (texto: string): string =>
   texto
     .normalize('NFD')
@@ -129,11 +147,14 @@ export const lerDados = (storage: Storage = localStorage): DadosTabelas => {
         .map((a: unknown): AbaDados | null => {
           const x = a as AbaDados;
           if (!x || typeof x !== 'object') return null;
+          const tabelas = normalizarLista(x.tabelas);
+          const notas = normalizarNotas(x.notas);
           return {
             id: String(x.id ?? slug(String(x.rotulo ?? 'aba'))),
             rotulo: String(x.rotulo ?? 'ABA').toUpperCase(),
-            tabelas: normalizarLista(x.tabelas),
-            notas: normalizarNotas(x.notas),
+            tabelas,
+            notas,
+            ordem: normalizarOrdem(x.ordem, tabelas, notas),
           };
         })
         .filter((a: AbaDados | null): a is AbaDados => a !== null);
@@ -146,10 +167,10 @@ export const lerDados = (storage: Storage = localStorage): DadosTabelas => {
     if (d && (Array.isArray(d.pecas) || Array.isArray(d.os))) {
       const base = estadoInicial();
       return {
-        abas: base.abas.map((a) => ({
-          ...a,
-          tabelas: normalizarLista(a.id === ABA_PECAS ? d.pecas : d.os),
-        })),
+        abas: base.abas.map((a) => {
+          const tabelas = normalizarLista(a.id === ABA_PECAS ? d.pecas : d.os);
+          return { ...a, tabelas, ordem: normalizarOrdem(undefined, tabelas, []) };
+        }),
       };
     }
     return estadoInicial();
@@ -170,7 +191,7 @@ export const criarAba = (dados: DadosTabelas, rotulo: string): DadosTabelas => {
   const nome = (rotulo.trim() || 'Nova aba').toUpperCase();
   return {
     ...dados,
-    abas: [...dados.abas, { id: `${slug(rotulo)}-${Date.now().toString(36)}`, rotulo: nome, tabelas: [], notas: [] }],
+    abas: [...dados.abas, { id: `${slug(rotulo)}-${Date.now().toString(36)}`, rotulo: nome, tabelas: [], notas: [], ordem: [] }],
   };
 };
 
@@ -211,36 +232,37 @@ export const criarTabela = (
   };
   return {
     ...dados,
-    abas: dados.abas.map((a) => (a.id === abaId ? { ...a, tabelas: [...a.tabelas, nova] } : a)),
+    abas: dados.abas.map((a) =>
+      a.id === abaId ? { ...a, tabelas: [...a.tabelas, nova], ordem: [...a.ordem, nova.id] } : a,
+    ),
   };
 };
 
 export const removerTabela = (dados: DadosTabelas, abaId: string, id: string): DadosTabelas => ({
   ...dados,
-  abas: dados.abas.map((a) => (a.id === abaId ? { ...a, tabelas: a.tabelas.filter((t) => t.id !== id) } : a)),
-});
-
-/** Cria uma nota vazia na sub-aba (tamanho padrão, ajustável depois). */
-export const criarNota = (dados: DadosTabelas, abaId: string): DadosTabelas => ({
-  ...dados,
   abas: dados.abas.map((a) =>
     a.id === abaId
-      ? {
-          ...a,
-          notas: [
-            ...a.notas,
-            {
-              id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-              criadoEm: new Date().toLocaleString('pt-BR'),
-              texto: '',
-              largura: NOTA_LARGURA_PADRAO,
-              altura: NOTA_ALTURA_PADRAO,
-            },
-          ],
-        }
+      ? { ...a, tabelas: a.tabelas.filter((t) => t.id !== id), ordem: a.ordem.filter((b) => b !== id) }
       : a,
   ),
 });
+
+/** Cria uma nota vazia na sub-aba (tamanho padrão, ajustável depois). */
+export const criarNota = (dados: DadosTabelas, abaId: string): DadosTabelas => {
+  const nota: NotaDados = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    criadoEm: new Date().toLocaleString('pt-BR'),
+    texto: '',
+    largura: NOTA_LARGURA_PADRAO,
+    altura: NOTA_ALTURA_PADRAO,
+  };
+  return {
+    ...dados,
+    abas: dados.abas.map((a) =>
+      a.id === abaId ? { ...a, notas: [...a.notas, nota], ordem: [...a.ordem, nota.id] } : a,
+    ),
+  };
+};
 
 const atualizarNota = (
   dados: DadosTabelas,
@@ -279,9 +301,42 @@ export const atualizarTamanhoNota = (
 export const removerNota = (dados: DadosTabelas, abaId: string, notaId: string): DadosTabelas => ({
   ...dados,
   abas: dados.abas.map((a) =>
-    a.id === abaId ? { ...a, notas: a.notas.filter((n) => n.id !== notaId) } : a,
+    a.id === abaId
+      ? {
+          ...a,
+          notas: a.notas.filter((n) => n.id !== notaId),
+          ordem: a.ordem.filter((b) => b !== notaId),
+        }
+      : a,
   ),
 });
+
+/**
+ * Move a nota `notaId` para a posição de outro bloco (`destinoId` pode ser uma
+ * nota OU uma tabela) na ordem da tela — assim dá para soltar a nota acima ou
+ * entre tabelas. Sem mexer nos demais blocos.
+ */
+export const moverNota = (
+  dados: DadosTabelas,
+  abaId: string,
+  notaId: string,
+  destinoId: string,
+): DadosTabelas => {
+  if (notaId === destinoId) return dados;
+  return {
+    ...dados,
+    abas: dados.abas.map((a) => {
+      if (a.id !== abaId || !a.notas.some((n) => n.id === notaId)) return a;
+      const de = a.ordem.indexOf(notaId);
+      const para = a.ordem.indexOf(destinoId);
+      if (de < 0 || para < 0) return a;
+      const ordem = [...a.ordem];
+      const [movida] = ordem.splice(de, 1);
+      ordem.splice(para, 0, movida);
+      return { ...a, ordem };
+    }),
+  };
+};
 
 export const atualizarTitulo = (
   dados: DadosTabelas,

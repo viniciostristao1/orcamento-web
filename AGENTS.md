@@ -210,12 +210,20 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
 - **Aba Dados** (v0.15.0; sub-abas dinâmicas v0.16.0; caixinhas/renomear v0.17.0; ações na
-  v0.22.0; notas na v0.34.0): `src/dados/` — modelo `{ abas: [{ id, rotulo, tabelas, notas }] }`
-  em `dados_tabelas_v1` (**notas** = caixas de anotação com copiar/editar/borracha/fechar,
-  redimensionáveis arrastando as bordas — `criarNota`/`atualizarTextoNota`/`atualizarTamanhoNota`/
-  `removerNota`, limites `NOTA_*`; o texto entra na **busca** via `listarOcorrencias` tipo
-  `nota` e acende `data-atual`) — e o botão **Criar tabela** é **ícone-only** (v0.34.0; era
-  “Criar tabela” com texto) ao lado do **Criar nota** (`StickyNote` âmbar). Sub-abas =
+  v0.22.0; notas na v0.34.0): `src/dados/` — modelo
+  `{ abas: [{ id, rotulo, tabelas, notas, ordem }] }` em `dados_tabelas_v1`. **`ordem`** = ids de
+  tabelas e notas misturados, definindo a sequência dos blocos na tela (o `lerDados` a normaliza:
+  ids que sumiram saem, o que não tem posição entra no fim — tabelas e depois notas). **Notas** =
+  caixas de anotação com copiar/lista/editar/borracha/fechar, redimensionáveis arrastando as
+  bordas (`criarNota`/`atualizarTextoNota`/`atualizarTamanhoNota`/`removerNota`, limites
+  `NOTA_*`); desde a v0.36.0 o texto está **sempre em textarea** (`readOnly` até o foco —
+  clicar já edita e o cursor cai no ponto clicado) e a **alça de 6 pontinhos** (`GripVertical`)
+  arrasta a nota com HTML5 DnD para cima de qualquer bloco — nota ou **tabela**
+  (`moverNota` reordena `ordem`; tabelas também aceitam o drop e o cartão fica com `ring` azul),
+  permitindo nota **acima/entre tabelas**; notas seguidas ficam na mesma linha (`flex-wrap`) e o
+  texto entra na **busca** via `listarOcorrencias` tipo `nota` (acende `data-atual`). O botão
+  **Criar tabela** é **ícone-only** (v0.34.0; era “Criar tabela” com texto) ao lado do **Criar
+  nota** (`StickyNote` âmbar). Sub-abas =
   **PEÇAS** e **O.S's** + criadas pelo botão “+”, cada uma com **X próprio** para excluir;
   **duplo clique** renomeia; desde a v0.31.0 o nome **não mostra mais a contagem** de tabelas —
   era “PEÇAS (1)”. **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12,

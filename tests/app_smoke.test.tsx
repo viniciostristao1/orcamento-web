@@ -664,61 +664,90 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText(/2 de 2/)).toBeTruthy();
   });
 
-  it('aba Dados: nota com copiar/editar/borracha/fechar, redimensionar e busca', () => {
+  it('aba Dados: nota (clique edita, lista, copiar, redimensionar, arrastar e busca)', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);
     fireEvent.click(screen.getByText('Dados'));
 
+    // uma tabela + duas notas (para testar o arrastar)
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '1' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
     fireEvent.click(screen.getByRole('button', { name: 'Criar nota' }));
-    const notaEl = () => container.querySelector<HTMLElement>('[data-nota]')!;
-    expect(notaEl()).toBeTruthy();
-    expect(notaEl().style.width).toBe('340px');
-    expect(notaEl().style.height).toBe('150px');
-    expect(screen.getByText('(vazia)')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Criar nota' }));
 
-    // editar (lápis vira v) e escrever; o texto NÃO fica em negrito
-    fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
-    fireEvent.change(screen.getByLabelText('Texto da nota'), { target: { value: 'Conferir freio de mão' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
-    expect(screen.getByText('Conferir freio de mão')).toBeTruthy();
-    expect(screen.getByText('Conferir freio de mão').className).not.toContain('font-bold');
+    const notasEls = () => container.querySelectorAll<HTMLElement>('[data-nota]');
+    expect(notasEls()).toHaveLength(2);
+    expect(notasEls()[0].style.width).toBe('340px');
+    expect(notasEls()[0].style.height).toBe('150px');
 
-    // lista: o ícone cria o item "• " e o Enter continua na linha de baixo
-    fireEvent.click(screen.getByRole('button', { name: 'Lista na nota' }));
-    const textareaNota = screen.getByLabelText('Texto da nota') as HTMLTextAreaElement;
-    expect(textareaNota.value).toBe('Conferir freio de mão\n• ');
-    fireEvent.change(textareaNota, { target: { value: 'Conferir freio de mão\n• trocar óleo' } });
-    textareaNota.setSelectionRange(textareaNota.value.length, textareaNota.value.length);
-    fireEvent.keyDown(textareaNota, { key: 'Enter' });
-    expect(textareaNota.value).toBe('Conferir freio de mão\n• trocar óleo\n• ');
+    // em repouso é somente-leitura; ao clicar (focar) já dá para escrever ali
+    const ta0 = screen.getAllByLabelText('Texto da nota')[0] as HTMLTextAreaElement;
+    expect(ta0.readOnly).toBe(true);
+    expect(ta0.placeholder).toBe('(vazia)');
+    fireEvent.focus(ta0);
+    expect(ta0.readOnly).toBe(false);
+    fireEvent.change(ta0, { target: { value: 'Conferir freio de mão' } });
+    expect(ta0.className).not.toContain('font-bold');
+
+    // lista: cria o item "• " e o Enter continua na linha de baixo
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lista na nota' })[0]);
+    expect(ta0.value).toBe('Conferir freio de mão\n• ');
+    fireEvent.change(ta0, { target: { value: 'Conferir freio de mão\n• trocar óleo' } });
+    ta0.setSelectionRange(ta0.value.length, ta0.value.length);
+    fireEvent.keyDown(ta0, { key: 'Enter' });
+    expect(ta0.value).toBe('Conferir freio de mão\n• trocar óleo\n• ');
     // Enter num item vazio tira a bolinha e encerra a lista
-    textareaNota.setSelectionRange(textareaNota.value.length, textareaNota.value.length);
-    fireEvent.keyDown(textareaNota, { key: 'Enter' });
-    expect(textareaNota.value).toBe('Conferir freio de mão\n• trocar óleo\n');
-    fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
+    ta0.setSelectionRange(ta0.value.length, ta0.value.length);
+    fireEvent.keyDown(ta0, { key: 'Enter' });
+    expect(ta0.value).toBe('Conferir freio de mão\n• trocar óleo\n');
 
-    // copiar (o texto agora tem os itens da lista)
+    // copiar (com os itens da lista)
     const escrever = vi.fn();
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
-    fireEvent.click(screen.getByRole('button', { name: 'Copiar nota' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Copiar nota' })[0]);
     expect(escrever).toHaveBeenCalledWith('Conferir freio de mão\n• trocar óleo\n');
 
     // arrastar a borda direita aumenta a largura (compensando o zoom .75)
-    fireEvent.mouseDown(screen.getByRole('separator', { name: 'Ajustar largura da nota' }), { clientX: 100 });
+    fireEvent.mouseDown(screen.getAllByRole('separator', { name: 'Ajustar largura da nota' })[0], { clientX: 100 });
     fireEvent.mouseMove(window, { clientX: 175 }); // +75 na tela = +100 na nota
     fireEvent.mouseUp(window);
-    expect(notaEl().style.width).toBe('440px');
+    expect(notasEls()[0].style.width).toBe('440px');
+
+    // alça de 6 pontinhos: soltar a 1ª nota na 2ª troca a ordem
+    const idA = notasEls()[0].dataset.nota!;
+    const idB = notasEls()[1].dataset.nota!;
+    const dt = {
+      setData: vi.fn(),
+      setDragImage: vi.fn(),
+      getData: () => idA,
+      dropEffect: '',
+      effectAllowed: '',
+    };
+    fireEvent.dragStart(notasEls()[0].querySelector('[data-alca-nota]')!, { dataTransfer: dt });
+    fireEvent.dragOver(notasEls()[1], { dataTransfer: dt });
+    fireEvent.drop(notasEls()[1], { dataTransfer: dt });
+    expect(notasEls()[0].dataset.nota).toBe(idB);
+    expect(notasEls()[1].dataset.nota).toBe(idA);
+
+    // soltar em cima da tabela coloca a nota acima dela
+    const cardTabela = container.querySelector('table')!.closest('div.bg-slate-900\\/60') as HTMLElement;
+    expect(cardTabela).toBeTruthy();
+    const dt2 = { ...dt, getData: () => idA };
+    fireEvent.dragStart(notasEls()[1].querySelector('[data-alca-nota]')!, { dataTransfer: dt2 });
+    fireEvent.dragOver(cardTabela, { dataTransfer: dt2 });
+    fireEvent.drop(cardTabela, { dataTransfer: dt2 });
+    expect(cardTabela.compareDocumentPosition(notasEls()[0]) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
 
     // a lupa acha o conteúdo da nota e destaca
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), { target: { value: 'freio' } });
     expect(screen.getByText(/1 de 1/)).toBeTruthy();
-    expect(notaEl().dataset.atual).toBe('1');
+    expect(container.querySelectorAll('[data-nota][data-atual="1"]')).toHaveLength(1);
 
-    // borracha limpa e o X fecha (remove) a nota
-    fireEvent.click(screen.getByRole('button', { name: 'Limpar nota' }));
-    expect(screen.getByText('(vazia)')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar nota' }));
-    expect(container.querySelector('[data-nota]')).toBeNull();
+    // borracha limpa e o X fecha (remove) uma nota (re-consultando: a ordem mudou)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Limpar nota' })[0]);
+    expect((screen.getAllByLabelText('Texto da nota')[0] as HTMLTextAreaElement).value).toBe('');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Fechar nota' })[0]);
+    expect(container.querySelectorAll('[data-nota]')).toHaveLength(1);
   });
 
   it('aba Dados: botão ao lado de ordenar/excluir adiciona uma coluna', () => {
