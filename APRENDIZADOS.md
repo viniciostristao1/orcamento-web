@@ -5,6 +5,25 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Enter na última linha da tabela cria linha nova (v0.33.0)
+
+**Pedido:** na tabela Dados, dar **Enter na última linha** (em qualquer coluna) deve **abrir uma
+linha nova** (antes não fazia nada, pois `moverSelecao('baixo')` parava na borda).
+
+**Feito (`DadosApp.tsx`)**: no handler do Enter, se `!shiftKey && r === tabela.linhas.length - 1`,
+faz `setDados(adicionarLinha)`, `setSelecao` para `(r+1, c)` e foca o input novo via
+`setTimeout(0)` + `refsCelulas` (o ref só existe depois do render). Shift+Enter na última linha
+continua apenas voltando (não cria).
+
+**Validação:** typecheck/lint limpos; **103 testes** (o smoke do TAB/Enter ficou `async` e agora
+dá Enter na última linha esperando 8 células (4×2) e o foco na nova (coluna 2) com
+`data-selecionada`); build autocontido (1.258 kB); Chromium headless: 2 → 3 linhas e a célula
+nova focada (linha 2, coluna 1, vazia).
+
+**Gotcha:** o `vi.waitFor` deixou o arquivo vivo além dos `setTimeout` do app e apareceram 6
+erros "unhandled" de `scrollIntoView` (jsdom não implementa) — resolvido com o stub
+`Element.prototype.scrollIntoView ??= () => {}` no topo do `app_smoke.test.tsx`.
+
 ## 2026-09-29 — Itens do orçamento com valores/resumo e descrição do flyer (v0.32.0)
 
 **Pedidos:** (1) no histórico (não realizados), embaixo da janela de itens, a soma de

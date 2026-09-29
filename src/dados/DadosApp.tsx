@@ -258,6 +258,15 @@ const DadosApp: React.FC = () => {
       }
       if (e.key === 'Enter') {
         e.preventDefault();
+        // Enter na ÚLTIMA linha (qualquer coluna) abre uma linha nova e vai
+        // para ela — como numa planilha. Shift+Enter continua voltando.
+        if (!e.shiftKey && r === tabela.linhas.length - 1) {
+          const alvo = chaveCelula(tabela.id, r + 1, c);
+          setDados((d) => adicionarLinha(d, aba.id, tabela.id));
+          setSelecao({ tabelaId: tabela.id, r1: r + 1, c1: c, r2: r + 1, c2: c });
+          window.setTimeout(() => refsCelulas.current.get(alvo)?.focus(), 0);
+          return;
+        }
         moverSelecao(tabela, r, c, e.shiftKey ? 'cima' : 'baixo');
         return;
       }

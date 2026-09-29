@@ -240,7 +240,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   o texto dentro da célula), e nada fora do retângulo muda.
   Desde a v0.29.0 **TAB/Enter movem o destaque junto com o foco** (`moverSelecao` + mapa de
   `refsCelulas`): TAB anda para a direita e, na última coluna, desce para a 1ª da linha de baixo;
-  Enter desce uma linha; Shift+Tab/Shift+Enter voltam — parando nas bordas da tabela.
+  Enter desce uma linha; Shift+Tab/Shift+Enter voltam — parando nas bordas da tabela. Desde a
+  v0.33.0 **Enter na última linha (qualquer coluna) cria uma linha nova** (`adicionarLinha`) e
+  foca a mesma coluna nela (Shift+Enter continua só voltando).
   **Colar de planilha/Notion**: se o texto tem TAB/Enter, o `onPaste` distribui o bloco a partir
   da célula via **`colarBloco`** (cria linhas quando passa do fim, ignora colunas além da tabela
   e apara espaços) — colar simples continua normal.

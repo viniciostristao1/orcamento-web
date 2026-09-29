@@ -26,6 +26,10 @@ const registro = (id: string, placa: string, criadoEm: string): OrcamentoSalvo =
   totalGeral: 100,
 });
 
+// O jsdom não implementa scrollIntoView, mas o app chama num setTimeout
+// (rolagem até o resultado) — sem o stub, o timer vira erro "unhandled".
+Element.prototype.scrollIntoView = Element.prototype.scrollIntoView ?? (() => {});
+
 afterEach(() => {
   cleanup();
   localStorage.removeItem(RASCUNHO_KEY);
@@ -571,7 +575,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(celulas()[1].value).toBe('R$ 100');
   });
 
-  it('aba Dados: TAB/Enter levam o destaque junto com o foco (como planilha)', () => {
+  it('aba Dados: TAB/Enter levam o destaque junto com o foco (como planilha)', async () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);
     fireEvent.click(screen.getByText('Dados'));
@@ -609,6 +613,15 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.keyDown(celulas()[2], { key: 'Tab', shiftKey: true });
     expect(document.activeElement).toBe(celulas()[1]);
     expect(destaque()).toBe(1);
+
+    // Enter na última linha (qualquer coluna) abre uma linha nova e foca nela
+    fireEvent.mouseDown(celulas()[5]); // última linha, 2ª coluna
+    fireEvent.keyDown(celulas()[5], { key: 'Enter' });
+    const depois = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    expect(depois()).toHaveLength(8); // 4 linhas x 2 colunas
+    await vi.waitFor(() => expect(document.activeElement).toBe(depois()[7]));
+    expect(depois()[7].closest('td')?.dataset.selecionada).toBe('1');
+    expect(depois()[7].value).toBe('');
   });
 
   it('aba Dados: Enter na busca percorre as ocorrências (1 de N) e destaca a atual', () => {
