@@ -39,11 +39,15 @@ afterEach(() => {
 
 describe('App — smoke test (render + processar)', () => {
   it('renderiza a tela com os textos principais', () => {
-    render(<App />);
+    const { container } = render(<App />);
     expect(screen.getByText(/Toyota Weiand/i)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' })).toBeTruthy();
     expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
+    // DESCRIÇÃO DO REPARO e DADOS DO ORÇAMENTO com a mesma fonte (text-lg)
+    const textareas = container.querySelectorAll('textarea');
+    expect(textareas[0].className).toContain('text-lg');
+    expect(textareas[1].className).toContain('text-lg');
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Processar Tudo/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Histórico' })).toBeTruthy();
@@ -672,17 +676,32 @@ describe('App — smoke test (render + processar)', () => {
     expect(notaEl().style.height).toBe('150px');
     expect(screen.getByText('(vazia)')).toBeTruthy();
 
-    // editar (lápis vira v) e escrever
+    // editar (lápis vira v) e escrever; o texto NÃO fica em negrito
     fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
     fireEvent.change(screen.getByLabelText('Texto da nota'), { target: { value: 'Conferir freio de mão' } });
     fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
     expect(screen.getByText('Conferir freio de mão')).toBeTruthy();
+    expect(screen.getByText('Conferir freio de mão').className).not.toContain('font-bold');
 
-    // copiar
+    // lista: o ícone cria o item "• " e o Enter continua na linha de baixo
+    fireEvent.click(screen.getByRole('button', { name: 'Lista na nota' }));
+    const textareaNota = screen.getByLabelText('Texto da nota') as HTMLTextAreaElement;
+    expect(textareaNota.value).toBe('Conferir freio de mão\n• ');
+    fireEvent.change(textareaNota, { target: { value: 'Conferir freio de mão\n• trocar óleo' } });
+    textareaNota.setSelectionRange(textareaNota.value.length, textareaNota.value.length);
+    fireEvent.keyDown(textareaNota, { key: 'Enter' });
+    expect(textareaNota.value).toBe('Conferir freio de mão\n• trocar óleo\n• ');
+    // Enter num item vazio tira a bolinha e encerra a lista
+    textareaNota.setSelectionRange(textareaNota.value.length, textareaNota.value.length);
+    fireEvent.keyDown(textareaNota, { key: 'Enter' });
+    expect(textareaNota.value).toBe('Conferir freio de mão\n• trocar óleo\n');
+    fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
+
+    // copiar (o texto agora tem os itens da lista)
     const escrever = vi.fn();
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
     fireEvent.click(screen.getByRole('button', { name: 'Copiar nota' }));
-    expect(escrever).toHaveBeenCalledWith('Conferir freio de mão');
+    expect(escrever).toHaveBeenCalledWith('Conferir freio de mão\n• trocar óleo\n');
 
     // arrastar a borda direita aumenta a largura (compensando o zoom .75)
     fireEvent.mouseDown(screen.getByRole('separator', { name: 'Ajustar largura da nota' }), { clientX: 100 });
@@ -697,7 +716,7 @@ describe('App — smoke test (render + processar)', () => {
 
     // borracha limpa e o X fecha (remove) a nota
     fireEvent.click(screen.getByRole('button', { name: 'Limpar nota' }));
-    expect(screen.queryByText('Conferir freio de mão')).toBeNull();
+    expect(screen.getByText('(vazia)')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Fechar nota' }));
     expect(container.querySelector('[data-nota]')).toBeNull();
   });

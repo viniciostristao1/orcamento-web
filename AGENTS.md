@@ -55,7 +55,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `rows={3}`) → RESUMO LÍQUIDO** (pares de valores, v0.14.0/0.14.1); **preview do orçamento na metade** na tela
   (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
   impressão sai normal). Título interno **ORÇAMENTOS** na cor de acento (v0.7.7) e títulos dos
-  cards em **maiúsculas no texto-fonte**.
+  cards em **maiúsculas no texto-fonte**. Desde a v0.35.0 o conteúdo de **DESCRIÇÃO DO REPARO**
+  usa `text-lg` — o mesmo tamanho de **DADOS DO ORÇAMENTO** (era `text-xl`; são campos “parentes”).
 - **Histórico com fontes maiores** (v0.7.7): data 16px, descrição 18px, valores 16px.
 - **Títulos das abas** (v0.8.3): centralizados, sem a linha embaixo e sem subtítulo
   (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards.
@@ -221,7 +222,11 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   opção **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
   **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
   **copiar célula** (hover), **copiar a linha toda** (hover, células com TAB), **excluir linha e
-  excluir coluna com `window.confirm`**, **busca que abre a sub-aba e grifa o termo** — e desde
+  excluir coluna com `window.confirm`**; nas **notas**, além dos 4 botões, desde a v0.35.0 há o
+  **ícone de lista** (`List`): entra em edição, cria o item `• ` no fim e, no modo lista, **Enter
+  cria o próximo item** (Enter num item vazio remove a bolinha e encerra a lista); o texto da
+  nota é **sem negrito** (leitura e edição), como as células do tema Técnico; **busca que abre a
+  sub-aba e grifa o termo** — e desde
   a v0.27.0 **Enter/Shift+Enter percorrem as ocorrências** com contador `N de M · X em ABA`
   (`listarOcorrencias`, índice modular) e **destaque forte** (`data-atual`, âmbar cheio) na
   atual, trocando de sub-aba se preciso — desde a v0.28.0 o contador fica **dentro do próprio

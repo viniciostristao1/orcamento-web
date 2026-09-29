@@ -4,6 +4,7 @@ import {
   Check,
   Copy,
   Eraser,
+  List,
   Pencil,
   Plus,
   Search,
@@ -57,8 +58,10 @@ const DadosApp: React.FC = () => {
   const [abaRenomeando, setAbaRenomeando] = useState<string | null>(null);
   const [nomeSubAba, setNomeSubAba] = useState('');
   const [copiado, setCopiado] = useState<string | null>(null);
-  // Nota em edição (textarea) e nota recém-copiada (feedback verde).
+  // Nota em edição (textarea), nota em modo lista (Enter cria o próximo item)
+  // e nota recém-copiada (feedback verde).
   const [editandoNota, setEditandoNota] = useState<string | null>(null);
+  const [listaNota, setListaNota] = useState<string | null>(null);
   const [copiadoNota, setCopiadoNota] = useState<string | null>(null);
   // Seleção de várias células (arrastar / Shift+clique) para copiar o bloco.
   const [selecao, setSelecao] = useState<{ tabelaId: string; r1: number; c1: number; r2: number; c2: number } | null>(null);
@@ -193,6 +196,46 @@ const DadosApp: React.FC = () => {
     navigator.clipboard.writeText(nota.texto);
     setCopiadoNota(nota.id);
     window.setTimeout(() => setCopiadoNota((c) => (c === nota.id ? null : c)), 2000);
+  };
+
+  // Ícone de lista: entra em edição e já deixa um item "• " novo no fim; com o
+  // modo lista ligado, Enter cria o próximo item (e Enter num item vazio sai).
+  const alternarListaNota = (nota: NotaDados) => {
+    if (listaNota === nota.id) {
+      setListaNota(null);
+      return;
+    }
+    setEditandoNota(nota.id);
+    setListaNota(nota.id);
+    const texto = nota.texto;
+    if (!texto.trim()) {
+      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, '• '));
+    } else if (texto.endsWith('\n')) {
+      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, `${texto}• `));
+    } else {
+      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, `${texto}\n• `));
+    }
+  };
+
+  // Enter no textarea da nota em modo lista: continua a lista na linha de baixo.
+  const teclarListaNota = (e: React.KeyboardEvent<HTMLTextAreaElement>, nota: NotaDados) => {
+    if (e.key !== 'Enter' || e.shiftKey || listaNota !== nota.id) return;
+    e.preventDefault();
+    const alvo = e.currentTarget;
+    const inicio = alvo.selectionStart ?? nota.texto.length;
+    const fim = alvo.selectionEnd ?? inicio;
+    const antes = nota.texto.slice(0, inicio);
+    const depois = nota.texto.slice(fim);
+    const linhaInicio = antes.lastIndexOf('\n') + 1;
+    const linhaAtual = antes.slice(linhaInicio);
+    if (linhaAtual.trim() === '•') {
+      // item vazio: remove a bolinha e encerra o modo lista
+      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, nota.texto.slice(0, linhaInicio) + depois));
+      setListaNota(null);
+      return;
+    }
+    setDados((d) => atualizarTextoNota(d, aba.id, nota.id, `${antes}\n• ${depois}`));
+    window.setTimeout(() => alvo.setSelectionRange(inicio + 3, inicio + 3), 0);
   };
 
   // Arrasta as bordas da nota para mudar largura e/ou altura (a seção está com
@@ -859,6 +902,19 @@ const DadosApp: React.FC = () => {
                         </button>
                         <button
                           type="button"
+                          onClick={() => alternarListaNota(nota)}
+                          aria-label="Lista na nota"
+                          title="Lista (Enter cria o próximo item)"
+                          className={`p-1 rounded-md transition-colors cursor-pointer ${
+                            listaNota === nota.id
+                              ? 'text-green-500'
+                              : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
+                          }`}
+                        >
+                          <List size={12} />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => setEditandoNota(editando ? null : nota.id)}
                           aria-label="Editar nota"
                           title="Editar nota"
@@ -882,6 +938,7 @@ const DadosApp: React.FC = () => {
                           onClick={() => {
                             setDados((d) => removerNota(d, aba.id, nota.id));
                             if (editando) setEditandoNota(null);
+                            if (listaNota === nota.id) setListaNota(null);
                           }}
                           aria-label="Fechar nota"
                           title="Fechar nota"
@@ -896,11 +953,12 @@ const DadosApp: React.FC = () => {
                         autoFocus
                         value={nota.texto}
                         onChange={(e) => setDados((d) => atualizarTextoNota(d, aba.id, nota.id, e.target.value))}
+                        onKeyDown={(e) => teclarListaNota(e, nota)}
                         aria-label="Texto da nota"
-                        className="flex-1 w-full bg-transparent px-3 py-2 text-base font-bold text-slate-200 outline-none resize-none overflow-y-auto"
+                        className="flex-1 w-full bg-transparent px-3 py-2 text-base text-slate-200 outline-none resize-none overflow-y-auto"
                       />
                     ) : (
-                      <p className="flex-1 px-3 py-2 text-base font-bold text-slate-200 whitespace-pre-wrap break-words overflow-y-auto">
+                      <p className="flex-1 px-3 py-2 text-base text-slate-200 whitespace-pre-wrap break-words overflow-y-auto">
                         {nota.texto || <span className="text-slate-600">(vazia)</span>}
                       </p>
                     )}

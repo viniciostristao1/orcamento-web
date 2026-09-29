@@ -5,6 +5,30 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Nota sem negrito, ícone de lista e DESCRIÇÃO = DADOS DO ORÇAMENTO (v0.35.0)
+
+**Pedidos:** (1) o texto da **nota** sem negrito, como as células das tabelas; (2) novo **ícone
+de lista** na nota (bolinha no início dos itens; clicar mostra a bolinha e **Enter cria o item
+de baixo**); (3) o conteúdo de **DESCRIÇÃO DO REPARO** com o **mesmo tamanho de fonte** de DADOS
+DO ORÇAMENTO (“são parentes”).
+
+**Feito:**
+- **Notas**: tirei o `font-bold` do `<textarea>` e do `<p>` (leitura e edição) — texto em peso
+  normal (400), igual às células do tema Técnico.
+- **Lista na nota**: botão `List` no header (antes do lápis, verde quando ativo). Ao clicar,
+  entra em edição e **acrescenta `• `** no fim (nova linha se preciso); com o modo lista ligado,
+  o `onKeyDown` do textarea intercepta Enter e insere `\n• ` no cursor (cursor reposicionado com
+  `setTimeout(0)`); Enter num item vazio (`•`) remove a bolinha e **encerra o modo lista**.
+  Estado `listaNota` (uma nota por vez), limpo no fechar da nota; Shift+Enter segue normal.
+- **Orçamentos**: textarea de DESCRIÇÃO DO REPARO `text-xl` → **`text-lg`**, o mesmo de DADOS DO
+  ORÇAMENTO (18px).
+
+**Validação:** typecheck/lint limpos; **105 testes** (o smoke da nota confere `font-bold` fora,
+`Conferir freio de mão\n• ` ao clicar na lista, Enter criando `\n• ` e Enter no item vazio
+encerrando; o smoke inicial confere os dois textareas com `text-lg`); build autocontido; Chromium
+headless: 18px = 18px nos dois campos, peso 400 na nota e a sequência de itens
+(`• trocar óleo`, `• alinhar pneus`, bolinha extra removida no fim).
+
 ## 2026-09-29 — Notas na aba Dados, data antes do nome e fonte da descrição (v0.34.0)
 
 **Pedidos:** (1) a **descrição para WhatsApp** deve usar a mesma fonte (nome/estilo/tamanho) do
