@@ -248,7 +248,12 @@ const TireFlyerApp: React.FC = () => {
               {copiadoDescricao ? <Check size={16} strokeWidth={3} /> : <Copy size={16} />}
             </button>
           </div>
-          <pre className="p-4 text-base font-bold font-sans text-slate-200 whitespace-pre-wrap">
+          {/* Mesma fonte do conteúdo de DADOS DA TABELA (`--tema-fonte-conteudo`,
+              que o CSS global aplica em textarea/input/select). */}
+          <pre
+            className="p-4 text-lg leading-relaxed text-slate-200 whitespace-pre-wrap"
+            style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
+          >
             {descricaoWhats}
           </pre>
         </div>

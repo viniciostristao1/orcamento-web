@@ -82,9 +82,10 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   revisão).   Layout da tela (v0.14.6): grid `lg:grid-cols-2` — esquerda **NOVO CONTATO + SCRIPT PNEUS +
   SCRIPT REVISÃO** (empilhados, mesma largura); direita **RELATÓRIO DE ENVIOS** em **uma coluna**
   de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`); o rótulo do 5º campo é
-  só **"Mensagem"** (v0.28.0; era "Mensagem Especial"). Os títulos **Novo Contato** e
+  só   **"Mensagem"** (v0.28.0; era "Mensagem Especial"). Os títulos **Novo Contato** e
   **Relatório de Envios** usam **`text-xl`** desde a v0.31.0 — o mesmo tamanho do título
-  “1. DESCRIÇÃO DO REPARO” (NeonCard `text-xl`); antes eram `text-2xl` e `text-3xl`. Cartão do relatório (v0.28.0; janelinhas
+  “1. DESCRIÇÃO DO REPARO” (NeonCard `text-xl`); antes eram `text-2xl` e `text-3xl`. No cartão,
+  a **data vem antes do nome** desde a v0.34.0 (a badge de data é a primeira coisa da linha). Cartão do relatório (v0.28.0; janelinhas
   na v0.30.0): linha 1 = **nome + situação (Agendado/Hoje/Atrasado/Concluído) + ícone de
   observação + ícone de mensagem + ícone de lista + notificar + excluir + data**; os ícones de
   observação (`StickyNote`) e mensagem (`MessageSquare`) ficam **entre o status e o
@@ -155,11 +156,14 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `getBrandStyle` mora em `tire/utils/marcas.ts`.
   ⚠️ O layout `atual` continua sendo **contrato**: validado pixel a pixel contra a v0.19.2
   (0 diferenças) em cada versão; a escolha vale para o PNG e é salva no navegador.
-- **Descrição para WhatsApp do Tire Flyer** (v0.32.0): abaixo do flyer, uma caixinha com
-  **a mesma largura do PNG gerado** (`max-w-[750px]`) e botão de copiar — texto montado por
-  `tire/utils/descricaoWhats.ts` (`montarDescricaoWhats`): `MEDIDA PNEU: …`, linha em branco e,
-  por marca, `• MARCA - R$ (à prazo) (em até 10x no Cartão) ou R$ (à vista) (Dinheiro, Pix,
-  Débito).` — a bolinha é `•` (bullet), não asterisco.
+- **Descrição para WhatsApp do Tire Flyer** (v0.32.0; fonte na v0.34.0): abaixo do flyer, uma
+  caixinha com **a mesma largura do PNG gerado** (`max-w-[750px]`) e botão de copiar — texto
+  montado por `tire/utils/descricaoWhats.ts` (`montarDescricaoWhats`): `MEDIDA PNEU: …`, linha em
+  branco e, por marca, `• MARCA - R$ (à prazo) (em até 10x no Cartão) ou R$ (à vista) (Dinheiro,
+  Pix, Débito).` — a bolinha é `•` (bullet), não asterisco. O `<pre>` usa a **mesma fonte do
+  conteúdo de DADOS DA TABELA** (`text-lg`, peso normal, `leading-relaxed` e
+  `font-family: var(--tema-fonte-conteudo)` inline — o CSS global aplica esse token em
+  `textarea/input/select`, então `.font-mono` da textarea é sobreposto e vale Inter).
 - Build de arquivo único **validado** (`dist/index.html` ~1,26 MB, CSS+JS+fontes embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
@@ -205,10 +209,15 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
   ver bloco em `APRENDIZADOS.md`. Validado com Playwright (37/37 casos DOM = PNG).
 - **Aba Dados** (v0.15.0; sub-abas dinâmicas v0.16.0; caixinhas/renomear v0.17.0; ações na
-  v0.22.0): `src/dados/` — modelo `{ abas: [{ id, rotulo, tabelas }] }` em `dados_tabelas_v1`
-  (PEÇAS e O.S's + criadas pelo botão “+”, cada uma com **X próprio** para excluir; **duplo
-  clique** renomeia; desde a v0.31.0 o nome **não mostra mais a contagem** de tabelas — era
-  “PEÇAS (1)”). **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12,
+  v0.22.0; notas na v0.34.0): `src/dados/` — modelo `{ abas: [{ id, rotulo, tabelas, notas }] }`
+  em `dados_tabelas_v1` (**notas** = caixas de anotação com copiar/editar/borracha/fechar,
+  redimensionáveis arrastando as bordas — `criarNota`/`atualizarTextoNota`/`atualizarTamanhoNota`/
+  `removerNota`, limites `NOTA_*`; o texto entra na **busca** via `listarOcorrencias` tipo
+  `nota` e acende `data-atual`) — e o botão **Criar tabela** é **ícone-only** (v0.34.0; era
+  “Criar tabela” com texto) ao lado do **Criar nota** (`StickyNote` âmbar). Sub-abas =
+  **PEÇAS** e **O.S's** + criadas pelo botão “+”, cada uma com **X próprio** para excluir;
+  **duplo clique** renomeia; desde a v0.31.0 o nome **não mostra mais a contagem** de tabelas —
+  era “PEÇAS (1)”. **Migra** o formato antigo `{ pecas, os }`. Tabelas com colunas 1–12,
   opção **Caixinhas** na criação (`comCaixas`/`marcados` — risca a linha), cabeçalho em negrito,
   **largura de coluna ajustável** (arrastar a alça; `larguras[]`), adicionar/remover linhas,
   **copiar célula** (hover), **copiar a linha toda** (hover, células com TAB), **excluir linha e

@@ -139,10 +139,30 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                 key={contact.id}
                 className={`bg-slate-950/60 border border-slate-800 rounded-2xl p-4 transition-colors hover:border-slate-700 ${sent ? 'opacity-70' : ''}`}
               >
-                {/* Cliente + situação + ações + dia (data editável clicando nela) */}
+                {/* Dia (editável clicando) + cliente + situação + ações */}
                 <div className="flex items-center justify-between gap-3 mb-3">
-                  <span className={`text-lg font-black tracking-tight truncate ${sent ? 'text-slate-400 line-through' : 'text-slate-100'}`}>
-                    {contact.name}
+                  <span className="flex items-center gap-3 min-w-0">
+                    <label
+                      className={`relative shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg font-black border text-sm cursor-pointer transition-all overflow-hidden ${
+                        sent ? 'bg-slate-800/40 text-slate-500 border-slate-700/60' :
+                        isToday ? 'bg-blue-600/20 text-blue-400 border-blue-500/40' :
+                        isPast ? 'bg-rose-600 text-white border-rose-700' :
+                        'bg-slate-800/60 text-slate-200 border-slate-700'
+                      }`}
+                      title="Alterar dia do envio"
+                    >
+                      <span className="z-10">{formatDateDisplay(contact.targetDate)}</span>
+                      <Edit2 size={10} className={`z-10 ${sent ? 'opacity-0' : 'opacity-40'}`} />
+                      <input
+                        type="date"
+                        value={contact.targetDate}
+                        onChange={(e) => onUpdateDate(contact.id, e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-20 [color-scheme:dark]"
+                      />
+                    </label>
+                    <span className={`text-lg font-black tracking-tight truncate ${sent ? 'text-slate-400 line-through' : 'text-slate-100'}`}>
+                      {contact.name}
+                    </span>
                   </span>
                   <span className="flex items-center gap-1.5 shrink-0">
                     {sent ? (
@@ -232,25 +252,6 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
                     >
                       <Trash2 size={16} />
                     </button>
-
-                    <label
-                      className={`relative shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg font-black border text-sm cursor-pointer transition-all overflow-hidden ${
-                        sent ? 'bg-slate-800/40 text-slate-500 border-slate-700/60' :
-                        isToday ? 'bg-blue-600/20 text-blue-400 border-blue-500/40' :
-                        isPast ? 'bg-rose-600 text-white border-rose-700' :
-                        'bg-slate-800/60 text-slate-200 border-slate-700'
-                      }`}
-                      title="Alterar dia do envio"
-                    >
-                      <span className="z-10">{formatDateDisplay(contact.targetDate)}</span>
-                      <Edit2 size={10} className={`z-10 ${sent ? 'opacity-0' : 'opacity-40'}`} />
-                      <input
-                        type="date"
-                        value={contact.targetDate}
-                        onChange={(e) => onUpdateDate(contact.id, e.target.value)}
-                        className="absolute inset-0 opacity-0 cursor-pointer z-20 [color-scheme:dark]"
-                      />
-                    </label>
                   </span>
                 </div>
 

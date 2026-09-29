@@ -1,20 +1,36 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpDown, Check, Copy, Plus, Search, Table2, Trash2, X } from 'lucide-react';
+import {
+  ArrowUpDown,
+  Check,
+  Copy,
+  Eraser,
+  Pencil,
+  Plus,
+  Search,
+  StickyNote,
+  Table2,
+  Trash2,
+  X,
+} from 'lucide-react';
 import TituloEditavel from '../components/TituloEditavel';
 import OrdenarTabela from './components/OrdenarTabela';
 import {
   type AbaDados,
   type DadosTabelas,
+  type NotaDados,
   type TabelaDados,
   MAX_COLUNAS,
   adicionarColuna,
   adicionarLinha,
   atualizarCelula,
   atualizarLargura,
+  atualizarTamanhoNota,
+  atualizarTextoNota,
   atualizarTitulo,
   celulaContem,
   colarBloco,
   criarAba,
+  criarNota,
   criarTabela,
   lerDados,
   limparBloco,
@@ -25,6 +41,7 @@ import {
   renomearAba,
   removerColuna,
   removerLinha,
+  removerNota,
   removerTabela,
   salvarDados,
 } from './utils/tabelas';
@@ -40,6 +57,9 @@ const DadosApp: React.FC = () => {
   const [abaRenomeando, setAbaRenomeando] = useState<string | null>(null);
   const [nomeSubAba, setNomeSubAba] = useState('');
   const [copiado, setCopiado] = useState<string | null>(null);
+  // Nota em edição (textarea) e nota recém-copiada (feedback verde).
+  const [editandoNota, setEditandoNota] = useState<string | null>(null);
+  const [copiadoNota, setCopiadoNota] = useState<string | null>(null);
   // Seleção de várias células (arrastar / Shift+clique) para copiar o bloco.
   const [selecao, setSelecao] = useState<{ tabelaId: string; r1: number; c1: number; r2: number; c2: number } | null>(null);
   const arrastandoSelecao = useRef(false);
@@ -167,6 +187,45 @@ const DadosApp: React.FC = () => {
   const excluirColuna = (abaId: string, tabelaId: string, coluna: number) => {
     if (!window.confirm('Tem certeza que deseja excluir esta coluna?')) return;
     setDados((d) => removerColuna(d, abaId, tabelaId, coluna));
+  };
+
+  const copiarNota = (nota: NotaDados) => {
+    navigator.clipboard.writeText(nota.texto);
+    setCopiadoNota(nota.id);
+    window.setTimeout(() => setCopiadoNota((c) => (c === nota.id ? null : c)), 2000);
+  };
+
+  // Arrasta as bordas da nota para mudar largura e/ou altura (a seção está com
+  // zoom de 75%, então o delta da tela é dividido por 0.75).
+  const iniciarRedimensionamentoNota = (
+    nota: NotaDados,
+    eixo: 'largura' | 'altura' | 'ambos',
+    e: React.MouseEvent,
+  ) => {
+    e.preventDefault();
+    const inicioX = e.clientX;
+    const inicioY = e.clientY;
+    const larguraInicial = nota.largura;
+    const alturaInicial = nota.altura;
+    const aoMover = (ev: MouseEvent) => {
+      const dx = (ev.clientX - inicioX) / 0.75;
+      const dy = (ev.clientY - inicioY) / 0.75;
+      setDados((d) =>
+        atualizarTamanhoNota(
+          d,
+          aba.id,
+          nota.id,
+          eixo === 'altura' ? larguraInicial : larguraInicial + dx,
+          eixo === 'largura' ? alturaInicial : alturaInicial + dy,
+        ),
+      );
+    };
+    const aoSoltar = () => {
+      window.removeEventListener('mousemove', aoMover);
+      window.removeEventListener('mouseup', aoSoltar);
+    };
+    window.addEventListener('mousemove', aoMover);
+    window.addEventListener('mouseup', aoSoltar);
   };
 
   // Solta o mouse em qualquer lugar encerra o "arrastar para selecionar".
@@ -382,9 +441,18 @@ const DadosApp: React.FC = () => {
               onClick={() => setDados((d) => criarTabela(d, aba?.id, colunasNova, comCaixas))}
               aria-label="Criar tabela"
               title="Criar tabela"
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer"
+              className="flex items-center justify-center w-10 h-10 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all active:scale-95 cursor-pointer"
             >
-              <Table2 size={16} /> Criar tabela
+              <Table2 size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDados((d) => criarNota(d, aba?.id))}
+              aria-label="Criar nota"
+              title="Criar nota"
+              className="flex items-center justify-center w-10 h-10 bg-amber-500/90 hover:bg-amber-500 text-slate-950 rounded-lg transition-all active:scale-95 cursor-pointer"
+            >
+              <StickyNote size={18} />
             </button>
           </div>
 
@@ -502,15 +570,16 @@ const DadosApp: React.FC = () => {
           )}
         </div>
 
-        {!aba || aba.tabelas.length === 0 ? (
+        {!aba || (aba.tabelas.length === 0 && aba.notas.length === 0) ? (
           <div className="bg-slate-900/60 border border-dashed border-slate-800 rounded-2xl py-20 text-center">
             <Table2 className="mx-auto text-slate-600 mb-3" size={32} />
             <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">
-              Nenhuma tabela em {aba?.rotulo}. Use "Criar tabela" acima.
+              Nenhuma tabela ou nota em {aba?.rotulo}. Use os botões acima.
             </p>
           </div>
         ) : (
-          aba.tabelas.map((tabela) => {
+          <>
+          {aba.tabelas.map((tabela) => {
             const iniciarRedimensionamento = (coluna: number, e: React.MouseEvent) => {
               e.preventDefault();
               const inicioX = e.clientX;
@@ -746,7 +815,123 @@ const DadosApp: React.FC = () => {
                 </div>
               </div>
             );
-          })
+          })}
+
+          {/* Notas (caixas) da sub-aba: copiar, editar, borracha e fechar;
+              arrastar as bordas muda largura/altura; a lupa também busca aqui. */}
+          {aba.notas.length > 0 && (
+            <div className="flex flex-wrap items-start gap-4 mb-6">
+              {aba.notas.map((nota) => {
+                const marcado = buscaAtiva && celulaContem(nota.texto, busca);
+                const atualAqui = ocorrencia?.tipo === 'nota' && ocorrencia.notaId === nota.id;
+                const editando = editandoNota === nota.id;
+                return (
+                  <div
+                    key={nota.id}
+                    data-nota={nota.id}
+                    data-atual={atualAqui ? '1' : undefined}
+                    className={`relative flex flex-col bg-slate-900/70 border rounded-2xl overflow-hidden ${
+                      atualAqui
+                        ? 'border-amber-400 ring-2 ring-amber-400/60'
+                        : marcado
+                          ? 'border-amber-500/60 bg-amber-500/10'
+                          : 'border-slate-800'
+                    }`}
+                    style={{ width: nota.largura, height: nota.altura }}
+                  >
+                    <div className="flex items-center justify-between gap-2 px-2 py-1.5 bg-slate-950/60 border-b border-slate-800/60">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 truncate">
+                        Nota {nota.criadoEm}
+                      </span>
+                      <span className="flex items-center gap-0.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => copiarNota(nota)}
+                          aria-label="Copiar nota"
+                          title="Copiar nota"
+                          className={`p-1 rounded-md transition-colors cursor-pointer ${
+                            copiadoNota === nota.id
+                              ? 'text-green-500'
+                              : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
+                          }`}
+                        >
+                          {copiadoNota === nota.id ? <Check size={12} strokeWidth={3} /> : <Copy size={12} />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditandoNota(editando ? null : nota.id)}
+                          aria-label="Editar nota"
+                          title="Editar nota"
+                          className={`p-1 rounded-md transition-colors cursor-pointer ${
+                            editando ? 'text-green-500' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
+                          }`}
+                        >
+                          {editando ? <Check size={12} strokeWidth={3} /> : <Pencil size={12} />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDados((d) => atualizarTextoNota(d, aba.id, nota.id, ''))}
+                          aria-label="Limpar nota"
+                          title="Limpar nota"
+                          className="p-1 rounded-md text-slate-500 hover:text-amber-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                          <Eraser size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDados((d) => removerNota(d, aba.id, nota.id));
+                            if (editando) setEditandoNota(null);
+                          }}
+                          aria-label="Fechar nota"
+                          title="Fechar nota"
+                          className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    </div>
+                    {editando ? (
+                      <textarea
+                        autoFocus
+                        value={nota.texto}
+                        onChange={(e) => setDados((d) => atualizarTextoNota(d, aba.id, nota.id, e.target.value))}
+                        aria-label="Texto da nota"
+                        className="flex-1 w-full bg-transparent px-3 py-2 text-base font-bold text-slate-200 outline-none resize-none overflow-y-auto"
+                      />
+                    ) : (
+                      <p className="flex-1 px-3 py-2 text-base font-bold text-slate-200 whitespace-pre-wrap break-words overflow-y-auto">
+                        {nota.texto || <span className="text-slate-600">(vazia)</span>}
+                      </p>
+                    )}
+                    {/* Bordas para arrastar e redimensionar */}
+                    <div
+                      role="separator"
+                      aria-label="Ajustar largura da nota"
+                      title="Arraste para ajustar a largura"
+                      onMouseDown={(e) => iniciarRedimensionamentoNota(nota, 'largura', e)}
+                      className="absolute top-0 bottom-0 right-0 w-2 cursor-ew-resize hover:bg-blue-500/40 z-10"
+                    />
+                    <div
+                      role="separator"
+                      aria-label="Ajustar altura da nota"
+                      title="Arraste para ajustar a altura"
+                      onMouseDown={(e) => iniciarRedimensionamentoNota(nota, 'altura', e)}
+                      className="absolute left-0 right-0 bottom-0 h-2 cursor-ns-resize hover:bg-blue-500/40 z-10"
+                    />
+                    <div
+                      role="separator"
+                      aria-label="Ajustar tamanho da nota"
+                      title="Arraste para ajustar largura e altura"
+                      onMouseDown={(e) => iniciarRedimensionamentoNota(nota, 'ambos', e)}
+                      className="absolute right-0 bottom-0 w-3 h-3 cursor-nwse-resize bg-slate-700 hover:bg-blue-500 z-20 rounded-tl"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>

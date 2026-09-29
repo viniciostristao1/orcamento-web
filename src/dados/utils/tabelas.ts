@@ -14,10 +14,20 @@ export interface TabelaDados {
   marcados: boolean[];
 }
 
+/** Caixa de anotação da sub-aba (tamanho ajustável arrastando as bordas). */
+export interface NotaDados {
+  id: string;
+  criadoEm: string;
+  texto: string;
+  largura: number;
+  altura: number;
+}
+
 export interface AbaDados {
   id: string;
   rotulo: string;
   tabelas: TabelaDados[];
+  notas: NotaDados[];
 }
 
 export interface DadosTabelas {
@@ -31,18 +41,31 @@ export const LARGURA_COLUNA_PADRAO = 170;
 export const LARGURA_MIN = 80;
 export const LARGURA_MAX = 600;
 
+export const NOTA_LARGURA_PADRAO = 340;
+export const NOTA_ALTURA_PADRAO = 150;
+export const NOTA_LARGURA_MIN = 160;
+export const NOTA_LARGURA_MAX = 1200;
+export const NOTA_ALTURA_MIN = 80;
+export const NOTA_ALTURA_MAX = 800;
+
 export const ABA_PECAS = 'pecas';
 export const ABA_OS = 'os';
 
 export const estadoInicial = (): DadosTabelas => ({
   abas: [
-    { id: ABA_PECAS, rotulo: 'PEÇAS', tabelas: [] },
-    { id: ABA_OS, rotulo: "O.S'S", tabelas: [] },
+    { id: ABA_PECAS, rotulo: 'PEÇAS', tabelas: [], notas: [] },
+    { id: ABA_OS, rotulo: "O.S'S", tabelas: [], notas: [] },
   ],
 });
 
 export const limitarLargura = (valor: number): number =>
   Math.max(LARGURA_MIN, Math.min(LARGURA_MAX, Math.round(valor) || LARGURA_COLUNA_PADRAO));
+
+export const limitarNotaLargura = (valor: number): number =>
+  Math.max(NOTA_LARGURA_MIN, Math.min(NOTA_LARGURA_MAX, Math.round(valor) || NOTA_LARGURA_PADRAO));
+
+export const limitarNotaAltura = (valor: number): number =>
+  Math.max(NOTA_ALTURA_MIN, Math.min(NOTA_ALTURA_MAX, Math.round(valor) || NOTA_ALTURA_PADRAO));
 
 const normalizarTabela = (t: unknown): TabelaDados | null => {
   const d = t as TabelaDados;
@@ -71,6 +94,21 @@ const normalizarTabela = (t: unknown): TabelaDados | null => {
 const normalizarLista = (lista: unknown): TabelaDados[] =>
   (Array.isArray(lista) ? lista : []).map(normalizarTabela).filter((t): t is TabelaDados => t !== null);
 
+const normalizarNota = (n: unknown): NotaDados | null => {
+  const x = n as NotaDados;
+  if (!x || typeof x !== 'object') return null;
+  return {
+    id: String(x.id ?? Date.now()),
+    criadoEm: String(x.criadoEm ?? ''),
+    texto: String(x.texto ?? ''),
+    largura: limitarNotaLargura(Number(x.largura)),
+    altura: limitarNotaAltura(Number(x.altura)),
+  };
+};
+
+const normalizarNotas = (lista: unknown): NotaDados[] =>
+  (Array.isArray(lista) ? lista : []).map(normalizarNota).filter((n): n is NotaDados => n !== null);
+
 const slug = (texto: string): string =>
   texto
     .normalize('NFD')
@@ -95,6 +133,7 @@ export const lerDados = (storage: Storage = localStorage): DadosTabelas => {
             id: String(x.id ?? slug(String(x.rotulo ?? 'aba'))),
             rotulo: String(x.rotulo ?? 'ABA').toUpperCase(),
             tabelas: normalizarLista(x.tabelas),
+            notas: normalizarNotas(x.notas),
           };
         })
         .filter((a: AbaDados | null): a is AbaDados => a !== null);
@@ -131,7 +170,7 @@ export const criarAba = (dados: DadosTabelas, rotulo: string): DadosTabelas => {
   const nome = (rotulo.trim() || 'Nova aba').toUpperCase();
   return {
     ...dados,
-    abas: [...dados.abas, { id: `${slug(rotulo)}-${Date.now().toString(36)}`, rotulo: nome, tabelas: [] }],
+    abas: [...dados.abas, { id: `${slug(rotulo)}-${Date.now().toString(36)}`, rotulo: nome, tabelas: [], notas: [] }],
   };
 };
 
@@ -179,6 +218,69 @@ export const criarTabela = (
 export const removerTabela = (dados: DadosTabelas, abaId: string, id: string): DadosTabelas => ({
   ...dados,
   abas: dados.abas.map((a) => (a.id === abaId ? { ...a, tabelas: a.tabelas.filter((t) => t.id !== id) } : a)),
+});
+
+/** Cria uma nota vazia na sub-aba (tamanho padrão, ajustável depois). */
+export const criarNota = (dados: DadosTabelas, abaId: string): DadosTabelas => ({
+  ...dados,
+  abas: dados.abas.map((a) =>
+    a.id === abaId
+      ? {
+          ...a,
+          notas: [
+            ...a.notas,
+            {
+              id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+              criadoEm: new Date().toLocaleString('pt-BR'),
+              texto: '',
+              largura: NOTA_LARGURA_PADRAO,
+              altura: NOTA_ALTURA_PADRAO,
+            },
+          ],
+        }
+      : a,
+  ),
+});
+
+const atualizarNota = (
+  dados: DadosTabelas,
+  abaId: string,
+  notaId: string,
+  fn: (n: NotaDados) => NotaDados,
+): DadosTabelas => ({
+  ...dados,
+  abas: dados.abas.map((a) =>
+    a.id === abaId ? { ...a, notas: a.notas.map((n) => (n.id === notaId ? fn(n) : n)) } : a,
+  ),
+});
+
+/** Edita o texto da nota (a borracha usa com texto vazio). */
+export const atualizarTextoNota = (
+  dados: DadosTabelas,
+  abaId: string,
+  notaId: string,
+  texto: string,
+): DadosTabelas => atualizarNota(dados, abaId, notaId, (n) => ({ ...n, texto }));
+
+/** Ajusta o tamanho da nota (arrastar as bordas), com limites. */
+export const atualizarTamanhoNota = (
+  dados: DadosTabelas,
+  abaId: string,
+  notaId: string,
+  largura: number,
+  altura: number,
+): DadosTabelas =>
+  atualizarNota(dados, abaId, notaId, (n) => ({
+    ...n,
+    largura: limitarNotaLargura(largura),
+    altura: limitarNotaAltura(altura),
+  }));
+
+export const removerNota = (dados: DadosTabelas, abaId: string, notaId: string): DadosTabelas => ({
+  ...dados,
+  abas: dados.abas.map((a) =>
+    a.id === abaId ? { ...a, notas: a.notas.filter((n) => n.id !== notaId) } : a,
+  ),
 });
 
 export const atualizarTitulo = (
@@ -390,14 +492,17 @@ export const celulaContem = (valor: string, termo: string): boolean => {
   return t.length > 0 && normalizarBusca(valor).includes(t);
 };
 
-/** Onde uma célula com o termo buscado está (para o Enter pular de uma em uma). */
+/** Onde o termo buscado está (para o Enter pular de uma em uma). */
 export interface OcorrenciaBusca {
   abaId: string;
-  tabelaId: string;
-  tipo: 'titulo' | 'celula';
+  tipo: 'titulo' | 'celula' | 'nota';
+  /** Tabela/linha/coluna do termo (não se aplicam à nota). */
+  tabelaId?: string;
   /** Linha da célula; `-1` quando o termo está num título. */
-  linha: number;
-  coluna: number;
+  linha?: number;
+  coluna?: number;
+  /** Nota onde o termo está (tipo 'nota'). */
+  notaId?: string;
 }
 
 /**
@@ -421,6 +526,11 @@ export const listarOcorrencias = (dados: DadosTabelas, termo: string): Ocorrenci
           }
         });
       });
+    }
+    for (const nota of aba.notas) {
+      if (celulaContem(nota.texto, termo)) {
+        lista.push({ abaId: aba.id, tipo: 'nota', notaId: nota.id });
+      }
     }
   }
   return lista;

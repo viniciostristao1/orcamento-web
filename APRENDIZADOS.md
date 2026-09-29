@@ -5,6 +5,42 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Notas na aba Dados, data antes do nome e fonte da descrição (v0.34.0)
+
+**Pedidos:** (1) a **descrição para WhatsApp** deve usar a mesma fonte (nome/estilo/tamanho) do
+conteúdo de **DADOS DA TABELA**; (2) no Relatório de Envios a **data vem antes do nome**;
+(3) **"CRIAR TABELA"** vira botão **ícone-only** e nasce um botão ao lado para criar uma **nota**
+(caixa), redimensionável **arrastando as bordas**, com **copiar, editar, borracha (limpar) e
+fechar**, e o conteúdo das notas **entra na lupa**.
+
+**Feito:**
+- **Descrição**: `<pre>` com `text-lg leading-relaxed` e `fontFamily: var(--tema-fonte-conteudo)`
+  inline. ⚠️ O CSS global (sem `@layer`) de `textarea/input/select` vence o `.font-mono` do
+  Tailwind 4 — por isso a textarea de DADOS DA TABELA renderiza **Inter**, não mono; medido
+  **18px / 400 / Inter** iguais nos dois.
+- **Whats**: a badge de data (com o `input date`) virou o **primeiro item da linha 1**, antes do
+  nome ("10/10/2026JOAO DA SILVA").
+- **Dados — notas**: `NotaDados` em `AbaDados.notas` (dentro de `dados_tabelas_v1`, já no
+  backup): `criarNota`, `atualizarTextoNota` (borracha = texto vazio), `atualizarTamanhoNota`
+  (limites `NOTA_LARGURA_*`/`NOTA_ALTURA_*`), `removerNota` + normalização no `lerDados`
+  (registros antigos viram `notas: []`). UI: botão **StickyNote** ao lado do "Criar tabela"
+  (agora **ícone-only**, `aria-label` mantém os testes), caixas com `data-nota`, header com
+  **copiar/editar (vira v)/borracha/x**, edição em `textarea` (salva a cada mudança) e leitura em
+  `<p>`, **handles** de borda direita/baixo/canto (cursor resize; delta `/0.75` pelo `ui-compacta`)
+  e destaque `data-atual`/âmbar quando a lupa acha. `listarOcorrencias` ganhou o tipo `nota`
+  (`tabelaId/linha/coluna` agora opcionais) — a busca conta, o Enter navega e rola até ela.
+
+**Validação:** typecheck/lint limpos; **105 testes** (+1 puro: criar/escrever/redimensionar com
+limites/limpar/remover, `listarOcorrencias` com nota e `notas: []` na migração; +1 smoke: criar,
+escrever, copiar, redimensionar (340→440px com zoom compensado), buscar (1 de 1 + `data-atual`),
+limpar e fechar); build autocontido (1.265 kB); Chromium headless: botões de 30px sem texto, nota
+seguindo o mouse no resize, `data-atual=1` na busca e fontes Inter/18/400 idênticas.
+
+**Gotchas:**
+- CSS sem `@layer` vence as utilities do Tailwind 4 — para a fonte "idêntica", usei o mesmo token
+  `--tema-fonte-conteudo` inline em vez de classes.
+- O resize da nota compensa o zoom .75 igual ao das colunas: a borda acompanha o ponteiro 1:1.
+
 ## 2026-09-29 — Enter na última linha da tabela cria linha nova (v0.33.0)
 
 **Pedido:** na tabela Dados, dar **Enter na última linha** (em qualquer coluna) deve **abrir uma

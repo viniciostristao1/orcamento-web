@@ -660,6 +660,48 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText(/2 de 2/)).toBeTruthy();
   });
 
+  it('aba Dados: nota com copiar/editar/borracha/fechar, redimensionar e busca', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Criar nota' }));
+    const notaEl = () => container.querySelector<HTMLElement>('[data-nota]')!;
+    expect(notaEl()).toBeTruthy();
+    expect(notaEl().style.width).toBe('340px');
+    expect(notaEl().style.height).toBe('150px');
+    expect(screen.getByText('(vazia)')).toBeTruthy();
+
+    // editar (lápis vira v) e escrever
+    fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
+    fireEvent.change(screen.getByLabelText('Texto da nota'), { target: { value: 'Conferir freio de mão' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Editar nota' }));
+    expect(screen.getByText('Conferir freio de mão')).toBeTruthy();
+
+    // copiar
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar nota' }));
+    expect(escrever).toHaveBeenCalledWith('Conferir freio de mão');
+
+    // arrastar a borda direita aumenta a largura (compensando o zoom .75)
+    fireEvent.mouseDown(screen.getByRole('separator', { name: 'Ajustar largura da nota' }), { clientX: 100 });
+    fireEvent.mouseMove(window, { clientX: 175 }); // +75 na tela = +100 na nota
+    fireEvent.mouseUp(window);
+    expect(notaEl().style.width).toBe('440px');
+
+    // a lupa acha o conteúdo da nota e destaca
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), { target: { value: 'freio' } });
+    expect(screen.getByText(/1 de 1/)).toBeTruthy();
+    expect(notaEl().dataset.atual).toBe('1');
+
+    // borracha limpa e o X fecha (remove) a nota
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar nota' }));
+    expect(screen.queryByText('Conferir freio de mão')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar nota' }));
+    expect(container.querySelector('[data-nota]')).toBeNull();
+  });
+
   it('aba Dados: botão ao lado de ordenar/excluir adiciona uma coluna', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);

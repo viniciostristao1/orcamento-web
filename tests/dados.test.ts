@@ -8,9 +8,12 @@ import {
   adicionarLinha,
   atualizarCelula,
   atualizarLargura,
+  atualizarTamanhoNota,
+  atualizarTextoNota,
   atualizarTitulo,
   celulaContem,
   criarAba,
+  criarNota,
   criarTabela,
   encontrar,
   estadoInicial,
@@ -23,7 +26,12 @@ import {
   removerTabela,
   colarBloco,
   limparBloco,
+  limitarNotaAltura,
+  limitarNotaLargura,
+  NOTA_ALTURA_PADRAO,
+  NOTA_LARGURA_PADRAO,
   ordenarPorColuna,
+  removerNota,
   salvarDados,
 } from '../src/dados/utils/tabelas';
 
@@ -115,6 +123,34 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     // bloco fora dos limites é ignorado
     d = limparBloco(d, ABA_PECAS, id, 9, 9, 12, 12);
     expect(d.abas[0].tabelas[0].linhas[2]).toEqual(['G', 'H', 'I']);
+  });
+
+  it('notas: cria, escreve, redimensiona (com limites), limpa e remove', () => {
+    let d = estadoInicial();
+    expect(d.abas[0].notas).toEqual([]);
+    d = criarNota(d, ABA_PECAS);
+    const nota = d.abas[0].notas[0];
+    expect(nota.texto).toBe('');
+    expect(nota.largura).toBe(NOTA_LARGURA_PADRAO);
+    expect(nota.altura).toBe(NOTA_ALTURA_PADRAO);
+
+    d = atualizarTextoNota(d, ABA_PECAS, nota.id, 'Trocar óleo na próxima visita');
+    expect(d.abas[0].notas[0].texto).toBe('Trocar óleo na próxima visita');
+
+    d = atualizarTamanhoNota(d, ABA_PECAS, nota.id, 500, 260);
+    expect(d.abas[0].notas[0].largura).toBe(500);
+    expect(d.abas[0].notas[0].altura).toBe(260);
+    // limites
+    d = atualizarTamanhoNota(d, ABA_PECAS, nota.id, 10, 9999);
+    expect(d.abas[0].notas[0].largura).toBe(limitarNotaLargura(10));
+    expect(d.abas[0].notas[0].altura).toBe(limitarNotaAltura(9999));
+
+    // borracha
+    d = atualizarTextoNota(d, ABA_PECAS, nota.id, '');
+    expect(d.abas[0].notas[0].texto).toBe('');
+
+    d = removerNota(d, ABA_PECAS, nota.id);
+    expect(d.abas[0].notas).toEqual([]);
   });
 
   it('adiciona coluna no fim (e respeita o limite de 12)', () => {
@@ -221,6 +257,8 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     // registros antigos (sem o campo) assumem com caixinhas
     localStorage.setItem(DADOS_KEY, JSON.stringify({ abas: [{ id: 'x', rotulo: 'X', tabelas: [{ id: 't', colunas: 1, titulos: ['A'], linhas: [] }] }] }));
     expect(lerDados().abas[0].tabelas[0].comCaixas).toBe(true);
+    // registros antigos (sem `notas`) viram lista vazia
+    expect(lerDados().abas[0].notas).toEqual([]);
   });
 
   it('renomeia sub-abas', () => {
@@ -268,6 +306,9 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     d = atualizarTitulo(d, ABA_PECAS, idPecas, 0, 'FREIO');
     d = atualizarCelula(d, ABA_PECAS, idPecas, 0, 0, 'pastilha de freio');
     d = atualizarCelula(d, ABA_PECAS, idPecas, 1, 1, 'Freio traseiro');
+    d = criarNota(d, ABA_PECAS);
+    const idNota = d.abas[0].notas[0].id;
+    d = atualizarTextoNota(d, ABA_PECAS, idNota, 'checar freio de mão');
     d = criarTabela(d, 'os', 2);
     const idOs = d.abas[1].tabelas[0].id;
     d = adicionarLinha(d, 'os', idOs);
@@ -277,8 +318,10 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
       { abaId: 'pecas', tabelaId: idPecas, tipo: 'titulo', linha: -1, coluna: 0 },
       { abaId: 'pecas', tabelaId: idPecas, tipo: 'celula', linha: 0, coluna: 0 },
       { abaId: 'pecas', tabelaId: idPecas, tipo: 'celula', linha: 1, coluna: 1 },
+      { abaId: 'pecas', tipo: 'nota', notaId: idNota },
       { abaId: 'os', tabelaId: idOs, tipo: 'celula', linha: 0, coluna: 0 },
     ]);
+    expect(encontrar(d, 'freio')).toEqual({ pecas: 4, os: 1 });
     expect(listarOcorrencias(d, '')).toEqual([]);
   });
 
