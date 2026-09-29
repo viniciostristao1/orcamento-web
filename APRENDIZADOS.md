@@ -5,6 +5,28 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Lista da nota na linha do cursor + barra maior (v0.37.0)
+
+**Pedidos:** (1) o ícone de lista deve criar a bolinha **na linha onde está o cursor** (não numa
+linha abaixo); (2) **com uma linha selecionada**, a bolinha tem que entrar **nessa linha** (estava
+aparecendo duas linhas abaixo da última); (3) **aumentar minimamente** a barra de ferramentas da
+nota (rótulo "NOTA …" + botões).
+
+**Feito (`DadosApp.tsx`):**
+- `alternarListaNota` agora lê `selectionStart` do textarea (mesmo sem foco, o valor persiste),
+  acha a **linha do cursor/seleção** (`lastIndexOf('\n', pos-1)+1` até o próximo `\n`) e insere
+  `• ` **no começo dessa linha**; o caret vai para depois da bolinha (`inicioLinha + 2`, com
+  `focus()`). Se a linha já é um item, o clique só garante o modo lista (ou **desliga**, se já
+  estiver ativo). O Enter continua criando o próximo item e o item vazio encerra.
+- Barra da nota: `px-2.5 py-2` (era `px-2 py-1.5`), alça `p-1` e botões `p-1.5` (eram `p-0.5`/
+  `p-1`) — só engorda a barra, sem mexer nos ícones de 12px.
+
+**Validação:** typecheck/lint limpos; **106 testes** (o smoke da nota agora seleciona a 1ª linha
+e clica na lista esperando `• conferir freio` na própria linha, deixa o Enter criar o item de
+baixo e encerrar no item vazio; copiar confere o texto da lista); build autocontido; Chromium
+headless: cursor na 2ª linha → `primeira linha\n• segunda linha`; seleção da 1ª → `• primeira
+linha\n• segunda linha`; Enter no fim → `…\n• `; barra com **31px** de altura.
+
 ## 2026-09-29 — Clique edita a nota e alça de 6 pontinhos reordena (até entre tabelas) (v0.36.0)
 
 **Pedidos:** (1) clicar dentro da nota deve colocar o **cursor de edição no ponto clicado**;

@@ -689,23 +689,27 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(ta0, { target: { value: 'Conferir freio de mão' } });
     expect(ta0.className).not.toContain('font-bold');
 
-    // lista: cria o item "• " e o Enter continua na linha de baixo
+    // lista: a bolinha entra na linha do cursor (mesmo com a linha selecionada)
+    fireEvent.change(ta0, { target: { value: 'conferir freio\nlinha dois' } });
+    ta0.setSelectionRange(0, 14); // seleciona "conferir freio"
     fireEvent.click(screen.getAllByRole('button', { name: 'Lista na nota' })[0]);
-    expect(ta0.value).toBe('Conferir freio de mão\n• ');
-    fireEvent.change(ta0, { target: { value: 'Conferir freio de mão\n• trocar óleo' } });
+    expect(ta0.value).toBe('• conferir freio\nlinha dois');
+
+    // Enter cria o próximo item na linha de baixo
+    fireEvent.change(ta0, { target: { value: '• conferir freio\n• trocar óleo' } });
     ta0.setSelectionRange(ta0.value.length, ta0.value.length);
     fireEvent.keyDown(ta0, { key: 'Enter' });
-    expect(ta0.value).toBe('Conferir freio de mão\n• trocar óleo\n• ');
+    expect(ta0.value).toBe('• conferir freio\n• trocar óleo\n• ');
     // Enter num item vazio tira a bolinha e encerra a lista
     ta0.setSelectionRange(ta0.value.length, ta0.value.length);
     fireEvent.keyDown(ta0, { key: 'Enter' });
-    expect(ta0.value).toBe('Conferir freio de mão\n• trocar óleo\n');
+    expect(ta0.value).toBe('• conferir freio\n• trocar óleo\n');
 
     // copiar (com os itens da lista)
     const escrever = vi.fn();
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
     fireEvent.click(screen.getAllByRole('button', { name: 'Copiar nota' })[0]);
-    expect(escrever).toHaveBeenCalledWith('Conferir freio de mão\n• trocar óleo\n');
+    expect(escrever).toHaveBeenCalledWith('• conferir freio\n• trocar óleo\n');
 
     // arrastar a borda direita aumenta a largura (compensando o zoom .75)
     fireEvent.mouseDown(screen.getAllByRole('separator', { name: 'Ajustar largura da nota' })[0], { clientX: 100 });

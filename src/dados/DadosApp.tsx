@@ -203,23 +203,30 @@ const DadosApp: React.FC = () => {
     window.setTimeout(() => setCopiadoNota((c) => (c === nota.id ? null : c)), 2000);
   };
 
-  // Ícone de lista: entra em edição e já deixa um item "• " novo no fim; com o
-  // modo lista ligado, Enter cria o próximo item (e Enter num item vazio sai).
+  // Ícone de lista: põe a bolinha na linha onde está o cursor (ou a seleção) —
+  // não numa linha nova embaixo. Com o modo lista ligado, Enter cria o próximo
+  // item; clicar de novo numa linha que já é item desliga o modo.
   const alternarListaNota = (nota: NotaDados) => {
-    if (listaNota === nota.id) {
+    const el = refsNotas.current.get(nota.id);
+    const texto = nota.texto;
+    const pos = el?.selectionStart ?? texto.length;
+    const inicioLinha = texto.lastIndexOf('\n', Math.max(0, pos - 1)) + 1;
+    const fimLinha = texto.indexOf('\n', pos);
+    const linha = texto.slice(inicioLinha, fimLinha < 0 ? texto.length : fimLinha);
+    const jaTemBullet = linha.trimStart().startsWith('•');
+    if (listaNota === nota.id && jaTemBullet) {
       setListaNota(null);
       return;
     }
     setEditandoNota(nota.id);
     setListaNota(nota.id);
-    const texto = nota.texto;
-    if (!texto.trim()) {
-      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, '• '));
-    } else if (texto.endsWith('\n')) {
-      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, `${texto}• `));
-    } else {
-      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, `${texto}\n• `));
-    }
+    if (jaTemBullet) return; // já é um item: só garante o modo lista
+    const novo = texto.slice(0, inicioLinha) + '• ' + texto.slice(inicioLinha);
+    setDados((d) => atualizarTextoNota(d, aba.id, nota.id, novo));
+    window.setTimeout(() => {
+      el?.focus();
+      el?.setSelectionRange(inicioLinha + 2, inicioLinha + 2);
+    }, 0);
   };
 
   // Enter no textarea da nota em modo lista: continua a lista na linha de baixo.
@@ -698,7 +705,7 @@ const DadosApp: React.FC = () => {
                         } ${notaArrastando === nota.id ? 'opacity-50' : ''}`}
                         style={{ width: nota.largura, height: nota.altura }}
                       >
-                        <div className="flex items-center justify-between gap-2 px-2 py-1.5 bg-slate-950/60 border-b border-slate-800/60">
+                        <div className="flex items-center justify-between gap-2 px-2.5 py-2 bg-slate-950/60 border-b border-slate-800/60">
                           <span className="flex items-center gap-1 min-w-0">
                             <span
                               data-alca-nota
@@ -716,7 +723,7 @@ const DadosApp: React.FC = () => {
                               }}
                               aria-label="Arrastar nota"
                               title="Arraste para mudar a nota de lugar (acima/entre tabelas)"
-                              className="p-0.5 -ml-1 rounded text-slate-600 hover:text-slate-300 cursor-grab active:cursor-grabbing shrink-0"
+                              className="p-1 -ml-1 rounded text-slate-600 hover:text-slate-300 cursor-grab active:cursor-grabbing shrink-0"
                             >
                               <GripVertical size={12} />
                             </span>
@@ -730,7 +737,7 @@ const DadosApp: React.FC = () => {
                               onClick={() => copiarNota(nota)}
                               aria-label="Copiar nota"
                               title="Copiar nota"
-                              className={`p-1 rounded-md transition-colors cursor-pointer ${
+                              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                                 copiadoNota === nota.id
                                   ? 'text-green-500'
                                   : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
@@ -743,7 +750,7 @@ const DadosApp: React.FC = () => {
                               onClick={() => alternarListaNota(nota)}
                               aria-label="Lista na nota"
                               title="Lista (Enter cria o próximo item)"
-                              className={`p-1 rounded-md transition-colors cursor-pointer ${
+                              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                                 listaNota === nota.id
                                   ? 'text-green-500'
                                   : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
@@ -764,7 +771,7 @@ const DadosApp: React.FC = () => {
                               }}
                               aria-label="Editar nota"
                               title="Editar nota"
-                              className={`p-1 rounded-md transition-colors cursor-pointer ${
+                              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                                 editando ? 'text-green-500' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'
                               }`}
                             >
@@ -775,7 +782,7 @@ const DadosApp: React.FC = () => {
                               onClick={() => setDados((d) => atualizarTextoNota(d, aba.id, nota.id, ''))}
                               aria-label="Limpar nota"
                               title="Limpar nota"
-                              className="p-1 rounded-md text-slate-500 hover:text-amber-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-md text-slate-500 hover:text-amber-400 hover:bg-slate-800 transition-colors cursor-pointer"
                             >
                               <Eraser size={12} />
                             </button>
@@ -788,7 +795,7 @@ const DadosApp: React.FC = () => {
                               }}
                               aria-label="Fechar nota"
                               title="Fechar nota"
-                              className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
                             >
                               <X size={12} />
                             </button>
