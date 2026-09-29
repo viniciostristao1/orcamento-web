@@ -59,7 +59,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   usa `text-lg` — o mesmo tamanho de **DADOS DO ORÇAMENTO** (era `text-xl`; são campos “parentes”).
 - **Histórico com fontes maiores** (v0.7.7): data 16px, descrição 18px, valores 16px.
 - **Títulos das abas** (v0.8.3): centralizados, sem a linha embaixo e sem subtítulo
-  (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards.
+  (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards. Desde a v0.38.0 são
+  **`text-2xl`** (24px; eram `text-3xl`) em todas as abas (ORÇAMENTOS, TIRE FLYER, PAINEL
+  WHATSAPP e DADOS).
 - **Botões são ícone-only** (v0.8.0): sempre com `aria-label` + `title` com o texto da ação —
   é o que os testes e o Playwright usam (`getByRole('button', { name: … })`). Abas e opções de
   tema continuam com texto.
@@ -233,8 +235,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   excluir coluna com `window.confirm`**; nas **notas**, além dos 4 botões, desde a v0.35.0 há o
   **ícone de lista** (`List`): a bolinha `• ` entra **na linha do cursor/seleção** (v0.37.0; antes
   criava uma linha nova embaixo) e, no modo lista, **Enter cria o próximo item** (Enter num item
-  vazio remove a bolinha e encerra a lista; clicar de novo numa linha que já é item desliga o
-  modo); o texto da nota é **sem negrito** (leitura e edição), como as células do tema Técnico;
+  vazio remove a bolinha e encerra a lista; clicar de novo numa linha que já é item **remove a
+  bolinha** e desliga o modo — v0.38.0); o texto da nota é **sem negrito** (leitura e edição),
+  como as células do tema Técnico;
   **busca que abre a sub-aba e grifa o termo** — e desde
   a v0.27.0 **Enter/Shift+Enter percorrem as ocorrências** com contador `N de M · X em ABA`
   (`listarOcorrencias`, índice modular) e **destaque forte** (`data-atual`, âmbar cheio) na

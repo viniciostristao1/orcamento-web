@@ -119,7 +119,7 @@ const TireFlyerApp: React.FC = () => {
           "DADOS DA TABELA" e no flyer (a largura útil cai ~pela metade). */}
       <div className="max-w-[1150px] mx-auto">
       <header className="mb-4 text-center">
-        <TituloEditavel id="pneus" estilo="duas-cores" className="titulo-tema text-3xl font-black tracking-tighter uppercase" />
+        <TituloEditavel id="pneus" estilo="duas-cores" className="titulo-tema text-2xl font-black tracking-tighter uppercase" />
       </header>
 
       <div className="grid lg:grid-cols-[1fr_auto] gap-10 items-start">

@@ -42,6 +42,8 @@ describe('App — smoke test (render + processar)', () => {
     const { container } = render(<App />);
     expect(screen.getByText(/Toyota Weiand/i)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' })).toBeTruthy();
+    // títulos das abas menores (text-2xl)
+    expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' }).className).toContain('text-2xl');
     expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     // DESCRIÇÃO DO REPARO e DADOS DO ORÇAMENTO com a mesma fonte (text-lg)
@@ -692,6 +694,15 @@ describe('App — smoke test (render + processar)', () => {
     // lista: a bolinha entra na linha do cursor (mesmo com a linha selecionada)
     fireEvent.change(ta0, { target: { value: 'conferir freio\nlinha dois' } });
     ta0.setSelectionRange(0, 14); // seleciona "conferir freio"
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lista na nota' })[0]);
+    expect(ta0.value).toBe('• conferir freio\nlinha dois');
+
+    // clicar de novo na linha com bolinha remove a bolinha (e desliga a lista)
+    ta0.setSelectionRange(2, 2);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lista na nota' })[0]);
+    expect(ta0.value).toBe('conferir freio\nlinha dois');
+    // reativa para o Enter continuar a lista
+    ta0.setSelectionRange(2, 2);
     fireEvent.click(screen.getAllByRole('button', { name: 'Lista na nota' })[0]);
     expect(ta0.value).toBe('• conferir freio\nlinha dois');
 

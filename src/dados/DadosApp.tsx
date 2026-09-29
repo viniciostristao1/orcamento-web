@@ -215,7 +215,16 @@ const DadosApp: React.FC = () => {
     const linha = texto.slice(inicioLinha, fimLinha < 0 ? texto.length : fimLinha);
     const jaTemBullet = linha.trimStart().startsWith('•');
     if (listaNota === nota.id && jaTemBullet) {
+      // clicou de novo numa linha que tem a bolinha: tira a bolinha e sai do modo
+      const fim = fimLinha < 0 ? texto.length : fimLinha;
+      const semBullet = texto.slice(0, inicioLinha) + linha.replace(/^(\s*)•\s?/, '$1') + texto.slice(fim);
+      setDados((d) => atualizarTextoNota(d, aba.id, nota.id, semBullet));
       setListaNota(null);
+      window.setTimeout(() => {
+        const novoPos = Math.max(inicioLinha, pos - 2);
+        el?.focus();
+        el?.setSelectionRange(novoPos, novoPos);
+      }, 0);
       return;
     }
     setEditandoNota(nota.id);
@@ -469,7 +478,7 @@ const DadosApp: React.FC = () => {
     <>
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
       <header className="mb-4 text-center">
-        <TituloEditavel id="dados" className="titulo-tema text-3xl font-black tracking-tighter uppercase" />
+        <TituloEditavel id="dados" className="titulo-tema text-2xl font-black tracking-tighter uppercase" />
       </header>
 
       <div className="max-w-[1150px] mx-auto">

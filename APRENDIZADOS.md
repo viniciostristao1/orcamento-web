@@ -5,6 +5,22 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-09-29 — Títulos das abas menores + lista desliga removendo a bolinha (v0.38.0)
+
+**Pedidos:** (1) os títulos **ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP e DADOS** com fonte menor;
+(2) clicar de novo no **ícone de lista** numa linha que já tem a bolinha deve **removê-la**.
+
+**Feito:**
+- Títulos das 4 abas (os `TituloEditavel` de cada tela): `text-3xl` → **`text-2xl`** (30 → 24px).
+- `alternarListaNota`: quando o modo lista está ativo e a linha do cursor já tem `•`, o clique
+  agora **tira a bolinha** (`linha.replace(/^(\s*)•\s?/, '$1')`) e desliga o modo, em vez de só
+  desligar; o caret fica em `pos - 2` (ou no começo da linha) e o textarea volta ao foco.
+
+**Validação:** typecheck/lint limpos; **106 testes** (o smoke confere `text-2xl` no título e a
+sequência clicar-lista → `• conferir freio`, clicar de novo → `conferir freio`, reativar → `• …`);
+build autocontido; Chromium headless: títulos **24px** nas 4 abas e `COM LISTA "• conferir freio"`
+/ `SEM LISTA "conferir freio"`.
+
 ## 2026-09-29 — Lista da nota na linha do cursor + barra maior (v0.37.0)
 
 **Pedidos:** (1) o ícone de lista deve criar a bolinha **na linha onde está o cursor** (não numa
