@@ -53,9 +53,10 @@ import {
   salvarDados,
 } from './utils/tabelas';
 
-const DadosApp: React.FC<{ subAba?: { id: string; vez: number } | null }> = ({
-  subAba = null,
-}) => {
+const DadosApp: React.FC<{
+  subAba?: { id: string; vez: number } | null;
+  buscaDados?: { termo: string; vez: number } | null;
+}> = ({ subAba = null, buscaDados = null }) => {
   const [dados, setDados] = useState<DadosTabelas>(lerDados);
   const [abaId, setAbaId] = useState<string>(() => lerDados().abas[0]?.id ?? 'pecas');
   const [colunasNova, setColunasNova] = useState(4);
@@ -144,6 +145,12 @@ const DadosApp: React.FC<{ subAba?: { id: string; vez: number } | null }> = ({
     }, 60);
     return () => window.clearTimeout(id);
   }, [busca, ocorrenciaAtual, abaId]);
+
+  // Busca vinda da lupa do SUB ATALHOS (aba Orçamentos): preenche a pesquisa e
+  // abre a sub-aba do 1º resultado — igual a digitar no campo de busca.
+  useEffect(() => {
+    if (buscaDados && buscaDados.termo.trim()) handleBusca(buscaDados.termo);
+  }, [buscaDados]);
 
   const confirmarRenome = () => {
     if (abaRenomeando) setDados((d) => renomearAba(d, abaRenomeando, nomeSubAba));

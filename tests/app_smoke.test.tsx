@@ -651,6 +651,57 @@ describe('App — smoke test (render + processar)', () => {
     expect(valoresPrimeiraTabela()).toContain('PRIMEIRA');
   });
 
+  it('orçamentos: lupa do SUB ATALHOS pesquisa nos Dados e abre no resultado', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    localStorage.setItem(
+      'dados_tabelas_v1',
+      JSON.stringify({
+        abas: [
+          { id: 'pecas', rotulo: 'PEÇAS', tabelas: [], notas: [], ordem: [] },
+          {
+            id: 'os',
+            rotulo: "O.S'S",
+            tabelas: [
+              {
+                id: 't1',
+                criadoEm: '',
+                colunas: 1,
+                titulos: ['SERVICO'],
+                linhas: [['PASTILHA FREIO']],
+                larguras: [170],
+                comCaixas: true,
+                marcados: [false],
+              },
+            ],
+            notas: [],
+            ordem: ['t1'],
+          },
+        ],
+      }),
+    );
+    try {
+      render(<App />);
+      // a lupa é o primeiro botão dos atalhos
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar termo nos Dados' }));
+      const campo = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: 'freio' } });
+      fireEvent.keyDown(campo, { key: 'Enter' });
+
+      // foi para a aba Dados, abriu O.S's (onde está o termo) e grifou
+      const subAba = screen
+        .getAllByRole('button', { name: "O.S'S" })
+        .find((b) => b.className.includes('bg-blue-600'));
+      expect(subAba).toBeTruthy();
+      expect(document.querySelector('[data-atual="1"]')).toBeTruthy();
+      // o termo ficou no campo de busca da aba Dados (dá para dar Enter e percorrer)
+      expect(
+        (screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value,
+      ).toBe('freio');
+    } finally {
+      localStorage.removeItem('dados_tabelas_v1');
+    }
+  });
+
   it('aba Dados: colar planilha distribui nas células e arrastar seleciona várias para copiar', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);

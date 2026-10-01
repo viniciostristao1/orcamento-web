@@ -75,6 +75,14 @@ const AppInterno: React.FC = () => {
     setSubAbaDados((d) => ({ id, vez: (d?.vez ?? 0) + 1 }));
   };
 
+  // Lupa do SUB ATALHOS: pesquisa o termo na aba Dados (igual a digitar no
+  // "Pesquisar nas tabelas" de lá — abre a sub-aba do 1º resultado).
+  const [buscaDados, setBuscaDados] = useState<{ termo: string; vez: number } | null>(null);
+  const buscarNosDados = (termo: string) => {
+    setAba('dados');
+    setBuscaDados((d) => ({ termo, vez: (d?.vez ?? 0) + 1 }));
+  };
+
   useEffect(() => {
     aplicarTema(tema);
     try {
@@ -144,13 +152,14 @@ const AppInterno: React.FC = () => {
         </div>
       </header>
 
-      <main className={`mx-auto px-[30px] pt-3 ${aba === 'orcamentos' ? 'max-w-[1110px]' : 'max-w-[1400px]'}`}>
+      <main className={`mx-auto px-[30px] pt-3 ${aba === 'orcamentos' ? 'max-w-[1125px]' : 'max-w-[1400px]'}`}>
         <div className={aba === 'orcamentos' ? '' : 'hidden'}>
           <OrcamentosApp
             historicoAberto={historicoAberto}
             onFecharHistorico={() => setHistoricoAberto(false)}
             onAbrirHistorico={() => setHistoricoAberto(true)}
             onIrParaSubAba={irParaSubAbaDados}
+            onBuscarNosDados={buscarNosDados}
           />
         </div>
         <div className={aba === 'pneus' ? '' : 'hidden'}>
@@ -160,7 +169,7 @@ const AppInterno: React.FC = () => {
           <WhatsApp destaque={destaque} />
         </div>
         <div className={aba === 'dados' ? '' : 'hidden'}>
-          <DadosApp subAba={subAbaDados} />
+          <DadosApp subAba={subAbaDados} buscaDados={buscaDados} />
         </div>
       </main>
 

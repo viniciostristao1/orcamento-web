@@ -5,6 +5,26 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Faixa 164px + lupa pesquisa nos Dados (v0.55.0)
+
+**Pedidos:** (1) botões do atalho só um pouco mais largos; (2) lupa como 1º botão, fazendo o
+mesmo que "Pesquisar nas tabelas" e levando da aba Orçamentos ao termo nos Dados.
+
+**Feito:**
+- Faixa 148px → **164px** (grade `1fr 569px` → **`1fr 601px`**, `main` 1110px → **1125px**;
+  esquerda segue ~424px).
+- `AtalhosDados` com `onBuscar`: 1º botão (**BUSCAR** + lupa) vira campo inline (Enter confirma
+  e navega, Esc/blur cancela, X limpa); `App.buscarNosDados` troca para `dados` e passa
+  `buscaDados {termo, vez}` → `DadosApp` aplica `handleBusca` (abre a sub-aba do 1º resultado,
+  grifa, e o termo fica no campo de lá para percorrer com Enter). Gotcha: `aria-label`
+  "Pesquisar nas tabelas" colidia com o botão do histórico do flyer (`/Pesquisar/i` casa com
+  abas montadas mas ocultas) — virou **"Buscar termo nos Dados"**.
+- Teste novo cobre o fluxo (termo só em O.S's, estando em PEÇAS: abre O.S's + `data-atual`).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **111/111**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Esquerda ~425px + faixa 148px (v0.54.0)
 
 **Pedido:** esquerda mais estreita de novo; botões de atalho mais largos de novo.
