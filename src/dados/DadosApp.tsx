@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import TituloEditavel from '../components/TituloEditavel';
 import OrdenarTabela from './components/OrdenarTabela';
+import { destacarTermo } from '../utils/historico';
 import {
   type AbaDados,
   type DadosTabelas,
@@ -54,9 +55,25 @@ import {
   salvarDados,
 } from './utils/tabelas';
 
+/** Grifa SÓ o termo dentro do texto (o resto fica normal) — usado nas células
+    e títulos achados pela busca, em vez de pintar a célula inteira. */
+const grifarTermo = (valor: string, termo: string, forte: boolean): React.ReactNode => {
+  const g = destacarTermo(valor, termo);
+  if (!g) return valor;
+  return (
+    <>
+      {g[0]}
+      <mark className={`rounded px-0.5 ${forte ? 'bg-amber-700 text-white' : 'bg-amber-600/70 text-white'}`}>
+        {g[1]}
+      </mark>
+      {g[2]}
+    </>
+  );
+};
+
 const DadosApp: React.FC<{
   subAba?: { id: string; vez: number } | null;
-  buscaDados?: { termo: string; passo: 1 | -1; vez: number } | null;
+  buscaDados?: { termo: string; passo: 1 | -1; repor: boolean; vez: number } | null;
 }> = ({ subAba = null, buscaDados = null }) => {
   const [dados, setDados] = useState<DadosTabelas>(lerDados);
   const [abaId, setAbaId] = useState<string>(() => lerDados().abas[0]?.id ?? 'pecas');
@@ -147,12 +164,16 @@ const DadosApp: React.FC<{
     return () => window.clearTimeout(id);
   }, [busca, ocorrenciaAtual, abaId]);
 
-  // Busca vinda da lupa do SUB ATALHOS (aba Orçamentos): termo novo preenche a
-  // pesquisa e abre a sub-aba do 1º resultado; Enter repetido no MESMO termo
-  // avança (Shift+Enter volta) — igual ao Enter no campo de lá.
+  // Busca vinda da lupa do SUB ATALHOS (aba Orçamentos): digitando (`repor`) ou
+  // termo novo sempre recomeça do 1º; Enter repetido no MESMO termo avança
+  // (Shift+Enter volta) — igual ao Enter no campo de busca de cá.
   useEffect(() => {
     if (!buscaDados || !buscaDados.termo.trim()) return;
-    if (normalizarBusca(buscaDados.termo) === normalizarBusca(busca) && normalizarBusca(busca)) {
+    if (
+      !buscaDados.repor &&
+      normalizarBusca(busca) &&
+      normalizarBusca(buscaDados.termo) === normalizarBusca(busca)
+    ) {
       irParaOcorrencia(buscaDados.passo);
     } else {
       handleBusca(buscaDados.termo);
@@ -945,6 +966,17 @@ const DadosApp: React.FC<{
                                 data-atual={atualAqui ? '1' : undefined}
                                 className={`w-full bg-transparent px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none focus:bg-slate-900 ${atualAqui ? 'text-slate-950 ring-2 ring-inset ring-amber-400' : marcado ? 'text-amber-200' : 'text-slate-100'}`}
                               />
+                              {buscaAtiva && marcado && (
+                                <div
+                                  data-grifo="1"
+                                  title={titulo}
+                                  className={`absolute inset-0 px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none ${
+                                    atualAqui ? 'bg-amber-400/80 text-slate-950 ring-2 ring-inset ring-amber-400' : 'bg-slate-950/60 text-amber-200'
+                                  }`}
+                                >
+                                  {grifarTermo(titulo, busca, !!atualAqui)}
+                                </div>
+                              )}
                               {/* excluir a coluna (título + células dela) — some com 1 coluna só */}
                               {tabela.titulos.length > 1 && (
                                 <button
@@ -1036,6 +1068,24 @@ const DadosApp: React.FC<{
                                         }`
                                   }`}
                                 />
+                                {buscaAtiva && marcado && (
+                                  <div
+                                    tabIndex={0}
+                                    onMouseDown={(e) => iniciarSelecao(tabela.id, r, coluna, e.shiftKey)}
+                                    onKeyDown={(e) => aoTeclarCelula(e, tabela, r, coluna)}
+                                    data-grifo="1"
+                                    title={valor}
+                                    className={`absolute inset-0 px-2.5 py-1 pr-8 text-base font-bold outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none ${
+                                      atualAqui
+                                        ? 'bg-amber-400/80 text-slate-950 ring-2 ring-inset ring-amber-400'
+                                        : selecionada
+                                          ? 'bg-blue-600/35 text-amber-200 ring-2 ring-inset ring-blue-500'
+                                          : 'bg-slate-950/60 text-amber-200'
+                                    }`}
+                                  >
+                                    {grifarTermo(valor, busca, !!atualAqui)}
+                                  </div>
+                                )}
                                 {valor && (
                                   <button
                                     type="button"

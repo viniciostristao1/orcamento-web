@@ -5,6 +5,26 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Lupa pula ao digitar, X limpa, grifo só no termo (v0.57.0)
+
+**Pedidos:** (1) X do atalho não limpava; (2) atalho não pulava ao digitar como o campo de lá;
+(3) célula inteira grifada — grifar só o termo.
+
+**Feito:**
+- X: era race `blur` (input) × `click` (o `setBuscando(false)` do blur desmontava o botão
+  antes do clique) → `onMouseDown preventDefault` no X (mantém o foco e o clique dispara).
+- Pulo ao digitar: `onBuscar(termo, passo, repor)` — `onChange` do atalho chama com
+  `repor: true` (efeito em `DadosApp` sempre `handleBusca`, recomeça do 1º); Enter usa
+  `repor: false` (mesmo termo avança). Validado em screenshot headless.
+- Grifo no termo: overlay `absolute inset-0 pointer-events-none` (`data-grifo`) com `<mark>`
+  (via `destacarTermo`, sem quebrar acentos) sobre o input — o input segue montado e
+  funcional (editar, TAB, seleção, copiar, `data-marcado/atual` intactos); atual mantém fundo
+  forte. Testes do smoke quase intactos (só o fluxo da lupa, que mudou de propósito).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **112/112**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Lupa do atalho avança no Enter + feedback ao digitar (v0.56.0)
 
 **Pedidos:** (1) Enter na lupa ficava só no 1º termo (no "Pesquisar nas tabelas" o Enter pula

@@ -119,7 +119,11 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   faixa é a **lupa** (v0.55.0): vira campo de busca e o Enter pesquisa o termo na aba Dados
   (igual ao "Pesquisar nas tabelas" — abre a sub-aba do 1º resultado e grifa); desde a v0.56.0
   o Enter **repetido no mesmo termo avança** (Shift+Enter volta) e há **contador ao vivo**
-  (`N · X em ABA`, verde; "Nada encontrado" em cinza) enquanto digita.
+  (`N · X em ABA`, verde; "Nada encontrado" em cinza) enquanto digita; desde a v0.57.0 digitar
+  já **pula direto** (`repor`, igual ao campo de lá), o **X limpa** sem perder o foco
+  (`onMouseDown preventDefault` — o `blur` desmontava o botão antes do clique) e o grifo é
+  **só no termo** (`<mark>`, sobreposição `data-grifo` sobre o input — edição, seleção,
+  TAB e copiar intactos; a ocorrência atual mantém o fundo forte de "você está aqui").
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,

@@ -12,8 +12,11 @@ import {
 interface AtalhosDadosProps {
   /** Vai para a aba Dados com a sub-aba correspondente aberta. */
   onIr: (abaId: string) => void;
-  /** Pesquisa o termo na aba Dados (igual ao "Pesquisar nas tabelas" de lá). */
-  onBuscar: (termo: string, passo: 1 | -1) => void;
+  /**
+   * Pesquisa o termo na aba Dados. `repor` = digitando (sempre recomeça do 1º);
+   * `passo` = Enter (mesmo termo avança, Shift+Enter volta).
+   */
+  onBuscar: (termo: string, passo: 1 | -1, repor: boolean) => void;
 }
 
 const CLASSE_BOTAO =
@@ -46,8 +49,15 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
   if (dados.abas.length === 0) return null;
 
   const confirmarBusca = (passo: 1 | -1) => {
-    if (termo.trim()) onBuscar(termo.trim(), passo);
+    if (termo.trim()) onBuscar(termo.trim(), passo, false);
     // fica aberto: Enter de novo avança para a próxima ocorrência
+  };
+
+  // Digitando pula direto para o resultado (igual ao campo de lá): a cada letra
+  // recomeça do 1º (`repor`), sem trocar o comportamento do Enter.
+  const digitarBusca = (valor: string) => {
+    setTermo(valor);
+    if (valor.trim()) onBuscar(valor.trim(), 1, true);
   };
 
   // Feedback ao digitar: quantos resultados e em quais sub-abas (igual ao
@@ -73,7 +83,7 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
               <input
                 autoFocus
                 value={termo}
-                onChange={(e) => setTermo(e.target.value)}
+                onChange={(e) => digitarBusca(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -87,13 +97,14 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
                 className="w-full campo-tema border border-blue-500 rounded-xl pl-3 pr-8 py-2.5 text-sm font-bold text-slate-100 outline-none"
               />
               {termo ? (
-                <button
-                  type="button"
-                  onClick={() => setTermo('')}
-                  aria-label="Limpar busca do atalho"
-                  title="Limpar"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
-                >
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setTermo('')}
+                aria-label="Limpar busca do atalho"
+                title="Limpar"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
+              >
                   <X size={14} />
                 </button>
               ) : (

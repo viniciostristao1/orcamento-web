@@ -690,32 +690,53 @@ describe('App — smoke test (render + processar)', () => {
       const campo = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
       fireEvent.change(campo, { target: { value: 'freio' } });
       // feedback ao digitar: quantos e onde (sem precisar dar Enter)
-      expect(screen.getByText(/2 em O\.S'S/)).toBeTruthy();
+      expect(screen.getAllByText(/2 em O\.S'S/).length).toBeGreaterThanOrEqual(1);
       fireEvent.change(campo, { target: { value: 'xyzqq' } });
       expect(screen.getByText('Nada encontrado')).toBeTruthy();
       fireEvent.change(campo, { target: { value: 'freio' } });
-      fireEvent.keyDown(campo, { key: 'Enter' });
 
-      // foi para a aba Dados, abriu O.S's (onde está o termo) e grifou a 1ª
+      // já pulou ao digitar: foi para a aba Dados, abriu O.S's e grifou a 1ª
+      // (só o termo fica grifado, não a célula inteira)
       const subAba = screen
         .getAllByRole('button', { name: "O.S'S" })
         .find((b) => b.className.includes('bg-blue-600'));
       expect(subAba).toBeTruthy();
       expect(valorAtual()).toContain('FREIO A');
+      expect(document.querySelector('[data-grifo="1"] mark')).toBeTruthy();
       // o termo ficou no campo de busca da aba Dados (dá para dar Enter e percorrer)
       expect(
         (screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value,
       ).toBe('freio');
+
+      // Enter no atalho avança para a próxima ocorrência
+      fireEvent.keyDown(campo, { key: 'Enter' });
+      expect(valorAtual()).toContain('FREIO B');
 
       // volta aos Orçamentos: o campo do atalho segue aberto e Enter avança
       fireEvent.click(screen.getByText('Orçamentos'));
       const campo2 = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
       expect(campo2.value).toBe('freio');
       fireEvent.keyDown(campo2, { key: 'Enter' });
-      expect(valorAtual()).toContain('FREIO B');
+      expect(valorAtual()).toContain('FREIO A');
       // Shift+Enter volta para a anterior
       fireEvent.keyDown(campo2, { key: 'Enter', shiftKey: true });
-      expect(valorAtual()).toContain('FREIO A');
+      expect(valorAtual()).toContain('FREIO B');
+    } finally {
+      localStorage.removeItem('dados_tabelas_v1');
+    }
+  });
+
+  it('orçamentos: X da lupa limpa o termo digitado', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar termo nos Dados' }));
+      const campo = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: 'freio' } });
+      expect(campo.value).toBe('freio');
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar busca do atalho' }));
+      expect(campo.value).toBe('');
+      expect(screen.queryByText('Nada encontrado')).toBeNull();
     } finally {
       localStorage.removeItem('dados_tabelas_v1');
     }
