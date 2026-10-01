@@ -55,17 +55,16 @@ import {
   salvarDados,
 } from './utils/tabelas';
 
-/** Grifa SÓ o termo dentro do texto (o resto fica normal) — usado nas células
-    e títulos achados pela busca, em vez de pintar a célula inteira. */
-const grifarTermo = (valor: string, termo: string, forte: boolean): React.ReactNode => {
+/** Grifa SÓ o termo dentro do texto (o resto fica normal). A sobreposição é
+    transparente com texto invisível — só o `<mark>` aparece, sobre o texto real
+    do input (o fundo opaco do mark cobre o termo de baixo, sem fantasma). */
+const grifarTermo = (valor: string, termo: string): React.ReactNode => {
   const g = destacarTermo(valor, termo);
   if (!g) return valor;
   return (
     <>
       {g[0]}
-      <mark className={`rounded px-0.5 ${forte ? 'bg-amber-700 text-white' : 'bg-amber-600/70 text-white'}`}>
-        {g[1]}
-      </mark>
+      <mark className="rounded px-0.5 bg-amber-400 text-slate-950">{g[1]}</mark>
       {g[2]}
     </>
   );
@@ -963,7 +962,7 @@ const DadosApp: React.FC<{
                           const marcado = buscaAtiva && celulaContem(titulo, busca);
                           const atualAqui = atual?.tipo === 'titulo' && atual.coluna === coluna;
                           return (
-                            <th key={coluna} className={`relative group border border-slate-800 p-0 ${atualAqui ? 'bg-amber-400/80' : marcado ? 'bg-amber-500/20' : 'bg-slate-950/60'}`}>
+                            <th key={coluna} className="relative group border border-slate-800 p-0 bg-slate-950/60">
                               <input
                                 type="text"
                                 value={titulo}
@@ -971,17 +970,15 @@ const DadosApp: React.FC<{
                                 onMouseDown={() => setSelecao(null)}
                                 data-marcado={marcado ? '1' : undefined}
                                 data-atual={atualAqui ? '1' : undefined}
-                                className={`w-full bg-transparent px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none focus:bg-slate-900 ${atualAqui ? 'text-slate-950 ring-2 ring-inset ring-amber-400' : marcado ? 'text-amber-200' : 'text-slate-100'}`}
+                                className={`w-full bg-transparent px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none focus:bg-slate-900 text-slate-100 ${atualAqui ? 'ring-2 ring-inset ring-amber-200' : ''}`}
                               />
                               {buscaAtiva && marcado && (
                                 <div
                                   data-grifo="1"
                                   title={titulo}
-                                  className={`absolute inset-0 px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none ${
-                                    atualAqui ? 'bg-amber-400/80 text-slate-950 ring-2 ring-inset ring-amber-400' : 'bg-slate-950/60 text-amber-200'
-                                  }`}
+                                  className="absolute inset-0 px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none bg-transparent text-transparent"
                                 >
-                                  {grifarTermo(titulo, busca, !!atualAqui)}
+                                  {grifarTermo(titulo, busca)}
                                 </div>
                               )}
                               {/* excluir a coluna (título + células dela) — some com 1 coluna só */}
@@ -1051,7 +1048,7 @@ const DadosApp: React.FC<{
                                 key={coluna}
                                 data-selecionada={selecionada ? '1' : undefined}
                                 onMouseEnter={() => estenderSelecao(tabela.id, r, coluna)}
-                                className={`relative group border border-slate-800 p-0 ${marcado && !atualAqui ? 'bg-amber-500/20' : ''}`}
+                                className="relative group border border-slate-800 p-0"
                               >
                                 <input
                                   type="text"
@@ -1068,29 +1065,18 @@ const DadosApp: React.FC<{
                                   data-marcado={marcado ? '1' : undefined}
                                   data-atual={atualAqui ? '1' : undefined}
                                   className={`w-full px-2.5 py-1 pr-8 text-base font-bold outline-none ${
-                                    atualAqui
-                                      ? 'bg-amber-400/80 text-slate-950 ring-2 ring-inset ring-amber-400'
-                                      : `${selecionada ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500' : 'bg-transparent focus:bg-slate-900'} ${
-                                          marcado ? 'text-amber-200' : tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
-                                        }`
-                                  }`}
+                                    selecionada ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500' : 'bg-transparent focus:bg-slate-900'
+                                  } ${
+                                    tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
+                                  } ${atualAqui && !selecionada ? 'ring-2 ring-inset ring-amber-200' : ''}`}
                                 />
                                 {buscaAtiva && marcado && (
                                   <div
-                                    tabIndex={0}
-                                    onMouseDown={(e) => iniciarSelecao(tabela.id, r, coluna, e.shiftKey)}
-                                    onKeyDown={(e) => aoTeclarCelula(e, tabela, r, coluna)}
                                     data-grifo="1"
                                     title={valor}
-                                    className={`absolute inset-0 px-2.5 py-1 pr-8 text-base font-bold outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none ${
-                                      atualAqui
-                                        ? 'bg-amber-400/80 text-slate-950 ring-2 ring-inset ring-amber-400'
-                                        : selecionada
-                                          ? 'bg-blue-600/35 text-amber-200 ring-2 ring-inset ring-blue-500'
-                                          : 'bg-slate-950/60 text-amber-200'
-                                    }`}
+                                    className="absolute inset-0 px-2.5 py-1 pr-8 text-base font-bold outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none bg-transparent text-transparent"
                                   >
-                                    {grifarTermo(valor, busca, !!atualAqui)}
+                                    {grifarTermo(valor, busca)}
                                   </div>
                                 )}
                                 {valor && (

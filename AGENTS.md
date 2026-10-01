@@ -122,8 +122,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   (`N · X em ABA`, verde; "Nada encontrado" em cinza) enquanto digita; desde a v0.57.0 digitar
   já **pula direto**   (`repor`, igual ao campo de lá), o **X limpa** sem perder o foco
   (`onMouseDown preventDefault` — o `blur` desmontava o botão antes do clique) e o grifo é
-  **só no termo** (`<mark>`, sobreposição `data-grifo` sobre o input — edição, seleção,
-  TAB e copiar intactos; a ocorrência atual mantém o fundo forte de "você está aqui").
+  **só no termo** (v0.57.0: sobreposição `data-grifo`; v0.59.0: transparente com texto
+  invisível — zero preenchimento na célula, input/edição 100% intactos; a ocorrência atual
+  tem só contorno `ring` + mark).
   Desde a v0.58.0 a lupa **leva o foco junto** para o campo de busca dos Dados
   (`refBusca`, pois o do atalho some na troca de aba — sem isso as teclas/Enter iam para o vazio).
   `@google/genai` do template original **não** entrou.

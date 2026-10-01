@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Grifo sem pintar a célula (v0.59.0)
+
+**Pedido:** clicar na célula mostrava a célula pintada (âmbar da busca + azul da seleção em
+camada dupla pelo overlay) em vez do cursor na palavra.
+
+**Feito:** overlay 100% transparente com texto invisível (só o `<mark>` amarelo-opaco aparece,
+cobrindo o termo de baixo sem fantasma); input e célula **sem nenhum fundo de busca** (só
+`data-*`); ocorrência atual = só contorno `ring` + mark; overlay sem `tabIndex`/handlers
+(antes o Tab parava 2x por célula e o azul duplicava). Clique = cursor no texto + tênue azul
+de seleção (modelo planilha, mantido). Validado em screenshot headless.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **112/112**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Lupa leva o foco para os Dados (v0.58.0)
 
 **Bug:** a lupa só pulava na 1ª letra — ao trocar de aba o campo do atalho sumia e o foco
