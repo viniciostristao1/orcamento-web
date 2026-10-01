@@ -5,6 +5,19 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Resumos dos históricos em branco (v0.62.0)
+
+**Pedido:** itens do resumo no Histórico de Orçamentos (Todos/Não Realizados) em branco e sem
+negrito; conteúdo do HISTÓRICO — TIRE FLYER em branco.
+
+**Feito:** `HistoryModal` (descrição do cartão): `text-slate-300 font-bold` →
+`text-slate-100 font-normal` (grifo de busca âmbar mantido); `FlyerHistoryModal` (linha da
+tabela): `text-slate-300` → `text-slate-100` (negrito mantido, como pedido). Selo `v0.62.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **114/114**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Grifo no lugar certo com acentos + mesma fonte do input (v0.61.0)
 
 **Bug:** com acento antes do termo (ex.: "ÓLEO FÁCIL" buscando "facil"), o grifo saía

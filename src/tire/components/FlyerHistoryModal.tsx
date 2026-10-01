@@ -175,7 +175,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
                   </button>
                 </div>
               </div>
-              <p className="text-lg text-slate-300 font-bold truncate">
+              <p className="text-lg text-slate-100 font-bold truncate">
                 {r.inputText.split('\n').filter((l) => l.trim()).slice(1, 4).join(' · ') || '(sem tabela)'}
               </p>
             </div>
