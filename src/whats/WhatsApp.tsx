@@ -85,7 +85,7 @@ const WhatsApp: React.FC = () => {
   return (
     <div className="ui-compacta pt-1 pb-20 text-slate-200">
       <header className="mb-4 text-center">
-        <TituloEditavel id="whats" estilo="duas-cores" className="titulo-tema text-2xl font-black tracking-tighter uppercase" />
+        <TituloEditavel id="whats" estilo="duas-cores" className="titulo-tema text-xl font-black tracking-widest uppercase" />
       </header>
 
       {/* Esquerda: NOVO CONTATO + scripts. Direita: RELATÓRIO DE ENVIOS

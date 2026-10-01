@@ -5,6 +5,29 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Títulos internos padrão NeonCard + sub-abas Dados padrão cabeçalho (v0.39.0)
+
+**Pedido:** títulos **ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS** no mesmo tamanho/fonte de
+**DESCRIÇÃO DO REPARO**; sub-abas da aba **DADOS** no mesmo tamanho/fonte dos títulos das colunas
+das tabelas.
+
+**Feito:**
+- 4 `TituloEditavel` internos (`OrcamentosApp`, `TireFlyerApp`, `WhatsApp`, `DadosApp`):
+  `text-2xl tracking-tighter` → **`text-xl tracking-widest`** (igual ao `h3` do `NeonCard`
+  "1. DESCRIÇÃO DO REPARO"; ambos já usam `titulo-tema`, então a fonte do tema continua igual;
+  só tamanho/tracking mudaram — cor/estilo `acento`/`duas-cores`/`simples` preservados).
+- Sub-abas em `DadosApp`: botão `text-base tracking-widest` → **`text-lg` sem tracking** +
+  `style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}` (igual ao `input` do `thead th`:
+  `text-lg font-black uppercase` com a fonte de conteúdo do tema; botões não herdam a regra
+  global `textarea,input,select`, por isso o inline). Input de renomear da sub-aba também
+  `text-base tracking-widest` → `text-lg` (input já tem a fonte de conteúdo via CSS global).
+- Teste `app_smoke`: expectativa do título `text-2xl` → `text-xl`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **106/106**, `npm run build` OK
+(dist/index.html ~1,27 MB autocontido).
+
+---
+
 ## 2026-09-29 — Títulos das abas menores + lista desliga removendo a bolinha (v0.38.0)
 
 **Pedidos:** (1) os títulos **ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP e DADOS** com fonte menor;

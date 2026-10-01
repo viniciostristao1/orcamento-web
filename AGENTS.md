@@ -59,9 +59,11 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   usa `text-lg` — o mesmo tamanho de **DADOS DO ORÇAMENTO** (era `text-xl`; são campos “parentes”).
 - **Histórico com fontes maiores** (v0.7.7): data 16px, descrição 18px, valores 16px.
 - **Títulos das abas** (v0.8.3): centralizados, sem a linha embaixo e sem subtítulo
-  (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards. Desde a v0.38.0 são
-  **`text-2xl`** (24px; eram `text-3xl`) em todas as abas (ORÇAMENTOS, TIRE FLYER, PAINEL
-  WHATSAPP e DADOS).
+  (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards. Desde a v0.39.0 são
+  **`text-xl tracking-widest`** (20px, igual ao `h3` do `NeonCard` "DESCRIÇÃO DO REPARO";
+  eram `text-2xl` na v0.38.0) em todas as abas (ORÇAMENTOS, TIRE FLYER, PAINEL
+  WHATSAPP e DADOS). As **sub-abas da aba Dados** são `text-lg` sem tracking com
+  `font-family: var(--tema-fonte-conteudo)` — igual aos títulos das colunas (`thead th input`).
 - **Botões são ícone-only** (v0.8.0): sempre com `aria-label` + `title` com o texto da ação —
   é o que os testes e o Playwright usam (`getByRole('button', { name: … })`). Abas e opções de
   tema continuam com texto.

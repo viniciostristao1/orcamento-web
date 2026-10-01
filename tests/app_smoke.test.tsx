@@ -42,8 +42,8 @@ describe('App — smoke test (render + processar)', () => {
     const { container } = render(<App />);
     expect(screen.getByText(/Toyota Weiand/i)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' })).toBeTruthy();
-    // títulos das abas menores (text-2xl)
-    expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' }).className).toContain('text-2xl');
+    // títulos das abas no mesmo tamanho/fonte de DESCRIÇÃO DO REPARO (text-xl)
+    expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' }).className).toContain('text-xl');
     expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     // DESCRIÇÃO DO REPARO e DADOS DO ORÇAMENTO com a mesma fonte (text-lg)

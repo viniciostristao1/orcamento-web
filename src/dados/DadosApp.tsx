@@ -478,7 +478,7 @@ const DadosApp: React.FC = () => {
     <>
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
       <header className="mb-4 text-center">
-        <TituloEditavel id="dados" className="titulo-tema text-2xl font-black tracking-tighter uppercase" />
+        <TituloEditavel id="dados" className="titulo-tema text-xl font-black tracking-widest uppercase" />
       </header>
 
       <div className="max-w-[1150px] mx-auto">
@@ -585,7 +585,7 @@ const DadosApp: React.FC = () => {
                   }}
                   onBlur={confirmarRenome}
                   aria-label="Renomear sub-aba"
-                  className="px-5 py-2.5 text-base font-black uppercase tracking-widest campo-tema outline-none w-44"
+                  className="px-5 py-2.5 text-lg font-black uppercase campo-tema outline-none w-44"
                 />
               ) : (
                 <button
@@ -602,11 +602,12 @@ const DadosApp: React.FC = () => {
                     setNomeSubAba(a.rotulo);
                   }}
                   title="Duplo clique para renomear"
-                  className={`px-6 py-2.5 text-base font-black uppercase tracking-widest transition-all cursor-pointer ${
+                  className={`px-6 py-2.5 text-lg font-black uppercase transition-all cursor-pointer ${
                     aba?.id === a.id
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
+                  style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                 >
                   {a.rotulo}
                 </button>

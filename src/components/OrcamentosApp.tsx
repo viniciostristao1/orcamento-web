@@ -139,7 +139,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     <>
       <div className="ui-compacta print:hidden">
         <header className="mb-4 text-center">
-          <TituloEditavel id="orcamentos" estilo="acento" className="titulo-tema text-2xl font-black tracking-tighter uppercase" />
+          <TituloEditavel id="orcamentos" estilo="acento" className="titulo-tema text-xl font-black tracking-widest uppercase" />
         </header>
       </div>
 
