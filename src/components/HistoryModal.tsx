@@ -282,7 +282,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   </button>
                 </div>
               </div>
-              <p className="text-lg text-slate-300 font-bold truncate">
+              <p className="text-lg text-slate-300 font-bold line-clamp-2">
                 {grifado ? (
                   <>
                     {grifado[0]}

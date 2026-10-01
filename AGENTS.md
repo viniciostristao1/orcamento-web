@@ -42,7 +42,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   salva a cada "Processar Tudo", sem duplicar dados iguais; guarda **até 100** orçamentos e o
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
   restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
-  fonte maior (v0.2.2).
+  fonte maior (v0.2.2). Desde a v0.40.0 o resumo dos itens no cartão ocupa **duas linhas**
+  (`line-clamp-2`; era `truncate`, uma linha só).
 - **Ajustes Manuais** (v0.7.4) tem o mesmo botão **Limpar** dos cards 1 e 2.
 - **Rascunho do orçamento** (v0.8.4): `utils/rascunho.ts` (`orcamento_rascunho_v1`) guarda os
   campos em edição a cada mudança e os restaura ao abrir (sem rascunho, cai no exemplo).

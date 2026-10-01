@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Histórico mostra os itens em duas linhas (v0.40.0)
+
+**Pedido:** no Histórico da aba Orçamentos (abas TODOS e NÃO REALIZADOS), o resumo dos itens
+aparecia numa linha só; mostrar em **duas linhas**.
+
+**Feito:**
+- `HistoryModal.tsx`: resumo da descrição no cartão (`descReparo` unida com ` · `):
+  `truncate` (1 linha) → **`line-clamp-2`** (até 2 linhas, com reticências). Preços
+  (Revisão/Peças/Serviços/Bruto) continuam logo abaixo, inalterados.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **106/106**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Títulos internos padrão NeonCard + sub-abas Dados padrão cabeçalho (v0.39.0)
 
 **Pedido:** títulos **ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS** no mesmo tamanho/fonte de
