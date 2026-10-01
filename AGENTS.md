@@ -117,7 +117,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   da pilha, top-alinhada). A página de orçamentos é `main 1125px` com grade `1fr 601px`
   (425 + 12 + 164, desde a v0.55.0); a coluna esquerda fica em **~424px**. O primeiro botão da
   faixa é a **lupa** (v0.55.0): vira campo de busca e o Enter pesquisa o termo na aba Dados
-  (igual ao "Pesquisar nas tabelas" — abre a sub-aba do 1º resultado e grifa).
+  (igual ao "Pesquisar nas tabelas" — abre a sub-aba do 1º resultado e grifa); desde a v0.56.0
+  o Enter **repetido no mesmo termo avança** (Shift+Enter volta) e há **contador ao vivo**
+  (`N · X em ABA`, verde; "Nada encontrado" em cinza) enquanto digita.
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,

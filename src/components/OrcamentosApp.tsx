@@ -20,7 +20,7 @@ interface OrcamentosAppProps {
   onFecharHistorico: () => void;
   onAbrirHistorico: () => void;
   onIrParaSubAba: (abaId: string) => void;
-  onBuscarNosDados: (termo: string) => void;
+  onBuscarNosDados: (termo: string, passo: 1 | -1) => void;
 }
 
 const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados }) => {

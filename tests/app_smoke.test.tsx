@@ -667,10 +667,10 @@ describe('App — smoke test (render + processar)', () => {
                 criadoEm: '',
                 colunas: 1,
                 titulos: ['SERVICO'],
-                linhas: [['PASTILHA FREIO']],
+                linhas: [['FREIO A'], ['FREIO B']],
                 larguras: [170],
                 comCaixas: true,
-                marcados: [false],
+                marcados: [false, false],
               },
             ],
             notas: [],
@@ -679,24 +679,43 @@ describe('App — smoke test (render + processar)', () => {
         ],
       }),
     );
+    const valorAtual = () => {
+      const el = document.querySelector('[data-atual="1"]') as HTMLInputElement | null;
+      return el?.value ?? el?.textContent ?? '';
+    };
     try {
       render(<App />);
       // a lupa é o primeiro botão dos atalhos
       fireEvent.click(screen.getByRole('button', { name: 'Buscar termo nos Dados' }));
       const campo = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
       fireEvent.change(campo, { target: { value: 'freio' } });
+      // feedback ao digitar: quantos e onde (sem precisar dar Enter)
+      expect(screen.getByText(/2 em O\.S'S/)).toBeTruthy();
+      fireEvent.change(campo, { target: { value: 'xyzqq' } });
+      expect(screen.getByText('Nada encontrado')).toBeTruthy();
+      fireEvent.change(campo, { target: { value: 'freio' } });
       fireEvent.keyDown(campo, { key: 'Enter' });
 
-      // foi para a aba Dados, abriu O.S's (onde está o termo) e grifou
+      // foi para a aba Dados, abriu O.S's (onde está o termo) e grifou a 1ª
       const subAba = screen
         .getAllByRole('button', { name: "O.S'S" })
         .find((b) => b.className.includes('bg-blue-600'));
       expect(subAba).toBeTruthy();
-      expect(document.querySelector('[data-atual="1"]')).toBeTruthy();
+      expect(valorAtual()).toContain('FREIO A');
       // o termo ficou no campo de busca da aba Dados (dá para dar Enter e percorrer)
       expect(
         (screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value,
       ).toBe('freio');
+
+      // volta aos Orçamentos: o campo do atalho segue aberto e Enter avança
+      fireEvent.click(screen.getByText('Orçamentos'));
+      const campo2 = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
+      expect(campo2.value).toBe('freio');
+      fireEvent.keyDown(campo2, { key: 'Enter' });
+      expect(valorAtual()).toContain('FREIO B');
+      // Shift+Enter volta para a anterior
+      fireEvent.keyDown(campo2, { key: 'Enter', shiftKey: true });
+      expect(valorAtual()).toContain('FREIO A');
     } finally {
       localStorage.removeItem('dados_tabelas_v1');
     }

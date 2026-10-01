@@ -77,10 +77,11 @@ const AppInterno: React.FC = () => {
 
   // Lupa do SUB ATALHOS: pesquisa o termo na aba Dados (igual a digitar no
   // "Pesquisar nas tabelas" de lá — abre a sub-aba do 1º resultado).
-  const [buscaDados, setBuscaDados] = useState<{ termo: string; vez: number } | null>(null);
-  const buscarNosDados = (termo: string) => {
+  // Enter repetido no mesmo termo avança (Shift+Enter volta), como lá.
+  const [buscaDados, setBuscaDados] = useState<{ termo: string; passo: 1 | -1; vez: number } | null>(null);
+  const buscarNosDados = (termo: string, passo: 1 | -1 = 1) => {
     setAba('dados');
-    setBuscaDados((d) => ({ termo, vez: (d?.vez ?? 0) + 1 }));
+    setBuscaDados((d) => ({ termo, passo, vez: (d?.vez ?? 0) + 1 }));
   };
 
   useEffect(() => {

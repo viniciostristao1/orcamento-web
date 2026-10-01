@@ -4,6 +4,8 @@ import {
   DADOS_EVENTO,
   DADOS_KEY,
   lerDados,
+  listarOcorrencias,
+  normalizarBusca,
   type DadosTabelas,
 } from '../dados/utils/tabelas';
 
@@ -11,7 +13,7 @@ interface AtalhosDadosProps {
   /** Vai para a aba Dados com a sub-aba correspondente aberta. */
   onIr: (abaId: string) => void;
   /** Pesquisa o termo na aba Dados (igual ao "Pesquisar nas tabelas" de lá). */
-  onBuscar: (termo: string) => void;
+  onBuscar: (termo: string, passo: 1 | -1) => void;
 }
 
 const CLASSE_BOTAO =
@@ -43,10 +45,21 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
 
   if (dados.abas.length === 0) return null;
 
-  const confirmarBusca = () => {
-    if (termo.trim()) onBuscar(termo.trim());
-    setBuscando(false);
+  const confirmarBusca = (passo: 1 | -1) => {
+    if (termo.trim()) onBuscar(termo.trim(), passo);
+    // fica aberto: Enter de novo avança para a próxima ocorrência
   };
+
+  // Feedback ao digitar: quantos resultados e em quais sub-abas (igual ao
+  // contador do campo de busca da aba Dados).
+  const temTermo = normalizarBusca(termo).length > 0;
+  const ocorrencias = temTermo ? listarOcorrencias(dados, termo) : [];
+  const porAba: Record<string, number> = {};
+  for (const oc of ocorrencias) porAba[oc.abaId] = (porAba[oc.abaId] ?? 0) + 1;
+  const resumoBusca = dados.abas
+    .filter((a) => (porAba[a.id] ?? 0) > 0)
+    .map((a) => `${porAba[a.id]} em ${a.rotulo}`)
+    .join(' · ');
 
   return (
     <div>
@@ -55,47 +68,57 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
       </p>
       <div className="flex flex-col gap-2">
         {buscando ? (
-          <div className="relative">
-            <input
-              autoFocus
-              value={termo}
-              onChange={(e) => setTermo(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  confirmarBusca();
-                }
-                if (e.key === 'Escape') setBuscando(false);
-              }}
-              onBlur={() => setBuscando(false)}
-              placeholder="Buscar…"
-              aria-label="Buscar nas tabelas"
-              className="w-full campo-tema border border-blue-500 rounded-xl pl-3 pr-8 py-2.5 text-sm font-bold text-slate-100 outline-none"
-            />
-            {termo ? (
-              <button
-                type="button"
-                onClick={() => setTermo('')}
-                aria-label="Limpar busca do atalho"
-                title="Limpar"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
-              >
-                <X size={14} />
-              </button>
-            ) : (
-              <Search
-                size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+          <div>
+            <div className="relative">
+              <input
+                autoFocus
+                value={termo}
+                onChange={(e) => setTermo(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    confirmarBusca(e.shiftKey ? -1 : 1);
+                  }
+                  if (e.key === 'Escape') setBuscando(false);
+                }}
+                onBlur={() => setBuscando(false)}
+                placeholder="Buscar…"
+                aria-label="Buscar nas tabelas"
+                className="w-full campo-tema border border-blue-500 rounded-xl pl-3 pr-8 py-2.5 text-sm font-bold text-slate-100 outline-none"
               />
+              {termo ? (
+                <button
+                  type="button"
+                  onClick={() => setTermo('')}
+                  aria-label="Limpar busca do atalho"
+                  title="Limpar"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
+                >
+                  <X size={14} />
+                </button>
+              ) : (
+                <Search
+                  size={14}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+                />
+              )}
+            </div>
+            {temTermo && (
+              <p
+                className={`mt-1 ml-1 text-[10px] font-black uppercase tracking-widest leading-tight ${
+                  ocorrencias.length > 0 ? 'text-green-500' : 'text-slate-500'
+                }`}
+              >
+                {ocorrencias.length > 0
+                  ? `${ocorrencias.length} · ${resumoBusca}`
+                  : 'Nada encontrado'}
+              </p>
             )}
           </div>
         ) : (
           <button
             type="button"
-            onClick={() => {
-              setTermo('');
-              setBuscando(true);
-            }}
+            onClick={() => setBuscando(true)}
             aria-label="Buscar termo nos Dados"
             title="Pesquisar nas tabelas da aba Dados"
             className={CLASSE_BOTAO}

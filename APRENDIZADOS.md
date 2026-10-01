@@ -5,6 +5,25 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Lupa do atalho avança no Enter + feedback ao digitar (v0.56.0)
+
+**Pedidos:** (1) Enter na lupa ficava só no 1º termo (no "Pesquisar nas tabelas" o Enter pula
+para o próximo); (2) sem feedback ao digitar se o termo existe.
+
+**Feito:**
+- `buscaDados` ganhou `passo` (`App.buscarNosDados(termo, passo)`; atalho manda Shift+Enter
+  como −1); o campo do atalho **não fecha mais no Enter** (só Esc/blur; X limpa) e a lupa
+  **não apaga o termo ao abrir** — fluxo de Enter repetido.
+- Efeito em `DadosApp`: termo **novo** (por `normalizarBusca`) = `handleBusca` (vai ao 1º);
+  **mesmo termo** = `irParaOcorrencia(passo)` (avança/volta, igual ao campo de lá).
+- Contador ao vivo no atalho (`listarOcorrencias` no `dados` já assinado): `N · X em ABA`
+  em verde, ou "Nada encontrado" em cinza.
+- Teste da lupa estendido (2 ocorrências, contador, Enter avança, Shift+Enter volta).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **111/111**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Faixa 164px + lupa pesquisa nos Dados (v0.55.0)
 
 **Pedidos:** (1) botões do atalho só um pouco mais largos; (2) lupa como 1º botão, fazendo o

@@ -43,6 +43,7 @@ import {
   alternarMarcada,
   moverBloco,
   moverNota,
+  normalizarBusca,
   ordenarPorColuna,
   removerAba,
   renomearAba,
@@ -55,7 +56,7 @@ import {
 
 const DadosApp: React.FC<{
   subAba?: { id: string; vez: number } | null;
-  buscaDados?: { termo: string; vez: number } | null;
+  buscaDados?: { termo: string; passo: 1 | -1; vez: number } | null;
 }> = ({ subAba = null, buscaDados = null }) => {
   const [dados, setDados] = useState<DadosTabelas>(lerDados);
   const [abaId, setAbaId] = useState<string>(() => lerDados().abas[0]?.id ?? 'pecas');
@@ -146,10 +147,16 @@ const DadosApp: React.FC<{
     return () => window.clearTimeout(id);
   }, [busca, ocorrenciaAtual, abaId]);
 
-  // Busca vinda da lupa do SUB ATALHOS (aba Orçamentos): preenche a pesquisa e
-  // abre a sub-aba do 1º resultado — igual a digitar no campo de busca.
+  // Busca vinda da lupa do SUB ATALHOS (aba Orçamentos): termo novo preenche a
+  // pesquisa e abre a sub-aba do 1º resultado; Enter repetido no MESMO termo
+  // avança (Shift+Enter volta) — igual ao Enter no campo de lá.
   useEffect(() => {
-    if (buscaDados && buscaDados.termo.trim()) handleBusca(buscaDados.termo);
+    if (!buscaDados || !buscaDados.termo.trim()) return;
+    if (normalizarBusca(buscaDados.termo) === normalizarBusca(busca) && normalizarBusca(busca)) {
+      irParaOcorrencia(buscaDados.passo);
+    } else {
+      handleBusca(buscaDados.termo);
+    }
   }, [buscaDados]);
 
   const confirmarRenome = () => {
