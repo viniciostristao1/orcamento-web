@@ -115,8 +115,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   à direita** (botões compactos `text-xs`); desde a v0.46.0 a faixa fica **fora da largura dos
   cards** — APROVADO = AJUSTES = RESUMO (`xl:w-[425px]` numa pilha; a faixa vai ao lado
   da pilha, top-alinhada). A página de orçamentos é `main 1170px` com grade `1fr 569px`
-  (425 + 12 + 132, desde a v0.50.0 — botões `px-4 text-sm`); a coluna esquerda fica em **~461px**
-  (v0.51.0).
+  (425 + 12 + 148, desde a v0.54.0); a coluna esquerda fica em **~425px**.
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,

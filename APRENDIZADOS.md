@@ -5,6 +5,17 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Esquerda ~425px + faixa 148px (v0.54.0)
+
+**Pedido:** esquerda mais estreita de novo; botões de atalho mais largos de novo.
+
+**Feito:** faixa 132px → **148px** (grade `1fr 569px` → **`1fr 585px`**), `main` 1130px →
+**1110px**; esquerda vai de ~461px para **~425px**. Selo `v0.54.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **110/110**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Tabela preenche o cartão, sem vão à direita (v0.53.0)
 
 **Bug:** com poucas colunas, a tabela (largura fixa = soma das colunas) era mais estreita que
