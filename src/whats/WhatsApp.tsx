@@ -3,6 +3,7 @@ import { Send } from 'lucide-react';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import MessageEditor from './components/MessageEditor';
+import LembreteDisparo from './components/LembreteDisparo';
 import TituloEditavel from '../components/TituloEditavel';
 import { Contact } from './types';
 import {
@@ -12,6 +13,7 @@ import {
   salvarScriptPneus,
   salvarScriptRevisao,
 } from './utils/scripts';
+import { LEMBRETE_KEY, lerLembrete, salvarLembrete } from './utils/lembrete';
 
 const WhatsApp: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>(() => {
@@ -22,6 +24,8 @@ const WhatsApp: React.FC = () => {
   // Dois scripts: pneus (ofertas) e revisão (usado no NOTIFICAR/copiar contato).
   const [scriptPneus, setScriptPneus] = useState(() => lerScripts().pneus);
   const [scriptRevisao, setScriptRevisao] = useState(() => lerScripts().revisao);
+  // Lembrete pop-up do disparo mensal (dia + textos + liga/desliga).
+  const [lembrete, setLembrete] = useState(lerLembrete);
 
   useEffect(() => {
     localStorage.setItem('zap_contacts', JSON.stringify(contacts));
@@ -30,7 +34,8 @@ const WhatsApp: React.FC = () => {
   useEffect(() => {
     salvarScriptPneus(scriptPneus);
     salvarScriptRevisao(scriptRevisao);
-  }, [scriptPneus, scriptRevisao]);
+    salvarLembrete(lembrete);
+  }, [scriptPneus, scriptRevisao, lembrete]);
 
   // Sincronizar dados entre abas para evitar perda de dados
   useEffect(() => {
@@ -38,6 +43,7 @@ const WhatsApp: React.FC = () => {
       if (e.key === 'zap_contacts' && e.newValue) setContacts(JSON.parse(e.newValue));
       if (e.key === SCRIPT_PNEUS_KEY && e.newValue !== null) setScriptPneus(e.newValue);
       if (e.key === SCRIPT_REVISAO_KEY && e.newValue !== null) setScriptRevisao(e.newValue);
+      if (e.key === LEMBRETE_KEY && e.newValue !== null) setLembrete(lerLembrete());
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
@@ -80,7 +86,7 @@ const WhatsApp: React.FC = () => {
   };
 
   const today = new Date();
-  const isBroadcastingDay = today.getDate() === 1;
+  const isBroadcastingDay = lembrete.ativo && today.getDate() === lembrete.dia;
 
   return (
     <div className="ui-compacta pt-1 pb-20 text-slate-200">
@@ -100,6 +106,7 @@ const WhatsApp: React.FC = () => {
               onSavePneus={setScriptPneus}
               onSaveRevisao={setScriptRevisao}
             />
+            <LembreteDisparo valor={lembrete} onChange={setLembrete} />
           </div>
 
           <ContactList
@@ -121,8 +128,8 @@ const WhatsApp: React.FC = () => {
               <Send className="text-white" size={32} />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">HOJE É DIA 01</p>
-              <p className="font-extrabold text-slate-100 text-xl tracking-tight">Disparar Agora!</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">{lembrete.titulo}</p>
+              <p className="font-extrabold text-slate-100 text-xl tracking-tight">{lembrete.mensagem}</p>
             </div>
           </div>
         </div>

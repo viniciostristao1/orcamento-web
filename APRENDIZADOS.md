@@ -5,6 +5,31 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Lembrete de disparo configurável na aba Whats (v0.41.0)
+
+**Pedido:** o aviso "HOJE É DIA 01 · Disparar Agora!" era fixo no dia 01; tornar configurável
+(dia + texto + liga/desliga).
+
+**Feito:**
+- Novo `whats/utils/lembrete.ts` (`zap_lembrete_v1`): `{ dia, titulo, mensagem, ativo }`
+  (padrão = dia 1, textos atuais, ativo); `lerLembrete` mescla salvo + padrão e limita o dia a
+  1–31.
+- Novo cartão `whats/components/LembreteDisparo.tsx` na coluna esquerda da aba Whats (abaixo
+  dos scripts): Dia do mês (number 1–31), Título, Mensagem e checkbox Ativo (padrão `Caixinhas`).
+- `WhatsApp.tsx`: pop-up usa `lembrete.ativo && hoje === lembrete.dia` e os textos salvos;
+  persiste via `salvarLembrete` e sincroniza entre abas (`storage` event, como os scripts).
+- `zap_lembrete_v1` entrou no backup geral (`CHAVES_BACKUP`).
+- 2 testes novos no smoke (config salva no localStorage; pop-up aparece no dia com `vi.setSystemTime`
+  e some quando desligado).
+
+**Gotchas:** dia 29–31 não existe em todo mês — nesses meses o aviso simplesmente não pula;
+a dica está no próprio cartão. `getByLabelText` com `<label htmlFor>` + `aria-label` no mesmo
+input resolve para um único controle (sem duplicidade).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **108/108**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Histórico mostra os itens em duas linhas (v0.40.0)
 
 **Pedido:** no Histórico da aba Orçamentos (abas TODOS e NÃO REALIZADOS), o resumo dos itens

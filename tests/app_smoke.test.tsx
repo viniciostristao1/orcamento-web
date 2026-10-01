@@ -309,6 +309,48 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByText('Centro de Dados')).toBeNull();
   });
 
+  it('aba Whats: lembrete de disparo configurável (dia + textos + liga/desliga)', () => {
+    localStorage.removeItem('zap_lembrete_v1');
+    render(<App />);
+    fireEvent.click(screen.getByText('Whats'));
+
+    expect(screen.getByText('Lembrete de Disparo')).toBeTruthy();
+    const dia = screen.getByLabelText('Dia do mês') as HTMLInputElement;
+    expect(dia.value).toBe('1');
+
+    fireEvent.change(dia, { target: { value: '5' } });
+    fireEvent.change(screen.getByLabelText('Título do aviso'), { target: { value: 'HOJE É DIA 05' } });
+    const salvo = JSON.parse(localStorage.getItem('zap_lembrete_v1') ?? '{}');
+    expect(salvo.dia).toBe(5);
+    expect(salvo.titulo).toBe('HOJE É DIA 05');
+
+    fireEvent.click(screen.getByLabelText('Lembrete ativo'));
+    expect(JSON.parse(localStorage.getItem('zap_lembrete_v1') ?? '{}').ativo).toBe(false);
+  });
+
+  it('aba Whats: aviso pula no dia configurado e some quando desligado', () => {
+    localStorage.removeItem('zap_lembrete_v1');
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(2026, 9, 1, 12, 0, 0)); // dia 01
+      const { unmount } = render(<App />);
+      fireEvent.click(screen.getByText('Whats'));
+      expect(screen.getByText('Disparar Agora!')).toBeTruthy();
+      unmount();
+
+      // desligado: não aparece nem no dia configurado
+      localStorage.setItem(
+        'zap_lembrete_v1',
+        JSON.stringify({ dia: 1, titulo: 'HOJE É DIA 01', mensagem: 'Disparar Agora!', ativo: false }),
+      );
+      render(<App />);
+      fireEvent.click(screen.getByText('Whats'));
+      expect(screen.queryByText('Disparar Agora!')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('aba Whats: cadastra contato (e salva no localStorage)', () => {
     localStorage.removeItem('zap_contacts');
     render(<App />);
