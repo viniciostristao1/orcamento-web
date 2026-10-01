@@ -309,45 +309,60 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByText('Centro de Dados')).toBeNull();
   });
 
-  it('aba Whats: lembrete de disparo configurável (dia + textos + liga/desliga)', () => {
-    localStorage.removeItem('zap_lembrete_v1');
-    render(<App />);
-    fireEvent.click(screen.getByText('Whats'));
+  it('lembrete global: contato com data de hoje avisa em qualquer aba e leva até ele', () => {
+    const hoje = new Date().toISOString().split('T')[0];
+    localStorage.setItem(
+      'zap_contacts',
+      JSON.stringify([{ id: 'c1', name: 'MARIA HOJE', phone: '51999999999', targetDate: hoje }]),
+    );
+    try {
+      // abre na aba Orçamentos: mesmo assim o aviso pula (vale para todas as abas)
+      render(<App />);
+      expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
+      const botao = screen.getByRole('button', { name: 'Ir para contato MARIA HOJE' });
+      expect(botao).toBeTruthy();
 
-    expect(screen.getByText('Lembrete de Disparo')).toBeTruthy();
-    const dia = screen.getByLabelText('Dia do mês') as HTMLInputElement;
-    expect(dia.value).toBe('1');
-
-    fireEvent.change(dia, { target: { value: '5' } });
-    fireEvent.change(screen.getByLabelText('Título do aviso'), { target: { value: 'HOJE É DIA 05' } });
-    const salvo = JSON.parse(localStorage.getItem('zap_lembrete_v1') ?? '{}');
-    expect(salvo.dia).toBe(5);
-    expect(salvo.titulo).toBe('HOJE É DIA 05');
-
-    fireEvent.click(screen.getByLabelText('Lembrete ativo'));
-    expect(JSON.parse(localStorage.getItem('zap_lembrete_v1') ?? '{}').ativo).toBe(false);
+      // clicar leva para a aba Whats e destaca o cartão do contato
+      fireEvent.click(botao);
+      expect(screen.getByText('Relatório de Envios')).toBeTruthy();
+      expect(document.querySelector('[data-destaque="1"]')).toBeTruthy();
+      expect(document.querySelector('[data-destaque="1"]')?.textContent).toContain('MARIA HOJE');
+    } finally {
+      localStorage.removeItem('zap_contacts');
+    }
   });
 
-  it('aba Whats: aviso pula no dia configurado e some quando desligado', () => {
-    localStorage.removeItem('zap_lembrete_v1');
-    vi.useFakeTimers();
+  it('lembrete global: contato concluído ou com outra data não dispara (e dá para dispensar)', () => {
+    const hoje = new Date().toISOString().split('T')[0];
+    const amanha = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    // concluído hoje (NOTIFICAR clicado) + agendado para amanhã: sem aviso
+    localStorage.setItem(
+      'zap_contacts',
+      JSON.stringify([
+        { id: 'c1', name: 'FEITO HOJE', phone: '51999999999', targetDate: hoje, lastSentTimestamp: Date.now() },
+        { id: 'c2', name: 'AMANHÃ', phone: '51888888888', targetDate: amanha },
+      ]),
+    );
     try {
-      vi.setSystemTime(new Date(2026, 9, 1, 12, 0, 0)); // dia 01
       const { unmount } = render(<App />);
-      fireEvent.click(screen.getByText('Whats'));
-      expect(screen.getByText('Disparar Agora!')).toBeTruthy();
+      expect(screen.queryByRole('button', { name: /Ir para contato/i })).toBeNull();
       unmount();
-
-      // desligado: não aparece nem no dia configurado
-      localStorage.setItem(
-        'zap_lembrete_v1',
-        JSON.stringify({ dia: 1, titulo: 'HOJE É DIA 01', mensagem: 'Disparar Agora!', ativo: false }),
-      );
-      render(<App />);
-      fireEvent.click(screen.getByText('Whats'));
-      expect(screen.queryByText('Disparar Agora!')).toBeNull();
     } finally {
-      vi.useRealTimers();
+      localStorage.removeItem('zap_contacts');
+    }
+
+    // com contato para hoje, o X dispensa o aviso
+    localStorage.setItem(
+      'zap_contacts',
+      JSON.stringify([{ id: 'c3', name: 'PEDRO HOJE', phone: '51777777777', targetDate: hoje }]),
+    );
+    try {
+      render(<App />);
+      expect(screen.getByRole('button', { name: 'Ir para contato PEDRO HOJE' })).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Dispensar lembrete' }));
+      expect(screen.queryByRole('button', { name: /Ir para contato/i })).toBeNull();
+    } finally {
+      localStorage.removeItem('zap_contacts');
     }
   });
 
@@ -361,7 +376,9 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(screen.getByPlaceholderText('OPCIONAL'), { target: { value: 'ABC123' } });
     fireEvent.click(screen.getByRole('button', { name: /Salvar Cliente/i }));
 
-    expect(screen.getByText('JOAO DA SILVA')).toBeTruthy();
+    // a data padrão do contato é hoje: o lembrete global também mostra o nome
+    // (cartão + botão do aviso)
+    expect(screen.getAllByText('JOAO DA SILVA')).toHaveLength(2);
     // "Mensagem especial" virou só "Mensagem" (no formulário; no cartão virou janelinha)
     expect(screen.queryByText(/Mensagem especial/i)).toBeNull();
     expect(screen.getAllByText('Mensagem')).toHaveLength(1);

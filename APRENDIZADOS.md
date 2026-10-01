@@ -5,6 +5,29 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Lembrete global vinculado aos contatos de hoje (v0.42.0)
+
+**Pedido:** descartar o lembrete mensal (v0.41.0); o aviso deve (1) disparar pela **data do
+contato** no Relatório de Envios, (2) **levar até o contato** ao clicar e (3) aparecer em
+**todas as abas**.
+
+**Feito:**
+- Novo `whats/utils/contatosHoje.ts`: `lerContatos` (lê `zap_contacts` sem depender do state
+  da aba), `contatosParaHoje` (data = hoje e não concluído no mês) e evento `zap:contatos`
+  (o `storage` event não avisa a própria janela, então a aba Whats o dispara ao salvar).
+- Novo `components/LembreteContatos.tsx` renderizado no `App` (fora das abas): lista cada
+  contato de hoje como botão + X que dispensa até a lista mudar.
+- Clique: `App` troca para `whats` e passa `destaque {id, vez}` → `ContactList` rola até
+  `[data-contato-id]` e acende o cartão em azul por ~4s (`data-destaque="1"`).
+- Removidos `whats/utils/lembrete.ts`, `LembreteDisparo.tsx` e `zap_lembrete_v1` do backup
+  (backups antigos que tenham a chave são ignorados sem erro).
+- Testes: 2 novos (avisa em qualquer aba + navega/destaca; concluído/outra data não dispara
+  + dispensar) e ajuste no "cadastra contato" (nome aparece no cartão e no aviso).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **108/108**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Lembrete de disparo configurável na aba Whats (v0.41.0)
 
 **Pedido:** o aviso "HOJE É DIA 01 · Disparar Agora!" era fixo no dia 01; tornar configurável

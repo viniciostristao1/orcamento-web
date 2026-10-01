@@ -4,8 +4,16 @@ import TireFlyerApp from './tire/TireFlyerApp';
 import WhatsApp from './whats/WhatsApp';
 import DadosApp from './dados/DadosApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
+import LembreteContatos from './components/LembreteContatos';
 import { RotulosProvider, useRotulos } from './components/RotulosContext';
 import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
+import {
+  CONTATOS_EVENTO,
+  CONTATOS_KEY,
+  contatosParaHoje,
+  lerContatos,
+} from './whats/utils/contatosHoje';
+import type { Contact } from './whats/types';
 import logoToyota from './assets/logo_toyota.png';
 
 type Aba = 'orcamentos' | 'pneus' | 'whats' | 'dados';
@@ -24,6 +32,40 @@ const AppInterno: React.FC = () => {
   const { rotulos, renomearAba } = useRotulos();
   const [abaEditando, setAbaEditando] = useState<string | null>(null);
   const [nomeAba, setNomeAba] = useState('');
+
+  // Lembrete global: contatos do Relatório de Envios com data para hoje (ainda
+  // não concluídos). Vale para todas as abas — lê do localStorage e se atualiza
+  // a cada salvamento da aba Whats (evento próprio + `storage` entre janelas).
+  const [contatosHoje, setContatosHoje] = useState<Contact[]>(() =>
+    contatosParaHoje(lerContatos()),
+  );
+  // Contato para onde o clique no lembrete deve levar (aba Whats rola até ele).
+  const [destaque, setDestaque] = useState<{ id: string; vez: number } | null>(null);
+  // X do lembrete: esconde até a lista de hoje mudar.
+  const [dispensado, setDispensado] = useState('');
+
+  useEffect(() => {
+    const atualizar = (e?: Event) => {
+      if (e instanceof StorageEvent && e.key && e.key !== CONTATOS_KEY) return;
+      setContatosHoje(contatosParaHoje(lerContatos()));
+    };
+    window.addEventListener(CONTATOS_EVENTO, atualizar);
+    window.addEventListener('storage', atualizar);
+    return () => {
+      window.removeEventListener(CONTATOS_EVENTO, atualizar);
+      window.removeEventListener('storage', atualizar);
+    };
+  }, []);
+
+  const chaveHoje = contatosHoje.map((c) => c.id).sort().join(',');
+  const mostrarLembrete = contatosHoje.length > 0 && dispensado !== chaveHoje;
+
+  // Clique no lembrete: vai para a aba Whats e destaca o contato (`vez` faz o
+  // clique no mesmo contato duas vezes funcionar).
+  const irParaContato = (id: string) => {
+    setAba('whats');
+    setDestaque((d) => ({ id, vez: (d?.vez ?? 0) + 1 }));
+  };
 
   useEffect(() => {
     aplicarTema(tema);
@@ -105,12 +147,21 @@ const AppInterno: React.FC = () => {
           <TireFlyerApp />
         </div>
         <div className={aba === 'whats' ? '' : 'hidden'}>
-          <WhatsApp />
+          <WhatsApp destaque={destaque} />
         </div>
         <div className={aba === 'dados' ? '' : 'hidden'}>
           <DadosApp />
         </div>
       </main>
+
+      {/* Lembrete global (todas as abas): contatos para chamar hoje. */}
+      {mostrarLembrete && (
+        <LembreteContatos
+          contatos={contatosHoje}
+          onIrParaContato={irParaContato}
+          onDispensar={() => setDispensado(chaveHoje)}
+        />
+      )}
     </div>
   );
 };

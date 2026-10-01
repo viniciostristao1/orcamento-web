@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Send } from 'lucide-react';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import MessageEditor from './components/MessageEditor';
-import LembreteDisparo from './components/LembreteDisparo';
 import TituloEditavel from '../components/TituloEditavel';
 import { Contact } from './types';
 import {
@@ -13,37 +11,37 @@ import {
   salvarScriptPneus,
   salvarScriptRevisao,
 } from './utils/scripts';
-import { LEMBRETE_KEY, lerLembrete, salvarLembrete } from './utils/lembrete';
+import { CONTATOS_EVENTO, CONTATOS_KEY, lerContatos } from './utils/contatosHoje';
 
-const WhatsApp: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>(() => {
-    const saved = localStorage.getItem('zap_contacts');
-    return saved ? JSON.parse(saved) : [];
-  });
+interface WhatsAppProps {
+  /** Contato vindo do clique no lembrete global (a lista rola até ele e destaca). */
+  destaque?: { id: string; vez: number } | null;
+}
+
+const WhatsApp: React.FC<WhatsAppProps> = ({ destaque = null }) => {
+  const [contacts, setContacts] = useState<Contact[]>(() => lerContatos());
 
   // Dois scripts: pneus (ofertas) e revisão (usado no NOTIFICAR/copiar contato).
   const [scriptPneus, setScriptPneus] = useState(() => lerScripts().pneus);
   const [scriptRevisao, setScriptRevisao] = useState(() => lerScripts().revisao);
-  // Lembrete pop-up do disparo mensal (dia + textos + liga/desliga).
-  const [lembrete, setLembrete] = useState(lerLembrete);
 
   useEffect(() => {
-    localStorage.setItem('zap_contacts', JSON.stringify(contacts));
+    localStorage.setItem(CONTATOS_KEY, JSON.stringify(contacts));
+    // Avisa o lembrete global (no App) para se atualizar na mesma hora.
+    window.dispatchEvent(new Event(CONTATOS_EVENTO));
   }, [contacts]);
 
   useEffect(() => {
     salvarScriptPneus(scriptPneus);
     salvarScriptRevisao(scriptRevisao);
-    salvarLembrete(lembrete);
-  }, [scriptPneus, scriptRevisao, lembrete]);
+  }, [scriptPneus, scriptRevisao]);
 
   // Sincronizar dados entre abas para evitar perda de dados
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'zap_contacts' && e.newValue) setContacts(JSON.parse(e.newValue));
+      if (e.key === CONTATOS_KEY && e.newValue) setContacts(JSON.parse(e.newValue));
       if (e.key === SCRIPT_PNEUS_KEY && e.newValue !== null) setScriptPneus(e.newValue);
       if (e.key === SCRIPT_REVISAO_KEY && e.newValue !== null) setScriptRevisao(e.newValue);
-      if (e.key === LEMBRETE_KEY && e.newValue !== null) setLembrete(lerLembrete());
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
@@ -85,9 +83,6 @@ const WhatsApp: React.FC = () => {
     ));
   };
 
-  const today = new Date();
-  const isBroadcastingDay = lembrete.ativo && today.getDate() === lembrete.dia;
-
   return (
     <div className="ui-compacta pt-1 pb-20 text-slate-200">
       <header className="mb-4 text-center">
@@ -95,7 +90,7 @@ const WhatsApp: React.FC = () => {
       </header>
 
       {/* Esquerda: NOVO CONTATO + scripts. Direita: RELATÓRIO DE ENVIOS
-          (uma coluna de contatos). */}
+          (uma coluna de contatos). O lembrete de hoje é global (no App). */}
       <main className="max-w-[1700px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div className="space-y-6">
@@ -106,7 +101,6 @@ const WhatsApp: React.FC = () => {
               onSavePneus={setScriptPneus}
               onSaveRevisao={setScriptRevisao}
             />
-            <LembreteDisparo valor={lembrete} onChange={setLembrete} />
           </div>
 
           <ContactList
@@ -117,23 +111,10 @@ const WhatsApp: React.FC = () => {
             onUpdateMessage={updateContactMessage}
             onUpdateDate={updateContactDate}
             messageTemplate={scriptRevisao}
+            destaque={destaque}
           />
         </div>
       </main>
-
-      {isBroadcastingDay && (
-        <div className="fixed bottom-8 right-8 z-50 animate-bounce">
-          <div className="bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border border-slate-800 flex items-center gap-5 ring-1 ring-slate-700/40">
-            <div className="bg-blue-600 p-3.5 rounded-2xl shadow-lg shadow-blue-900/30">
-              <Send className="text-white" size={32} />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">{lembrete.titulo}</p>
-              <p className="font-extrabold text-slate-100 text-xl tracking-tight">{lembrete.mensagem}</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

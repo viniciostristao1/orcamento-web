@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Trash2,
   Phone,
@@ -23,9 +23,11 @@ interface ContactListProps {
   onUpdateMessage: (id: string, message: string) => void;
   onUpdateDate: (id: string, date: string) => void;
   messageTemplate: string;
+  /** Vindo do clique no lembrete global: rola até o contato e o destaca. */
+  destaque?: { id: string; vez: number } | null;
 }
 
-const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsSent, onUpdateNote, onUpdateMessage, onUpdateDate, messageTemplate }) => {
+const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsSent, onUpdateNote, onUpdateMessage, onUpdateDate, messageTemplate, destaque = null }) => {
   // Campo recém-copiado ("id:phone" / "id:chassis") e contato com os detalhes abertos.
   const [copiadoCampo, setCopiadoCampo] = useState<string | null>(null);
   const [detalhesId, setDetalhesId] = useState<string | null>(null);
@@ -34,7 +36,28 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
   const [editando, setEditando] = useState(false);
   const [rascunho, setRascunho] = useState('');
   const [copiadoPopup, setCopiadoPopup] = useState(false);
+  // Contato destacado pelo clique no lembrete global (some após alguns segundos).
+  const [destacadoId, setDestacadoId] = useState<string | null>(null);
   const todayStr = new Date().toISOString().split('T')[0];
+
+  // Clique no lembrete: rola até o cartão e o acende em azul (a troca de aba
+  // acontece junto, então espera um instante para a lista estar visível).
+  useEffect(() => {
+    if (!destaque) return;
+    setDestacadoId(destaque.id);
+    const rolar = window.setTimeout(() => {
+      document
+        .querySelector(`[data-contato-id="${destaque.id}"]`)
+        ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 80);
+    const apagar = window.setTimeout(() => {
+      setDestacadoId((d) => (d === destaque.id ? null : d));
+    }, 4000);
+    return () => {
+      window.clearTimeout(rolar);
+      window.clearTimeout(apagar);
+    };
+  }, [destaque]);
 
   const sortedContacts = useMemo(() => {
     return [...contacts].sort((a, b) => a.targetDate.localeCompare(b.targetDate));
@@ -137,7 +160,11 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
             return (
               <div
                 key={contact.id}
-                className={`bg-slate-950/60 border border-slate-800 rounded-2xl p-4 transition-colors hover:border-slate-700 ${sent ? 'opacity-70' : ''}`}
+                data-contato-id={contact.id}
+                data-destaque={destacadoId === contact.id ? '1' : undefined}
+                className={`bg-slate-950/60 border rounded-2xl p-4 transition-colors hover:border-slate-700 ${sent ? 'opacity-70' : ''} ${
+                  destacadoId === contact.id ? 'border-blue-400 ring-2 ring-blue-400/60' : 'border-slate-800'
+                }`}
               >
                 {/* Dia (editável clicando) + cliente + situação + ações */}
                 <div className="flex items-center justify-between gap-3 mb-3">

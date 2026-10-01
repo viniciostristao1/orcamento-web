@@ -101,14 +101,17 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   **copiar mensagem** saíram; **telefone/chassi** só aparecem no painel do **ícone de lista**
   (`List`, cada um com copiar); os ícones ficam coloridos quando o campo tem conteúdo. O cartão
   fechado fica baixinho (2 linhas). "NOTIFICAR" abre `wa.me` e marca como concluído; status verde
-  em `green-*`. **Lembrete de disparo** (v0.41.0): cartão na coluna esquerda com **dia do mês +
-  título + mensagem + liga/desliga** (`whats/utils/lembrete.ts`, `zap_lembrete_v1`); o pop-up
-  "HOJE É DIA 01 · Disparar Agora!" pula na aba só quando chega o dia (antes era fixo no dia 01).
+  em `green-*`. **Lembrete global** (v0.42.0; substitui o lembrete mensal da v0.41.0, removido):
+  pop-up no `App` visível em **todas as abas** com os contatos do Relatório de Envios cuja data é
+  **hoje** e ainda não concluídos (`whats/utils/contatosHoje.ts` — `lerContatos` +
+  `contatosParaHoje` + evento `zap:contatos` para atualizar na hora); cada nome é um botão que
+  troca para a aba Whats e **rola até o cartão, destacando em azul** (`destaque` → `ContactList`,
+  `data-contato-id`/`data-destaque`, some após ~4s); X dispensa até a lista de hoje mudar.
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
   `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,
-  `zap_lembrete_v1` (v0.41.0), `zap_template` legado, `flyer_historico_v1`, `flyer_layout_v1`, `dados_tabelas_v1`,
+  `zap_template` legado, `flyer_historico_v1`, `flyer_layout_v1`, `dados_tabelas_v1`,
   `rotulos_v1`) num JSON; UI na engrenagem
   **Configurações** ("BACKUP DOS DADOS"). A importação recarrega o app. Aceita também o backup
   antigo (só histórico). Atenção: tema e template são string pura no localStorage (não JSON).
