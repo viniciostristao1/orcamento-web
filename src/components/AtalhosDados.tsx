@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CornerUpRight, Search, X } from 'lucide-react';
 import {
+  DADOS_BUSCA_LIMPA_EVENTO,
   DADOS_EVENTO,
   DADOS_KEY,
   lerDados,
@@ -38,11 +39,15 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
       if (e instanceof StorageEvent && e.key && e.key !== DADOS_KEY) return;
       setDados(lerDados());
     };
+    // X do "Pesquisar nas tabelas" limpa o termo daqui também.
+    const limparTermo = () => setTermo('');
     window.addEventListener(DADOS_EVENTO, atualizar);
     window.addEventListener('storage', atualizar);
+    window.addEventListener(DADOS_BUSCA_LIMPA_EVENTO, limparTermo);
     return () => {
       window.removeEventListener(DADOS_EVENTO, atualizar);
       window.removeEventListener('storage', atualizar);
+      window.removeEventListener(DADOS_BUSCA_LIMPA_EVENTO, limparTermo);
     };
   }, []);
 

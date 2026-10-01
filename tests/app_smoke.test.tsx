@@ -754,6 +754,34 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('orçamentos: X do Pesquisar nas tabelas limpa a lupa do atalho junto', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar termo nos Dados' }));
+      const campo = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: 'freio' } });
+      // pulou para Dados com o termo; o X de lá limpa os dois campos
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar busca' }));
+      expect(
+        (screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value,
+      ).toBe('');
+      fireEvent.click(screen.getByText('Orçamentos'));
+      // o campo segue com o termo limpo (no navegador real o blur fecha a lupa;
+      // ao reabrir, o termo já foi zerado pelo evento)
+      expect(
+        (screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement).value,
+      ).toBe('');
+    } finally {
+      localStorage.removeItem('dados_tabelas_v1');
+    }
+  });
+
+  it('orçamentos: DESCRIÇÃO DO REPARO sem barra de rolagem (só mouse)', () => {
+    const { container } = render(<App />);
+    expect(container.querySelectorAll('textarea')[0].className).toContain('scrollbar-hide');
+  });
+
   it('aba Dados: colar planilha distribui nas células e arrastar seleciona várias para copiar', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);

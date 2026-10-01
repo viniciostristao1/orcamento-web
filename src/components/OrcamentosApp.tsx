@@ -168,7 +168,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               }
             >
               <textarea 
-                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors" 
+                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide" 
                 value={descReparo} 
                 onChange={(e) => setDescReparo(e.target.value)} 
               />

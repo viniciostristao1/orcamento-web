@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — X de Dados limpa atalho + DESCRIÇÃO sem scrollbar (v0.60.0)
+
+**Pedidos:** (1) X do "Pesquisar nas tabelas" limpar também o "buscar" dos Orçamentos;
+(2) tirar a barra de rolagem de 1. DESCRIÇÃO DO REPARO (rolar só no mouse).
+
+**Feito:**
+- Novo evento `dados:busca-limpa` (tabelas.ts): X de Dados dispara, `AtalhosDados` ouve e
+  zera o termo. Sem prop drilling (mesmo padrão dos outros eventos).
+- DESCRIÇÃO: `scrollbar-hide` no textarea (igual ao de DADOS DO ORÇAMENTO) — a rolagem por
+  mouse/roda continua, só some a barra. Selo `v0.60.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **114/114**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Grifo sem pintar a célula (v0.59.0)
 
 **Pedido:** clicar na célula mostrava a célula pintada (âmbar da busca + azul da seleção em

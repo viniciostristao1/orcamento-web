@@ -48,6 +48,12 @@ export const DADOS_KEY = 'dados_tabelas_v1';
  */
 export const DADOS_EVENTO = 'dados:atualizados';
 
+/**
+ * Disparado ao limpar a busca na aba Dados (X do "Pesquisar nas tabelas") — o
+ * campo da lupa do SUB ATALHOS (aba Orçamentos) limpa junto.
+ */
+export const DADOS_BUSCA_LIMPA_EVENTO = 'dados:busca-limpa';
+
 export const MAX_COLUNAS = 12;
 export const LARGURA_COLUNA_PADRAO = 170;
 export const LARGURA_MIN = 80;

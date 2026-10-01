@@ -25,6 +25,7 @@ import {
   type NotaDados,
   type TabelaDados,
   DADOS_EVENTO,
+  DADOS_BUSCA_LIMPA_EVENTO,
   MAX_COLUNAS,
   adicionarColuna,
   adicionarLinha,
@@ -563,7 +564,11 @@ const DadosApp: React.FC<{
             {busca && (
               <button
                 type="button"
-                onClick={() => handleBusca('')}
+                onClick={() => {
+                  handleBusca('');
+                  // A lupa do SUB ATALHOS (aba Orçamentos) limpa junto.
+                  window.dispatchEvent(new Event(DADOS_BUSCA_LIMPA_EVENTO));
+                }}
                 aria-label="Limpar busca"
                 title="Limpar busca"
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
