@@ -651,7 +651,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(valoresPrimeiraTabela()).toContain('PRIMEIRA');
   });
 
-  it('orçamentos: lupa do SUB ATALHOS pesquisa nos Dados e abre no resultado', () => {
+  it('orçamentos: lupa do SUB ATALHOS pesquisa nos Dados e abre no resultado', async () => {
     localStorage.removeItem('dados_tabelas_v1');
     localStorage.setItem(
       'dados_tabelas_v1',
@@ -708,12 +708,24 @@ describe('App — smoke test (render + processar)', () => {
         (screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value,
       ).toBe('freio');
 
+      // o foco foi junto para o campo de lá: dá para continuar digitando direto
+      await vi.waitFor(() => {
+        expect(document.activeElement).toBe(
+          screen.getByPlaceholderText(/Pesquisar nas tabelas/i),
+        );
+      });
+      fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), {
+        target: { value: 'freio b' },
+      });
+      expect(valorAtual()).toContain('FREIO B');
+
       // Enter no atalho avança para a próxima ocorrência
       fireEvent.keyDown(campo, { key: 'Enter' });
       expect(valorAtual()).toContain('FREIO B');
 
-      // volta aos Orçamentos: o campo do atalho segue aberto e Enter avança
+      // volta aos Orçamentos: reabre a lupa (o termo segue lá) e Enter avança
       fireEvent.click(screen.getByText('Orçamentos'));
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar termo nos Dados' }));
       const campo2 = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
       expect(campo2.value).toBe('freio');
       fireEvent.keyDown(campo2, { key: 'Enter' });

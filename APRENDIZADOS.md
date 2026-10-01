@@ -5,6 +5,19 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Lupa leva o foco para os Dados (v0.58.0)
+
+**Bug:** a lupa só pulava na 1ª letra — ao trocar de aba o campo do atalho sumia e o foco
+caía no vazio: continuar digitando e dar Enter não iam para lugar nenhum.
+
+**Feito:** efeito de `buscaDados` foca o campo "Pesquisar nas tabelas" (`refBusca`, +60ms
+para a aba estar visível) — o fluxo volta a ser contínuo: digita na lupa, pula, segue
+digitando e Enter avança. Teste da lupa cobre foco (`document.activeElement`) e continuação.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **112/112**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Lupa pula ao digitar, X limpa, grifo só no termo (v0.57.0)
 
 **Pedidos:** (1) X do atalho não limpava; (2) atalho não pulava ao digitar como o campo de lá;

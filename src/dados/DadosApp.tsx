@@ -99,6 +99,8 @@ const DadosApp: React.FC<{
   // Refs das células da tabela, para TAB/Enter levarem o foco junto do destaque.
   const refsCelulas = useRef<Map<string, HTMLInputElement>>(new Map());
   const chaveCelula = (tabelaId: string, r: number, c: number) => `${tabelaId}:${r}:${c}`;
+  // Campo "Pesquisar nas tabelas" (a lupa do atalho leva o foco para cá).
+  const refBusca = useRef<HTMLInputElement>(null);
   // Ocorrência da busca em destaque (Enter pula para a próxima, estilo "1 de N").
   const [ocorrenciaAtual, setOcorrenciaAtual] = useState(0);
   // Tabela aberta na janelinha de ordenação (por coluna).
@@ -167,6 +169,8 @@ const DadosApp: React.FC<{
   // Busca vinda da lupa do SUB ATALHOS (aba Orçamentos): digitando (`repor`) ou
   // termo novo sempre recomeça do 1º; Enter repetido no MESMO termo avança
   // (Shift+Enter volta) — igual ao Enter no campo de busca de cá.
+  // Leva o foco junto para o campo de busca (o do atalho some com a troca de
+  // aba) — assim dá para continuar digitando e dar Enter direto.
   useEffect(() => {
     if (!buscaDados || !buscaDados.termo.trim()) return;
     if (
@@ -178,6 +182,8 @@ const DadosApp: React.FC<{
     } else {
       handleBusca(buscaDados.termo);
     }
+    const focar = window.setTimeout(() => refBusca.current?.focus(), 60);
+    return () => window.clearTimeout(focar);
   }, [buscaDados]);
 
   const confirmarRenome = () => {
@@ -536,6 +542,7 @@ const DadosApp: React.FC<{
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
+              ref={refBusca}
               value={busca}
               onChange={(e) => handleBusca(e.target.value)}
               onKeyDown={(e) => {
