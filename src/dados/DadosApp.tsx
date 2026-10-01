@@ -981,6 +981,7 @@ const DadosApp: React.FC<{
                                 <div
                                   data-grifo="1"
                                   title={titulo}
+                                  style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                                   className="absolute inset-0 px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none bg-transparent text-transparent"
                                 >
                                   {grifarTermo(titulo, busca)}
@@ -1076,9 +1077,10 @@ const DadosApp: React.FC<{
                                   } ${atualAqui && !selecionada ? 'ring-2 ring-inset ring-amber-200' : ''}`}
                                 />
                                 {buscaAtiva && marcado && (
-                                  <div
-                                    data-grifo="1"
-                                    title={valor}
+                                <div
+                                  data-grifo="1"
+                                  title={valor}
+                                  style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                                     className="absolute inset-0 px-2.5 py-1 pr-8 text-base font-bold outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none bg-transparent text-transparent"
                                   >
                                     {grifarTermo(valor, busca)}

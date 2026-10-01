@@ -132,15 +132,33 @@ export function contarItensDaDescricao(descricao: string): number {
 /**
  * Divide um texto em [antes, termo, depois] para grifar a parte encontrada
  * (comparação sem acentos e sem diferenciar maiúsculas). Null se não achar.
- * Os índices são do texto ORIGINAL (NFD mantém o comprimento).
+ * Os índices são do texto ORIGINAL: cada unidade da base sem acento carrega o
+ * índice de origem (NFD/acento muda o comprimento, então o índice direto erra
+ * quando há acento antes do termo).
  */
 export function destacarTermo(texto: string, termo: string): [string, string, string] | null {
-  const t = (termo ?? '').trim().normalize('NFD').toLowerCase();
+  const semAcento = (s: string): string =>
+    s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  const t = semAcento((termo ?? '').trim().toLowerCase());
   if (!t) return null;
-  const base = (texto ?? '').normalize('NFD').toLowerCase();
+  const orig = texto ?? '';
+  let base = '';
+  const mapa: number[] = [];
+  let oi = 0;
+  for (const ch of orig) {
+    const s = semAcento(ch.toLowerCase());
+    base += s;
+    for (let k = 0; k < s.length; k++) mapa.push(oi);
+    oi += ch.length;
+  }
   const idx = base.indexOf(t);
   if (idx < 0) return null;
-  return [texto.slice(0, idx), texto.slice(idx, idx + t.length), texto.slice(idx + t.length)];
+  const ini = mapa[idx];
+  const fimNfd = idx + t.length;
+  const fim = fimNfd < mapa.length ? mapa[fimNfd] : orig.length;
+  return [orig.slice(0, ini), orig.slice(ini, fim), orig.slice(fim)];
 }
 
 export type AbaHistorico = 'todos' | 'naoRealizados';

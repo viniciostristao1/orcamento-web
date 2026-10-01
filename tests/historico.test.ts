@@ -4,6 +4,7 @@ import {
   type OrcamentoSalvo,
   adicionarAoHistorico,
   contarItensDaDescricao,
+  destacarTermo,
   filtrarHistorico,
   filtrarPorAba,
   importarBackup,
@@ -118,5 +119,15 @@ describe('histórico (localStorage)', () => {
     // Importar de novo não duplica (mesmo id).
     const n2 = await importarBackup(new File([JSON.stringify([rec])], 'backup.json', { type: 'application/json' }));
     expect(n2).toBe(0);
+  });
+
+  it('destaca o termo no lugar certo mesmo com acentos antes dele', () => {
+    // acento ANTES do termo não pode deslocar o grifo
+    expect(destacarTermo('ÓLEO VAZANDO', 'vaz')).toEqual(['ÓLEO ', 'VAZ', 'ANDO']);
+    // acento DENTRO do termo também casa (sem acento, minúsculo)
+    expect(destacarTermo('TROCA FÁCIL', 'facil')).toEqual(['TROCA ', 'FÁCIL', '']);
+    expect(destacarTermo('PASTILHA FREIO', 'freio')).toEqual(['PASTILHA ', 'FREIO', '']);
+    expect(destacarTermo('NADA AQUI', 'freio')).toBeNull();
+    expect(destacarTermo('QUALQUER', '')).toBeNull();
   });
 });

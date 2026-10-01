@@ -5,6 +5,24 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Grifo no lugar certo com acentos + mesma fonte do input (v0.61.0)
+
+**Bug:** com acento antes do termo (ex.: "ÓLEO FÁCIL" buscando "facil"), o grifo saía
+deslocado — `destacarTermo` usava o índice da string NFD direto no original (o comentário
+"NFD mantém o comprimento" é falso: 'Ó' vira 2 unidades).
+
+**Feito:**
+- `destacarTermo` reescrito: monta a base sem acento carregando, em cada unidade, o índice
+  de origem (`mapa`) e fatia o ORIGINAL por ele — vale para acento antes E dentro do termo.
+  Melhora também o grifo da busca no Histórico (mesma função).
+- Overlay do grifo com `font-family: var(--tema-fonte-conteudo)` inline (a regra global só
+  cobre `textarea/input/select` — em temas não-Inter a sobreposição descolava do texto).
+- Testes unitários com acentos + screenshot headless ("FÁCIL" exato). Selo `v0.61.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **115/115**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — X de Dados limpa atalho + DESCRIÇÃO sem scrollbar (v0.60.0)
 
 **Pedidos:** (1) X do "Pesquisar nas tabelas" limpar também o "buscar" dos Orçamentos;
