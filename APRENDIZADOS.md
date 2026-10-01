@@ -5,6 +5,17 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Esquerda ~461px (v0.51.0)
+
+**Pedido:** estreitar mais um pouco 1. DESCRIÇÃO / 2. DADOS.
+
+**Feito:** `main` de orçamentos 1170px → **1130px** (grade segue `1fr 569px`); esquerda vai de
+~501px para **~461px**. Selo `v0.51.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Esquerda ~501px + faixa 132px (v0.50.0)
 
 **Pedido:** esquerda um pouco mais estreita; botões de atalho um pouco mais largos.
