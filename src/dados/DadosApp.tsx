@@ -906,7 +906,9 @@ const DadosApp: React.FC<{ subAba?: { id: string; vez: number } | null }> = ({
                 }`}
               >
                 <div className="overflow-x-auto">
-                  <table className="border-collapse" style={{ tableLayout: 'fixed', width: larguraTotal }}>
+                  {/* A tabela preenche o cartão (sem vão à direita quando há poucas
+                      colunas); o mínimo é a soma das colunas (rola se passar). */}
+                  <table className="border-collapse" style={{ tableLayout: 'fixed', width: '100%', minWidth: larguraTotal }}>
                     <colgroup>
                       {tabela.larguras.map((largura, coluna) => (
                         <col key={coluna} style={{ width: largura }} />
@@ -1087,7 +1089,7 @@ const DadosApp: React.FC<{ subAba?: { id: string; vez: number } | null }> = ({
                       1ª coluna e, à direita, subir/descer a tabela e excluir
                       (rolam juntos quando a tabela é mais larga que o card). */}
                   <div
-                    style={{ width: larguraTotal }}
+                    style={{ width: '100%', minWidth: larguraTotal }}
                     className="p-3 border-x border-b border-slate-800 bg-slate-950/30 flex items-center justify-between"
                   >
                     <button

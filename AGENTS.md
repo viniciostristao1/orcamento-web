@@ -268,8 +268,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   **cabeçalho da coluna de opções** ficam **adicionar coluna (+)** — escondido no limite de 12 —
   e **ordenar** (v0.24.0), e a **barra de baixo** tem o **+ de adicionar linha à esquerda** e o
   **excluir tabela à direita** (v0.25.1; a dica de arrastar/colar saiu) — desde a v0.26.0 a barra
-  tem **a largura da tabela** (`larguraTotal`), então fica sempre **abaixo da última linha** e a
-  lixeira **abaixo da última coluna** (quando a tabela é mais larga que o card, rolam juntas).
+  acompanha **a largura da tabela** (quando a tabela é mais larga que o card, rolam juntas);
+  desde a v0.53.0 tabela e barra preenchem o cartão (`width: 100%`, mínimo `larguraTotal` =
+  soma das colunas + 92px de ações) — sem o vão à direita com poucas colunas;
   As ações da linha
   (caixinha, copiar e excluir) usam **o mesmo tamanho de botão e o mesmo vão** (`w-6 h-6` +
   `gap-1.5`); a largura da coluna de ações é fixa em **92px**. As células do corpo usam

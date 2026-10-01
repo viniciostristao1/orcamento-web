@@ -5,6 +5,24 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Tabela preenche o cartão, sem vão à direita (v0.53.0)
+
+**Bug:** com poucas colunas, a tabela (largura fixa = soma das colunas) era mais estreita que
+o cartão e a sobra à direita parecia "uma coluna fantasma".
+
+**Feito:** tabela e barra de baixo com `width: 100%` + `minWidth: larguraTotal` (soma das
+colunas + 92px de ações) — preenchem o cartão; se passar, rola como antes. `table-layout`
+segue `fixed` (testei `auto` no Chrome headless: render idêntico aqui, e o `fixed` mantém o
+resize por arrasto exato). Efeito colateral conhecido: com poucas colunas a coluna de ações
+também estica (células continuam centralizadas).
+Validado com screenshot headless (playwright-core + chromium do cache, seed via
+`addInitScript`, depois removidos): tabela 860px = cartão 862px (antes 432px).
+Teste da barra agora confere `width: 100%` + `minWidth 432px`. Selo `v0.53.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **110/110**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Botões subir/descer tabela na aba Dados (v0.52.0)
 
 **Pedido:** botão para mover as tabelas para cima/baixo, mudando a ordem (as notas já tinham

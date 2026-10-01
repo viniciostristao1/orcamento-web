@@ -576,6 +576,12 @@ describe('App — smoke test (render + processar)', () => {
     expect(barra.style.width).toBe(
       (container.querySelector('table') as HTMLTableElement).style.width,
     );
+    // tabela e barra preenchem o cartão (sem vão à direita com poucas colunas),
+    // com mínimo = soma das colunas (2×170 + 92 de ações)
+    const tabela = container.querySelector('table') as HTMLTableElement;
+    expect(tabela.style.width).toBe('100%');
+    expect(tabela.style.minWidth).toBe('432px');
+    expect(barra.style.minWidth).toBe('432px');
 
     // os botões de ação ficam fora da ordem do TAB (TAB vai de célula em célula)
     expect(screen.getByRole('button', { name: /Copiar célula 1-1/i }).tabIndex).toBe(-1);
