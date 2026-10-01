@@ -5,6 +5,23 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Faixa de atalhos fora da largura dos cards (v0.46.0)
+
+**Pedido:** APROVADO E DESCONTO com a **mesma largura do 3. AJUSTES MANUAIS**; a faixa não pode
+roubar largura do card (a página tem que acomodar, não o card).
+
+**Feito:**
+- Coluna direita virou linha: **pilha** `xl:w-[425px]` (APROVADO + AJUSTES + RESUMO, todos com
+  a mesma largura) + **faixa de 96px ao lado** da pilha (top-alinhada). `self-stretch` na pilha
+  mantém o `mt-auto` do RESUMO funcionando.
+- Página de orçamentos: `main 1180px` → **1280px**, grade `1fr 425px` → **`1fr 533px`**
+  (425 + 12 + 96); coluna esquerda vai de ~633px para ~647px (diferença irrelevante).
+- Abaixo de `xl` continua fluido/empilhado como antes.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — APROVADO E DESCONTO com largura original + faixa ao lado (v0.45.0)
 
 **Pedido:** os atalhos ao lado estreitaram o card; o card deve manter a largura original.

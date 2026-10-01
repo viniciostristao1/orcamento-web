@@ -112,9 +112,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   titulozinho + um botão por sub-aba de Dados (`components/AtalhosDados.tsx`, acompanha
   criar/excluir/renomear via evento `dados:atualizados` em `tabelas.ts`) que abre a aba Dados
   já na sub-aba (`App` → `DadosApp subAba`). Desde a v0.44.0 ficam numa **faixa estreita
-  à direita** do card APROVADO E DESCONTO (botões compactos `text-xs`); desde a v0.45.0 o card
-  mantém a **largura original (317px)** — a página de orçamentos alargou (`main 1180px`, grade
-  `1fr 425px`) para acomodar a faixa (96px) ao lado.
+  à direita** (botões compactos `text-xs`); desde a v0.46.0 a faixa fica **fora da largura dos
+  cards** — APROVADO = AJUSTES = RESUMO (`xl:w-[425px]` numa pilha; a faixa de 96px vai ao lado
+  da pilha, top-alinhada). A página de orçamentos é `main 1280px` com grade `1fr 533px`.
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
