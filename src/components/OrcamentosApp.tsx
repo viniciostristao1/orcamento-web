@@ -7,6 +7,7 @@ import { Play, Percent, History, Eraser } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import TituloEditavel from './TituloEditavel';
+import AtalhosDados from './AtalhosDados';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
 import { lerUltimoOrcamento, salvarUltimoOrcamento } from '../utils/ultimoOrcamento';
@@ -18,9 +19,10 @@ interface OrcamentosAppProps {
   historicoAberto: boolean;
   onFecharHistorico: () => void;
   onAbrirHistorico: () => void;
+  onIrParaSubAba: (abaId: string) => void;
 }
 
-const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico }) => {
+const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba }) => {
   // Último orçamento em edição (localStorage local). Sem rascunho, cai no exemplo.
   const [rascunho] = useState(lerRascunho);
   const [descReparo, setDescReparo] = useState<string>(() => rascunho?.descReparo ?? EXEMPLO_DESC);
@@ -306,6 +308,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 </button>
               </div>
             </NeonCard>
+
+            {/* Atalhos para as sub-abas da aba Dados (fora das caixas). */}
+            <AtalhosDados onIr={onIrParaSubAba} />
 
             {/* Ajustes Manuais fica entre o APROVADO E DESCONTO e o RESUMO LÍQUIDO;
                 o campo mostra só 3 linhas (rows=3). */}

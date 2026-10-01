@@ -41,6 +41,13 @@ export interface DadosTabelas {
 
 export const DADOS_KEY = 'dados_tabelas_v1';
 
+/**
+ * Evento disparado na window a cada salvamento — os atalhos de sub-abas (na aba
+ * Orçamentos) se atualizam na mesma hora (`storage` sozinho só avisa outras
+ * janelas, não a própria).
+ */
+export const DADOS_EVENTO = 'dados:atualizados';
+
 export const MAX_COLUNAS = 12;
 export const LARGURA_COLUNA_PADRAO = 170;
 export const LARGURA_MIN = 80;

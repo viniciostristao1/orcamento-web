@@ -67,6 +67,13 @@ const AppInterno: React.FC = () => {
     setDestaque((d) => ({ id, vez: (d?.vez ?? 0) + 1 }));
   };
 
+  // Atalho SUB ATALHOS: vai para a aba Dados com a sub-aba aberta.
+  const [subAbaDados, setSubAbaDados] = useState<{ id: string; vez: number } | null>(null);
+  const irParaSubAbaDados = (id: string) => {
+    setAba('dados');
+    setSubAbaDados((d) => ({ id, vez: (d?.vez ?? 0) + 1 }));
+  };
+
   useEffect(() => {
     aplicarTema(tema);
     try {
@@ -141,6 +148,7 @@ const AppInterno: React.FC = () => {
             historicoAberto={historicoAberto}
             onFecharHistorico={() => setHistoricoAberto(false)}
             onAbrirHistorico={() => setHistoricoAberto(true)}
+            onIrParaSubAba={irParaSubAbaDados}
           />
         </div>
         <div className={aba === 'pneus' ? '' : 'hidden'}>
@@ -150,7 +158,7 @@ const AppInterno: React.FC = () => {
           <WhatsApp destaque={destaque} />
         </div>
         <div className={aba === 'dados' ? '' : 'hidden'}>
-          <DadosApp />
+          <DadosApp subAba={subAbaDados} />
         </div>
       </main>
 

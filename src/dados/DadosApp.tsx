@@ -21,6 +21,7 @@ import {
   type DadosTabelas,
   type NotaDados,
   type TabelaDados,
+  DADOS_EVENTO,
   MAX_COLUNAS,
   adicionarColuna,
   adicionarLinha,
@@ -49,7 +50,9 @@ import {
   salvarDados,
 } from './utils/tabelas';
 
-const DadosApp: React.FC = () => {
+const DadosApp: React.FC<{ subAba?: { id: string; vez: number } | null }> = ({
+  subAba = null,
+}) => {
   const [dados, setDados] = useState<DadosTabelas>(lerDados);
   const [abaId, setAbaId] = useState<string>(() => lerDados().abas[0]?.id ?? 'pecas');
   const [colunasNova, setColunasNova] = useState(4);
@@ -84,6 +87,8 @@ const DadosApp: React.FC = () => {
 
   useEffect(() => {
     salvarDados(dados);
+    // Avisa os atalhos de sub-abas (na aba Orçamentos) para se atualizarem.
+    window.dispatchEvent(new Event(DADOS_EVENTO));
   }, [dados]);
 
   // Limpa o timer do "Desfazer" ao desmontar.
@@ -91,6 +96,11 @@ const DadosApp: React.FC = () => {
 
   // Se a aba ativa deixar de existir (ou nunca existiu), cai na primeira.
   const aba = dados.abas.find((a) => a.id === abaId) ?? dados.abas[0];
+
+  // Atalho vindo da aba Orçamentos: abre a sub-aba correspondente.
+  useEffect(() => {
+    if (subAba && dados.abas.some((a) => a.id === subAba.id)) setAbaId(subAba.id);
+  }, [subAba, dados.abas]);
 
   const ocorrencias = listarOcorrencias(dados, busca);
   const buscaAtiva = busca.trim().length > 0;

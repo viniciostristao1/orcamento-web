@@ -319,11 +319,12 @@ describe('App — smoke test (render + processar)', () => {
       // abre na aba Orçamentos: mesmo assim o aviso pula (vale para todas as abas)
       render(<App />);
       expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
-      const botao = screen.getByRole('button', { name: 'Ir para contato MARIA HOJE' });
-      expect(botao).toBeTruthy();
+      // área toda clicável: janelinha + nome levam ao contato (2 botões)
+      const botoes = screen.getAllByRole('button', { name: 'Ir para contato MARIA HOJE' });
+      expect(botoes).toHaveLength(2);
 
-      // clicar leva para a aba Whats e destaca o cartão do contato
-      fireEvent.click(botao);
+      // clicar na área leva para a aba Whats e destaca o cartão do contato
+      fireEvent.click(botoes[0]);
       expect(screen.getByText('Relatório de Envios')).toBeTruthy();
       expect(document.querySelector('[data-destaque="1"]')).toBeTruthy();
       expect(document.querySelector('[data-destaque="1"]')?.textContent).toContain('MARIA HOJE');
@@ -358,11 +359,42 @@ describe('App — smoke test (render + processar)', () => {
     );
     try {
       render(<App />);
-      expect(screen.getByRole('button', { name: 'Ir para contato PEDRO HOJE' })).toBeTruthy();
+      expect(screen.getAllByRole('button', { name: 'Ir para contato PEDRO HOJE' })).toHaveLength(2);
       fireEvent.click(screen.getByRole('button', { name: 'Dispensar lembrete' }));
       expect(screen.queryByRole('button', { name: /Ir para contato/i })).toBeNull();
     } finally {
       localStorage.removeItem('zap_contacts');
+    }
+  });
+
+  it('orçamentos: SUB ATALHOS leva até a sub-aba da aba Dados', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    localStorage.setItem(
+      'dados_tabelas_v1',
+      JSON.stringify({
+        abas: [
+          { id: 'pecas', rotulo: 'PEÇAS', tabelas: [], notas: [], ordem: [] },
+          { id: 'os', rotulo: "O.S'S", tabelas: [], notas: [], ordem: [] },
+          { id: 'mem', rotulo: 'MEMÓRIA', tabelas: [], notas: [], ordem: [] },
+        ],
+      }),
+    );
+    try {
+      render(<App />);
+      // titulozinho + um botão por sub-aba, um abaixo do outro
+      expect(screen.getByText('Sub Atalhos')).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Ir para sub-aba PEÇAS' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: "Ir para sub-aba O.S'S" })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Ir para sub-aba MEMÓRIA' })).toBeTruthy();
+
+      // clicar abre a aba Dados já na sub-aba (MEMÓRIA fica ativa em azul)
+      fireEvent.click(screen.getByRole('button', { name: 'Ir para sub-aba MEMÓRIA' }));
+      const subAba = screen
+        .getAllByRole('button', { name: 'MEMÓRIA' })
+        .find((b) => b.className.includes('bg-blue-600'));
+      expect(subAba).toBeTruthy();
+    } finally {
+      localStorage.removeItem('dados_tabelas_v1');
     }
   });
 

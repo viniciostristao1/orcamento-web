@@ -5,6 +5,30 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Lembrete menor/todo clicável + SUB ATALHOS p/ sub-abas de Dados (v0.43.0)
+
+**Pedidos:** (1) janelinha do lembrete menor e inteiramente clicável; (2) na aba Orçamentos,
+botões de atalho (lado do APROVADO E DESCONTO, fora das caixas) para cada sub-aba de Dados.
+
+**Feito:**
+- `LembreteContatos`: menor (`p-4`, ícone 24, nomes `text-lg`, `max-w-[240px]`) e a área toda
+  virou `role="button"` (com Enter/Espaço) levando ao 1º contato da lista; cada nome continua
+  levando ao seu (`stopPropagation`; a área externa é `div`, então sem botão aninhado). O X
+  dispensa como antes.
+- `SUB ATALHOS` (`components/AtalhosDados.tsx`, sem caixa — só titulozinho `text-[10px]` +
+  botões `w-full` empilhados com `aria-label="Ir para sub-aba X"`): lê `lerDados()` e se
+  atualiza via evento `dados:atualizados` (novo em `tabelas.ts`, disparado no persist do
+  `DadosApp`) + `storage` entre janelas — nova sub-aba (ex.: SENHAS, MEMÓRIA) vira botão sozinha.
+- Navegação: `App.irParaSubAbaDados` troca para `dados` e passa `subAba {id, vez}` →
+  `DadosApp` abre a sub-aba (com guarda para id inexistente). Fica logo abaixo do card
+  APROVADO E DESCONTO, antes de AJUSTES MANUAIS.
+- Testes: ajuste nos 2 do lembrete (agora 2 botões por contato) + novo dos atalhos (3 sub-abas
+  semeadas, clica MEMÓRIA e confere ativa em azul).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Lembrete global vinculado aos contatos de hoje (v0.42.0)
 
 **Pedido:** descartar o lembrete mensal (v0.41.0); o aviso deve (1) disparar pela **data do
