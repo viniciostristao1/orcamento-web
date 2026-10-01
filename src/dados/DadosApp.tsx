@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowUpDown,
   Check,
+  ChevronDown,
+  ChevronUp,
   Copy,
   Eraser,
   GripVertical,
@@ -39,6 +41,7 @@ import {
   limparBloco,
   listarOcorrencias,
   alternarMarcada,
+  moverBloco,
   moverNota,
   ordenarPorColuna,
   removerAba,
@@ -1081,8 +1084,8 @@ const DadosApp: React.FC<{ subAba?: { id: string; vez: number } | null }> = ({
                     </tbody>
                   </table>
                   {/* Barra de baixo com a largura da tabela: o + fica abaixo da
-                      1ª coluna e o excluir tabela abaixo da última coluna/linha
-                      (e rolam juntos quando a tabela é mais larga que o card). */}
+                      1ª coluna e, à direita, subir/descer a tabela e excluir
+                      (rolam juntos quando a tabela é mais larga que o card). */}
                   <div
                     style={{ width: larguraTotal }}
                     className="p-3 border-x border-b border-slate-800 bg-slate-950/30 flex items-center justify-between"
@@ -1096,16 +1099,38 @@ const DadosApp: React.FC<{ subAba?: { id: string; vez: number } | null }> = ({
                     >
                       <Plus size={18} strokeWidth={2.5} />
                     </button>
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
-                      aria-label="Excluir tabela"
-                      title="Excluir tabela"
-                      className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <span className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setDados((d) => moverBloco(d, aba.id, tabela.id, -1))}
+                        disabled={aba.ordem.indexOf(tabela.id) <= 0}
+                        aria-label="Mover tabela para cima"
+                        title="Mover tabela para cima"
+                        className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                      >
+                        <ChevronUp size={18} strokeWidth={2.5} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDados((d) => moverBloco(d, aba.id, tabela.id, 1))}
+                        disabled={aba.ordem.indexOf(tabela.id) < 0 || aba.ordem.indexOf(tabela.id) >= aba.ordem.length - 1}
+                        aria-label="Mover tabela para baixo"
+                        title="Mover tabela para baixo"
+                        className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                      >
+                        <ChevronDown size={18} strokeWidth={2.5} />
+                      </button>
+                      <button
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => setDados((d) => removerTabela(d, aba.id, tabela.id))}
+                        aria-label="Excluir tabela"
+                        title="Excluir tabela"
+                        className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-red-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </span>
                   </div>
                 </div>
               </div>

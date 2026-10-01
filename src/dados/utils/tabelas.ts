@@ -345,6 +345,28 @@ export const moverNota = (
   };
 };
 
+/**
+ * Move um bloco (tabela ou nota) uma posição para cima (-1) ou para baixo (+1)
+ * na ordem da tela, trocando de lugar com o vizinho. Nas bordas não faz nada.
+ */
+export const moverBloco = (
+  dados: DadosTabelas,
+  abaId: string,
+  blocoId: string,
+  direcao: 1 | -1,
+): DadosTabelas => ({
+  ...dados,
+  abas: dados.abas.map((a) => {
+    if (a.id !== abaId) return a;
+    const de = a.ordem.indexOf(blocoId);
+    const para = de + direcao;
+    if (de < 0 || para < 0 || para >= a.ordem.length) return a;
+    const ordem = [...a.ordem];
+    [ordem[de], ordem[para]] = [ordem[para], ordem[de]];
+    return { ...a, ordem };
+  }),
+});
+
 export const atualizarTitulo = (
   dados: DadosTabelas,
   abaId: string,

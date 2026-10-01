@@ -241,6 +241,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   clicar já edita e o cursor cai no ponto clicado) e a **alça de 6 pontinhos** (`GripVertical`)
   arrasta a nota com HTML5 DnD para cima de qualquer bloco — nota ou **tabela**
   (`moverNota` reordena `ordem`; tabelas também aceitam o drop e o cartão fica com `ring` azul),
+  permitindo nota **acima/entre tabelas**; desde a v0.52.0 a **tabela também se move**: botões
+  **subir/descer** (`ChevronUp`/`ChevronDown`, `moverBloco` troca com o vizinho na `ordem`,
+  travados nas bordas) na barra de baixo, ao lado do excluir;
   permitindo nota **acima/entre tabelas**; notas seguidas ficam na mesma linha (`flex-wrap`) e o
   texto entra na **busca** via `listarOcorrencias` tipo `nota` (acende `data-atual`). O botão
   **Criar tabela** é **ícone-only** (v0.34.0; era “Criar tabela” com texto) ao lado do **Criar

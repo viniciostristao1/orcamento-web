@@ -567,9 +567,13 @@ describe('App — smoke test (render + processar)', () => {
     // o excluir tabela fica na barra de baixo, do lado oposto ao adicionar linha
     const excluirTabela = screen.getByRole('button', { name: 'Excluir tabela' });
     expect(container.querySelector('thead button[aria-label="Excluir tabela"]')).toBeNull();
-    expect(excluirTabela.parentElement?.contains(screen.getByRole('button', { name: 'Adicionar linha' }))).toBe(true);
+    const barra = excluirTabela.parentElement?.parentElement as HTMLElement;
+    expect(barra.contains(screen.getByRole('button', { name: 'Adicionar linha' }))).toBe(true);
+    // subir/descer a tabela ficam na mesma barra, ao lado do excluir
+    expect(barra.contains(screen.getByRole('button', { name: 'Mover tabela para cima' }))).toBe(true);
+    expect(barra.contains(screen.getByRole('button', { name: 'Mover tabela para baixo' }))).toBe(true);
     // a barra tem a largura da tabela: o excluir fica sob a última coluna/linha
-    expect((excluirTabela.parentElement as HTMLElement).style.width).toBe(
+    expect(barra.style.width).toBe(
       (container.querySelector('table') as HTMLTableElement).style.width,
     );
 
@@ -603,6 +607,42 @@ describe('App — smoke test (render + processar)', () => {
     expect(container.querySelectorAll('thead input')).toHaveLength(1);
     expect(screen.queryByRole('button', { name: 'Excluir coluna 1' })).toBeNull();
     confirmar.mockRestore();
+  });
+
+  it('aba Dados: botões sobem/descem a tabela na ordem (com trava nas bordas)', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '1' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.change(container.querySelectorAll('tbody input[type="text"]')[0], { target: { value: 'PRIMEIRA' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /Adicionar linha/i })[1]);
+    const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    fireEvent.change(celulas()[1], { target: { value: 'SEGUNDA' } });
+
+    const subir = () => screen.getAllByRole('button', { name: 'Mover tabela para cima' });
+    const descer = () => screen.getAllByRole('button', { name: 'Mover tabela para baixo' });
+    const valoresPrimeiraTabela = () =>
+      Array.from(container.querySelectorAll('tbody')[0].querySelectorAll('input'))
+        .map((i) => (i as HTMLInputElement).value)
+        .join('|');
+    expect(valoresPrimeiraTabela()).toContain('PRIMEIRA');
+    // nas bordas o botão trava: 1ª não sobe, última não desce
+    expect((subir()[0] as HTMLButtonElement).disabled).toBe(true);
+    expect((descer()[1] as HTMLButtonElement).disabled).toBe(true);
+
+    // sobe a 2ª: ela passa para cima
+    fireEvent.click(subir()[1]);
+    expect(valoresPrimeiraTabela()).toContain('SEGUNDA');
+    expect((subir()[0] as HTMLButtonElement).disabled).toBe(true);
+
+    // desce de volta: volta ao original
+    fireEvent.click(descer()[0]);
+    expect(valoresPrimeiraTabela()).toContain('PRIMEIRA');
   });
 
   it('aba Dados: colar planilha distribui nas células e arrastar seleciona várias para copiar', () => {

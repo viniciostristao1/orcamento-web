@@ -5,6 +5,25 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Botões subir/descer tabela na aba Dados (v0.52.0)
+
+**Pedido:** botão para mover as tabelas para cima/baixo, mudando a ordem (as notas já tinham
+arrastar pela alça; tabelas não tinham como trocar de lugar).
+
+**Feito:**
+- Novo `moverBloco(dados, abaId, blocoId, ±1)` puro em `tabelas.ts` (troca com o vizinho na
+  `ordem`; nas bordas não faz nada; vale para tabela ou nota).
+- Barra de baixo da tabela: `+` à esquerda e, à direita, **subir / descer / excluir**
+  (`ChevronUp`/`ChevronDown`, `aria-label` "Mover tabela para cima/baixo", `disabled` com
+  `opacity-30` nas bordas). A barra segue com a largura da tabela.
+- Testes: ajuste no da barra (botões agora num `span` dentro dela + presença do subir/descer)
+  e novo teste (2 tabelas, trava nas bordas, sobe a 2ª, desce de volta). Gotcha: `textContent`
+  de `tbody` não inclui valor de `<input>` — ler `.value` dos inputs.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **110/110**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Esquerda ~461px (v0.51.0)
 
 **Pedido:** estreitar mais um pouco 1. DESCRIÇÃO / 2. DADOS.
