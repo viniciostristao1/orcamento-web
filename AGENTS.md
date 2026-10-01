@@ -111,8 +111,10 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   cada nome leva ao seu) e a coluna direita de Orçamentos tem **SUB ATALHOS** (v0.43.0):
   titulozinho + um botão por sub-aba de Dados (`components/AtalhosDados.tsx`, acompanha
   criar/excluir/renomear via evento `dados:atualizados` em `tabelas.ts`) que abre a aba Dados
-  já na sub-aba (`App` → `DadosApp subAba`). Desde a v0.44.0 ficam numa **faixa estreita (104px)
-  à direita** do card APROVADO E DESCONTO (botões compactos `text-xs`).
+  já na sub-aba (`App` → `DadosApp subAba`). Desde a v0.44.0 ficam numa **faixa estreita
+  à direita** do card APROVADO E DESCONTO (botões compactos `text-xs`); desde a v0.45.0 o card
+  mantém a **largura original (317px)** — a página de orçamentos alargou (`main 1180px`, grade
+  `1fr 425px`) para acomodar a faixa (96px) ao lado.
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,

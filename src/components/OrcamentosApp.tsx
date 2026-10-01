@@ -145,8 +145,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         </header>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 print:hidden ui-compacta">
-          <div className="xl:col-span-8 space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_425px] gap-10 print:hidden ui-compacta">
+          <div className="min-w-0 space-y-6">
             <NeonCard
               title="1. DESCRIÇÃO DO REPARO"
               borderColor="blue-500"
@@ -186,10 +186,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
           {/* Coluna em flex: o RESUMO LÍQUIDO (mt-auto) encosta no fim da
               coluna, rente ao final do card 2. */}
-          <div className="xl:col-span-4 flex flex-col gap-4">
-            {/* APROVADO E DESCONTO com os atalhos numa faixa estreita à direita. */}
+          <div className="flex flex-col gap-4 min-w-0">
+            {/* APROVADO E DESCONTO com a largura original + atalhos na faixa ao lado. */}
             <div className="flex gap-3 items-start">
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 xl:flex-none xl:w-[317px]">
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
                 {/* Total Revisão | Peças na Revisão (com vassoura para limpar e
@@ -312,7 +312,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               </div>
             </NeonCard>
               </div>
-              <div className="w-[104px] shrink-0 pt-1">
+              <div className="w-[96px] shrink-0 pt-1">
                 {/* Atalhos para as sub-abas da aba Dados (fora das caixas). */}
                 <AtalhosDados onIr={onIrParaSubAba} />
               </div>

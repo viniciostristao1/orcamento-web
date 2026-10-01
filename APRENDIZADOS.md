@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — APROVADO E DESCONTO com largura original + faixa ao lado (v0.45.0)
+
+**Pedido:** os atalhos ao lado estreitaram o card; o card deve manter a largura original.
+
+**Feito:**
+- Página de orçamentos: `main max-w-[1050px]` → **`1180px`** e grade da direita
+  `xl:grid-cols-12 (8/4)` → **`xl:grid-cols-[minmax(0,1fr)_425px]`**; card APROVADO fixo em
+  **`xl:w-[317px]`** (= os 4/12 de antes) e faixa de atalhos em 96px — o espaço extra veio do
+  alargamento da página, não do card (a coluna esquerda vai de ~633px para ~655px).
+- Abaixo de `xl` (empilhado) continua fluido como antes.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — SUB ATALHOS ao lado do APROVADO E DESCONTO (v0.44.0)
 
 **Pedido:** atalhos à **direita** do card APROVADO E DESCONTO (estavam abaixo dele), podendo
