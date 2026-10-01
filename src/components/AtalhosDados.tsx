@@ -48,7 +48,7 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr }) => {
             onClick={() => onIr(a.id)}
             aria-label={`Ir para sub-aba ${a.rotulo}`}
             title={`Abrir ${a.rotulo} na aba Dados`}
-            className="w-full flex items-center justify-between gap-1.5 px-3 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer active:scale-[0.98]"
+            className="w-full flex items-center justify-between gap-1.5 px-4 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer active:scale-[0.98]"
           >
             <span className="truncate">{a.rotulo}</span>
             <CornerUpRight size={14} className="shrink-0 text-slate-500" />

@@ -144,7 +144,7 @@ const AppInterno: React.FC = () => {
         </div>
       </header>
 
-      <main className={`mx-auto px-[30px] pt-3 ${aba === 'orcamentos' ? 'max-w-[1190px]' : 'max-w-[1400px]'}`}>
+      <main className={`mx-auto px-[30px] pt-3 ${aba === 'orcamentos' ? 'max-w-[1170px]' : 'max-w-[1400px]'}`}>
         <div className={aba === 'orcamentos' ? '' : 'hidden'}>
           <OrcamentosApp
             historicoAberto={historicoAberto}
