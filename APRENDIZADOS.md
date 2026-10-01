@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Selo de versão no cabeçalho (v0.48.0)
+
+**Contexto:** usuário reportou 2x que "não mudou nada" (v0.47.0) mesmo com o release correto
+(conferido: bytes idênticos ao build, com as mudanças dentro). Hipótese: abrindo arquivo
+antigo/cache — sem versão visível, impossível confirmar.
+
+**Feito:**
+- Novo `utils/versao.ts` (`VERSAO`, espelho manual do package.json) + selo `vX.Y.Z` discreto
+  no header ao lado de "Gestão de Vendas" (`text-[10px] text-slate-600`, com `title`).
+- Regra: bump de versão = package.json + `VERSAO` juntos.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Coluna esquerda mais estreita + botões de atalho maiores (v0.47.0)
 
 **Pedido:** diminuir a largura de 1. DESCRIÇÃO DO REPARO / 2. DADOS DO ORÇAMENTO e aumentar um

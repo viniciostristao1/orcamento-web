@@ -7,6 +7,7 @@ import ConfiguracoesTema from './components/ConfiguracoesTema';
 import LembreteContatos from './components/LembreteContatos';
 import { RotulosProvider, useRotulos } from './components/RotulosContext';
 import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
+import { VERSAO } from './utils/versao';
 import {
   CONTATOS_EVENTO,
   CONTATOS_KEY,
@@ -137,6 +138,7 @@ const AppInterno: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 border-l border-slate-800 pl-4 h-8 flex items-center whitespace-nowrap">Gestão de Vendas</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600 whitespace-nowrap" title="Versão do arquivo">v{VERSAO}</span>
             <ConfiguracoesTema tema={tema} onChange={setTema} />
           </div>
         </div>
