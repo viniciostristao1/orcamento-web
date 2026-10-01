@@ -111,7 +111,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   cada nome leva ao seu) e a coluna direita de Orçamentos tem **SUB ATALHOS** (v0.43.0):
   titulozinho + um botão por sub-aba de Dados (`components/AtalhosDados.tsx`, acompanha
   criar/excluir/renomear via evento `dados:atualizados` em `tabelas.ts`) que abre a aba Dados
-  já na sub-aba (`App` → `DadosApp subAba`).
+  já na sub-aba (`App` → `DadosApp subAba`). Desde a v0.44.0 ficam numa **faixa estreita (104px)
+  à direita** do card APROVADO E DESCONTO (botões compactos `text-xs`).
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,

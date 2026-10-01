@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — SUB ATALHOS ao lado do APROVADO E DESCONTO (v0.44.0)
+
+**Pedido:** atalhos à **direita** do card APROVADO E DESCONTO (estavam abaixo dele), podendo
+diminuir a largura dos botões.
+
+**Feito:**
+- `OrcamentosApp`: card APROVADO + `AtalhosDados` numa linha `flex` (`flex-1 min-w-0` no card,
+  faixa `w-[104px] shrink-0` nos atalhos, `items-start`).
+- `AtalhosDados`: botões compactos (`px-2 py-2 text-xs`, ícone 12, título `text-[9px]`);
+  nomes longos truncam com `title` (tooltip) — `aria-label`s inalterados, testes intactos.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Lembrete menor/todo clicável + SUB ATALHOS p/ sub-abas de Dados (v0.43.0)
 
 **Pedidos:** (1) janelinha do lembrete menor e inteiramente clicável; (2) na aba Orçamentos,

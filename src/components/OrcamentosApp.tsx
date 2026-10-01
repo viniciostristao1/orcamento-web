@@ -187,6 +187,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           {/* Coluna em flex: o RESUMO LÍQUIDO (mt-auto) encosta no fim da
               coluna, rente ao final do card 2. */}
           <div className="xl:col-span-4 flex flex-col gap-4">
+            {/* APROVADO E DESCONTO com os atalhos numa faixa estreita à direita. */}
+            <div className="flex gap-3 items-start">
+              <div className="flex-1 min-w-0">
             <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
               <div className="space-y-2">
                 {/* Total Revisão | Peças na Revisão (com vassoura para limpar e
@@ -308,11 +311,14 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 </button>
               </div>
             </NeonCard>
+              </div>
+              <div className="w-[104px] shrink-0 pt-1">
+                {/* Atalhos para as sub-abas da aba Dados (fora das caixas). */}
+                <AtalhosDados onIr={onIrParaSubAba} />
+              </div>
+            </div>
 
-            {/* Atalhos para as sub-abas da aba Dados (fora das caixas). */}
-            <AtalhosDados onIr={onIrParaSubAba} />
-
-            {/* Ajustes Manuais fica entre o APROVADO E DESCONTO e o RESUMO LÍQUIDO;
+            {/* Ajustes Manuais fica abaixo da faixa APROVADO + atalhos;
                 o campo mostra só 3 linhas (rows=3). */}
             <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
               <textarea 

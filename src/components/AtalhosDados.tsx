@@ -37,10 +37,10 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr }) => {
 
   return (
     <div>
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 ml-2">
+      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 ml-1">
         Sub Atalhos
       </p>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         {dados.abas.map((a) => (
           <button
             key={a.id}
@@ -48,10 +48,10 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr }) => {
             onClick={() => onIr(a.id)}
             aria-label={`Ir para sub-aba ${a.rotulo}`}
             title={`Abrir ${a.rotulo} na aba Dados`}
-            className="w-full flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer active:scale-[0.98]"
+            className="w-full flex items-center justify-between gap-1 px-2 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer active:scale-[0.98]"
           >
             <span className="truncate">{a.rotulo}</span>
-            <CornerUpRight size={14} className="shrink-0 text-slate-500" />
+            <CornerUpRight size={12} className="shrink-0 text-slate-500" />
           </button>
         ))}
       </div>
