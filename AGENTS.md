@@ -113,8 +113,10 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   criar/excluir/renomear via evento `dados:atualizados` em `tabelas.ts`) que abre a aba Dados
   já na sub-aba (`App` → `DadosApp subAba`). Desde a v0.44.0 ficam numa **faixa estreita
   à direita** (botões compactos `text-xs`); desde a v0.46.0 a faixa fica **fora da largura dos
-  cards** — APROVADO = AJUSTES = RESUMO (`xl:w-[425px]` numa pilha; a faixa de 96px vai ao lado
-  da pilha, top-alinhada). A página de orçamentos é `main 1280px` com grade `1fr 533px`.
+  cards** — APROVADO = AJUSTES = RESUMO (`xl:w-[425px]` numa pilha; a faixa vai ao lado
+  da pilha, top-alinhada). A página de orçamentos é `main 1280px` com grade `1fr 553px`
+  (425 + 12 + 116, desde a v0.47.0 — botões `text-sm`, um pouco maiores); a coluna esquerda
+  fica em ~627px.
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,

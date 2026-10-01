@@ -145,7 +145,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         </header>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_533px] gap-10 print:hidden ui-compacta">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_553px] gap-10 print:hidden ui-compacta">
           <div className="min-w-0 space-y-6">
             <NeonCard
               title="1. DESCRIÇÃO DO REPARO"
@@ -352,7 +352,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               </NeonCard>
             )}
             </div>
-            <div className="w-[96px] shrink-0 pt-1">
+            <div className="w-[116px] shrink-0 pt-1">
               {/* Atalhos para as sub-abas da aba Dados (fora das caixas). */}
               <AtalhosDados onIr={onIrParaSubAba} />
             </div>

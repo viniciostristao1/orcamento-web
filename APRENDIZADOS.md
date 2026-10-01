@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Coluna esquerda mais estreita + botões de atalho maiores (v0.47.0)
+
+**Pedido:** diminuir a largura de 1. DESCRIÇÃO DO REPARO / 2. DADOS DO ORÇAMENTO e aumentar um
+pouquinho os botões do SUB ATALHOS.
+
+**Feito:**
+- Grade: `1fr 533px` → **`1fr 553px`** (faixa 96px → **116px**); coluna esquerda vai de ~647px
+  para **~627px** (main segue 1280px).
+- Botões: `px-2 py-2 text-xs` → **`px-3 py-2.5 text-sm`**, ícone 12 → 14, título `text-[10px]`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Faixa de atalhos fora da largura dos cards (v0.46.0)
 
 **Pedido:** APROVADO E DESCONTO com a **mesma largura do 3. AJUSTES MANUAIS**; a faixa não pode
