@@ -5,6 +5,18 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-01 — Coluna esquerda bem mais estreita (v0.49.0)
+
+**Contexto:** o selo v0.48.0 provou que o usuário estava no arquivo novo — as diferenças de
+20px (v0.47.0) eram sutis demais para perceber. Pedido: estreitar de forma visível.
+
+**Feito:** `main` de orçamentos 1280px → **1190px** (grade segue `1fr 553px`); coluna
+1. DESCRIÇÃO / 2. DADOS vai de ~627px para **~537px** (−90px). Selo agora `v0.49.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **109/109**, `npm run build` OK.
+
+---
+
 ## 2026-10-01 — Selo de versão no cabeçalho (v0.48.0)
 
 **Contexto:** usuário reportou 2x que "não mudou nada" (v0.47.0) mesmo com o release correto
