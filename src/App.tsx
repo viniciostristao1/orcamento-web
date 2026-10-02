@@ -104,7 +104,7 @@ const AppInterno: React.FC = () => {
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden ui-compacta">
         <div className="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between gap-5">
           <div className="flex items-center gap-4">
-            <img src={logoToyota} alt="Toyota" className="h-11 w-auto" />
+            <img src={logoToyota} alt="Toyota" className="logo-toyota h-11 w-auto" />
             <h1 className="titulo-tema text-2xl font-black tracking-tighter uppercase whitespace-nowrap">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
           </div>
 

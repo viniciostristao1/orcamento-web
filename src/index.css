@@ -135,6 +135,13 @@
   --tema-fonte-conteudo: 'Inter', sans-serif;
 }
 
+/* Papel: o logo Toyota é branco puro (some no fundo papel) — tinge de azul
+   (o acento #2563eb) só neste tema. O filtro parte do branco: brightness(0)
+   vira preto e o resto mapeia preto → #2563eb (exato, calculado). */
+[data-tema='papel'] .logo-toyota {
+  filter: brightness(0) invert(31.8%) sepia(92.9%) saturate(489%) hue-rotate(183.3deg) brightness(104.9%) contrast(126.4%);
+}
+
 /* Verde WhatsApp = escuro com verde do Zap. Poppins + Inter. */
 [data-tema='whatsapp'] {
   --tema-fundo: #0b141a;

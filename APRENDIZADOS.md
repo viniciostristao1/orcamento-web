@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Logo Toyota azul no tema claro (v0.73.0)
+
+**Pedido:** no tema claro o logo branco sumia no fundo papel; trocar para azul.
+
+**Feito:** `[data-tema='papel'] .logo-toyota` com `filter` que mapeia branco → `#2563eb`
+(exato: `brightness(0)` vira preto + cadeia invert/sepia/saturate/hue-rotate/brightness/
+contrast resolvida numericamente; núcleo medido (38,100,229), contraste 4.56:1 no papel).
+Só vale no papel (nos escuros segue branco); sem asset novo, `img` ganhou a classe
+`logo-toyota`. Smoke confere a classe. Selo `v0.73.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **124/124**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Tire Flyer: COPIAR PNEUS abaixo do CONTATO (v0.72.0)
 
 **Pedido:** "Descrição para WhatsApp" com a largura e logo abaixo do CONTATO (ordem:

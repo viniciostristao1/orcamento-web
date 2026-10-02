@@ -163,6 +163,12 @@ describe('App — smoke test (render + processar)', () => {
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('azul');
   });
 
+  it('logo Toyota tem classe própria (o tema claro o tinge de azul via CSS)', () => {
+    render(<App />);
+    const logo = screen.getByAltText('Toyota');
+    expect(logo.className).toContain('logo-toyota');
+  });
+
   it('migra nomes antigos e descarta os temas removidos (claude/terracota/executivo → azul)', () => {
     for (const antigo of ['claude', 'terracota', 'executivo']) {
       localStorage.setItem('orcamentos_tema_v1', antigo);
