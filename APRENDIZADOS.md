@@ -5,6 +5,18 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Sub-abas: minimizada fantasma azul (v0.71.0)
+
+**Pedido:** das 12 prévias (`ideias/sub-abas-*.png`), a escolhida foi a **03** (fantasma azul).
+
+**Feito:** sub-aba minimizada `bg-slate-800 text-slate-300 border-slate-700` →
+`bg-blue-500/10 text-blue-200 hover:bg-blue-500/20` (moldura `border-blue-500/20`, X
+`text-blue-400` sem fundo); aberta segue azul forte preenchido. Selo `v0.71.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **123/123**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Excluir pede confirmação no histórico (v0.70.0)
 
 **Pedido:** excluir um orçamento no histórico (Todos ou Não Realizados) deve perguntar

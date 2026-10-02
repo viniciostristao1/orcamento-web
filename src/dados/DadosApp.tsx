@@ -661,7 +661,7 @@ const DadosApp: React.FC<{
             <div
               key={a.id}
               className={`flex items-stretch rounded-xl border overflow-hidden transition-all ${
-                aba?.id === a.id ? 'border-blue-500' : 'border-slate-700'
+                aba?.id === a.id ? 'border-blue-500' : 'border-blue-500/20'
               }`}
             >
               {abaRenomeando === a.id ? (
@@ -695,7 +695,7 @@ const DadosApp: React.FC<{
                   className={`px-4 py-1 text-lg font-black uppercase transition-all cursor-pointer ${
                     aba?.id === a.id
                       ? 'bg-blue-600 text-white'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      : 'bg-blue-500/10 text-blue-200 hover:bg-blue-500/20'
                   }`}
                   style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                 >
@@ -711,7 +711,7 @@ const DadosApp: React.FC<{
                 className={`flex items-center justify-center px-2.5 border-l transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
                   aba?.id === a.id
                     ? 'bg-blue-600/70 hover:bg-red-600 text-white border-blue-500'
-                    : 'bg-slate-800 hover:bg-red-600 hover:text-white text-slate-500 border-slate-700'
+                    : 'bg-transparent hover:bg-red-600 hover:text-white text-blue-400 border-blue-500/20'
                 }`}
               >
                 <X size={14} strokeWidth={3} />

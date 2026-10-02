@@ -392,6 +392,10 @@ npm run build        # gera dist/index.html (arquivo único)
 
 ## 5. Fluxo de entrega (harness)
 
+> **Pedido permanente do usuário: TODA entrega termina em `commit + push + release`**
+> (não perguntar toda vez — só segurar o commit se ele pedir explicitamente para esperar).
+> O passo 8 (mandar o link fixo) faz parte da entrega.
+
 1. Editar a lógica/tela.
 2. `npm run typecheck` e `npm test` limpos (e testar no `npm run dev` quando mexer em UI).
 3. `npm run build` → conferir que `dist/index.html` continua **autocontido** (sem
@@ -402,8 +406,8 @@ npm run build        # gera dist/index.html (arquivo único)
 7. Publicar no Release do repo público `viniciostristao1/orcamento-web`:
    `cp dist/index.html /tmp/Orcamento-vX.Y.Z.html` →
    `gh release create vX.Y.Z /tmp/Orcamento-vX.Y.Z.html -t "Orçamentos vX.Y.Z" ...` e subir
-   **sempre** também a cópia `Orcamento.html` (nome estável) no mesmo Release. Mandar ao
-   usuário o **link fixo**
+   **sempre** também a cópia `Orcamento.html` (nome estável) no mesmo Release.
+8. Mandar ao usuário o **link fixo**
    `https://github.com/viniciostristao1/orcamento-web/releases/latest/download/Orcamento.html`
    (ele baixa e substitui o arquivo na mesma pasta) + o nome do arquivo novo.
 
