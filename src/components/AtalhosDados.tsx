@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CornerUpRight, Search, X } from 'lucide-react';
 import {
+  BUSCA_AUTO_LIMPA_MS,
   DADOS_BUSCA_LIMPA_EVENTO,
   DADOS_EVENTO,
   DADOS_KEY,
@@ -50,6 +51,15 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
       window.removeEventListener(DADOS_BUSCA_LIMPA_EVENTO, limparTermo);
     };
   }, []);
+
+  // O BUSCAR limpa sozinho após 1 min sem digitar (volta o timer a cada letra).
+  // Limpa só o campo daqui (sem trocar de aba): os Dados têm o próprio timer e
+  // se limpam quase junto — e o X de lá também limpa aqui via evento.
+  useEffect(() => {
+    if (!termo.trim()) return;
+    const t = window.setTimeout(() => setTermo(''), BUSCA_AUTO_LIMPA_MS);
+    return () => window.clearTimeout(t);
+  }, [termo]);
 
   if (dados.abas.length === 0) return null;
 

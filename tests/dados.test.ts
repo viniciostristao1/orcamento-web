@@ -17,6 +17,7 @@ import {
   criarTabela,
   encontrar,
   estadoInicial,
+  extrairDataPtBr,
   lerDados,
   listarOcorrencias,
   removerAba,
@@ -217,6 +218,53 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
 
     t = ordenarPorColuna(d, ABA_PECAS, id, 0, 'desc').abas[0].tabelas[0];
     expect(t.linhas.map((l) => l[0])).toEqual(['10 UN', '8 UN', '']);
+  });
+
+  it('ordena datas pt-BR pelo calendário (ano/mês/dia, não pelo dia)', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 1);
+    const id = d.abas[0].tabelas[0].id;
+    const valores = [
+      '03/09/2025',
+      '02/09/2026',
+      '10/08/2026',
+      '',
+      '03/09/2026 12:30:00',
+      '03/09/2026 08:00:00',
+    ];
+    valores.forEach(() => { d = adicionarLinha(d, ABA_PECAS, id); });
+    valores.forEach((v, i) => { d = atualizarCelula(d, ABA_PECAS, id, i, 0, v); });
+
+    // crescente = mais antiga primeiro (03/09/2025 antes de 02/09/2026,
+    // mesmo com o dia maior); vazio por último
+    let t = ordenarPorColuna(d, ABA_PECAS, id, 0, 'asc').abas[0].tabelas[0];
+    expect(t.linhas.map((l) => l[0])).toEqual([
+      '03/09/2025',
+      '10/08/2026',
+      '02/09/2026',
+      '03/09/2026 08:00:00',
+      '03/09/2026 12:30:00',
+      '',
+    ]);
+
+    // decrescente = mais recente primeiro; vazio continua por último
+    t = ordenarPorColuna(d, ABA_PECAS, id, 0, 'desc').abas[0].tabelas[0];
+    expect(t.linhas.map((l) => l[0])).toEqual([
+      '03/09/2026 12:30:00',
+      '03/09/2026 08:00:00',
+      '02/09/2026',
+      '10/08/2026',
+      '03/09/2025',
+      '',
+    ]);
+  });
+
+  it('extrairDataPtBr aceita DD/MM, hora e ISO; rejeita inválidas', () => {
+    expect(extrairDataPtBr('02/09')).not.toBeNull();
+    expect(extrairDataPtBr('03/09')).toBeGreaterThan(extrairDataPtBr('02/09')!);
+    expect(extrairDataPtBr('2026-09-03')).toBe(extrairDataPtBr('03/09/2026'));
+    expect(extrairDataPtBr('PEDRO')).toBeNull();
+    expect(extrairDataPtBr('31/02/2026')).toBeNull();
+    expect(extrairDataPtBr('')).toBeNull();
   });
 
   it('remove coluna (título, largura e células) e nunca deixa a tabela sem colunas', () => {

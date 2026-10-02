@@ -127,6 +127,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   tem só contorno `ring` + mark).
   Desde a v0.58.0 a lupa **leva o foco junto** para o campo de busca dos Dados
   (`refBusca`, pois o do atalho some na troca de aba — sem isso as teclas/Enter iam para o vazio).
+  Desde a v0.64.0 os dois campos **limpam sozinhos após 1 min sem digitar**
+  (`BUSCA_AUTO_LIMPA_MS`, timer por inatividade; o X de Dados avisa o atalho via
+  `dados:busca-limpa`).
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
@@ -309,8 +312,12 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   opções (`ArrowUpDown`, `aria-label="Ordenar tabela"`) abre a janelinha **"Ordenar por coluna"**
   (`dados/components/OrdenarTabela.tsx`, renderizada **fora do `ui-compacta`** como o toast do
   Desfazer — dentro do zoom o painel fixo ficaria encolhido). `ordenarPorColuna` (puro) usa
-  `Intl.Collator` com `numeric: true` (então "8 UN" < "10 UN"), vazios por último, e move
-  `linhas` e `marcados` juntos (a caixinha acompanha a linha); aceita `asc`/`desc`.
+  `Intl.Collator` com `numeric: true` (então "8 UN" < "10 UN"); desde a v0.65.0 **datas
+  pt-BR/ISO (`extrairDataPtBr`) comparam pelo calendário** (crescente = mais antiga,
+  decrescente = mais recente; "03/09/2025" < "02/09/2026"), vazios por último, e move
+  `linhas` e `marcados` juntos (a caixinha acompanha a linha); aceita `asc`/`desc`. As
+  células do corpo têm **autocompletar** (v0.65.0): `<datalist>` por coluna com os valores
+  distintos já digitados (ex.: "PED" sugere "PEDRO"), nativo do navegador.
 - **Rótulos editáveis** (v0.17.0): `utils/rotulos.ts` (`rotulos_v1`) + `RotulosProvider` +
   `TituloEditavel` — **duplo clique** renomeia os botões das abas do topo e os títulos internos
   das telas (visual preservado: azul / duas cores / simples). No backup geral.

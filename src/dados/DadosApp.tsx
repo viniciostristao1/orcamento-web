@@ -26,6 +26,7 @@ import {
   type TabelaDados,
   DADOS_EVENTO,
   DADOS_BUSCA_LIMPA_EVENTO,
+  BUSCA_AUTO_LIMPA_MS,
   MAX_COLUNAS,
   adicionarColuna,
   adicionarLinha,
@@ -198,6 +199,18 @@ const DadosApp: React.FC<{
     const focar = window.setTimeout(() => refBusca.current?.focus(), 60);
     return () => window.clearTimeout(focar);
   }, [buscaDados]);
+
+  // A lupa limpa sozinha após 1 min sem digitar (volta o timer a cada letra).
+  // Limpa aqui e avisa o BUSCAR do atalho (evento `dados:busca-limpa`).
+  useEffect(() => {
+    if (!busca.trim()) return;
+    const t = window.setTimeout(() => {
+      setBusca('');
+      setOcorrenciaAtual(0);
+      window.dispatchEvent(new Event(DADOS_BUSCA_LIMPA_EVENTO));
+    }, BUSCA_AUTO_LIMPA_MS);
+    return () => window.clearTimeout(t);
+  }, [busca]);
 
   const confirmarRenome = () => {
     if (abaRenomeando) setDados((d) => renomearAba(d, abaRenomeando, nomeSubAba));
@@ -966,6 +979,22 @@ const DadosApp: React.FC<{
             // Ocorrência da busca que está em destaque (Enter percorre).
             const atual =
               ocorrencia && ocorrencia.abaId === aba.id && ocorrencia.tabelaId === tabela.id ? ocorrencia : null;
+            // Autocompletar: valores distintos já digitados em cada coluna (o
+            // navegador sugere ao digitar o prefixo — ex.: "PED" oferece "PEDRO").
+            const sugestoesPorColuna: string[][] = Array.from({ length: tabela.colunas }, (_, coluna) => {
+              const vistos = new Set<string>();
+              const out: string[] = [];
+              for (const linha of tabela.linhas) {
+                const v = (linha[coluna] ?? '').trim();
+                const chave = v.toLowerCase();
+                if (v && !vistos.has(chave)) {
+                  vistos.add(chave);
+                  out.push(v);
+                }
+              }
+              return out;
+            });
+            const idListaSugestoes = (coluna: number) => `sug-${tabela.id}-${coluna}`;
 
             const sobreTabela = notaSobre === tabela.id && notaArrastando !== tabela.id;
             return (
@@ -1038,6 +1067,14 @@ const DadosApp: React.FC<{
                                 onMouseDown={(e) => iniciarRedimensionamento(coluna, e)}
                                 className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-blue-500/60 z-10"
                               />
+                              {/* autocompletar das células (o navegador filtra pelo que foi digitado) */}
+                              {sugestoesPorColuna[coluna].length > 0 && (
+                                <datalist id={idListaSugestoes(coluna)}>
+                                  {sugestoesPorColuna[coluna].map((s) => (
+                                    <option key={s} value={s} />
+                                  ))}
+                                </datalist>
+                              )}
                             </th>
                           );
                         })}
@@ -1098,6 +1135,7 @@ const DadosApp: React.FC<{
                                   onKeyDown={(e) => aoTeclarCelula(e, tabela, r, coluna)}
                                   onPaste={(e) => aoColarCelula(e, aba.id, tabela.id, r, coluna)}
                                   onScroll={(e) => sincronizarRolagemGrifo(e.currentTarget)}
+                                  list={sugestoesPorColuna[coluna].length > 0 ? idListaSugestoes(coluna) : undefined}
                                   data-marcado={marcado ? '1' : undefined}
                                   data-atual={atualAqui ? '1' : undefined}
                                   className={`w-full px-2.5 py-1 pr-8 text-base font-bold outline-none ${

@@ -58,7 +58,7 @@ export const OrdenarTabela: React.FC<OrdenarTabelaProps> = ({ aberto, titulos, o
                     type="button"
                     onClick={() => onOrdenar(coluna, 'asc')}
                     aria-label={`Ordenar ${nome} crescente`}
-                    title="Ordem crescente (A–Z / 0–9)"
+                    title="Ordem crescente (A–Z / 0–9 / data mais antiga)"
                     className="flex items-center justify-center p-2 bg-slate-800 hover:bg-blue-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
                   >
                     <ArrowUpAZ size={16} />
@@ -67,7 +67,7 @@ export const OrdenarTabela: React.FC<OrdenarTabelaProps> = ({ aberto, titulos, o
                     type="button"
                     onClick={() => onOrdenar(coluna, 'desc')}
                     aria-label={`Ordenar ${nome} decrescente`}
-                    title="Ordem decrescente (Z–A / 9–0)"
+                    title="Ordem decrescente (Z–A / 9–0 / data mais recente)"
                     className="flex items-center justify-center p-2 bg-slate-800 hover:bg-blue-600 text-slate-300 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
                   >
                     <ArrowDownAZ size={16} />

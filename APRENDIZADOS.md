@@ -5,6 +5,43 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Ordenar entende data + autocompletar na coluna (v0.65.0)
+
+**Pedidos:** (1) ordenar por data saía pelo dia (`02/09` na frente de `03/09` pedindo a
+mais recente); (2) ao digitar "PED" numa célula, sugerir "PEDRO" já presente na tabela.
+
+**Feito:**
+- `extrairDataPtBr` em `tabelas.ts` (DD/MM[/AAAA] [HH:MM[:SS]] e ISO; ano 2 dígitos →
+  20xx; `31/02` dá null): `ordenarPorColuna` compara calendário quando os dois lados
+  são data (crescente = mais antiga, decrescente = mais recente — o "mais recente" do
+  usuário) e cai no `Intl.Collator numeric` caso contrário; vazios por último nos dois
+  sentidos (mantido). Dicas do `OrdenarTabela` citam "data mais antiga/recente".
+- Autocompletar via `<datalist>` nativo por coluna (sem JS/overlay: funciona offline,
+  filtra ao digitar, Enter/click completa): `sugestoesPorColuna` (distintos da coluna,
+  sem case-dup) no `th`, `list=` no input do corpo; uma datalist por coluna.
+- Testes: sort cronológico (anos/meses/horas/vazio), `extrairDataPtBr` (DD/MM, ISO,
+  inválidas) e smoke do datalist (2ª célula lista `PEDRO`). Selo `v0.65.0` (leva junto
+  a v0.64.0 — lupa limpa sozinha — ainda não publicada).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **121/121**, `npm run build` OK.
+
+---
+
+## 2026-10-02 — Lupa limpa sozinha após 1 min (v0.64.0)
+
+**Pedido:** o termo da lupa deve sumir sozinho após 1 min, no BUSCAR (Orçamentos) e no
+Pesquisar nas tabelas (Dados).
+
+**Feito:** `BUSCA_AUTO_LIMPA_MS = 60_000` em `tabelas.ts`; `DadosApp` limpa `busca` +
+avisa o atalho via `dados:busca-limpa`; `AtalhosDados` limpa só o campo local (sem
+`onBuscar`, para o timer nunca trocar de aba sozinho — os Dados têm o próprio timer e
+limpam quase junto). Timer é por inatividade (volta a cada letra); Enter não renova.
+Testes com fake timers (59s mantém, +1s limpa) nos dois campos. Selo `v0.64.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **118/118**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Grifo do cabeçalho alinhado + grifo na nota (v0.63.0)
 
 **Pedido:** buscar "FACILITADA" mostrava `FACIL(FACIL)` no título da coluna (5 letras

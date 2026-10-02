@@ -54,6 +54,12 @@ export const DADOS_EVENTO = 'dados:atualizados';
  */
 export const DADOS_BUSCA_LIMPA_EVENTO = 'dados:busca-limpa';
 
+/**
+ * A busca da lupa ("Pesquisar nas tabelas" + BUSCAR do SUB ATALHOS) limpa
+ * sozinha após este tempo sem digitar (1 min) — evita grifo velho na tela.
+ */
+export const BUSCA_AUTO_LIMPA_MS = 60_000;
+
 export const MAX_COLUNAS = 12;
 export const LARGURA_COLUNA_PADRAO = 170;
 export const LARGURA_MIN = 80;
@@ -523,9 +529,52 @@ export const limparBloco = (
   });
 
 /**
- * Ordena as linhas por uma coluna (A–Z / Z–A). Usa `Intl.Collator` com
- * `numeric` (então "8 UN" vem antes de "10 UN") e mantém a caixinha de cada
- * linha junto com ela; valores vazios ficam no fim.
+ * Extrai data como número comparável; null se o texto não for data.
+ * Aceita pt-BR `DD/MM[/AAAA] [HH:MM[:SS]]` (o formato que o usuário digita e o
+ * `criadoEm` do histórico) e ISO `AAAA-MM-DD [HH:MM[:SS]]`. Ano de 2 dígitos
+ * vira 20xx; sem ano, compara só MMDDHHMMSS (vale entre si; fica antes de quem
+ * tem ano na crescente). Dia/mês/hora inválidos (ex.: 31/02) dão null.
+ */
+export const extrairDataPtBr = (s: string): number | null => {
+  const t = (s ?? '').trim();
+  let m = t.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (m) {
+    const dia = parseInt(m[1], 10);
+    const mes = parseInt(m[2], 10);
+    let ano = m[3] !== undefined ? parseInt(m[3], 10) : 0;
+    if (m[3] !== undefined && m[3].length === 2) ano += 2000;
+    const hora = m[4] !== undefined ? parseInt(m[4], 10) : 0;
+    const min = m[5] !== undefined ? parseInt(m[5], 10) : 0;
+    const seg = m[6] !== undefined ? parseInt(m[6], 10) : 0;
+    if (mes < 1 || mes > 12 || dia < 1 || dia > 31 || hora > 23 || min > 59 || seg > 59)
+      return null;
+    if (ano === 0) return (((((mes * 100 + dia) * 100 + hora) * 100 + min) * 100 + seg) * 1000);
+    const d = new Date(ano, mes - 1, dia, hora, min, seg);
+    if (d.getFullYear() !== ano || d.getMonth() !== mes - 1 || d.getDate() !== dia) return null;
+    return d.getTime();
+  }
+  m = t.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (!m) return null;
+  const ano = parseInt(m[1], 10);
+  const mes = parseInt(m[2], 10);
+  const dia = parseInt(m[3], 10);
+  const hora = m[4] !== undefined ? parseInt(m[4], 10) : 0;
+  const min = m[5] !== undefined ? parseInt(m[5], 10) : 0;
+  const seg = m[6] !== undefined ? parseInt(m[6], 10) : 0;
+  if (mes < 1 || mes > 12 || dia < 1 || dia > 31 || hora > 23 || min > 59 || seg > 59)
+    return null;
+  const d = new Date(ano, mes - 1, dia, hora, min, seg);
+  if (d.getFullYear() !== ano || d.getMonth() !== mes - 1 || d.getDate() !== dia) return null;
+  return d.getTime();
+};
+
+/**
+ * Ordena as linhas por uma coluna. Texto usa `Intl.Collator` com `numeric`
+ * (então "8 UN" vem antes de "10 UN"); **datas pt-BR/ISO comparam pelo
+ * calendário** (então "03/09/2025" vem antes de "02/09/2026" na crescente,
+ * mesmo com o dia maior — comparar string punha o dia na frente do ano).
+ * Mantém a caixinha de cada linha junto com ela; valores vazios ficam no fim
+ * (nas duas direções).
  */
 export const ordenarPorColuna = (
   dados: DadosTabelas,
@@ -542,7 +591,9 @@ export const ordenarPorColuna = (
       if (va === '' && vb === '') return 0;
       if (va === '') return 1; // vazios por último
       if (vb === '') return -1;
-      const c = collator.compare(va, vb);
+      const da = extrairDataPtBr(va);
+      const db = extrairDataPtBr(vb);
+      const c = da !== null && db !== null ? da - db : collator.compare(va, vb);
       return direcao === 'asc' ? c : -c;
     };
     const ordem = t.linhas

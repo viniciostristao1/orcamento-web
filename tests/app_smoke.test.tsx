@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
 import HistoryModal from '../src/components/HistoryModal';
@@ -1077,6 +1077,79 @@ describe('App — smoke test (render + processar)', () => {
     expect(grifoNota).toBeTruthy();
     expect(grifoNota.textContent).toBe('pagamento FACILITADA aqui');
     expect(grifoNota.querySelector('mark')?.textContent).toBe('FACILITADA');
+  });
+
+  it('aba Dados: célula sugere autocompletar com valores da coluna (PED→PEDRO)', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '1' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    const celulas = container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    fireEvent.change(celulas[0], { target: { value: 'PEDRO' } });
+
+    // a 2ª célula aponta para a datalist da coluna, que oferece PEDRO
+    const listaId = celulas[1].getAttribute('list');
+    expect(listaId).toBeTruthy();
+    const lista = container.querySelector(`datalist[id="${listaId}"]`);
+    expect(lista).toBeTruthy();
+    const opcoes = lista!.querySelectorAll('option');
+    expect(Array.from(opcoes).map((o) => (o as HTMLOptionElement).value)).toContain('PEDRO');
+  });
+
+  it('aba Dados: a lupa limpa sozinha após 1 min sem digitar', () => {
+    vi.useFakeTimers();
+    localStorage.removeItem('dados_tabelas_v1');
+    try {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByText('Dados'));
+      fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '1' } });
+      fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+      const titulo = container.querySelector('thead input[type="text"]') as HTMLInputElement;
+      fireEvent.change(titulo, { target: { value: 'FACILITADA' } });
+
+      const busca = screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement;
+      fireEvent.change(busca, { target: { value: 'FACILITADA' } });
+      expect(busca.value).toBe('FACILITADA');
+      expect(container.querySelector('[data-grifo="1"]')).toBeTruthy();
+
+      // 59s: ainda lá; 1s a mais: limpou o campo e o grifo
+      act(() => { vi.advanceTimersByTime(59_000); });
+      expect((screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value).toBe('FACILITADA');
+      act(() => { vi.advanceTimersByTime(1_000); });
+      expect((screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value).toBe('');
+      expect(container.querySelector('[data-grifo="1"]')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('orçamentos: o BUSCAR do atalho limpa sozinho após 1 min sem digitar', () => {
+    vi.useFakeTimers();
+    localStorage.removeItem('dados_tabelas_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar termo nos Dados' }));
+      const campo = screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: 'freio' } });
+      // digitou no atalho: pulou para Dados com o termo
+      expect((screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value).toBe('freio');
+
+      act(() => { vi.advanceTimersByTime(59_000); });
+      expect((screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value).toBe('freio');
+      act(() => { vi.advanceTimersByTime(1_000); });
+      expect((screen.getByPlaceholderText(/Pesquisar nas tabelas/i) as HTMLInputElement).value).toBe('');
+
+      // o campo do atalho esvaziou junto (reabre a lupa para conferir)
+      fireEvent.click(screen.getByText('Orçamentos'));
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar termo nos Dados' }));
+      expect((screen.getByLabelText('Buscar nas tabelas') as HTMLInputElement).value).toBe('');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('aba Dados: ordenar a tabela por uma coluna (A–Z / Z–A)', () => {
