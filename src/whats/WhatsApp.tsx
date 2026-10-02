@@ -91,7 +91,7 @@ const WhatsApp: React.FC<WhatsAppProps> = ({ destaque = null }) => {
 
       {/* Esquerda: NOVO CONTATO + scripts. Direita: RELATÓRIO DE ENVIOS
           (uma coluna de contatos). O lembrete de hoje é global (no App). */}
-      <main className="max-w-[1700px] mx-auto">
+      <main className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div className="space-y-6">
             <ContactForm onAdd={addContact} count={contacts.length} />

@@ -90,7 +90,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `zap_script_pneus_v1`, `zap_script_revisao_v1` (o antigo `zap_template` é migrado para
   revisão).   Layout da tela (v0.14.6): grid `lg:grid-cols-2` — esquerda **NOVO CONTATO + SCRIPT PNEUS +
   SCRIPT REVISÃO** (empilhados, mesma largura); direita **RELATÓRIO DE ENVIOS** em **uma coluna**
-  de contatos. Formulário com os 4 campos numa linha (`xl:grid-cols-4`); o rótulo do 5º campo é
+  de contatos. Formulário com os 4 campos em 2x2 (`sm:grid-cols-2`; era `xl:grid-cols-4` numa
+  linha até a v0.75.0, que estreitou a tela para `max-w-[1200px]`); o rótulo do 5º campo é
   só   **"Mensagem"** (v0.28.0; era "Mensagem Especial"). Os títulos **Novo Contato** e
   **Relatório de Envios** usam **`text-xl`** desde a v0.31.0 — o mesmo tamanho do título
   “1. DESCRIÇÃO DO REPARO” (NeonCard `text-xl`); antes eram `text-2xl` e `text-3xl`. No cartão,

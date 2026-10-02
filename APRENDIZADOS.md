@@ -5,6 +5,18 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Whats mais estreito (v0.75.0)
+
+**Pedido:** diminuir a largura das caixas da aba Whats (Novo Contato, Relatório, scripts).
+
+**Feito:** `WhatsApp` `max-w-[1700px]` → `max-w-[1200px]` (o 1700 era resíduo antigo, sem
+pedido de largura); `ContactForm` `xl:grid-cols-4` → 2x2 (`sm:grid-cols-2`), senão os 4
+campos espremiam (~135px cada, o `date` cortava). Selo `v0.75.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **124/124**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Abas superiores iguais às sub-abas (v0.74.0)
 
 **Pedido:** botões das abas superiores (Orçamentos/Tire Flyer/Whats/Dados) com o mesmo
