@@ -194,12 +194,18 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('ESTOQUE: 12 UN')).toBeTruthy();
     expect(screen.getAllByText('SOB ENCOMENDA').length).toBe(3); // Firestone, BF Goodrich e Dunlop
 
-    // descrição para o WhatsApp (750px) com o mesmo conteúdo do flyer + copiar
+    // COPIAR PNEUS (logo abaixo do CONTATO, mesma janela dos demais) + copiar
     expect(screen.getByText(/MEDIDA PNEU: 265\/60R18/)).toBeTruthy();
     expect(screen.getByText(/• FIRESTONE - R\$ 1\.115,48/)).toBeTruthy();
+    // ordem na tela: DADOS DA TABELA → CONTATO → COPIAR PNEUS
+    const hDados = screen.getByRole('heading', { name: 'DADOS DA TABELA' });
+    const hContato = screen.getByRole('heading', { name: 'CONTATO' });
+    const hCopiar = screen.getByRole('heading', { name: 'COPIAR PNEUS' });
+    expect(hDados.compareDocumentPosition(hContato) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hContato.compareDocumentPosition(hCopiar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const escrever = vi.fn();
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
-    fireEvent.click(screen.getByRole('button', { name: 'Copiar descrição' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar pneus' }));
     const copiado = String(escrever.mock.calls[0][0]).replace(/\u00a0/g, ' ');
     expect(copiado).toContain('MEDIDA PNEU: 265/60R18');
     expect(copiado).toContain(

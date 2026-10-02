@@ -186,6 +186,38 @@ const TireFlyerApp: React.FC = () => {
               Fica só no histórico do Tire Flyer (não sai no flyer enviado ao cliente).
             </p>
           </NeonCard>
+
+          {/* Descrição pronta para o WhatsApp — mesma janela dos demais
+              (NeonCard) e logo abaixo do CONTATO. */}
+          <NeonCard
+            title="COPIAR PNEUS"
+            borderColor="blue-600"
+            compact
+            actions={
+              <button
+                type="button"
+                onClick={copiarDescricao}
+                aria-label={copiadoDescricao ? 'Pneus copiados' : 'Copiar pneus'}
+                title={copiadoDescricao ? 'Pneus copiados' : 'Copiar pneus'}
+                className={`flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                  copiadoDescricao
+                    ? 'bg-green-600 border-green-700 text-white'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                }`}
+              >
+                {copiadoDescricao ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
+              </button>
+            }
+          >
+            {/* Mesma fonte do conteúdo de DADOS DA TABELA (`--tema-fonte-conteudo`,
+                que o CSS global aplica em textarea/input/select). */}
+            <pre
+              className="text-lg leading-relaxed text-slate-200 whitespace-pre-wrap"
+              style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
+            >
+              {descricaoWhats}
+            </pre>
+          </NeonCard>
         </div>
 
         {/* Visualização do Flyer */}
@@ -223,39 +255,6 @@ const TireFlyerApp: React.FC = () => {
               Wide Pro Flyer v4.2 - Otimizado para 750px
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Descrição para o WhatsApp — caixinha com a mesma largura do flyer
-          gerado (750px), com botão de copiar. */}
-      <div className="max-w-[750px] mx-auto mt-4">
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
-          <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-slate-950/60 border-b border-slate-800/60">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
-              Descrição para WhatsApp
-            </span>
-            <button
-              type="button"
-              onClick={copiarDescricao}
-              aria-label={copiadoDescricao ? 'Descrição copiada' : 'Copiar descrição'}
-              title={copiadoDescricao ? 'Descrição copiada' : 'Copiar descrição'}
-              className={`flex items-center justify-center p-2 rounded-lg border transition-all cursor-pointer active:scale-95 ${
-                copiadoDescricao
-                  ? 'bg-green-600 border-green-700 text-white'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-              }`}
-            >
-              {copiadoDescricao ? <Check size={16} strokeWidth={3} /> : <Copy size={16} />}
-            </button>
-          </div>
-          {/* Mesma fonte do conteúdo de DADOS DA TABELA (`--tema-fonte-conteudo`,
-              que o CSS global aplica em textarea/input/select). */}
-          <pre
-            className="p-4 text-lg leading-relaxed text-slate-200 whitespace-pre-wrap"
-            style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
-          >
-            {descricaoWhats}
-          </pre>
         </div>
       </div>
 

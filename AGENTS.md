@@ -191,9 +191,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `getBrandStyle` mora em `tire/utils/marcas.ts`.
   ⚠️ O layout `atual` continua sendo **contrato**: validado pixel a pixel contra a v0.19.2
   (0 diferenças) em cada versão; a escolha vale para o PNG e é salva no navegador.
-- **Descrição para WhatsApp do Tire Flyer** (v0.32.0; fonte na v0.34.0): abaixo do flyer, uma
-  caixinha com **a mesma largura do PNG gerado** (`max-w-[750px]`) e botão de copiar — texto
-  montado por `tire/utils/descricaoWhats.ts` (`montarDescricaoWhats`): `MEDIDA PNEU: …`, linha em
+- **COPIAR PNEUS do Tire Flyer** (v0.32.0 como "Descrição para WhatsApp" abaixo do flyer;
+  v0.72.0: `NeonCard` logo abaixo do CONTATO, mesma janela/largura dos demais): botão de copiar
+  no `actions` — texto montado por `tire/utils/descricaoWhats.ts` (`montarDescricaoWhats`): `MEDIDA PNEU: …`, linha em
   branco e, por marca, `• MARCA - R$ (à prazo) (em até 10x no Cartão) ou R$ (à vista) (Dinheiro,
   Pix, Débito).` — a bolinha é `•` (bullet), não asterisco. O `<pre>` usa a **mesma fonte do
   conteúdo de DADOS DA TABELA** (`text-lg`, peso normal, `leading-relaxed` e

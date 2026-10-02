@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Tire Flyer: COPIAR PNEUS abaixo do CONTATO (v0.72.0)
+
+**Pedido:** "Descrição para WhatsApp" com a largura e logo abaixo do CONTATO (ordem:
+DADOS DA TABELA → CONTATO → descrição), no mesmo tipo de janela dos demais, chamada
+"COPIAR PNEUS".
+
+**Feito:** descrição virou `NeonCard` "COPIAR PNEUS" (`compact`, botão copiar no `actions`
+com `aria-label` "Copiar pneus"/"Pneus copiados") empilhado após o CONTATO na coluna
+esquerda; caixinha antiga de 750px abaixo do flyer removida (a coluna do flyer segue
+só com preview + layout + download). Smoke: ordem dos títulos + copiar. Selo `v0.72.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **123/123**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Sub-abas: minimizada fantasma azul (v0.71.0)
 
 **Pedido:** das 12 prévias (`ideias/sub-abas-*.png`), a escolhida foi a **03** (fantasma azul).
