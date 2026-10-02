@@ -5,6 +5,17 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Relatório de Envios mais largo (v0.76.0)
+
+**Pedido:** aumentar um pouco a largura da parte Relatório de Envios (Whats).
+
+**Feito:** grade do Whats `lg:grid-cols-2` → `lg:grid-cols-[1fr_1.3fr]` (direita ~665px,
+esquerda ~510px em 1200px). Selo `v0.76.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **124/124**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Whats mais estreito (v0.75.0)
 
 **Pedido:** diminuir a largura das caixas da aba Whats (Novo Contato, Relatório, scripts).
