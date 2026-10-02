@@ -304,6 +304,13 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('Script Pneus')).toBeTruthy();
     expect(screen.getByText('Script Revisão')).toBeTruthy();
     expect(screen.getByText('Relatório de Envios')).toBeTruthy();
+    // conteúdo dos scripts sem negrito (só os títulos são em destaque)
+    const areas = screen.getAllByPlaceholderText(/Escreva aqui o script/i);
+    expect(areas).toHaveLength(2);
+    areas.forEach((a) => {
+      expect(a.className).toContain('font-normal');
+      expect(a.className).not.toContain('font-bold');
+    });
     // Agenda de Tarefas e Centro de Dados saíram da aba (backup foi p/ Configurações)
     expect(screen.queryByText('Agenda de Tarefas')).toBeNull();
     expect(screen.queryByText('Centro de Dados')).toBeNull();

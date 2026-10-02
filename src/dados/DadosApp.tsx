@@ -670,7 +670,7 @@ const DadosApp: React.FC<{
                   }}
                   onBlur={confirmarRenome}
                   aria-label="Renomear sub-aba"
-                  className="px-5 py-2.5 text-lg font-black uppercase campo-tema outline-none w-44"
+                  className="px-3 py-1.5 text-lg font-black uppercase campo-tema outline-none w-44"
                 />
               ) : (
                 <button
@@ -687,7 +687,7 @@ const DadosApp: React.FC<{
                     setNomeSubAba(a.rotulo);
                   }}
                   title="Duplo clique para renomear"
-                  className={`px-6 py-2.5 text-lg font-black uppercase transition-all cursor-pointer ${
+                  className={`px-4 py-1.5 text-lg font-black uppercase transition-all cursor-pointer ${
                     aba?.id === a.id
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -755,9 +755,9 @@ const DadosApp: React.FC<{
                 onClick={() => setCriandoAba(true)}
                 aria-label="Criar sub-aba"
                 title="Criar sub-aba"
-                className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
+                className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
               >
-                <Plus size={18} strokeWidth={3} />
+                <Plus size={16} strokeWidth={3} />
               </button>
             </>
           )}

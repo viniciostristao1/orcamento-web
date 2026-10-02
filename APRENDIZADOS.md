@@ -5,6 +5,33 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Scripts Pneus/Revisão sem negrito (v0.67.0)
+
+**Pedido:** o conteúdo dentro de Script Pneus e Script Revisão não deve ficar em negrito.
+
+**Feito:** `MessageEditor` (textarea dos dois `ScriptBox`): `font-bold` → `font-normal`
+(só o conteúdo; títulos seguem `font-black`). Smoke da aba Whats confere `font-normal`
+nos dois textareas. Selo `v0.67.0` (leva junto a v0.66.0 — sub-abas na medida —
+ainda não publicada).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **121/121**, `npm run build` OK.
+
+---
+
+## 2026-10-02 — Sub-abas na medida dos títulos + botões proporcionais (v0.66.0)
+
+**Pedido:** sub-abas com a mesma fonte/tamanho da 1ª linha das colunas; botões sem
+desproporção (grandes demais para a fonte).
+
+**Feito:** botões das sub-abas `px-6 py-2.5` → `px-4 py-1.5` (mesmo `text-lg font-black
+uppercase` e vertical dos títulos `py-1.5`); renomear `px-5 py-2.5` → `px-3 py-1.5`;
+"+" criar sub-aba `p-3`/Plus 18 → `p-2.5`/Plus 16 (altura próxima à dos botões).
+Selo `v0.66.0` (leva junto a v0.65.0 — ordenar data + autocompletar — ainda não publicada).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **121/121**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Ordenar entende data + autocompletar na coluna (v0.65.0)
 
 **Pedidos:** (1) ordenar por data saía pelo dia (`02/09` na frente de `03/09` pedindo a

@@ -64,7 +64,7 @@ const ScriptBox: React.FC<ScriptBoxProps> = ({ titulo, subtitulo, placeholder, v
       <textarea
         value={texto}
         onChange={handleChange}
-        className="w-full min-h-[140px] px-6 py-5 campo-tema text-slate-100 border border-slate-800 rounded-[1.5rem] focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/40 outline-none resize-none transition-all text-lg leading-relaxed font-bold placeholder:text-slate-700 shadow-inner"
+        className="w-full min-h-[140px] px-6 py-5 campo-tema text-slate-100 border border-slate-800 rounded-[1.5rem] focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/40 outline-none resize-none transition-all text-lg leading-relaxed font-normal placeholder:text-slate-700 shadow-inner"
         placeholder={placeholder}
       />
     </div>
