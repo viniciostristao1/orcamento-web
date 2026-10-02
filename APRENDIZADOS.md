@@ -5,6 +5,20 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Excluir pede confirmação no histórico (v0.70.0)
+
+**Pedido:** excluir um orçamento no histórico (Todos ou Não Realizados) deve perguntar
+antes, como no Tire Flyer.
+
+**Feito:** `handleExcluir` com `window.confirm` no `HistoryModal` (as duas abas usam a
+mesma lista, então um ponto cobre as duas; botão ganhou `aria-label="Excluir orçamento"`)
+e, por coerência, no `FlyerHistoryModal` (só o "Limpar tudo" confirmava lá). Smoke novo:
+negar mantém, confirmar remove (nas duas abas). Selo `v0.70.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **123/123**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Clique simples sem pintar a célula (v0.69.0)
 
 **Pedido:** clicar numa célula pintava ela inteira na cor do tema (estilo Excel); não

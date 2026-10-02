@@ -1325,4 +1325,38 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('XYZ9A87')).toBeTruthy();
     expect(screen.queryByText('ABC1D23')).toBeNull();
   });
+
+  it('histórico: excluir orçamento pede confirmação (Todos e Não Realizados)', () => {
+    const comDesmarcados = { ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), naoRealizados: [1] };
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([comDesmarcados, registro('2', 'XYZ9A87', '01/08/2026 09:00:00')]),
+    );
+    const confirmar = vi.spyOn(window, 'confirm');
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+
+      // negou: nada sai
+      confirmar.mockReturnValue(false);
+      fireEvent.click(screen.getAllByRole('button', { name: 'Excluir orçamento' })[0]);
+      expect(screen.getByText('ABC1D23')).toBeTruthy();
+      expect(screen.getByText('XYZ9A87')).toBeTruthy();
+
+      // confirmou: sai da aba Todos…
+      confirmar.mockReturnValue(true);
+      fireEvent.click(screen.getAllByRole('button', { name: 'Excluir orçamento' })[0]);
+      expect(screen.queryByText('ABC1D23')).toBeNull();
+      expect(screen.getByText('XYZ9A87')).toBeTruthy();
+
+      // …e some na aba Não Realizados quando é de lá
+      localStorage.setItem('orcamentos_historico_v1', JSON.stringify([comDesmarcados]));
+      cleanup();
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: /Não Realizados \(1\)/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir orçamento' }));
+      expect(screen.queryByText('ABC1D23')).toBeNull();
+    } finally {
+      confirmar.mockRestore();
+    }
+  });
 });

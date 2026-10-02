@@ -40,6 +40,12 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
     setMsg('Histórico apagado.');
   };
 
+  // Excluir um flyer pede confirmação (igual ao histórico de orçamentos).
+  const handleExcluir = (id: string) => {
+    if (!window.confirm('Tem certeza que deseja excluir este flyer?')) return;
+    setLista(removerDoFlyerHistorico(id));
+  };
+
   return (
     <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 print:hidden">
       <div data-neon-box className="w-full max-w-3xl max-h-[85vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta">
@@ -166,7 +172,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
                   </button>
                   <button
                     type="button"
-                    onClick={() => setLista(removerDoFlyerHistorico(r.id))}
+                    onClick={() => handleExcluir(r.id)}
                     aria-label="Excluir este flyer"
                     title="Excluir este flyer"
                     className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 text-slate-300 rounded-lg transition-all cursor-pointer active:scale-95"

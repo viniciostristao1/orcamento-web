@@ -41,7 +41,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Histórico implementado**: `utils/historico.ts` (localStorage `orcamentos_historico_v1`,
   salva a cada "Processar Tudo", sem duplicar dados iguais; guarda **até 100** orçamentos e o
   **nº de itens** de cada um) + `components/HistoryModal.tsx` (abrir/excluir/limpar, **backup e
-  restaurar JSON**). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
+  restaurar JSON**; desde a v0.70.0 excluir um orçamento pede confirmação, nas duas abas). Botão "Histórico" no header; a lista mostra **data · N itens** ao lado e
   fonte maior (v0.2.2). Desde a v0.40.0 o resumo dos itens no cartão ocupa **duas linhas**
   (`line-clamp-2`; era `truncate`, uma linha só).
 - **Ajustes Manuais** (v0.7.4) tem o mesmo botão **Limpar** dos cards 1 e 2.
