@@ -58,17 +58,30 @@ import {
 
 /** Grifa SÓ o termo dentro do texto (o resto fica normal). A sobreposição é
     transparente com texto invisível — só o `<mark>` aparece, sobre o texto real
-    do input (o fundo opaco do mark cobre o termo de baixo, sem fantasma). */
+    do input (o fundo opaco do mark cobre o termo de baixo, sem fantasma).
+    O mark NÃO tem padding horizontal: qualquer px extra desloca o texto de
+    baixo (foi o bug "FACIL(FACIL)" no cabeçalho) e empurra o sufixo. */
 const grifarTermo = (valor: string, termo: string): React.ReactNode => {
   const g = destacarTermo(valor, termo);
   if (!g) return valor;
   return (
     <>
       {g[0]}
-      <mark className="rounded px-0.5 bg-amber-400 text-slate-950">{g[1]}</mark>
+      <mark className="bg-amber-400 text-slate-950">{g[1]}</mark>
       {g[2]}
     </>
   );
+};
+
+/** Sincroniza a rolagem do input/textarea com o overlay data-grifo (quando o
+    texto é mais largo que a célula, o input rola e o overlay precisa ir junto
+    — sem isso o mark fica N letras atrasado). */
+const sincronizarRolagemGrifo = (origem: HTMLInputElement | HTMLTextAreaElement) => {
+  const overlay = origem.parentElement?.querySelector('[data-grifo]');
+  if (overlay instanceof HTMLElement) {
+    overlay.scrollLeft = origem.scrollLeft;
+    overlay.scrollTop = 'scrollTop' in origem ? (origem as HTMLTextAreaElement).scrollTop : 0;
+  }
 };
 
 const DadosApp: React.FC<{
@@ -871,20 +884,34 @@ const DadosApp: React.FC<{
                           </span>
                         </div>
                         {/* Clicar em qualquer ponto do texto já edita ali mesmo. */}
-                        <textarea
-                          ref={(el) => {
-                            if (el) refsNotas.current.set(nota.id, el);
-                            else refsNotas.current.delete(nota.id);
-                          }}
-                          readOnly={!editando}
-                          onFocus={() => setEditandoNota(nota.id)}
-                          value={nota.texto}
-                          onChange={(e) => setDados((d) => atualizarTextoNota(d, aba.id, nota.id, e.target.value))}
-                          onKeyDown={(e) => teclarListaNota(e, nota)}
-                          placeholder="(vazia)"
-                          aria-label="Texto da nota"
-                          className="flex-1 w-full bg-transparent px-3 py-2 text-base text-slate-200 outline-none resize-none overflow-y-auto placeholder:text-slate-600 focus:bg-slate-950/40"
-                        />
+                        <div className="relative flex-1 flex min-h-0">
+                          <textarea
+                            ref={(el) => {
+                              if (el) refsNotas.current.set(nota.id, el);
+                              else refsNotas.current.delete(nota.id);
+                            }}
+                            readOnly={!editando}
+                            onFocus={() => setEditandoNota(nota.id)}
+                            value={nota.texto}
+                            onChange={(e) => setDados((d) => atualizarTextoNota(d, aba.id, nota.id, e.target.value))}
+                            onKeyDown={(e) => teclarListaNota(e, nota)}
+                            onScroll={(e) => sincronizarRolagemGrifo(e.currentTarget)}
+                            placeholder="(vazia)"
+                            aria-label="Texto da nota"
+                            className="flex-1 w-full bg-transparent px-3 py-2 text-base text-slate-200 outline-none resize-none overflow-y-auto placeholder:text-slate-600 focus:bg-slate-950/40"
+                          />
+                          {buscaAtiva && marcado && nota.texto && (
+                            <div
+                              data-grifo="1"
+                              aria-hidden="true"
+                              title={nota.texto}
+                              style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
+                              className="absolute inset-0 px-3 py-2 text-base outline-none overflow-hidden whitespace-pre-wrap break-words cursor-text pointer-events-none bg-transparent text-transparent"
+                            >
+                              {grifarTermo(nota.texto, busca)}
+                            </div>
+                          )}
+                        </div>
                         {/* Bordas para arrastar e redimensionar */}
                         <div
                           role="separator"
@@ -973,6 +1000,7 @@ const DadosApp: React.FC<{
                                 value={titulo}
                                 onChange={(e) => setDados((d) => atualizarTitulo(d, aba.id, tabela.id, coluna, e.target.value))}
                                 onMouseDown={() => setSelecao(null)}
+                                onScroll={(e) => sincronizarRolagemGrifo(e.currentTarget)}
                                 data-marcado={marcado ? '1' : undefined}
                                 data-atual={atualAqui ? '1' : undefined}
                                 className={`w-full bg-transparent px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none focus:bg-slate-900 text-slate-100 ${atualAqui ? 'ring-2 ring-inset ring-amber-200' : ''}`}
@@ -980,6 +1008,7 @@ const DadosApp: React.FC<{
                               {buscaAtiva && marcado && (
                                 <div
                                   data-grifo="1"
+                                  aria-hidden="true"
                                   title={titulo}
                                   style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                                   className="absolute inset-0 px-3 py-1.5 pr-9 text-lg font-black uppercase outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none bg-transparent text-transparent"
@@ -1068,6 +1097,7 @@ const DadosApp: React.FC<{
                                   onMouseDown={(e) => iniciarSelecao(tabela.id, r, coluna, e.shiftKey)}
                                   onKeyDown={(e) => aoTeclarCelula(e, tabela, r, coluna)}
                                   onPaste={(e) => aoColarCelula(e, aba.id, tabela.id, r, coluna)}
+                                  onScroll={(e) => sincronizarRolagemGrifo(e.currentTarget)}
                                   data-marcado={marcado ? '1' : undefined}
                                   data-atual={atualAqui ? '1' : undefined}
                                   className={`w-full px-2.5 py-1 pr-8 text-base font-bold outline-none ${
@@ -1079,6 +1109,7 @@ const DadosApp: React.FC<{
                                 {buscaAtiva && marcado && (
                                 <div
                                   data-grifo="1"
+                                  aria-hidden="true"
                                   title={valor}
                                   style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                                     className="absolute inset-0 px-2.5 py-1 pr-8 text-base font-bold outline-none overflow-hidden whitespace-nowrap text-ellipsis cursor-text pointer-events-none bg-transparent text-transparent"

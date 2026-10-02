@@ -1048,6 +1048,37 @@ describe('App — smoke test (render + processar)', () => {
     expect(container.querySelectorAll('tbody input[type="text"]')).toHaveLength(3);
   });
 
+  it('aba Dados: grifo do cabeçalho cobre o termo inteiro + nota grifa o termo', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '1' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    const titulo = container.querySelector('thead input[type="text"]') as HTMLInputElement;
+    fireEvent.change(titulo, { target: { value: 'FACILITADA' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Criar nota' }));
+    const nota = screen.getAllByLabelText('Texto da nota')[0] as HTMLTextAreaElement;
+    fireEvent.focus(nota);
+    fireEvent.change(nota, { target: { value: 'pagamento FACILITADA aqui' } });
+
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar nas tabelas/i), {
+      target: { value: 'FACILITADA' },
+    });
+    // cabeçalho: overlay contém o título inteiro e o mark é o termo inteiro
+    const grifoTitulo = container.querySelector('thead [data-grifo="1"]') as HTMLElement;
+    expect(grifoTitulo).toBeTruthy();
+    expect(grifoTitulo.textContent).toBe('FACILITADA');
+    expect(grifoTitulo.querySelector('mark')?.textContent).toBe('FACILITADA');
+    // mark sem padding horizontal (padding deslocava o termo de baixo)
+    expect(grifoTitulo.querySelector('mark')?.className).not.toContain('px-0.5');
+    // nota: agora também tem overlay com o termo grifado (antes só a borda acendia)
+    const grifoNota = container.querySelector('[data-nota] [data-grifo="1"]') as HTMLElement;
+    expect(grifoNota).toBeTruthy();
+    expect(grifoNota.textContent).toBe('pagamento FACILITADA aqui');
+    expect(grifoNota.querySelector('mark')?.textContent).toBe('FACILITADA');
+  });
+
   it('aba Dados: ordenar a tabela por uma coluna (A–Z / Z–A)', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);

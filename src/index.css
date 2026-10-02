@@ -268,15 +268,34 @@
 [data-tema='grafite'] [data-neon-box] { box-shadow: none !important; }
 [data-tema='grafite'] thead th { background-color: var(--tema-painel) !important; }
 /* Grafite: TÍTULOS das colunas em NEGRITO (caixa normal), e as CÉLULAS do corpo em
-   peso normal — o inverso do estranho "célula em negrito, título não". */
-[data-tema='grafite'] thead th input {
+   peso normal — o inverso do estranho "célula em negrito, título não".
+   O overlay data-grifo precisa das MESMAS regras do input (senão o mark
+   descola do texto — bug "FACIL(FACIL)" no cabeçalho). */
+[data-tema='grafite'] thead th input,
+[data-tema='grafite'] thead th [data-grifo] {
   color: var(--tema-texto);
   font-weight: 700;
   text-transform: none;
   letter-spacing: 0;
 }
-[data-tema='grafite'] tbody td input {
+[data-tema='grafite'] thead th [data-grifo] {
+  color: transparent;
+}
+[data-tema='grafite'] tbody td input,
+[data-tema='grafite'] tbody td [data-grifo] {
   font-weight: 400;
+}
+[data-tema='grafite'] tbody td [data-grifo] {
+  color: transparent;
+}
+/* O mark do grifo nunca tem padding: padding desloca o termo de baixo e
+   empurra o sufixo (fantasma/duplicação). Herda fonte/transform do overlay. */
+[data-grifo] mark {
+  padding: 0;
+  border-radius: 0;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
 }
 
 /* Interface chapada nos temas (sem brilho neon, sem sombra nos botões). */
@@ -306,8 +325,10 @@
   box-shadow: none !important;
 }
 
-/* Técnico: o conteúdo digitado nas células (aba Dados) fica SEM negrito. */
-[data-tema='tecnico'] tbody td input[type='text'] {
+/* Técnico: o conteúdo digitado nas células (aba Dados) fica SEM negrito.
+   Vale também para o overlay do grifo (mesmo motivo do Grafite acima). */
+[data-tema='tecnico'] tbody td input[type='text'],
+[data-tema='tecnico'] tbody td [data-grifo] {
   font-weight: 400;
 }
 

@@ -127,6 +127,13 @@ describe('histórico (localStorage)', () => {
     // acento DENTRO do termo também casa (sem acento, minúsculo)
     expect(destacarTermo('TROCA FÁCIL', 'facil')).toEqual(['TROCA ', 'FÁCIL', '']);
     expect(destacarTermo('PASTILHA FREIO', 'freio')).toEqual(['PASTILHA ', 'FREIO', '']);
+    // regressão "FACIL(FACIL)": termo inteiro, sem acento, no cabeçalho
+    expect(destacarTermo('FACILITADA', 'FACILITADA')).toEqual(['', 'FACILITADA', '']);
+    expect(destacarTermo('CONDICAO FACILITADA PAGTO', 'facilitada')).toEqual([
+      'CONDICAO ',
+      'FACILITADA',
+      ' PAGTO',
+    ]);
     expect(destacarTermo('NADA AQUI', 'freio')).toBeNull();
     expect(destacarTermo('QUALQUER', '')).toBeNull();
   });

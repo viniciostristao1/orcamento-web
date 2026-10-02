@@ -5,6 +5,38 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Grifo do cabeçalho alinhado + grifo na nota (v0.63.0)
+
+**Pedido:** buscar "FACILITADA" mostrava `FACIL(FACIL)` no título da coluna (5 letras
+atrasado); nas células o grifo estava correto; nas notas não grifava nada.
+
+**Causa:** o overlay `data-grifo` é transparente com texto invisível e só o `<mark>`
+aparece sobre o input. Três divergências acumulavam no cabeçalho (`text-lg font-black
+uppercase`, o mais largo):
+- `mark` com `px-0.5` (+4px): o texto do mark nascia 2px à direita do texto de baixo
+  e empurrava o sufixo — fantasma/duplicação;
+- temas Grafite/Técnico sobrescreviam `thead th input` / `tbody td input` (peso,
+  `text-transform`, `letter-spacing`) mas nunca o `div[data-grifo]` — overlay mais
+  largo/estreito que o input;
+- input rolado (`scrollLeft/scrollTop`) sem espelhar no overlay (texto longo).
+
+**Feito:**
+- `grifarTermo` sem `px-0.5`/`rounded` no mark (largura exata do termo) + regra
+  `[data-grifo] mark { padding:0; font:inherit; text-transform:inherit }` no `index.css`;
+- seletores Grafite/Técnico estendidos ao `[data-grifo]` (mesmo peso/transform do input);
+- `sincronizarRolagemGrifo` no `onScroll` dos inputs e textareas (overlay acompanha);
+- notas ganharam overlay `data-grifo` (`whitespace-pre-wrap`, primeira ocorrência via
+  `destacarTermo`, igual às células) — antes só a borda do card acendia;
+- `aria-hidden="true"` nos overlays (decorativos, `pointer-events-none`).
+- Regressão: `destacarTermo('FACILITADA','FACILITADA')` + smoke "cabeçalho cobre o termo
+  inteiro + nota grifa o termo" (overlay do título tem `textContent` e `mark` exatos;
+  mark sem `px-0.5`).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **116/116**, `npm run build` OK
+(`dist/index.html` ~1,28 MB, 0 refs externas).
+
+---
+
 ## 2026-10-01 — Resumos dos históricos em branco (v0.62.0)
 
 **Pedido:** itens do resumo no Histórico de Orçamentos (Todos/Não Realizados) em branco e sem
