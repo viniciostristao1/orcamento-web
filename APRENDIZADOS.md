@@ -5,6 +5,17 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Whats: Novo Contato + Relatório um pouco mais largos (v0.77.0)
+
+**Pedido:** Novo Contato um pouco mais largo e Relatório de Envios bem pouquinho.
+
+**Feito:** tela `max-w-[1200px]` → `1300px` e grade `[1fr_1.3fr]` → `[1fr_1.25fr]`:
+esquerda ~510px → ~567px (+57), direita ~665px → ~709px (+44). Selo `v0.77.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **124/124**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Relatório de Envios mais largo (v0.76.0)
 
 **Pedido:** aumentar um pouco a largura da parte Relatório de Envios (Whats).
