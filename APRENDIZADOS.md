@@ -5,6 +5,33 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Clique simples sem pintar a célula (v0.69.0)
+
+**Pedido:** clicar numa célula pintava ela inteira na cor do tema (estilo Excel); não
+quer mais esse comportamento.
+
+**Feito:** tinta azul (`bg-blue-600/35` + `ring`) só quando a seleção abrange 2+
+células (`pintarSelecao`: arrastar/Shift+clique); clique simples/TAB/Enter = só cursor
+no texto (+ anel âmbar se for a ocorrência atual da busca). Seleção lógica,
+`data-selecionada`, copiar/recortar/apagar em bloco e testes de TAB intactos.
+Smoke novo: clique = sem `bg-blue-600/35`; arrastar = bloco pintado. Selo `v0.69.0`
+(leva junto a v0.68.0 — sub-abas mais baixas — ainda não publicada).
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **122/122**, `npm run build` OK.
+
+---
+
+## 2026-10-02 — Sub-abas mais baixas (v0.68.0)
+
+**Pedido:** botões das sub-abas mais curtos — menos espaço em cima/embaixo.
+
+**Feito:** botões das sub-abas e campo renomear `py-1.5` → `py-1` (fonte `text-lg`
+mantida; botão "+" `p-2.5`/ícone 16 já fica na mesma altura final). Selo `v0.68.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **121/121**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Scripts Pneus/Revisão sem negrito (v0.67.0)
 
 **Pedido:** o conteúdo dentro de Script Pneus e Script Revisão não deve ficar em negrito.

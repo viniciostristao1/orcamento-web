@@ -295,6 +295,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Selecionar/colar células em grade** (v0.23.0; ajustes na v0.24.0): **arrastar** com o mouse
   (ou **Shift+clique**) seleciona um bloco de células (destaque azul **no próprio input**, pois o
   `focus:bg-slate-900` cobria o destaque do `<td>` — a 1ª célula parecia não selecionada);
+  desde a v0.69.0 a tinta azul aparece **só em bloco (2+ células)** — clique simples/TAB/Enter
+  deixam só o cursor no texto, sem pintar a célula;
   **Ctrl+C** copia o bloco com **TAB entre colunas e Enter entre linhas**; **clicar numa célula
   da seleção deixa só ela marcada** (desmarca as demais, pedido do usuário) e **Esc** limpa.
   Desde a v0.26.0 **Ctrl+X recorta** (copia e apaga) e **Delete/Backspace apagam** o bloco

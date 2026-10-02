@@ -1107,6 +1107,30 @@ describe('App — smoke test (render + processar)', () => {
     expect(Array.from(opcoes).map((o) => (o as HTMLOptionElement).value)).toContain('PEDRO');
   });
 
+  it('aba Dados: clique simples não pinta a célula; arrastar pinta o bloco', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
+    const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
+    const tds = () => container.querySelectorAll<HTMLElement>('tbody td');
+
+    // clique simples: seleção lógica existe, mas sem tinta azul
+    fireEvent.mouseDown(celulas()[0]);
+    expect(celulas()[0].closest('td')?.dataset.selecionada).toBe('1');
+    expect(celulas()[0].className).not.toContain('bg-blue-600/35');
+
+    // arrastar até a vizinha: o bloco fica pintado
+    fireEvent.mouseEnter(tds()[1]);
+    expect(celulas()[0].className).toContain('bg-blue-600/35');
+    expect(celulas()[1].className).toContain('bg-blue-600/35');
+    fireEvent.mouseUp(window);
+  });
+
   it('aba Dados: a lupa limpa sozinha após 1 min sem digitar', () => {
     vi.useFakeTimers();
     localStorage.removeItem('dados_tabelas_v1');

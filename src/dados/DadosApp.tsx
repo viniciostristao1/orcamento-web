@@ -404,6 +404,11 @@ const DadosApp: React.FC<{
     return r >= rA && r <= rB && c >= cA && c <= cB;
   };
 
+  // A tinta azul aparece só quando a seleção abrange MAIS de uma célula
+  // (arrastar/Shift+clique). No clique simples fica só o cursor no texto, sem
+  // pintar a célula. A lógica (copiar/recortar/apagar, `data-selecionada`)
+  // continua valendo para uma célula só.
+
   // Texto de um bloco de células (TAB entre colunas, Enter entre linhas) —
   // mesmo formato de copiar de uma planilha.
   const textoDoBloco = (tabela: TabelaDados, rA: number, rB: number, cA: number, cB: number): string =>
@@ -670,7 +675,7 @@ const DadosApp: React.FC<{
                   }}
                   onBlur={confirmarRenome}
                   aria-label="Renomear sub-aba"
-                  className="px-3 py-1.5 text-lg font-black uppercase campo-tema outline-none w-44"
+                  className="px-3 py-1 text-lg font-black uppercase campo-tema outline-none w-44"
                 />
               ) : (
                 <button
@@ -687,7 +692,7 @@ const DadosApp: React.FC<{
                     setNomeSubAba(a.rotulo);
                   }}
                   title="Duplo clique para renomear"
-                  className={`px-4 py-1.5 text-lg font-black uppercase transition-all cursor-pointer ${
+                  className={`px-4 py-1 text-lg font-black uppercase transition-all cursor-pointer ${
                     aba?.id === a.id
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -1115,6 +1120,12 @@ const DadosApp: React.FC<{
                             const selecionada = celulaNaSelecao(tabela.id, r, coluna);
                             const atualAqui = atual?.tipo === 'celula' && atual.linha === r && atual.coluna === coluna;
                             const chave = `${tabela.id}-${r}-${coluna}`;
+                            // Tinta azul só em bloco (2+ células); clique simples = só cursor.
+                            const pintarSelecao =
+                              selecionada &&
+                              selecao !== null &&
+                              selecao.tabelaId === tabela.id &&
+                              (selecao.r1 !== selecao.r2 || selecao.c1 !== selecao.c2);
                             return (
                               <td
                                 key={coluna}
@@ -1139,10 +1150,10 @@ const DadosApp: React.FC<{
                                   data-marcado={marcado ? '1' : undefined}
                                   data-atual={atualAqui ? '1' : undefined}
                                   className={`w-full px-2.5 py-1 pr-8 text-base font-bold outline-none ${
-                                    selecionada ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500' : 'bg-transparent focus:bg-slate-900'
+                                    pintarSelecao ? 'bg-blue-600/35 ring-2 ring-inset ring-blue-500' : 'bg-transparent focus:bg-slate-900'
                                   } ${
                                     tabela.marcados[r] ? 'text-slate-500 line-through' : 'text-slate-200'
-                                  } ${atualAqui && !selecionada ? 'ring-2 ring-inset ring-amber-200' : ''}`}
+                                  } ${atualAqui && !pintarSelecao ? 'ring-2 ring-inset ring-amber-200' : ''}`}
                                 />
                                 {buscaAtiva && marcado && (
                                 <div
