@@ -65,6 +65,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   eram `text-2xl` na v0.38.0) em todas as abas (ORÇAMENTOS, TIRE FLYER, PAINEL
   WHATSAPP e DADOS). As **sub-abas da aba Dados** são `text-lg` sem tracking com
   `font-family: var(--tema-fonte-conteudo)` — igual aos títulos das colunas (`thead th input`).
+  Desde a v0.71.0 a sub-aba minimizada é **fantasma azul** (`bg-blue-500/10 text-blue-200`,
+  era cinza) e a aberta é azul forte preenchido; desde a v0.74.0 os **botões das abas
+  superiores** usam o mesmo layout/tamanhos (`px-4 py-1 text-lg`, sem tracking).
 - **Botões são ícone-only** (v0.8.0): sempre com `aria-label` + `title` com o texto da ação —
   é o que os testes e o Playwright usam (`getByRole('button', { name: … })`). Abas e opções de
   tema continuam com texto.

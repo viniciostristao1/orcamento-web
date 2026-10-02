@@ -5,6 +5,21 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-02 — Abas superiores iguais às sub-abas (v0.74.0)
+
+**Pedido:** botões das abas superiores (Orçamentos/Tire Flyer/Whats/Dados) com o mesmo
+layout e tamanhos das sub-abas.
+
+**Feito:** abas do header `px-5 py-2.5 text-sm tracking-[0.15em]` (cinza/blue) →
+`px-4 py-1 text-lg font-black uppercase` com o mesmo esquema fantasma/forte
+(minimizada `bg-blue-500/10 text-blue-200 border-blue-500/20`, aberta `bg-blue-600`
+branca) e `fontFamily conteudo` inline; sombra do ativo removida; renomear acompanha
+(`px-3 py-1 text-lg`). Selo `v0.74.0`.
+
+**Validação:** `npm run typecheck` limpo, `npx vitest run` **124/124**, `npm run build` OK.
+
+---
+
 ## 2026-10-02 — Logo Toyota azul no tema claro (v0.73.0)
 
 **Pedido:** no tema claro o logo branco sumia no fundo papel; trocar para azul.

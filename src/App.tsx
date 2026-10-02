@@ -122,7 +122,7 @@ const AppInterno: React.FC = () => {
                   }}
                   onBlur={confirmarNomeAba}
                   aria-label="Renomear aba"
-                  className="px-5 py-2.5 rounded-xl text-sm font-black uppercase tracking-[0.15em] campo-tema border border-blue-500 outline-none w-40"
+                  className="px-3 py-1 rounded-xl text-lg font-black uppercase campo-tema border border-blue-500 outline-none w-40"
                 />
               ) : (
                 <button
@@ -134,10 +134,11 @@ const AppInterno: React.FC = () => {
                     setNomeAba(rotulos.abas[t.id] ?? t.label);
                   }}
                   title="Duplo clique para renomear"
-                  className={`px-5 py-2.5 rounded-xl transition-all text-sm font-black uppercase tracking-[0.15em] border cursor-pointer active:scale-95 whitespace-nowrap ${
+                  style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
+                  className={`px-4 py-1 rounded-xl transition-all text-lg font-black uppercase border cursor-pointer active:scale-95 whitespace-nowrap ${
                     aba === t.id
-                      ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-900/40'
-                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                      ? 'bg-blue-600 text-white border-blue-500'
+                      : 'bg-blue-500/10 text-blue-200 border-blue-500/20 hover:bg-blue-500/20'
                   }`}
                 >
                   {rotulos.abas[t.id] ?? t.label}
