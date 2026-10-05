@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.87.0](#v08700) — 2026-10-05 — Card 3 automático: extrai ao anexar, substitui (v0.87.0)
 - [v0.86.0](#v08600) — 2026-10-05 — Borrachas e sobrescrita do card 3 (v0.86.0)
 - [v0.85.0](#v08500) — 2026-10-05 — PDF real: separação por seção (v0.85.0)
 - [v0.84.0](#v08400) — 2026-10-05 — Orçamento do sistema em PDF/print (v0.84.0)
@@ -145,6 +146,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v08700"></a>
+## 2026-10-05 — Card 3 automático: extrai ao anexar, substitui (v0.87.0)
+
+**Pedido:** botão Novo arquivo que já importa ao anexar (sem botão extrair);
+novo anexo sobrepõe o anterior (estava somando conteúdos).
+
+**Feito:** `escolher` dispara `extrairArquivos` direto (PDFs + imagens no mesmo lote);
+`aplicarTexto` substitui textos e nº/data; botões manuais removidos (foco some junto).
+CDP refeito sem cliques manuais: auto-extração, substituição e 0 erros JS.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**167/167 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.87.0`.
+
+---
 
 <a id="v08600"></a>
 ## 2026-10-05 — Borrachas e sobrescrita do card 3 (v0.86.0)

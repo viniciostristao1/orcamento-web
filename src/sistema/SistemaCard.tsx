@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { ClipboardPaste, FileText, ScanText } from 'lucide-react';
+import { ClipboardPaste } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import {
@@ -23,14 +23,14 @@ interface SistemaCardProps {
 }
 
 const ehPdf = (f: File) => /\.pdf$/i.test(f.name) || f.type === 'application/pdf';
-const ehImagem = (f: File) => !ehPdf(f);
 
 /**
  * 3. ORÇAMENTO DO SISTEMA (PDF/PRINT): fluxo alternativo aos campos 1 e 2.
- * Extrai o texto (pdf.js ou OCR), separa por seção (itens → DADOS, reclamações →
- * DESCRIÇÃO, resto ignorado), mostra para revisão com o cabeçalho detectado
- * (número, placa, nome, data) e, no clique, preenche os campos 1 e 2.
- * A soma continua a mesma lógica de sempre — nada muda no cálculo nem no PNG.
+ * Anexar já extrai sozinho (PDF via pdf.js, imagens via OCR) e o resultado
+ * SUBSTITUI o anterior — nunca soma com outro orçamento. Separa por seção
+ * (itens → DADOS, reclamações → DESCRIÇÃO, resto ignorado), mostra para revisão
+ * com o cabeçalho detectado (número, placa, nome, data) e, no clique, preenche
+ * os campos 1 e 2. A soma continua a mesma lógica — nada muda no cálculo nem no PNG.
  */
 const SistemaCard: React.FC<SistemaCardProps> = ({
   numero,
@@ -40,7 +40,6 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onCabecalho,
   onUsarTextos,
 }) => {
-  const [arquivos, setArquivos] = useState<File[]>([]);
   const [extraidoDesc, setExtraidoDesc] = useState('');
   const [extraidoDados, setExtraidoDados] = useState('');
   const [estado, setEstado] = useState('');
@@ -48,15 +47,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   const [msg, setMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const pdfs = arquivos.filter(ehPdf);
-  const imagens = arquivos.filter(ehImagem);
   const temTexto = extraidoDesc.trim() || extraidoDados.trim();
-
-  const escolher = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setArquivos(Array.from(e.target.files ?? []));
-    setMsg('');
-    e.target.value = '';
-  };
 
   const limpar = () => {
     setExtraidoDesc('');
@@ -72,55 +63,57 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     const sis = extrairSistemaToyota(limpo);
     const cab = extrairCabecalho(limpo);
     if (sis.dados || sis.descReparo) {
-      setExtraidoDados((atual) => (atual ? `${atual}\n${sis.dados}` : sis.dados));
-      setExtraidoDesc((atual) => (atual ? `${atual}\n${sis.descReparo}` : sis.descReparo));
+      setExtraidoDados(sis.dados);
+      setExtraidoDesc(sis.descReparo);
     } else {
-      // Layout desconhecido: tudo vai para DADOS revisar (fluxo da v0.84.0).
-      setExtraidoDados((atual) => (atual ? `${atual}\n${limpo}` : limpo));
+      // Layout desconhecido: tudo vai para DADOS revisar.
+      setExtraidoDados(limpo);
+      setExtraidoDesc('');
     }
     const numeroDoc = sis.numero || cab.numero;
-    if (numeroDoc.trim()) onNumero(numeroDoc.trim());
-    if (sis.data.trim()) onDataDoc(sis.data.trim());
+    onNumero(numeroDoc.trim());
+    onDataDoc(sis.data.trim());
     onCabecalho({ numero: numeroDoc, placa: cab.placa, nome: sis.cliente || cab.nome, data: sis.data, telefone: cab.telefone });
   };
 
-  const extrairPdf = async () => {
-    if (pdfs.length === 0 || ocupado) return;
+  const extrairArquivos = async (arquivos: File[]) => {
+    if (arquivos.length === 0 || ocupado) return;
     setOcupado(true);
     setMsg('');
     try {
+      const pdfs = arquivos.filter(ehPdf);
+      const imagens = arquivos.filter((f) => !ehPdf(f));
       const partes: string[] = [];
       for (let i = 0; i < pdfs.length; i++) {
         setEstado(`Lendo PDF ${i + 1} de ${pdfs.length}…`);
         const r = await extrairTextoPdf(pdfs[i]);
         partes.push(r.texto);
       }
+      if (imagens.length > 0) {
+        const texto = await lerPrints(imagens, (etapa, fracao) =>
+          setEstado(`OCR: ${etapa} (${Math.round(fracao * 100)}%)`),
+        );
+        partes.push(texto);
+      }
       aplicarTexto(partes.join('\n'));
-      setMsg('Texto extraído e separado — confira abaixo e use no orçamento.');
+      setMsg(
+        imagens.length > 0
+          ? 'Texto lido e separado — confira com atenção (OCR pode errar).'
+          : 'Texto extraído e separado — confira abaixo e use no orçamento.',
+      );
     } catch {
-      setMsg('Não consegui ler esse PDF. Tente colar o texto à mão no campo 2.');
+      setMsg('Não consegui ler. Tente de novo ou cole o texto à mão no campo 2.');
     } finally {
       setEstado('');
       setOcupado(false);
     }
   };
 
-  const lerImagens = async () => {
-    if (imagens.length === 0 || ocupado) return;
-    setOcupado(true);
-    setMsg('');
-    try {
-      const texto = await lerPrints(imagens, (etapa, fracao) =>
-        setEstado(`OCR: ${etapa} (${Math.round(fracao * 100)}%)`),
-      );
-      aplicarTexto(texto);
-      setMsg('Texto lido e separado — confira com atenção (OCR pode errar).');
-    } catch {
-      setMsg('O OCR falhou. Confira a imagem e tente de novo.');
-    } finally {
-      setEstado('');
-      setOcupado(false);
-    }
+  const escolher = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const arquivos = Array.from(e.target.files ?? []);
+    e.target.value = '';
+    if (arquivos.length === 0) return;
+    void extrairArquivos(arquivos);
   };
 
   return (
@@ -132,18 +125,19 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     >
       <div className="space-y-3">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 leading-relaxed">
-          Alternativa aos campos 1 e 2: anexe o PDF do sistema ou prints e extraia o texto.
+          Alternativa aos campos 1 e 2: anexe o PDF do sistema ou prints e o texto é extraído na hora.
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            aria-label="Escolher PDF ou prints"
-            title="Escolher PDF ou prints"
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95 text-xs font-black uppercase tracking-widest"
+            disabled={ocupado}
+            aria-label="Novo arquivo"
+            title="Novo arquivo (extrai na hora)"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95 text-xs font-black uppercase tracking-widest"
           >
-            {arquivos.length === 0 ? 'Escolher arquivos' : `${arquivos.length} arquivo(s)`}
+            Novo arquivo
           </button>
           <input
             ref={fileRef}
@@ -153,26 +147,6 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
             className="hidden"
             onChange={escolher}
           />
-          <button
-            type="button"
-            onClick={extrairPdf}
-            disabled={pdfs.length === 0 || ocupado}
-            aria-label="Extrair texto do PDF"
-            title="Extrair texto do PDF"
-            className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
-          >
-            <FileText size={18} />
-          </button>
-          <button
-            type="button"
-            onClick={lerImagens}
-            disabled={imagens.length === 0 || ocupado}
-            aria-label="Ler prints (OCR)"
-            title="Ler prints (OCR)"
-            className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
-          >
-            <ScanText size={18} />
-          </button>
         </div>
 
         {(estado || msg) && (

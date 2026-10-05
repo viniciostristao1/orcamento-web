@@ -580,6 +580,8 @@ npm run build        # gera dist/index.html (arquivo único)
   DESCRIÇÃO (entre "Reclamações Originais…" e "Sugestão"), cliente após "Cliente
   Cadastro", número = 1º do documento e o resto é ignorado — o card mostra as duas
   partes para revisão e preenche os campos 1 e 2.
+- **Card 3 automático** (v0.87.0): anexar já extrai sozinho (sem botão extrair);
+  botão único **"Novo arquivo"**; novo anexo **substitui** o anterior (nunca soma).
 - **Ajustes do card 3 e borrachas** (v0.86.0): a borracha do card 3 apaga também Nº e Data;
   o card APROVADO E DESCONTO ganhou borracha geral (zera revisão/peças, desconto 0,
   parcelas 1x, limpa placa/telefone); "Usar no orçamento" **sobrescreve** PLACA/NOME e

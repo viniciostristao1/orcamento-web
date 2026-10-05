@@ -1588,11 +1588,11 @@ describe('App — smoke test (render + processar)', () => {
   it('orçamento do sistema: card 3 renderiza com PDF/OCR e usar-como-dados', () => {
     render(<App />);
     expect(screen.getByRole('heading', { name: '3. ORÇAMENTO DO SISTEMA (PDF/PRINT)' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Escolher PDF ou prints' })).toBeTruthy();
-    // sem arquivos, extração desabilitada
-    expect((screen.getByRole('button', { name: 'Extrair texto do PDF' }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole('button', { name: 'Ler prints (OCR)' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole('button', { name: 'Novo arquivo' })).toBeTruthy();
+    // sem texto extraído, usar desabilitado; sem botões manuais de extrair
     expect((screen.getByRole('button', { name: 'Usar no orçamento' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Extrair texto do PDF' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Ler prints (OCR)' })).toBeNull();
   });
 
   it('card 3: borracha apaga extração, nº e data', () => {
