@@ -80,12 +80,12 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **144 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **150 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
   flyer (`tests/flyer_historico.test.ts`), dados (`tests/dados.test.ts`), backup
-  (`tests/backup.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
+  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
   persistência) e a troca de layout do Tire Flyer.
 - **Aba Whats** (v0.7.0; agenda removida na v0.7.4; backup global na v0.9.0; scripts divididos
@@ -355,6 +355,13 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Selo de versão no header** (v0.80.0): `utils/versao.ts` (`VERSAO`) mostra `vX.Y.Z` ao lado
   de "Gestão de Vendas" — **manter igual à `version` do package.json a cada release**
   (v0.78.0/v0.79.0 saíram mostrando "v0.77.0"); `tests/versao.test.ts` trava isso.
+- **Cadeado com senha** (v0.82.0): botão **Sair** ao lado da engrenagem cobre a tela com
+  senha (`utils/bloqueio.ts` + `components/Bloqueio.tsx`, z-index acima de tudo, sem
+  desmontar o app — o digitado continua lá). Sem senha, o primeiro bloqueio cadastra;
+  a troca fica em Configurações → Bloqueio por senha (pede a atual, mín. 4). A senha é
+  local (proteção casual, não cofre) e entra no backup geral.
+- **Históricos mais altos** (v0.82.0): modais em `max-h-[93vh]` (era 85vh) — mais cartões
+  visíveis sem rolar.
 - **Unificações** (v0.81.0, sem mudança funcional): `utils/busca.ts` (`normalizarBusca` única
   para os dois históricos); telefone normalizado num lugar só (`ContactList` usa
   `normalizarTelefoneParaWhats`); `restaurarBackup` **mescla listas por id** (orçamentos,
@@ -399,6 +406,7 @@ orcamento_web/
     utils/tema.ts            tema da interface (6 temas; azul padrão) + persistência
                              (fontes/paleta em index.css; .titulo-tema = fonte do tema)
     utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
+    utils/bloqueio.ts        senha do cadeado (criar/trocar/conferir; entra no backup)
     utils/rascunho.ts        rascunho em edição (orcamento_rascunho_v1)
     utils/ultimoOrcamento.ts último documento gerado (orcamento_ultimo_v1)
     utils/backup.ts          backup geral (todas as chaves) + restaurar
@@ -413,10 +421,11 @@ orcamento_web/
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
     components/NeonCard.tsx  card com borda neon (prop `compact`)
     components/ClearButton.tsx botão "Limpar" (usado nas abas)
-    components/ConfiguracoesTema.tsx engrenagem: tema + BACKUP DOS DADOS
+    components/ConfiguracoesTema.tsx engrenagem: tema + BACKUP DOS DADOS + troca da senha
     components/TituloEditavel.tsx título editável com duplo clique
     components/RotulosContext.tsx provider dos rótulos (abas + títulos)
     components/AtalhosDados.tsx faixa SUB ATALHOS (lupa + sub-abas de Dados)
+    components/Bloqueio.tsx  tela do cadeado (criar senha / desbloquear)
     components/LembreteContatos.tsx pop-up global de contatos para hoje
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
@@ -510,6 +519,8 @@ npm run build        # gera dist/index.html (arquivo único)
   telefone é DDD + número (`maxLength 20`, normalizado para `wa.me`); **ambos entram na
   comparação de duplicidade**: mesmo conteúdo substitui o último; diferente = novo registro.
   A busca do histórico ignora acentos (`normalizarBusca` com `normalize('NFD')`) e máscaras.
+  Telefone é lido **na hora do clique**: processar/salvar depois de digitar inclui o número;
+  o registro já salvo não muda sozinho (reprocessar com número diferente = registro novo).
 - **Cor do cliente** (v0.79.0) é marcação **posterior, no histórico** (verde = quer fazer;
   vermelho = só pesquisou): **não** entra no anti-duplicado e o reprocessamento a preserva.
 - **Selo de versão**: `VERSAO` (`utils/versao.ts`) = `version` do `package.json`, sempre
@@ -544,6 +555,8 @@ npm run build        # gera dist/index.html (arquivo único)
   desabilitado sem número válido.
 - **Cor do cliente** (v0.79.0): verde = quer fazer em breve, vermelho = só pesquisou;
   marcada no histórico depois de gerar, com filtro por cor nos dois históricos.
+- **Cadeado com senha** (v0.82.0): botão Sair bloqueia a tela (overlay, app continua
+  montado); senha local com mín. 4 caracteres, troca nas Configurações, incluída no backup.
 
 ## 8. Pendências
 

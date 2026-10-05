@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Settings, Download, Upload } from 'lucide-react';
 import type { Tema } from '../utils/tema';
 import { montarBackup, nomeArquivoBackup, restaurarBackup } from '../utils/backup';
+import { temSenha, trocarSenha } from '../utils/bloqueio';
 
 interface ConfiguracoesTemaProps {
   tema: Tema;
@@ -22,6 +23,23 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
   const [aberto, setAberto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const arquivoRef = useRef<HTMLInputElement>(null);
+  // Troca da senha do cadeado (só quando já existe uma criada).
+  const [senhaAtual, setSenhaAtual] = useState('');
+  const [senhaNova, setSenhaNova] = useState('');
+  const [senhaConfirma, setSenhaConfirma] = useState('');
+  const [senhaMsg, setSenhaMsg] = useState('');
+  const [senhaOk, setSenhaOk] = useState(false);
+
+  const handleTrocarSenha = () => {
+    const r = trocarSenha(senhaAtual, senhaNova, senhaConfirma);
+    setSenhaOk(r.ok);
+    setSenhaMsg(r.ok ? 'Senha trocada.' : r.erro);
+    if (r.ok) {
+      setSenhaAtual('');
+      setSenhaNova('');
+      setSenhaConfirma('');
+    }
+  };
 
   // Backup de TUDO (histórico de orçamentos, rascunho, tema, contatos e
   // template do Whats) num único JSON — rede de segurança contra limpar o
@@ -168,6 +186,56 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
             className="hidden"
             onChange={importarBackup}
           />
+
+          <div className="h-px bg-slate-800 my-3"></div>
+
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pb-2">
+            Bloqueio por senha
+          </p>
+          {temSenha() ? (
+            <div className="space-y-2 px-3">
+              <input
+                type="password"
+                value={senhaAtual}
+                onChange={(e) => setSenhaAtual(e.target.value)}
+                placeholder="Senha atual"
+                aria-label="Senha atual"
+                className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none"
+              />
+              <input
+                type="password"
+                value={senhaNova}
+                onChange={(e) => setSenhaNova(e.target.value)}
+                placeholder="Nova senha (mín. 4 caracteres)"
+                aria-label="Nova senha"
+                className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none"
+              />
+              <input
+                type="password"
+                value={senhaConfirma}
+                onChange={(e) => setSenhaConfirma(e.target.value)}
+                placeholder="Confirmar nova senha"
+                aria-label="Confirmar nova senha"
+                className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none"
+              />
+              {senhaMsg && (
+                <p className={`text-xs font-bold ${senhaOk ? 'text-green-400' : 'text-red-400'}`}>{senhaMsg}</p>
+              )}
+              <button
+                type="button"
+                onClick={handleTrocarSenha}
+                aria-label="Trocar senha"
+                title="Trocar senha"
+                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer text-xs font-black uppercase tracking-widest"
+              >
+                Trocar senha
+              </button>
+            </div>
+          ) : (
+            <p className="text-[10px] leading-relaxed text-slate-500 px-3">
+              Nenhuma senha definida. Clique em Sair (cadeado no topo) para criar.
+            </p>
+          )}
         </div>
       )}
     </div>

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { Lock } from 'lucide-react';
 import OrcamentosApp from './components/OrcamentosApp';
 import TireFlyerApp from './tire/TireFlyerApp';
 import WhatsApp from './whats/WhatsApp';
 import DadosApp from './dados/DadosApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
+import Bloqueio from './components/Bloqueio';
 import LembreteContatos from './components/LembreteContatos';
 import { RotulosProvider, useRotulos } from './components/RotulosContext';
 import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
@@ -44,6 +46,8 @@ const AppInterno: React.FC = () => {
   const [destaque, setDestaque] = useState<{ id: string; vez: number } | null>(null);
   // X do lembrete: esconde até a lista de hoje mudar.
   const [dispensado, setDispensado] = useState('');
+  // Cadeado: cobre a tela com a senha, sem desmontar o app.
+  const [bloqueado, setBloqueado] = useState(false);
 
   useEffect(() => {
     const atualizar = (e?: Event) => {
@@ -150,6 +154,15 @@ const AppInterno: React.FC = () => {
           <div className="flex items-center gap-3">
             <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 border-l border-slate-800 pl-4 h-8 flex items-center whitespace-nowrap">Gestão de Vendas</span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600 whitespace-nowrap" title="Versão do arquivo">v{VERSAO}</span>
+            <button
+              type="button"
+              onClick={() => setBloqueado(true)}
+              aria-label="Sair"
+              title="Sair (bloqueia a tela com senha)"
+              className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
+            >
+              <Lock size={18} />
+            </button>
             <ConfiguracoesTema tema={tema} onChange={setTema} />
           </div>
         </div>
@@ -184,6 +197,9 @@ const AppInterno: React.FC = () => {
           onDispensar={() => setDispensado(chaveHoje)}
         />
       )}
+
+      {/* Cadeado: cobre tudo (inclusive header e modais) sem desmontar o app. */}
+      {bloqueado && <Bloqueio onDesbloquear={() => setBloqueado(false)} />}
     </div>
   );
 };

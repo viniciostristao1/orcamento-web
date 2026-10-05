@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.82.0](#v08200) — 2026-10-05 — Cadeado com senha + históricos mais altos (v0.82.0)
 - [v0.81.0](#v08100) — 2026-10-05 — Execução das melhorias da varredura (v0.81.0)
 - [v0.80.0](#v08000) — 2026-10-05 — Varredura: pontas soltas, limpeza e docs (v0.80.0)
 - [v0.79.0](#v07900) — 2026-10-05 — Cor do cliente nos históricos: verde/vermelho (v0.79.0)
@@ -139,6 +140,35 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v08200"></a>
+## 2026-10-05 — Cadeado com senha + históricos mais altos (v0.82.0)
+
+**Pedido:** (1) dúvida: telefone digitado depois de gerar vai ao histórico? (2) históricos
+mais altos; (3) botão Sair com senha + lugar para trocar.
+
+**Feito:**
+- Telefone: nada a mudar — `Processar` e `Salvar com itens não realizados` leem os campos
+  na hora do clique (`OrcamentosApp` nas chamadas de `adicionarAoHistorico`; `TireFlyerApp`
+  no `handleProcess`). Comportamento documentado no AGENTS §6.
+- Históricos `max-h-[85vh]` → `93vh` (só no `HistoricoBase`, vale para os dois).
+- Cadeado: `utils/bloqueio.ts` (criar/trocar/conferir, mín. 4; chave
+  `app_bloqueio_senha_v1` no backup geral) + `components/Bloqueio.tsx` (overlay `z-[300]`,
+  sem desmontar o app; sem senha o 1º bloqueio cadastra) + botão **Sair** (cadeado) no
+  header + troca em Configurações → Bloqueio por senha.
+- Testes: `tests/bloqueio.test.ts` (4) + 2 smoke (bloquear/desbloquear, trocar senha).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**150/150 (13 arquivos)**, `npm run build` OK (`dist/index.html` ~1,30 MB, 0 refs externas).
+Selo `v0.82.0`.
+
+**Gotchas / decisões:**
+- Privacidade casual (olhar por cima do ombro), não cofre: senha em texto puro no
+  localStorage, como o resto dos dados; entra no backup de propósito.
+- Overlay em vez de desmontar: o `inputText` do flyer não tem rascunho — se o app
+  desmontasse ao bloquear, a tabela digitada e não processada se perderia.
+
+---
 
 <a id="v08100"></a>
 ## 2026-10-05 — Execução das melhorias da varredura (v0.81.0)

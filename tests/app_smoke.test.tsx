@@ -1512,4 +1512,51 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar só clientes verdes' }));
     expect(screen.getByText('Nenhum cliente verde.')).toBeTruthy();
   });
+
+  it('cadeado: Sair bloqueia, senha errada não entra, certa desbloqueia', () => {
+    localStorage.removeItem('app_bloqueio_senha_v1');
+    try {
+      render(<App />);
+      // sem senha: o primeiro bloqueio vira o cadastro
+      fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
+      expect(screen.getByRole('heading', { name: 'Criar senha' })).toBeTruthy();
+      fireEvent.change(screen.getByLabelText('Nova senha'), { target: { value: '1234' } });
+      fireEvent.change(screen.getByLabelText('Confirmar senha'), { target: { value: '1234' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Criar senha' }));
+      expect(screen.queryByText('Tela bloqueada')).toBeNull();
+
+      // com senha: Sair pede a senha
+      fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
+      expect(screen.getByText('Tela bloqueada')).toBeTruthy();
+      fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'errada' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Desbloquear' }));
+      expect(screen.getByText('Senha incorreta.')).toBeTruthy();
+      expect(screen.getByText('Tela bloqueada')).toBeTruthy();
+      fireEvent.change(screen.getByLabelText('Senha'), { target: { value: '1234' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Desbloquear' }));
+      expect(screen.queryByText('Tela bloqueada')).toBeNull();
+    } finally {
+      localStorage.removeItem('app_bloqueio_senha_v1');
+    }
+  });
+
+  it('cadeado: troca a senha nas Configurações', () => {
+    localStorage.setItem('app_bloqueio_senha_v1', '1234');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+      fireEvent.change(screen.getByLabelText('Senha atual'), { target: { value: 'errada' } });
+      fireEvent.change(screen.getByLabelText('Nova senha'), { target: { value: '5678' } });
+      fireEvent.change(screen.getByLabelText('Confirmar nova senha'), { target: { value: '5678' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Trocar senha' }));
+      expect(screen.getByText('A senha atual não confere.')).toBeTruthy();
+
+      fireEvent.change(screen.getByLabelText('Senha atual'), { target: { value: '1234' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Trocar senha' }));
+      expect(screen.getByText('Senha trocada.')).toBeTruthy();
+      expect(localStorage.getItem('app_bloqueio_senha_v1')).toBe('5678');
+    } finally {
+      localStorage.removeItem('app_bloqueio_senha_v1');
+    }
+  });
 });
