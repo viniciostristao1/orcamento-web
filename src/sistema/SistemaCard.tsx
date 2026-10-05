@@ -148,7 +148,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
 
   return (
     <NeonCard
-      title="ORÇAMENTO DO SISTEMA (PDF/PRINT)"
+      title="ORÇAMENTO DO SISTEMA"
       borderColor="blue-500"
       compact
       actions={
@@ -268,13 +268,15 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
 
         <div className="space-y-1">
           <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DADOS</label>
+          {/* Altura medida para o card terminar junto do RESUMO LÍQUIDO
+              (medido em tela a 1600px; zoom .75 da interface incluso). */}
           <textarea
             value={revDados}
             onChange={(e) => onRevDados(e.target.value)}
             placeholder="Os itens (peças/serviços) aparecem aqui para revisão…"
             aria-label="Dados extraídos para revisão"
             wrap="off"
-            className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-4 text-base font-mono leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+            className="w-full h-[277px] campo-tema border border-slate-800 rounded-2xl p-4 text-base font-mono leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
           />
         </div>
 

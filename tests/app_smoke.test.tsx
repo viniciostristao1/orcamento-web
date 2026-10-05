@@ -1550,6 +1550,27 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('Nenhum cliente verde.')).toBeTruthy();
   });
 
+  it('tire flyer: ver detalhes mostra marcas e preços sem reabrir', () => {
+    localStorage.setItem(
+      'flyer_historico_v1',
+      JSON.stringify([
+        { id: 'f1', criadoEm: '24/09/2026 12:30:00', contato: 'JOAO', medida: '265/60R18', inputText: '265/60R18\tMARCA\tÀ PRAZO\n1\tFirestone\tR$ 1.000,00', numMarcas: 1 },
+      ]),
+    );
+    render(<App />);
+    fireEvent.click(screen.getByText('Tire Flyer'));
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico do Tire Flyer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes do flyer' }));
+
+    const janela = document.querySelector('[data-janela-flyer="1"]') as HTMLElement;
+    expect(janela).toBeTruthy();
+    expect(janela.querySelector('h3')?.className).toContain('text-xl');
+    expect(janela.textContent).toContain('Firestone');
+    expect(janela.textContent).toContain('1.000,00');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
+    expect(document.querySelector('[data-janela-flyer="1"]')).toBeNull();
+  });
+
   it('cadeado: Sair bloqueia, senha errada não entra, certa desbloqueia', () => {
     localStorage.removeItem('app_bloqueio_senha_v1');
     try {
@@ -1599,7 +1620,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('orçamento do sistema: card 3 renderiza com PDF/OCR e usar-como-dados', () => {
     render(<App />);
-    expect(screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA (PDF/PRINT)' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Novo arquivo' })).toBeTruthy();
     // sem texto extraído, usar desabilitado; sem botões manuais de extrair
     expect((screen.getByRole('button', { name: 'Usar no orçamento manual' }) as HTMLButtonElement).disabled).toBe(true);
@@ -1638,7 +1659,7 @@ describe('App — smoke test (render + processar)', () => {
   it('ordem dos cards: sistema, dados, ajustes, resumo, descrição', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i })); // mostra o RESUMO
-    const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA (PDF/PRINT)' });
+    const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
     const hDados = screen.getByText('DADOS DO ORÇAMENTO');
     const hDesc = screen.getByText('DESCRIÇÃO DO REPARO');
     const hAjustes = screen.getByText(/AJUSTES MANUAIS/);

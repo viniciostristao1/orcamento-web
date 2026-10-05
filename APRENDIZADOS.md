@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.95.0](#v09500) — 2026-10-05 — Detalhes do flyer + colunas alinhadas (v0.95.0)
 - [v0.94.0](#v09400) — 2026-10-05 — Escopo das borrachas + RESUMO colado (v0.94.0)
 - [v0.93.0](#v09300) — 2026-10-05 — Play usa revisão + PLACA no card 1 (v0.93.0)
 - [v0.92.0](#v09200) — 2026-10-05 — Card redondo: +, sem números, telefone/nome (v0.92.0)
@@ -153,6 +154,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09500"></a>
+## 2026-10-05 — Detalhes do flyer + colunas alinhadas (v0.95.0)
+
+**Pedido:** (1) janelinha de detalhes no histórico do flyer sem reabrir; (2) card vira
+só ORÇAMENTO DO SISTEMA; (3) esquerda terminar junto do RESUMO (mais linhas em DADOS)
+e DADOS DO ORÇAMENTO junto da DESCRIÇÃO.
+
+**Feito:** `data-janela-flyer` com contato/telefone/medida + marcas (preço prazo/vista,
+estoque) via `parseInput`; alturas medidas no Chrome headless a 1600px já com zoom .75
+(review `h-[277px]`, campo `h-[216px]`): SISTEMA 688 vs RESUMO 689, DADOS 946 vs
+DESCRIÇÃO 946. Precisão varia com conteúdo/tela — aproximado, não cravado.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**179/179 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.95.0`.
+
+---
 
 <a id="v09400"></a>
 ## 2026-10-05 — Escopo das borrachas + RESUMO colado (v0.94.0)

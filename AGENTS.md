@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **178 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **179 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -598,6 +598,9 @@ npm run build        # gera dist/index.html (arquivo único)
   (desconto, parcelas, placa, telefone e nome ficam); SISTEMA limpa também revisão,
   ajustes, DADOS e DESCRIÇÃO; PLACA com a largura do Nº e NOME no resto da linha;
   RESUMO sem `mt-auto` (colado no AJUSTES).
+- **Detalhes do flyer + alinhamento** (v0.95.0): janelinha "Ver detalhes do flyer" no
+  histórico (marcas e preços, sem reabrir); card virou ORÇAMENTO DO SISTEMA; alturas
+  medidas em tela (SISTEMA termina junto do RESUMO, DADOS junto da DESCRIÇÃO).
 - **Play com campo vazio avisa** (v0.90.0): sem DESCRIÇÃO ou DADOS, o processar mostra
   alerta orientando (usar o card 1) em vez de sair em silêncio sem scroll/imagem.
 - **Lembretes com data/hora** (v0.91.0): botão relógio em cada cartão dos dois históricos

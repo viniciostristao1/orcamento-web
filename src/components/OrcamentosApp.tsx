@@ -239,8 +239,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               compact
               actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}
             >
+              {/* Altura medida para terminar junto da DESCRIÇÃO (ver SistemaCard). */}
               <textarea 
-                className="w-full h-96 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
+                className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
                 value={orcamentoRaw} 
                 onChange={(e) => setOrcamentoRaw(e.target.value)} 
                 wrap="off" 
