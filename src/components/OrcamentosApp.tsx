@@ -3,7 +3,7 @@ import { processQuote, formatCurrency, formatarValorInput, parseBrazilianNumber,
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable from './QuoteTable';
-import { Play, Percent, History, Eraser } from 'lucide-react';
+import { Play, Percent, Eraser } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import TituloEditavel from './TituloEditavel';
@@ -32,7 +32,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [orcamentoRaw, setOrcamentoRaw] = useState<string>(() => rascunho?.orcamentoRaw ?? EXEMPLO_ORCAMENTO);
   const [ajustesManuais, setAjustesManuais] = useState<string>(() => rascunho?.ajustesManuais ?? "");
   const [desconto, setDesconto] = useState<number>(() => rascunho?.desconto ?? 5);
-  const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 3);
+  const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 6);
   const [placa, setPlaca] = useState<string>(() => rascunho?.placa ?? "");
   const [telefone, setTelefone] = useState<string>(() => rascunho?.telefone ?? "");
   // Cabeçalho do orçamento do sistema (card 3): nº e data do documento.
@@ -177,6 +177,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 setPlaca('');
                 setTelefone('');
               }}
+              onAbrirHistorico={onAbrirHistorico}
               onUsarTextos={(desc, dados) => {
                 if (desc.trim()) setDescReparo(desc);
                 if (dados.trim()) setOrcamentoRaw(dados);
@@ -184,28 +185,16 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             />
 
             <NeonCard
-              title="1. DESCRIÇÃO DO REPARO"
-              borderColor="blue-500"
+              title="2. DADOS DO ORÇAMENTO"
+              borderColor="blue-600"
               compact
-              actions={
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={onAbrirHistorico}
-                    aria-label="Histórico"
-                    title="Histórico"
-                    className="relative z-50 flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
-                  >
-                    <History size={18} />
-                  </button>
-                  <ClearButton onClick={() => setDescReparo('')} />
-                </div>
-              }
+              actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}
             >
               <textarea 
-                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide" 
-                value={descReparo} 
-                onChange={(e) => setDescReparo(e.target.value)} 
+                className="w-full h-96 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
+                value={orcamentoRaw} 
+                onChange={(e) => setOrcamentoRaw(e.target.value)} 
+                wrap="off" 
               />
             </NeonCard>
 
@@ -226,8 +215,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   onClick={() => {
                     setRevAprovadaInput('');
                     setRevPecasInput('');
-                    setDesconto(0);
-                    setParcelas(1);
+                    setDesconto(5);
+                    setParcelas(6);
                     setPlaca('');
                     setTelefone('');
                   }}
@@ -392,12 +381,16 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
 
-            <NeonCard title="2. DADOS DO ORÇAMENTO" borderColor="blue-600" compact actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}>
+            <NeonCard
+              title="3. DESCRIÇÃO DO REPARO"
+              borderColor="blue-500"
+              compact
+              actions={<ClearButton onClick={() => setDescReparo('')} />}
+            >
               <textarea 
-                className="w-full h-96 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
-                value={orcamentoRaw} 
-                onChange={(e) => setOrcamentoRaw(e.target.value)} 
-                wrap="off" 
+                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide" 
+                value={descReparo} 
+                onChange={(e) => setDescReparo(e.target.value)} 
               />
             </NeonCard>
 

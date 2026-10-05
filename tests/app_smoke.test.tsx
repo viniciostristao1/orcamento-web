@@ -47,7 +47,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByTitle('Versão do arquivo').textContent).toBe(`v${VERSAO}`);
     // títulos das abas no mesmo tamanho/fonte de DESCRIÇÃO DO REPARO (text-xl)
     expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' }).className).toContain('text-xl');
-    expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
+    expect(screen.getByText('3. DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     // DESCRIÇÃO DO REPARO e DADOS DO ORÇAMENTO com a mesma fonte (text-lg)
     const grandes = container.querySelectorAll('textarea.text-lg');
@@ -439,7 +439,7 @@ describe('App — smoke test (render + processar)', () => {
     try {
       // abre na aba Orçamentos: mesmo assim o aviso pula (vale para todas as abas)
       render(<App />);
-      expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
+      expect(screen.getByText('3. DESCRIÇÃO DO REPARO')).toBeTruthy();
       // área toda clicável: janelinha + nome levam ao contato (2 botões)
       const botoes = screen.getAllByRole('button', { name: 'Ir para contato MARIA HOJE' });
       expect(botoes).toHaveLength(2);
@@ -1590,7 +1590,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('orçamento do sistema: card 3 renderiza com PDF/OCR e usar-como-dados', () => {
     render(<App />);
-    expect(screen.getByRole('heading', { name: '3. ORÇAMENTO DO SISTEMA (PDF/PRINT)' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: '1. ORÇAMENTO DO SISTEMA (PDF/PRINT)' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Novo arquivo' })).toBeTruthy();
     // sem texto extraído, usar desabilitado; sem botões manuais de extrair
     expect((screen.getByRole('button', { name: 'Usar no orçamento' }) as HTMLButtonElement).disabled).toBe(true);
@@ -1613,14 +1613,14 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement).value).toBe('');
   });
 
-  it('ordem dos cards: sistema no topo, descrição abaixo, dados abaixo de ajustes', () => {
+  it('ordem dos cards: sistema no topo, dados na esquerda, descrição abaixo de ajustes', () => {
     render(<App />);
-    const hSistema = screen.getByRole('heading', { name: '3. ORÇAMENTO DO SISTEMA (PDF/PRINT)' });
-    const hDesc = screen.getByText('1. DESCRIÇÃO DO REPARO');
+    const hSistema = screen.getByRole('heading', { name: '1. ORÇAMENTO DO SISTEMA (PDF/PRINT)' });
     const hDados = screen.getByText('2. DADOS DO ORÇAMENTO');
+    const hDesc = screen.getByText('3. DESCRIÇÃO DO REPARO');
     const hAjustes = screen.getByText(/3\. AJUSTES MANUAIS/);
-    expect(hSistema.compareDocumentPosition(hDesc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(hAjustes.compareDocumentPosition(hDados) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hSistema.compareDocumentPosition(hDados) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hAjustes.compareDocumentPosition(hDesc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('aprovado e desconto: borracha limpa a janela toda', () => {
@@ -1631,7 +1631,7 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByPlaceholderText(/ABC1D23 \/ JOÃO/i) as HTMLInputElement).value).toBe('');
     expect((screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement).value).toBe('');
     expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
-    expect(screen.getByDisplayValue('1x')).toBeTruthy();
-    expect(screen.getByDisplayValue('0')).toBeTruthy();
+    expect(screen.getByDisplayValue('6x')).toBeTruthy();
+    expect(screen.getByDisplayValue('5')).toBeTruthy();
   });
 });

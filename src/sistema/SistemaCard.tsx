@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { ClipboardPaste } from 'lucide-react';
+import { ClipboardPaste, History } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import {
@@ -20,6 +20,8 @@ interface SistemaCardProps {
   onCabecalho: (c: CabecalhoOrcamento) => void;
   /** Limpa PLACA, NOME, CONTATO e TELEFONE (borracha do card). */
   onLimparContato: () => void;
+  /** Abre o histórico de orçamentos. */
+  onAbrirHistorico: () => void;
   /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
   onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
 }
@@ -27,12 +29,12 @@ interface SistemaCardProps {
 const ehPdf = (f: File) => /\.pdf$/i.test(f.name) || f.type === 'application/pdf';
 
 /**
- * 3. ORÇAMENTO DO SISTEMA (PDF/PRINT): fluxo alternativo aos campos 1 e 2.
+ * 1. ORÇAMENTO DO SISTEMA (PDF/PRINT): fluxo alternativo aos demais campos.
  * Anexar já extrai sozinho (PDF via pdf.js, imagens via OCR) e o resultado
  * SUBSTITUI o anterior — nunca soma com outro orçamento. Separa por seção
  * (itens → DADOS, reclamações → DESCRIÇÃO, resto ignorado), mostra para revisão
  * com o cabeçalho detectado (número, placa, nome, data) e, no clique, preenche
- * os campos 1 e 2. A soma continua a mesma lógica — nada muda no cálculo nem no PNG.
+ * os campos 3 e 2. A soma continua a mesma lógica — nada muda no cálculo nem no PNG.
  */
 const SistemaCard: React.FC<SistemaCardProps> = ({
   numero,
@@ -41,6 +43,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onDataDoc,
   onCabecalho,
   onLimparContato,
+  onAbrirHistorico,
   onUsarTextos,
 }) => {
   const [extraidoDesc, setExtraidoDesc] = useState('');
@@ -122,10 +125,23 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
 
   return (
     <NeonCard
-      title="3. ORÇAMENTO DO SISTEMA (PDF/PRINT)"
+      title="1. ORÇAMENTO DO SISTEMA (PDF/PRINT)"
       borderColor="blue-500"
       compact
-      actions={<ClearButton onClick={limpar} label="Limpar extração" />}
+      actions={
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onAbrirHistorico}
+            aria-label="Histórico"
+            title="Histórico"
+            className="relative z-50 flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
+          >
+            <History size={18} />
+          </button>
+          <ClearButton onClick={limpar} label="Limpar extração" />
+        </div>
+      }
     >
       <div className="space-y-3">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 leading-relaxed">
@@ -186,7 +202,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Descrição extraída (vai para o campo 1)</label>
+          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Descrição extraída (vai para o campo 3)</label>
           <textarea
             value={extraidoDesc}
             onChange={(e) => setExtraidoDesc(e.target.value)}
@@ -214,7 +230,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           onClick={() => {
             if (!temTexto) return;
             onUsarTextos(extraidoDesc, extraidoDados);
-            setMsg('Preenchido nos campos 1 e 2 — confira e clique em Processar Tudo.');
+            setMsg('Preenchido nos campos 3 e 2 — confira e clique em Processar Tudo.');
           }}
           disabled={!temTexto || ocupado}
           aria-label="Usar no orçamento"

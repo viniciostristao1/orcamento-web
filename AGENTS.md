@@ -52,10 +52,11 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Último documento gerado** (v0.10.0): `utils/ultimoOrcamento.ts` (`orcamento_ultimo_v1`)
   guarda o resumo + a marcação dos itens; ao abrir, o orçamento já aparece na tela (sem
   processar de novo). Também entra no backup geral.
-- **Layout do Orçamentos** (v0.7.5; ordem refeita na v0.88.0): botão **Histórico no
-  cabeçalho do card 1** (ao lado de Limpar); esquerda na ordem **3. SISTEMA → 1.
-  DESCRIÇÃO**; direita na ordem **APROVADO E DESCONTO → 3. AJUSTES MANUAIS (campo com
-  `rows={3}`) → 2. DADOS → RESUMO LÍQUIDO** (pares de valores, v0.14.0/0.14.1); **preview do orçamento na metade** na tela
+- **Layout do Orçamentos** (v0.7.5; ordem refeita na v0.88.0, renumeração na v0.89.0):
+  botão **Histórico no card 1. SISTEMA** (ao lado da borracha); esquerda na ordem
+  **1. SISTEMA → 2. DADOS**; direita na ordem **APROVADO E DESCONTO → 3. AJUSTES
+  MANUAIS (campo com `rows={3}`) → 3. DESCRIÇÃO → RESUMO LÍQUIDO** (pares de valores,
+  v0.14.0/0.14.1); **preview do orçamento na metade** na tela
   (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
   impressão sai normal). Título interno **ORÇAMENTOS** na cor de acento (v0.7.7) e títulos dos
   cards em **maiúsculas no texto-fonte**. Desde a v0.35.0 o conteúdo de **DESCRIÇÃO DO REPARO**
@@ -528,6 +529,7 @@ npm run build        # gera dist/index.html (arquivo único)
   A busca do histórico ignora acentos (`normalizarBusca` com `normalize('NFD')`) e máscaras.
   Telefone é lido **na hora do clique**: processar/salvar depois de digitar inclui o número;
   o registro já salvo não muda sozinho (reprocessar com número diferente = registro novo).
+  Desconto (5) e parcelas (6x) são padrão: a borracha geral os restaura, só o manual alterna.
 - **Cor do cliente** (v0.79.0) é marcação **posterior, no histórico** (verde = quer fazer;
   vermelho = só pesquisou): **não** entra no anti-duplicado e o reprocessamento a preserva.
 - **Selo de versão**: `VERSAO` (`utils/versao.ts`) = `version` do `package.json`, sempre
@@ -583,10 +585,11 @@ npm run build        # gera dist/index.html (arquivo único)
   partes para revisão e preenche os campos 1 e 2.
 - **Card 3 automático** (v0.87.0): anexar já extrai sozinho (sem botão extrair);
   botão único **"Novo arquivo"**; novo anexo **substitui** o anterior (nunca soma).
-- **Nova ordem + borrachas** (v0.88.0): esquerda = 3. SISTEMA no topo e 1. DESCRIÇÃO
-  abaixo; direita = APROVADO, 3. AJUSTES, 2. DADOS e RESUMO (títulos mantidos).
-  Borracha do card 3 apaga também Nº/Data e PLACA/NOME/TELEFONE; borracha geral no
-  APROVADO (zera revisão/peças, desconto 0, parcelas 1x, limpa placa/telefone).
+- **Nova ordem + borrachas** (v0.88.0; renumeração na v0.89.0): esquerda = 1. SISTEMA
+  e 2. DADOS (largo); direita = APROVADO, 3. AJUSTES, 3. DESCRIÇÃO e RESUMO. O botão
+  **Histórico** fica no card 1. SISTEMA, ao lado da borracha. Borracha do card 1 apaga
+  também Nº/Data e PLACA/NOME/TELEFONE; borracha geral no APROVADO (zera revisão/peças,
+  mantém desconto 5 e parcelas 6x — padrão, só manual — limpa placa/telefone).
 - **Ajustes do card 3 e borrachas** (v0.86.0): a borracha do card 3 apaga também Nº e Data;
   o card APROVADO E DESCONTO ganhou borracha geral (zera revisão/peças, desconto 0,
   parcelas 1x, limpa placa/telefone); "Usar no orçamento" **sobrescreve** PLACA/NOME e

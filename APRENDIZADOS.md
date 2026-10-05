@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.89.0](#v08900) — 2026-10-05 — Padrão 5%/6x, renumeração e Histórico no SISTEMA (v0.89.0)
 - [v0.88.0](#v08800) — 2026-10-05 — Nova ordem dos cards + borrachas (v0.88.0)
 - [v0.87.0](#v08700) — 2026-10-05 — Card 3 automático: extrai ao anexar, substitui (v0.87.0)
 - [v0.86.0](#v08600) — 2026-10-05 — Borrachas e sobrescrita do card 3 (v0.86.0)
@@ -147,6 +148,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v08900"></a>
+## 2026-10-05 — Padrão 5%/6x, renumeração e Histórico no SISTEMA (v0.89.0)
+
+**Pedido:** borracha mantém desconto 5 e 6x (padrão, só manual alterna); SISTEMA vira 1,
+DADOS segue 2 (no lugar da DESCRIÇÃO, mais espaço), DESCRIÇÃO vira 3 (no lugar do DADOS);
+botão Histórico ao lado da borracha do SISTEMA.
+
+**Feito:** borracha geral restaura desconto 5/parcelas 6 (padrão novo também na abertura);
+cards movidos de coluna (só posição) e renomeados; `onAbrirHistorico` no `SistemaCard`,
+botão saiu da DESCRIÇÃO (import `History` removido). Smoke atualizado (nomes, ordem,
+6x/5); 2 testes antigos de "primeira textarea" já miravam o campo certo.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**168/168 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.89.0`.
+
+---
 
 <a id="v08800"></a>
 ## 2026-10-05 — Nova ordem dos cards + borrachas (v0.88.0)
