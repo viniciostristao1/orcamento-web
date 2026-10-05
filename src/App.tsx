@@ -7,6 +7,15 @@ import DadosApp from './dados/DadosApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
 import Bloqueio from './components/Bloqueio';
 import LembreteContatos from './components/LembreteContatos';
+import LembreteHistorico from './components/LembreteHistorico';
+import { atualizarLembreteHistorico } from './utils/historico';
+import { atualizarLembreteFlyer } from './tire/utils/historicoFlyer';
+import {
+  LEMBRETES_EVENTO,
+  listarLembretesVencidos,
+  type LembreteVencido,
+  type OrigemLembrete,
+} from './utils/lembretes';
 import { RotulosProvider, useRotulos } from './components/RotulosContext';
 import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
 import { VERSAO } from './utils/versao';
@@ -46,6 +55,45 @@ const AppInterno: React.FC = () => {
   const [destaque, setDestaque] = useState<{ id: string; vez: number } | null>(null);
   // X do lembrete: esconde até a lista de hoje mudar.
   const [dispensado, setDispensado] = useState('');
+  // Lembretes vencidos dos históricos (orçamentos + tire flyer): aviso que pisca
+  // no canto inferior direito; o clique abre o orçamento e conclui o lembrete.
+  const [lembretes, setLembretes] = useState<LembreteVencido[]>(() => listarLembretesVencidos());
+  const [lembretesDisp, setLembretesDisp] = useState('');
+  const [irParaRegistro, setIrParaRegistro] = useState<{ origem: OrigemLembrete; id: string; vez: number } | null>(null);
+
+  useEffect(() => {
+    const recarregar = () => {
+      const atual = listarLembretesVencidos();
+      setLembretes((antes) =>
+        JSON.stringify(antes) === JSON.stringify(atual) ? antes : atual,
+      );
+    };
+    recarregar();
+    const timer = window.setInterval(recarregar, 30000);
+    window.addEventListener(LEMBRETES_EVENTO, recarregar);
+    window.addEventListener('storage', recarregar);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener(LEMBRETES_EVENTO, recarregar);
+      window.removeEventListener('storage', recarregar);
+    };
+  }, []);
+
+  const chaveLembretes = lembretes.map((l) => `${l.origem}:${l.id}:${l.quando}`).join(',');
+  const mostrarLembretes = lembretes.length > 0 && lembretesDisp !== chaveLembretes;
+
+  // Clique no aviso: troca para a aba certa, abre o orçamento e conclui o lembrete.
+  const irParaLembrete = (item: LembreteVencido) => {
+    setAba(item.origem === 'flyer' ? 'pneus' : 'orcamentos');
+    setIrParaRegistro((d) => ({
+      origem: item.origem,
+      id: item.id,
+      vez: (d?.vez ?? 0) + 1,
+    }));
+    if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, null);
+    else atualizarLembreteHistorico(item.id, null);
+    setLembretes(listarLembretesVencidos());
+  };
   // Cadeado: cobre a tela com a senha, sem desmontar o app.
   const [bloqueado, setBloqueado] = useState(false);
 
@@ -185,10 +233,13 @@ const AppInterno: React.FC = () => {
             onAbrirHistorico={() => setHistoricoAberto(true)}
             onIrParaSubAba={irParaSubAbaDados}
             onBuscarNosDados={buscarNosDados}
+            abrirLembrete={irParaRegistro?.origem === 'orcamento' ? irParaRegistro : null}
           />
         </div>
         <div className={aba === 'pneus' ? '' : 'hidden'}>
-          <TireFlyerApp />
+          <TireFlyerApp
+            abrirLembrete={irParaRegistro?.origem === 'flyer' ? irParaRegistro : null}
+          />
         </div>
         <div className={aba === 'whats' ? '' : 'hidden'}>
           <WhatsApp destaque={destaque} />
@@ -198,13 +249,24 @@ const AppInterno: React.FC = () => {
         </div>
       </main>
 
-      {/* Lembrete global (todas as abas): contatos para chamar hoje. */}
-      {mostrarLembrete && (
-        <LembreteContatos
-          contatos={contatosHoje}
-          onIrParaContato={irParaContato}
-          onDispensar={() => setDispensado(chaveHoje)}
-        />
+      {/* Avisos globais (todas as abas), empilhados no canto inferior direito. */}
+      {(mostrarLembrete || mostrarLembretes) && (
+        <div className="fixed bottom-8 right-8 z-[300] flex flex-col items-end gap-3 print:hidden">
+          {mostrarLembrete && (
+            <LembreteContatos
+              contatos={contatosHoje}
+              onIrParaContato={irParaContato}
+              onDispensar={() => setDispensado(chaveHoje)}
+            />
+          )}
+          {mostrarLembretes && (
+            <LembreteHistorico
+              itens={lembretes}
+              onIrPara={irParaLembrete}
+              onDispensar={() => setLembretesDisp(chaveLembretes)}
+            />
+          )}
+        </div>
       )}
 
       {/* Cadeado: cobre tudo (inclusive header e modais) sem desmontar o app. */}

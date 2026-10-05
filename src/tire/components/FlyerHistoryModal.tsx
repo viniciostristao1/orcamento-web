@@ -3,13 +3,16 @@ import { FolderOpen, Trash2 } from 'lucide-react';
 import {
   type FlyerSalvo,
   atualizarCorFlyer,
+  atualizarLembreteFlyer,
   filtrarFlyerHistorico,
   limparFlyerHistorico,
   listarFlyerHistorico,
   removerDoFlyerHistorico,
 } from '../utils/historicoFlyer';
 import { filtrarPorCor, type CorCliente, type FiltroCor } from '../../utils/corCliente';
+import { dataDoRegistro, formatarLembrete } from '../../utils/lembretes';
 import { MarcadorCor, SeloCor, classeBordaCor } from '../../components/CorCliente';
+import { BotaoRelogio, EditorLembrete } from '../../components/LembreteRelogio';
 import BotaoWhats from '../../components/BotaoWhats';
 import HistoricoBase from '../../components/HistoricoBase';
 
@@ -25,6 +28,8 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
   const [buscaAberta, setBuscaAberta] = useState(false);
   const [busca, setBusca] = useState('');
   const [filtroCor, setFiltroCor] = useState<FiltroCor>('todas');
+  // Registro com o editor de lembrete aberto (data/hora).
+  const [lembreteDe, setLembreteDe] = useState<string | null>(null);
 
   useEffect(() => {
     if (aberto) {
@@ -33,6 +38,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
       setBuscaAberta(false);
       setBusca('');
       setFiltroCor('todas');
+      setLembreteDe(null);
     }
   }, [aberto]);
 
@@ -60,6 +66,12 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
   // Marca/desmarca a cor do cliente (salva na hora).
   const handleMudarCor = (id: string, cor: CorCliente | undefined) => {
     setLista(atualizarCorFlyer(id, cor));
+  };
+
+  // Agenda/limpa o lembrete do flyer (salva na hora; avisa o popup global).
+  const handleLembrete = (id: string, iso: string | null) => {
+    setLista(atualizarLembreteFlyer(id, iso));
+    setLembreteDe(null);
   };
 
   return (
@@ -93,12 +105,18 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
             : 'Nenhum flyer encontrado.'
       }
     >
-      {visiveis.map((r) => (
+      {visiveis.map((r) => {
+        const lembreteFmt = formatarLembrete(r.lembreteEm);
+        return (
         <div key={r.id} className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)}`}>
           <div className="flex items-center justify-between gap-4 mb-2">
             <span className="text-base font-black uppercase tracking-widest text-slate-500">
               <SeloCor cor={r.cor} />
-              {r.criadoEm}
+              {dataDoRegistro(r.criadoEm)}
+              <span className="text-slate-600"> · </span>
+              <span className={lembreteFmt ? 'text-amber-300' : 'text-slate-600'} title={lembreteFmt ? `Lembrete em ${lembreteFmt}` : 'Sem lembrete'}>
+                {lembreteFmt ?? '—'}
+              </span>
               {r.contato ? (
                 <>
                   <span className="text-slate-600"> · </span>
@@ -113,13 +131,10 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
               ) : null}
               <span className="text-slate-600"> · </span>
               <span className="text-amber-300">{r.medida}</span>
-              <span className="text-slate-600"> · </span>
-              <span className="text-slate-400">
-                {r.numMarcas} {r.numMarcas === 1 ? 'marca' : 'marcas'}
-              </span>
             </span>
             <div className="flex items-center gap-2">
               <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
+              <BotaoRelogio lembreteEm={r.lembreteEm} onAbrir={() => setLembreteDe((d) => (d === r.id ? null : r.id))} />
               <BotaoWhats telefone={r.telefone} />
               <button
                 type="button"
@@ -141,11 +156,21 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
               </button>
             </div>
           </div>
+          {lembreteDe === r.id && (
+            <EditorLembrete
+              inicial={r.lembreteEm}
+              temAtual={!!formatarLembrete(r.lembreteEm)}
+              onConfirmar={(iso) => handleLembrete(r.id, iso)}
+              onLimpar={() => handleLembrete(r.id, null)}
+              onFechar={() => setLembreteDe(null)}
+            />
+          )}
           <p className="text-lg text-slate-100 font-bold truncate">
             {r.inputText.split('\n').filter((l) => l.trim()).slice(1, 4).join(' · ') || '(sem tabela)'}
           </p>
         </div>
-      ))}
+        );
+      })}
     </HistoricoBase>
   );
 };

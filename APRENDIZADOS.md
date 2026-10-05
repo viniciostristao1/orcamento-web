@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.91.0](#v09100) — 2026-10-05 — Lembretes com data/hora nos históricos (v0.91.0)
 - [v0.90.0](#v09000) — 2026-10-05 — Bug: play silencioso com campo vazio (v0.90.0)
 - [v0.89.0](#v08900) — 2026-10-05 — Padrão 5%/6x, renumeração e Histórico no SISTEMA (v0.89.0)
 - [v0.88.0](#v08800) — 2026-10-05 — Nova ordem dos cards + borrachas (v0.88.0)
@@ -149,6 +150,30 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09100"></a>
+## 2026-10-05 — Lembretes com data/hora nos históricos (v0.91.0)
+
+**Pedido:** botão relógio nos dois históricos para programar data/hora; no cartão, data
+do orçamento + data do lembrete (sem contagem de itens); vencidos piscam no canto
+inferior direito e o clique leva ao orçamento.
+
+**Feito:** `lembreteEm` (ISO) nos dois registros + `atualizarLembrete*` (avisa por evento)
++ `utils/lembretes.ts` (vencidos, formatos, rótulos) — reprocessar preserva, backup leva
+junto. `LembreteRelogio.tsx` (botão + editor datetime-local) nos dois modais; cartões
+sem "N itens/marcas". `LembreteHistorico.tsx` âmbar pulsante empilhado com o aviso do
+Whats (casca única no App); clique abre o registro e conclui, X dispensa até mudar.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**176/176 (15 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.91.0`.
+
+**Gotchas / decisões:**
+- Área + botão do popup têm o mesmo nome com 1 vencido (padrão herdado do aviso do
+  Whats): nos testes, `getAllByRole` + índice.
+- ids iguais no mesmo ms quebram testes de atualização: semear ids explícitos.
+
+---
 
 <a id="v09000"></a>
 ## 2026-10-05 — Bug: play silencioso com campo vazio (v0.90.0)

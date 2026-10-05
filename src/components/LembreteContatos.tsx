@@ -26,7 +26,7 @@ const LembreteContatos: React.FC<LembreteContatosProps> = ({
   const irPrimeiro = () => onIrParaContato(contatos[0].id);
 
   return (
-    <div className="fixed bottom-8 right-8 z-[300] animate-bounce print:hidden">
+    <div className="animate-bounce print:hidden">
       <div
         role="button"
         tabIndex={0}

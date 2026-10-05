@@ -9,7 +9,7 @@ import { Play, Image as ImageIcon, History, Eraser, Copy, Check } from 'lucide-r
 import { montarDescricaoWhats } from './utils/descricaoWhats';
 import FlyerHistoryModal from './components/FlyerHistoryModal';
 import TituloEditavel from '../components/TituloEditavel';
-import { adicionarAoFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
+import { adicionarAoFlyerHistorico, listarFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
 import { lerLayoutFlyer, salvarLayoutFlyer, type LayoutFlyer } from './utils/layoutFlyer';
 import SeletorLayoutFlyer from './components/SeletorLayoutFlyer';
 
@@ -23,7 +23,9 @@ const DEFAULT_INPUT = `265/60R18	MARCA/MODELO	À PRAZO 10x	À VISTA (10%)	ESTOQU
 
 const ESCALA_PREVIEW = 0.5;
 
-const TireFlyerApp: React.FC = () => {
+const TireFlyerApp: React.FC<{ abrirLembrete?: { id: string; vez: number } | null }> = ({
+  abrirLembrete = null,
+}) => {
   const [inputText, setInputText] = useState(DEFAULT_INPUT);
   const [promoData, setPromoData] = useState<PromoInfo>(parseInput(DEFAULT_INPUT));
   const [contato, setContato] = useState('');
@@ -38,6 +40,14 @@ const TireFlyerApp: React.FC = () => {
   useEffect(() => {
     salvarLayoutFlyer(layout);
   }, [layout]);
+
+  // Clique no aviso de lembrete: abre o flyer direto na tela.
+  useEffect(() => {
+    if (!abrirLembrete) return;
+    const rec = listarFlyerHistorico().find((r) => r.id === abrirLembrete.id);
+    if (rec) abrirDoHistorico(rec);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [abrirLembrete]);
 
   // Mede a altura real do flyer para o container do preview (reduzido pela
   // metade). Usa transform (não zoom): o zoom aninhado arredondava o

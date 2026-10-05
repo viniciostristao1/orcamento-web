@@ -1,6 +1,7 @@
 import type { QuoteSummary } from '../types';
 import { somenteDigitos } from './telefone';
 import { normalizarBusca } from './busca';
+import { avisarLembretesMudaram } from './lembretes';
 import { corDaBusca, type CorCliente } from './corCliente';
 
 /** Um orçamento salvo no histórico local do navegador. */
@@ -25,6 +26,9 @@ export interface OrcamentoSalvo {
   // Opcionais; entram na busca e no anti-duplicado, como placa/telefone.
   numeroOrcamento?: string;
   dataDoc?: string;
+  // Lembrete com data/hora (botão relógio do cartão; ISO "YYYY-MM-DDTHH:mm").
+  // Marcação posterior: não entra no anti-duplicado e o reprocessar preserva.
+  lembreteEm?: string | null;
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -83,9 +87,16 @@ export function adicionarAoHistorico(
 ): OrcamentoSalvo[] {
   const lista = listarHistorico();
   if (lista.length > 0 && mesmosDados(lista[0], novo)) {
-    // A cor é marcação posterior (não entra no anti-duplicado): reprocessar o
-    // mesmo orçamento não pode apagar a cor já marcada.
-    lista[0] = { ...lista[0], ...novo, cor: novo.cor ?? lista[0].cor, id: lista[0].id, criadoEm: lista[0].criadoEm };
+    // Cor e lembrete são marcações posteriores (não entram no anti-duplicado):
+    // reprocessar o mesmo orçamento não pode apagá-las.
+    lista[0] = {
+      ...lista[0],
+      ...novo,
+      cor: novo.cor ?? lista[0].cor,
+      lembreteEm: novo.lembreteEm ?? lista[0].lembreteEm,
+      id: lista[0].id,
+      criadoEm: lista[0].criadoEm,
+    };
     gravar(lista);
     return lista;
   }
@@ -112,6 +123,17 @@ export function removerDoHistorico(id: string): OrcamentoSalvo[] {
 export function atualizarCorHistorico(id: string, cor: CorCliente | undefined): OrcamentoSalvo[] {
   const out = listarHistorico().map((r) => (r.id === id ? { ...r, cor } : r));
   gravar(out);
+  return out;
+}
+
+/**
+ * Agenda/limpa o lembrete do registro (ISO "YYYY-MM-DDTHH:mm"; `null` limpa).
+ * Salva na hora e avisa o popup global.
+ */
+export function atualizarLembreteHistorico(id: string, lembreteEm: string | null): OrcamentoSalvo[] {
+  const out = listarHistorico().map((r) => (r.id === id ? { ...r, lembreteEm } : r));
+  gravar(out);
+  avisarLembretesMudaram();
   return out;
 }
 

@@ -8,7 +8,7 @@ import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import TituloEditavel from './TituloEditavel';
 import AtalhosDados from './AtalhosDados';
-import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
+import { adicionarAoHistorico, listarHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import SistemaCard from '../sistema/SistemaCard';
 import type { CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
@@ -23,9 +23,11 @@ interface OrcamentosAppProps {
   onAbrirHistorico: () => void;
   onIrParaSubAba: (abaId: string) => void;
   onBuscarNosDados: (termo: string, passo: 1 | -1, repor: boolean) => void;
+  /** Vindo do clique no aviso de lembrete: abre o orçamento direto. */
+  abrirLembrete?: { id: string; vez: number } | null;
 }
 
-const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados }) => {
+const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados, abrirLembrete = null }) => {
   // Último orçamento em edição (localStorage local). Sem rascunho, cai no exemplo.
   const [rascunho] = useState(lerRascunho);
   const [descReparo, setDescReparo] = useState<string>(() => rascunho?.descReparo ?? EXEMPLO_DESC);
@@ -56,6 +58,14 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   useEffect(() => {
     if (summary) salvarUltimoOrcamento({ summary, selecionados: [...selecionados] });
   }, [summary, selecionados]);
+
+  // Clique no aviso de lembrete: abre o orçamento direto na tela.
+  useEffect(() => {
+    if (!abrirLembrete) return;
+    const rec = listarHistorico().find((r) => r.id === abrirLembrete.id);
+    if (rec) abrirDoHistorico(rec);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [abrirLembrete]);
 
   const handleGenerate = () => {
     // Sem os dois campos não há o que somar: avisa em vez de sair em silêncio

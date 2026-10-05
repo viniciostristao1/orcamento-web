@@ -1,6 +1,7 @@
 import { somenteDigitos } from '../../utils/telefone';
 import { normalizarBusca } from '../../utils/busca';
 import { corDaBusca, type CorCliente } from '../../utils/corCliente';
+import { avisarLembretesMudaram } from '../../utils/lembretes';
 
 /** Um flyer salvo no histórico local do Tire Flyer. */
 export interface FlyerSalvo {
@@ -12,6 +13,8 @@ export interface FlyerSalvo {
   telefone?: string;
   /** Cor do cliente: verde = quer fazer em breve; vermelho = só pesquisou. */
   cor?: CorCliente;
+  /** Lembrete com data/hora (botão relógio do cartão; ISO "YYYY-MM-DDTHH:mm"). */
+  lembreteEm?: string | null;
   medida: string;
   /** A tabela colada (para reabrir o flyer). */
   inputText: string;
@@ -64,9 +67,9 @@ export function adicionarAoFlyerHistorico(
     (ultimo.contato ?? '') === (novo.contato ?? '') &&
     somenteDigitos(ultimo.telefone) === somenteDigitos(novo.telefone)
   ) {
-    // A cor é marcação posterior (não entra no anti-duplicado): reprocessar o
-    // mesmo flyer não pode apagar a cor já marcada.
-    lista[0] = { ...ultimo, ...novo, cor: novo.cor ?? ultimo.cor, id: ultimo.id, criadoEm: ultimo.criadoEm };
+    // Cor e lembrete são marcações posteriores (não entram no anti-duplicado):
+    // reprocessar o mesmo flyer não pode apagá-las.
+    lista[0] = { ...ultimo, ...novo, cor: novo.cor ?? ultimo.cor, lembreteEm: novo.lembreteEm ?? ultimo.lembreteEm, id: ultimo.id, criadoEm: ultimo.criadoEm };
     gravar(lista);
     return lista;
   }
@@ -93,6 +96,17 @@ export function removerDoFlyerHistorico(id: string): FlyerSalvo[] {
 export function atualizarCorFlyer(id: string, cor: CorCliente | undefined): FlyerSalvo[] {
   const out = listarFlyerHistorico().map((r) => (r.id === id ? { ...r, cor } : r));
   gravar(out);
+  return out;
+}
+
+/**
+ * Agenda/limpa o lembrete do flyer (ISO "YYYY-MM-DDTHH:mm"; `null` limpa).
+ * Salva na hora e avisa o popup global.
+ */
+export function atualizarLembreteFlyer(id: string, lembreteEm: string | null): FlyerSalvo[] {
+  const out = listarFlyerHistorico().map((r) => (r.id === id ? { ...r, lembreteEm } : r));
+  gravar(out);
+  avisarLembretesMudaram();
   return out;
 }
 

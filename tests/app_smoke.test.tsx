@@ -264,10 +264,10 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvos[0].medida).toBe('265/60R18');
     expect(salvos[0].criadoEm).toMatch(/\d{2}\/\d{2}\/\d{4}/);
 
-    // abre o histórico e pesquisa pelo contato (a contagem é de MARCAS, não de pneus)
+    // abre o histórico e pesquisa pelo contato
     fireEvent.click(screen.getByRole('button', { name: 'Histórico do Tire Flyer' }));
     expect(screen.getByText('JOAO ABC1D23')).toBeTruthy();
-    expect(screen.getByText(/\d+ marcas?/)).toBeTruthy();
+    expect(screen.getAllByText('265/60R18').length).toBeGreaterThanOrEqual(2); // flyer + cartão
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar por contato/i), {
       target: { value: 'abc-1d23' },
@@ -1651,5 +1651,66 @@ describe('App — smoke test (render + processar)', () => {
     } finally {
       alerta.mockRestore();
     }
+  });
+
+  it('relógio: agenda data/hora no cartão e mostra no lugar da contagem', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([registro('1', 'ABC1D23', '24/09/2026 12:30:00')]),
+    );
+    render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+
+    // sem contagem de itens; data do orçamento sem horário
+    expect(screen.queryByText(/1 item/)).toBeNull();
+    expect(screen.getByText('24/09/2026')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lembrete' }));
+    fireEvent.change(screen.getByLabelText('Data e hora do lembrete'), {
+      target: { value: '2026-10-12T09:00' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar lembrete' }));
+
+    const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+    expect(salvos[0].lembreteEm).toBe('2026-10-12T09:00');
+    expect(screen.getByText('12/10/2026 09:00')).toBeTruthy();
+
+    // limpar tira a data
+    fireEvent.click(screen.getByRole('button', { name: 'Lembrete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar lembrete' }));
+    expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].lembreteEm).toBeNull();
+  });
+
+  it('relógio: aviso vencido pisca, clica e abre o orçamento', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([{ ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), lembreteEm: '2020-01-01T09:00' }]),
+    );
+    render(<App />);
+    // área + botão do item têm o mesmo nome com 1 vencido (padrão do lembrete)
+    expect(screen.getAllByRole('button', { name: 'Ir para orçamento ABC1D23' })).toHaveLength(2);
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ir para orçamento ABC1D23' })[1]);
+    // abriu o orçamento na tela (recalculou a partir do registro)
+    expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
+    // ...e concluiu o lembrete (não pisca mais)
+    expect(screen.queryByRole('button', { name: 'Ir para orçamento ABC1D23' })).toBeNull();
+    expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].lembreteEm).toBeNull();
+  });
+
+  it('relógio: X dispensa o aviso do flyer sem apagar o lembrete', () => {
+    localStorage.setItem(
+      'flyer_historico_v1',
+      JSON.stringify([
+        { id: 'f1', criadoEm: '24/09/2026 12:30:00', contato: 'MARIA', medida: '205/55R16', inputText: 'a\nb', numMarcas: 1, lembreteEm: '2020-01-01T09:00' },
+      ]),
+    );
+    render(<App />);
+    fireEvent.click(screen.getByText('Tire Flyer'));
+    expect(screen.getAllByRole('button', { name: 'Ir para orçamento MARIA' })).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dispensar lembretes' }));
+    expect(screen.queryByRole('button', { name: 'Ir para orçamento MARIA' })).toBeNull();
+    // dispensar esconde; o lembrete continua salvo
+    expect(JSON.parse(localStorage.getItem('flyer_historico_v1') ?? '[]')[0].lembreteEm).toBe('2020-01-01T09:00');
   });
 });

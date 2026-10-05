@@ -4,8 +4,8 @@ import {
   type AbaHistorico,
   type OrcamentoSalvo,
   atualizarCorHistorico,
+  atualizarLembreteHistorico,
   baixarBackup,
-  contarItensDaDescricao,
   destacarTermo,
   filtrarHistorico,
   filtrarPorAba,
@@ -15,8 +15,10 @@ import {
   removerDoHistorico,
   temNaoRealizados,
 } from '../utils/historico';
+import { dataDoRegistro, formatarLembrete } from '../utils/lembretes';
 import { filtrarPorCor, type CorCliente, type FiltroCor } from '../utils/corCliente';
 import { MarcadorCor, SeloCor, classeBordaCor } from './CorCliente';
+import { BotaoRelogio, EditorLembrete } from './LembreteRelogio';
 import { formatCurrency, parseBrazilianNumber, processQuote, resumoAprovacao } from '../utils/quoteLogic';
 import BotaoWhats from './BotaoWhats';
 import HistoricoBase from './HistoricoBase';
@@ -34,6 +36,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
   const [busca, setBusca] = useState('');
   const [aba, setAba] = useState<AbaHistorico>('todos');
   const [filtroCor, setFiltroCor] = useState<FiltroCor>('todas');
+  // Registro com o editor de lembrete aberto (data/hora).
+  const [lembreteDe, setLembreteDe] = useState<string | null>(null);
   // Registro com a janelinha de itens aberta (descrição do reparo, linha a linha).
   const [itensDe, setItensDe] = useState<OrcamentoSalvo | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -46,6 +50,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
       setBusca('');
       setAba('todos');
       setFiltroCor('todas');
+      setLembreteDe(null);
       setItensDe(null);
     }
   }, [aberto]);
@@ -114,6 +119,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
   const handleMudarCor = (id: string, cor: CorCliente | undefined) => {
     setLista(atualizarCorHistorico(id, cor));
     setItensDe((atual) => (atual && atual.id === id ? { ...atual, cor } : atual));
+  };
+
+  // Agenda/limpa o lembrete do registro (salva na hora; avisa o popup global).
+  const handleLembrete = (id: string, iso: string | null) => {
+    setLista(atualizarLembreteHistorico(id, iso));
+    setLembreteDe(null);
   };
 
   return (
@@ -195,18 +206,20 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 : 'Nenhum orçamento encontrado.'
         }
       >
-        {visiveis.map((r) => {
-          const itens = r.numItens ?? contarItensDaDescricao(r.descReparo);
-          const descricao = r.descReparo.split('\n').filter((l) => l.trim()).join(' · ') || '(sem descrição)';
-          const grifado = busca.trim() ? destacarTermo(descricao, busca) : null;
-          return (
-          <div key={r.id} className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)}`}>
-            <div className="flex items-center justify-between gap-4 mb-2">
-              <span className="text-base font-black uppercase tracking-widest text-slate-500">
-                <SeloCor cor={r.cor} />
-                {r.criadoEm}
-                <span className="text-slate-600"> · </span>
-                <span className="text-blue-300">{itens} {itens === 1 ? 'item' : 'itens'}</span>
+          {visiveis.map((r) => {
+            const descricao = r.descReparo.split('\n').filter((l) => l.trim()).join(' · ') || '(sem descrição)';
+            const grifado = busca.trim() ? destacarTermo(descricao, busca) : null;
+            const lembreteFmt = formatarLembrete(r.lembreteEm);
+            return (
+            <div key={r.id} className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)}`}>
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <span className="text-base font-black uppercase tracking-widest text-slate-500">
+                  <SeloCor cor={r.cor} />
+                  {dataDoRegistro(r.criadoEm)}
+                  <span className="text-slate-600"> · </span>
+                  <span className={lembreteFmt ? 'text-amber-300' : 'text-slate-600'} title={lembreteFmt ? `Lembrete em ${lembreteFmt}` : 'Sem lembrete'}>
+                    {lembreteFmt ?? '—'}
+                  </span>
                 {r.placa ? (
                   <>
                     <span className="text-slate-600"> · </span>
@@ -238,9 +251,10 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   </>
                 ) : null}
               </span>
-              <div className="flex items-center gap-2">
-                <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
-                <BotaoWhats telefone={r.telefone} />
+                <div className="flex items-center gap-2">
+                  <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
+                  <BotaoRelogio lembreteEm={r.lembreteEm} onAbrir={() => setLembreteDe((d) => (d === r.id ? null : r.id))} />
+                  <BotaoWhats telefone={r.telefone} />
                 <button
                   type="button"
                   onClick={() => setItensDe(r)}
@@ -268,9 +282,18 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 >
                   <Trash2 size={15} />
                 </button>
+                </div>
               </div>
-            </div>
-            <p className="text-lg text-slate-100 font-normal line-clamp-2">
+              {lembreteDe === r.id && (
+                <EditorLembrete
+                  inicial={r.lembreteEm}
+                  temAtual={!!formatarLembrete(r.lembreteEm)}
+                  onConfirmar={(iso) => handleLembrete(r.id, iso)}
+                  onLimpar={() => handleLembrete(r.id, null)}
+                  onFechar={() => setLembreteDe(null)}
+                />
+              )}
+              <p className="text-lg text-slate-100 font-normal line-clamp-2">
               {grifado ? (
                 <>
                   {grifado[0]}
