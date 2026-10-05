@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.92.0](#v09200) — 2026-10-05 — Card redondo: +, sem números, telefone/nome (v0.92.0)
 - [v0.91.0](#v09100) — 2026-10-05 — Lembretes com data/hora nos históricos (v0.91.0)
 - [v0.90.0](#v09000) — 2026-10-05 — Bug: play silencioso com campo vazio (v0.90.0)
 - [v0.89.0](#v08900) — 2026-10-05 — Padrão 5%/6x, renumeração e Histórico no SISTEMA (v0.89.0)
@@ -150,6 +151,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09200"></a>
+## 2026-10-05 — Card redondo: +, sem números, telefone/nome (v0.92.0)
+
+**Pedido:** + ícone no lugar de "Novo arquivo", sem frase; Nº/Data/Telefone/Nome no
+card; "Usar no orçamento manual"; RESUMO abaixo do AJUSTES; sem números nos títulos.
+
+**Feito:** ações do card = [+][Histórico][borracha]; grid Nº/Data/Telefone + NOME abaixo;
+TELEFONE e NOME saíram do APROVADO (placa ficou só PLACA); NOME é campo próprio
+(histórico, busca, dedup, rascunho, borrachas); títulos sem números; direita =
+APROVADO, AJUSTES, RESUMO, DESCRIÇÃO. Rótulos da revisão viraram só DESCRIÇÃO e
+DADOS. Smoke e unidade atualizados.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**177/177 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.92.0`.
+
+---
 
 <a id="v09100"></a>
 ## 2026-10-05 — Lembretes com data/hora nos históricos (v0.91.0)

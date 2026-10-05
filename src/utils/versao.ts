@@ -3,4 +3,4 @@
  * Vendas"). Manter igual à `version` do package.json a cada release — serve
  * para confirmar qual arquivo o usuário está com aberto.
  */
-export const VERSAO = '0.91.0';
+export const VERSAO = '0.92.0';

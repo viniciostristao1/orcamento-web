@@ -149,8 +149,17 @@ describe('histórico (localStorage)', () => {
     expect(lista[0].cor).toBe('verde');
   });
 
-  it('numero/data do documento: entram na busca e no anti-duplicado', () => {
-    adicionarAoHistorico({ ...base, numeroOrcamento: '4471', dataDoc: '24/09/2026' });
+  it('nome: entra na busca e no anti-duplicado', () => {
+    adicionarAoHistorico({ ...base, nome: 'JOAO' });
+    adicionarAoHistorico({ ...base, nome: 'JOAO' });
+    expect(listarHistorico().length).toBe(1);
+    adicionarAoHistorico({ ...base, nome: 'MARIA' });
+    const lista = listarHistorico();
+    expect(lista.length).toBe(2);
+    expect(filtrarHistorico(lista, 'maria').length).toBe(1);
+  });
+
+  it('numero/data do documento: entram na busca e no anti-duplicado', () => {    adicionarAoHistorico({ ...base, numeroOrcamento: '4471', dataDoc: '24/09/2026' });
     adicionarAoHistorico({ ...base, numeroOrcamento: '4471', dataDoc: '24/09/2026' });
     expect(listarHistorico().length).toBe(1); // mesmo nº substitui
     adicionarAoHistorico({ ...base, numeroOrcamento: '4472', dataDoc: '24/09/2026' });

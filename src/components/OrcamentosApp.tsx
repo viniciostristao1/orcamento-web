@@ -37,6 +37,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 6);
   const [placa, setPlaca] = useState<string>(() => rascunho?.placa ?? "");
   const [telefone, setTelefone] = useState<string>(() => rascunho?.telefone ?? "");
+  const [nome, setNome] = useState<string>(() => rascunho?.nome ?? "");
   // Cabeçalho do orçamento do sistema (card 3): nº e data do documento.
   const [numero, setNumero] = useState<string>(() => rascunho?.numero ?? "");
   const [dataDoc, setDataDoc] = useState<string>(() => rascunho?.dataDoc ?? "");
@@ -51,8 +52,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   // Salva o rascunho enquanto o usuário edita (reabre com o que estava fazendo).
   useEffect(() => {
-    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc });
-  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc]);
+    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome });
+  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome]);
 
   // Mantém o último documento gerado salvo (inclusive a marcação dos itens).
   useEffect(() => {
@@ -72,7 +73,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     // (sem aviso o usuário acha que "não gerou": sem scroll e sem imagem).
     if (!descReparo.trim() || !orcamentoRaw.trim()) {
       alert(
-        'Preencha a DESCRIÇÃO (campo 3) e os DADOS (campo 2) — ou anexe o PDF/print no card 1 e clique em "Usar no orçamento".',
+        'Preencha a DESCRIÇÃO e os DADOS — ou anexe o PDF/print no card do sistema e clique em "Usar no orçamento manual".',
       );
       return;
     };
@@ -96,6 +97,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       telefone: telefone.trim(),
       numeroOrcamento: numero.trim(),
       dataDoc: dataDoc.trim(),
+      nome: nome.trim(),
       ...retratoDoResumo(result),
     });
     
@@ -113,6 +115,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setParcelas(r.parcelas);
     setPlaca(r.placa ?? '');
     setTelefone(r.telefone ?? '');
+    setNome(r.nome ?? '');
     setNumero(r.numeroOrcamento ?? '');
     setDataDoc(r.dataDoc ?? '');
     onFecharHistorico();
@@ -144,6 +147,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       telefone: telefone.trim(),
       numeroOrcamento: numero.trim(),
       dataDoc: dataDoc.trim(),
+      nome: nome.trim(),
       naoRealizados: visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id),
       ...retratoDoResumo(visivel),
     });
@@ -165,12 +169,12 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const visivel = summary ? recalcularComSelecao(summary, selecionados) : null;
 
   // Cabeçalho extraído do PDF/print: nº e data preenchem os próprios campos;
-  // PLACA/NOME e TELEFONE são escritos/sobrescritos (só quando veio conteúdo).
+  // PLACA, NOME e TELEFONE são escritos/sobrescritos (só quando veio conteúdo).
   const aplicarCabecalho = (c: CabecalhoOrcamento) => {
     if (c.numero.trim()) setNumero(c.numero.trim());
     if (c.data.trim()) setDataDoc(c.data.trim());
-    const contato = [c.placa.trim(), c.nome.trim()].filter(Boolean).join(' / ');
-    if (contato) setPlaca(contato);
+    if (c.placa.trim()) setPlaca(c.placa.trim());
+    if (c.nome.trim()) setNome(c.nome.trim());
     if (c.telefone.trim()) setTelefone(c.telefone.trim());
   };
 
@@ -190,9 +194,14 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               onNumero={setNumero}
               onDataDoc={setDataDoc}
               onCabecalho={aplicarCabecalho}
+              telefone={telefone}
+              nome={nome}
+              onTelefone={setTelefone}
+              onNome={setNome}
               onLimparContato={() => {
                 setPlaca('');
                 setTelefone('');
+                setNome('');
               }}
               onAbrirHistorico={onAbrirHistorico}
               onUsarTextos={(desc, dados) => {
@@ -202,7 +211,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             />
 
             <NeonCard
-              title="2. DADOS DO ORÇAMENTO"
+              title="DADOS DO ORÇAMENTO"
               borderColor="blue-600"
               compact
               actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}
@@ -218,7 +227,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           </div>
 
           {/* Coluna em flex: o RESUMO LÍQUIDO (mt-auto) encosta no fim da
-              coluna, rente ao final do card 2. */}
+              coluna, rente ao final da DESCRIÇÃO. */}
           <div className="flex gap-3 items-start min-w-0">
             {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO) + faixa de
                 atalhos ao lado, sem roubar a largura dos cards. */}
@@ -236,6 +245,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                     setParcelas(6);
                     setPlaca('');
                     setTelefone('');
+                    setNome('');
                   }}
                   label="Limpar aprovado e desconto"
                 />
@@ -328,45 +338,21 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">PLACA, NOME, CONTATO</label>
+                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">PLACA</label>
                   <div className="relative">
                     <input
                       type="text"
                       className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white uppercase tracking-wide focus:border-blue-500 outline-none"
                       value={placa}
                       onChange={(e) => setPlaca(e.target.value.toUpperCase())}
-                      placeholder="Ex.: ABC1D23 / JOÃO"
-                      maxLength={60}
+                      placeholder="Ex.: ABC1D23"
+                      maxLength={10}
                     />
                     <button
                       type="button"
                       onClick={() => setPlaca('')}
-                      aria-label="Limpar Placa, Nome, Contato"
-                      title="Limpar Placa, Nome, Contato"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
-                    >
-                      <Eraser size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">TELEFONE (DDD + NÚMERO)</label>
-                  <div className="relative">
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white tracking-wide focus:border-blue-500 outline-none"
-                      value={telefone}
-                      onChange={(e) => setTelefone(e.target.value)}
-                      placeholder="Ex.: 51 99999-9999"
-                      maxLength={20}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setTelefone('')}
-                      aria-label="Limpar Telefone"
-                      title="Limpar Telefone"
+                      aria-label="Limpar Placa"
+                      title="Limpar Placa"
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
                     >
                       <Eraser size={16} />
@@ -388,7 +374,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
             {/* Ajustes Manuais abaixo do APROVADO (mesma largura);
                 o campo mostra só 3 linhas (rows=3). */}
-            <NeonCard title="3. AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
+            <NeonCard title="AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
               <textarea 
                 rows={2}
                 className="w-full campo-tema border border-slate-800 rounded-2xl p-4 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
@@ -398,20 +384,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
 
-            <NeonCard
-              title="3. DESCRIÇÃO DO REPARO"
-              borderColor="blue-500"
-              compact
-              actions={<ClearButton onClick={() => setDescReparo('')} />}
-            >
-              <textarea 
-                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide" 
-                value={descReparo} 
-                onChange={(e) => setDescReparo(e.target.value)} 
-              />
-            </NeonCard>
-
-            {/* RESUMO LÍQUIDO logo abaixo do APROVADO E DESCONTO, em pares. */}
+            {/* RESUMO LÍQUIDO logo abaixo do AJUSTES, em pares. */}
             {visivel && (
               <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact className="mt-auto">
                 <div className="space-y-2">
@@ -438,6 +411,19 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 </div>
               </NeonCard>
             )}
+
+            <NeonCard
+              title="DESCRIÇÃO DO REPARO"
+              borderColor="blue-500"
+              compact
+              actions={<ClearButton onClick={() => setDescReparo('')} />}
+            >
+              <textarea 
+                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide" 
+                value={descReparo} 
+                onChange={(e) => setDescReparo(e.target.value)} 
+              />
+            </NeonCard>
             </div>
             <div className="w-[164px] shrink-0 pt-1">
                 {/* Atalhos para as sub-abas da aba Dados (fora das caixas). */}

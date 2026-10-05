@@ -26,6 +26,9 @@ export interface OrcamentoSalvo {
   // Opcionais; entram na busca e no anti-duplicado, como placa/telefone.
   numeroOrcamento?: string;
   dataDoc?: string;
+  // Nome do cliente (campo próprio no card do sistema).
+  // Entra na busca e no anti-duplicado, como os demais contatos.
+  nome?: string;
   // Lembrete com data/hora (botão relógio do cartão; ISO "YYYY-MM-DDTHH:mm").
   // Marcação posterior: não entra no anti-duplicado e o reprocessar preserva.
   lembreteEm?: string | null;
@@ -76,7 +79,8 @@ const mesmosDados = (a: OrcamentoSalvo, b: Omit<OrcamentoSalvo, 'id' | 'criadoEm
   (a.placa ?? '') === (b.placa ?? '') && // placa identifica o veículo: placa diferente = outro orçamento
   somenteDigitos(a.telefone) === somenteDigitos(b.telefone) && // telefone diferente = outro orçamento
   (a.numeroOrcamento ?? '') === (b.numeroOrcamento ?? '') &&
-  (a.dataDoc ?? '') === (b.dataDoc ?? '');
+  (a.dataDoc ?? '') === (b.dataDoc ?? '') &&
+  (a.nome ?? '').toUpperCase() === (b.nome ?? '').toUpperCase();
 
 /**
  * Salva um orçamento. Se o mais recente tiver os MESMOS dados, substitui
@@ -221,7 +225,7 @@ export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): Orcam
 }
 
 /**
- * Filtra o histórico por **data, placa (nome/contato), telefone, nº, cor ou item** —
+ * Filtra o histórico por **data, placa, nome, telefone, nº, cor ou item** —
  * busca "contém", sem acentos e ignorando separadores (ex.: buscar "freio" acha os
  * orçamentos com pastilhas de freio; útil na aba "Não Realizados"). Buscar "verde"
  * ou "vermelho" lista os registros marcados com essa cor. Termo vazio = tudo.
@@ -233,6 +237,7 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
   return lista.filter(
     (r) =>
       normalizarBusca(r.placa ?? '').includes(t) ||
+      normalizarBusca(r.nome ?? '').includes(t) ||
       normalizarBusca(r.telefone ?? '').includes(t) ||
       normalizarBusca(r.numeroOrcamento ?? '').includes(t) ||
       normalizarBusca(r.dataDoc ?? '').includes(t) ||

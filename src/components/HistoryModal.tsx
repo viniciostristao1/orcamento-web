@@ -226,6 +226,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                     <span className="text-amber-300">{r.placa}</span>
                   </>
                 ) : null}
+                {r.nome ? (
+                  <>
+                    <span className="text-slate-600"> · </span>
+                    <span className="text-sky-300">{r.nome}</span>
+                  </>
+                ) : null}
                 {r.telefone ? (
                   <>
                     <span className="text-slate-600"> · </span>

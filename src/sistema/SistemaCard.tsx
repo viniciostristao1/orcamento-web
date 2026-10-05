@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { ClipboardPaste, History } from 'lucide-react';
+import { ClipboardPaste, History, Plus } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import {
@@ -14,8 +14,12 @@ import { lerPrints } from './ocr';
 interface SistemaCardProps {
   numero: string;
   dataDoc: string;
+  telefone: string;
+  nome: string;
   onNumero: (v: string) => void;
   onDataDoc: (v: string) => void;
+  onTelefone: (v: string) => void;
+  onNome: (v: string) => void;
   /** Preenche placa (se vazia) com placa/nome extraídos. */
   onCabecalho: (c: CabecalhoOrcamento) => void;
   /** Limpa PLACA, NOME, CONTATO e TELEFONE (borracha do card). */
@@ -29,18 +33,22 @@ interface SistemaCardProps {
 const ehPdf = (f: File) => /\.pdf$/i.test(f.name) || f.type === 'application/pdf';
 
 /**
- * 1. ORÇAMENTO DO SISTEMA (PDF/PRINT): fluxo alternativo aos demais campos.
+ * ORÇAMENTO DO SISTEMA (PDF/PRINT): fluxo alternativo aos demais campos.
  * Anexar já extrai sozinho (PDF via pdf.js, imagens via OCR) e o resultado
  * SUBSTITUI o anterior — nunca soma com outro orçamento. Separa por seção
  * (itens → DADOS, reclamações → DESCRIÇÃO, resto ignorado), mostra para revisão
- * com o cabeçalho detectado (número, placa, nome, data) e, no clique, preenche
- * os campos 3 e 2. A soma continua a mesma lógica — nada muda no cálculo nem no PNG.
+ * com o cabeçalho detectado (número, data, telefone, nome) e, no clique,
+ * preenche DESCRIÇÃO e DADOS. A soma continua a mesma lógica.
  */
 const SistemaCard: React.FC<SistemaCardProps> = ({
   numero,
   dataDoc,
+  telefone,
+  nome,
   onNumero,
   onDataDoc,
+  onTelefone,
+  onNome,
   onCabecalho,
   onLimparContato,
   onAbrirHistorico,
@@ -125,11 +133,29 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
 
   return (
     <NeonCard
-      title="1. ORÇAMENTO DO SISTEMA (PDF/PRINT)"
+      title="ORÇAMENTO DO SISTEMA (PDF/PRINT)"
       borderColor="blue-500"
       compact
       actions={
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={ocupado}
+            aria-label="Novo arquivo"
+            title="Novo arquivo (extrai na hora)"
+            className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
+          >
+            <Plus size={18} />
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg"
+            multiple
+            className="hidden"
+            onChange={escolher}
+          />
           <button
             type="button"
             onClick={onAbrirHistorico}
@@ -144,31 +170,6 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
       }
     >
       <div className="space-y-3">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 leading-relaxed">
-          Alternativa aos campos 1 e 2: anexe o PDF do sistema ou prints e o texto é extraído na hora.
-        </p>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={ocupado}
-            aria-label="Novo arquivo"
-            title="Novo arquivo (extrai na hora)"
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95 text-xs font-black uppercase tracking-widest"
-          >
-            Novo arquivo
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pdf,.png,.jpg,.jpeg"
-            multiple
-            className="hidden"
-            onChange={escolher}
-          />
-        </div>
-
         {(estado || msg) && (
           <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
             {estado || msg}
@@ -176,7 +177,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         )}
 
         {/* Cabeçalho detectado (editável; vai para o histórico na hora de processar) */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1">
             <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Nº orçamento</label>
             <input
@@ -185,7 +186,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
               onChange={(e) => onNumero(e.target.value)}
               placeholder="Ex.: 4471"
               maxLength={20}
-              className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2 text-base font-bold text-white focus:border-blue-500 outline-none"
+              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:border-blue-500 outline-none"
             />
           </div>
           <div className="space-y-1">
@@ -196,13 +197,37 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
               onChange={(e) => onDataDoc(e.target.value)}
               placeholder="Ex.: 24/09/2026"
               maxLength={10}
-              className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2 text-base font-bold text-white focus:border-blue-500 outline-none"
+              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:border-blue-500 outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Telefone</label>
+            <input
+              type="tel"
+              inputMode="numeric"
+              value={telefone}
+              onChange={(e) => onTelefone(e.target.value)}
+              placeholder="Ex.: 51 99999-9999"
+              maxLength={20}
+              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:border-blue-500 outline-none"
             />
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Descrição extraída (vai para o campo 3)</label>
+          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Nome</label>
+          <input
+            type="text"
+            value={nome}
+            onChange={(e) => onNome(e.target.value.toUpperCase())}
+            placeholder="Ex.: JOÃO DA SILVA"
+            maxLength={60}
+            className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DESCRIÇÃO</label>
           <textarea
             value={extraidoDesc}
             onChange={(e) => setExtraidoDesc(e.target.value)}
@@ -214,7 +239,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Dados extraídos (vão para o campo 2)</label>
+          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DADOS</label>
           <textarea
             value={extraidoDados}
             onChange={(e) => setExtraidoDados(e.target.value)}
@@ -230,15 +255,15 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           onClick={() => {
             if (!temTexto) return;
             onUsarTextos(extraidoDesc, extraidoDados);
-            setMsg('Preenchido nos campos 3 e 2 — confira e clique em Processar Tudo.');
+            setMsg('Preenchido na DESCRIÇÃO e nos DADOS — confira e clique em Processar Tudo.');
           }}
           disabled={!temTexto || ocupado}
-          aria-label="Usar no orçamento"
-          title="Usar no orçamento"
+          aria-label="Usar no orçamento manual"
+          title="Usar no orçamento manual"
           className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-black py-3 rounded-xl shadow-2xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
         >
           <ClipboardPaste size={20} />
-          Usar no orçamento
+          Usar no orçamento manual
         </button>
       </div>
     </NeonCard>
