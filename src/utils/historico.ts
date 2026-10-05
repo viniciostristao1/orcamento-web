@@ -21,6 +21,10 @@ export interface OrcamentoSalvo {
   // Cor do cliente: verde = quer fazer em breve; vermelho = só pesquisou.
   // Marcada no histórico, depois de gerar (não entra no PNG nem no anti-duplicado).
   cor?: CorCliente;
+  // Nº do orçamento + data do documento (card 3: extraídos do PDF/print).
+  // Opcionais; entram na busca e no anti-duplicado, como placa/telefone.
+  numeroOrcamento?: string;
+  dataDoc?: string;
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -66,7 +70,9 @@ const mesmosDados = (a: OrcamentoSalvo, b: Omit<OrcamentoSalvo, 'id' | 'criadoEm
   a.desconto === b.desconto &&
   a.parcelas === b.parcelas &&
   (a.placa ?? '') === (b.placa ?? '') && // placa identifica o veículo: placa diferente = outro orçamento
-  somenteDigitos(a.telefone) === somenteDigitos(b.telefone); // telefone diferente = outro orçamento
+  somenteDigitos(a.telefone) === somenteDigitos(b.telefone) && // telefone diferente = outro orçamento
+  (a.numeroOrcamento ?? '') === (b.numeroOrcamento ?? '') &&
+  (a.dataDoc ?? '') === (b.dataDoc ?? '');
 
 /**
  * Salva um orçamento. Se o mais recente tiver os MESMOS dados, substitui
@@ -193,7 +199,7 @@ export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): Orcam
 }
 
 /**
- * Filtra o histórico por **data, placa (nome/contato), telefone, cor ou item** —
+ * Filtra o histórico por **data, placa (nome/contato), telefone, nº, cor ou item** —
  * busca "contém", sem acentos e ignorando separadores (ex.: buscar "freio" acha os
  * orçamentos com pastilhas de freio; útil na aba "Não Realizados"). Buscar "verde"
  * ou "vermelho" lista os registros marcados com essa cor. Termo vazio = tudo.
@@ -206,6 +212,8 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
     (r) =>
       normalizarBusca(r.placa ?? '').includes(t) ||
       normalizarBusca(r.telefone ?? '').includes(t) ||
+      normalizarBusca(r.numeroOrcamento ?? '').includes(t) ||
+      normalizarBusca(r.dataDoc ?? '').includes(t) ||
       normalizarBusca(r.criadoEm).includes(t) ||
       normalizarBusca(r.descReparo).includes(t) ||
       (corBuscada !== null && r.cor === corBuscada),

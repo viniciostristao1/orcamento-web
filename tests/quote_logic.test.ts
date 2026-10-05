@@ -98,6 +98,31 @@ describe('processQuote — exemplo do App (Hilux)', () => {
   });
 });
 
+describe('processQuote — texto do sistema (PDF/print, sem acento)', () => {
+  const s = processQuote(
+    '01 TESTE',
+    [
+      'ORCAMENTO No 4471',
+      'CLIENTE: JOAO',
+      '1 Peca X 1 100,00',
+      '1 Servico Y 1 50,00',
+    ].join('\n'),
+    0,
+    0,
+    0,
+    1,
+  );
+
+  it('"Peca" sem acento soma em peças (igual "Peça")', () => {
+    expect(s.items[0].pecasValue).toBeCloseTo(100, 2);
+    expect(s.items[0].servicosValue).toBeCloseTo(50, 2);
+  });
+
+  it('linhas de cabeçalho (sem ID numérico) não viram valor', () => {
+    expect(s.totalOrcamento).toBeCloseTo(150, 2); // 4471 do cabeçalho fica de fora
+  });
+});
+
 describe('processQuote — ajustes manuais e descrição solta', () => {
   it('ajuste manual soma em peças do ID', () => {
     const s = processQuote('1 DISCO', '1 Peça X 1 100,00', 0, 0, 0, 1, '1 50,00');

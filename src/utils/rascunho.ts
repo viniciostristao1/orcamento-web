@@ -8,6 +8,8 @@ export interface RascunhoOrcamento {
   parcelas: number;
   placa: string;
   telefone: string;
+  numero: string;
+  dataDoc: string;
 }
 
 export const RASCUNHO_KEY = 'orcamento_rascunho_v1';
@@ -33,6 +35,8 @@ export const lerRascunho = (): RascunhoOrcamento | null => {
       parcelas: typeof d.parcelas === 'number' ? d.parcelas : 3,
       placa: typeof d.placa === 'string' ? d.placa : '',
       telefone: typeof d.telefone === 'string' ? d.telefone : '',
+      numero: typeof d.numero === 'string' ? d.numero : '',
+      dataDoc: typeof d.dataDoc === 'string' ? d.dataDoc : '',
     };
   } catch {
     return null;

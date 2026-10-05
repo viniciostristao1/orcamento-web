@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.84.0](#v08400) — 2026-10-05 — Orçamento do sistema em PDF/print (v0.84.0)
 - [v0.83.0](#v08300) — 2026-10-05 — Abas em âmbar só no tema grafite (v0.83.0)
 - [Ideias de cor das abas superiores (sem versão — mockups)](#bloco-ideias-abas) — Ideias de cor das abas superiores (sem versão — mockups)
 - [v0.82.0](#v08200) — 2026-10-05 — Cadeado com senha + históricos mais altos (v0.82.0)
@@ -142,6 +143,38 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v08400"></a>
+## 2026-10-05 — Orçamento do sistema em PDF/print (v0.84.0)
+
+**Pedido:** anexar PDF ou prints do orçamento do sistema, somando como os campos 1 e 2;
+transição com os dois fluxos funcionando.
+
+**Feito:** card 3 opcional (`sistema/`): pdf.js embutido (linhas por Y) + OCR tesseract
+embutido (1+ prints, português inline) + cabeçalho auto (nº/placa/nome/data, editável;
+nº e data no histórico com busca) + revisão antes de virar DADOS. Transição garantida:
+campos 1 e 2 intactos. Verificação ponta a ponta de verdade (CDP + Chrome headless +
+PDF/PNG gerados): PDF com 2 páginas, OCR do print, soma, nº no histórico, 0 erros JS.
+
+**Achados da verificação (corrigidos):**
+- `Peca` sem acento caía em Serviços (zerava peças/desconto) → parser aceita sem
+  acento; linhas sem ID numérico (cabeçalho) são ignoradas.
+- Fetch do idioma no worker com URL relativa quebrava o OCR → idioma via Blob
+  (vale no dev e no build).
+- Rolldown/Vite 8 não trata `.gz` como asset → `assetsInclude` no `vite.config.ts`.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**161/161 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB — pdf.js +
+tesseract + português embutidos — 0 refs externas). Selo `v0.84.0`.
+
+**Gotchas / decisões:**
+- Sem PDF real do sistema em mãos: cabeçalho por rótulos genéricos + revisão obrigatória;
+  mandar exemplo real se nº/placa/nome/data desalinharem (itera na próxima).
+- OCR é lento na 1ª vez (parse do wasm+idioma); prints limpos e grandes leem melhor.
+- `?raw` (workers/núcleo como string) + asset base64 (idioma) + Blob URLs = offline total.
+- Teste do nº com "No" (sem º): regex com lookbehind para não casar "PLANO 123".
+
+---
 
 <a id="v08300"></a>
 ## 2026-10-05 — Abas em âmbar só no tema grafite (v0.83.0)

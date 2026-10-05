@@ -1584,4 +1584,14 @@ describe('App — smoke test (render + processar)', () => {
       localStorage.removeItem('app_bloqueio_senha_v1');
     }
   });
+
+  it('orçamento do sistema: card 3 renderiza com PDF/OCR e usar-como-dados', () => {
+    render(<App />);
+    expect(screen.getByRole('heading', { name: '3. ORÇAMENTO DO SISTEMA (PDF/PRINT)' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Escolher PDF ou prints' })).toBeTruthy();
+    // sem arquivos, extração desabilitada
+    expect((screen.getByRole('button', { name: 'Extrair texto do PDF' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Ler prints (OCR)' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Usar como dados do orçamento' }) as HTMLButtonElement).disabled).toBe(true);
+  });
 });

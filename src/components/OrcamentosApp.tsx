@@ -9,6 +9,8 @@ import ClearButton from './ClearButton';
 import TituloEditavel from './TituloEditavel';
 import AtalhosDados from './AtalhosDados';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
+import SistemaCard from '../sistema/SistemaCard';
+import type { CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
 import { lerUltimoOrcamento, salvarUltimoOrcamento } from '../utils/ultimoOrcamento';
 
@@ -33,6 +35,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 3);
   const [placa, setPlaca] = useState<string>(() => rascunho?.placa ?? "");
   const [telefone, setTelefone] = useState<string>(() => rascunho?.telefone ?? "");
+  // Cabeçalho do orçamento do sistema (card 3): nº e data do documento.
+  const [numero, setNumero] = useState<string>(() => rascunho?.numero ?? "");
+  const [dataDoc, setDataDoc] = useState<string>(() => rascunho?.dataDoc ?? "");
   // Último documento gerado: reabre o app já com o visual do orçamento na tela.
   const [ultimo] = useState(lerUltimoOrcamento);
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
@@ -44,8 +49,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   // Salva o rascunho enquanto o usuário edita (reabre com o que estava fazendo).
   useEffect(() => {
-    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone });
-  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone]);
+    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc });
+  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc]);
 
   // Mantém o último documento gerado salvo (inclusive a marcação dos itens).
   useEffect(() => {
@@ -72,6 +77,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       parcelas,
       placa: placa.trim(),
       telefone: telefone.trim(),
+      numeroOrcamento: numero.trim(),
+      dataDoc: dataDoc.trim(),
       ...retratoDoResumo(result),
     });
     
@@ -89,6 +96,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setParcelas(r.parcelas);
     setPlaca(r.placa ?? '');
     setTelefone(r.telefone ?? '');
+    setNumero(r.numeroOrcamento ?? '');
+    setDataDoc(r.dataDoc ?? '');
     onFecharHistorico();
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
@@ -116,6 +125,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       parcelas,
       placa: placa.trim(),
       telefone: telefone.trim(),
+      numeroOrcamento: numero.trim(),
+      dataDoc: dataDoc.trim(),
       naoRealizados: visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id),
       ...retratoDoResumo(visivel),
     });
@@ -135,6 +146,17 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   };
 
   const visivel = summary ? recalcularComSelecao(summary, selecionados) : null;
+
+  // Cabeçalho extraído do PDF/print: nº e data preenchem os próprios campos;
+  // placa/nome completam o campo livre só quando ele está vazio.
+  const aplicarCabecalho = (c: CabecalhoOrcamento) => {
+    if (c.numero.trim()) setNumero(c.numero.trim());
+    if (c.data.trim()) setDataDoc(c.data.trim());
+    setPlaca((atual) => {
+      if (atual.trim()) return atual;
+      return [c.placa.trim(), c.nome.trim()].filter(Boolean).join(' / ');
+    });
+  };
 
   return (
     <>
@@ -180,6 +202,15 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 wrap="off" 
               />
             </NeonCard>
+
+            <SistemaCard
+              numero={numero}
+              dataDoc={dataDoc}
+              onNumero={setNumero}
+              onDataDoc={setDataDoc}
+              onCabecalho={aplicarCabecalho}
+              onUsarTexto={setOrcamentoRaw}
+            />
             
           </div>
 

@@ -56,14 +56,17 @@ export const processQuote = (
     const parts = trimmed.split(/\s+/).filter(p => p.length > 0);
     if (parts.length < 3) return;
     
-    const id = parseInt(parts[0], 10).toString();
-    const tipo = parts[1].toLowerCase();
+    const idNum = parseInt(parts[0], 10);
+    if (isNaN(idNum)) return; // cabeçalho do sistema (nº, cliente…) não é item
+    const id = idNum.toString();
+    // Sem acento também vale ("Peca" do OCR = "Peça").
+    const tipo = parts[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const valorStr = parts[parts.length - 1]; 
     const valor = parseBrazilianNumber(valorStr);
     
     if (!isNaN(valor)) {
       if (!valoresPorItem[id]) valoresPorItem[id] = { pecas: 0, servicos: 0 };
-      if (tipo.includes('peça')) valoresPorItem[id].pecas += valor;
+      if (tipo.includes('peca')) valoresPorItem[id].pecas += valor;
       else valoresPorItem[id].servicos += valor;
     }
   });

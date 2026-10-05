@@ -80,9 +80,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **151 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **161 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
-  (`tests/versao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
+  (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
   flyer (`tests/flyer_historico.test.ts`), dados (`tests/dados.test.ts`), backup
   (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
@@ -208,7 +208,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   conteúdo de DADOS DA TABELA** (`text-lg`, peso normal, `leading-relaxed` e
   `font-family: var(--tema-fonte-conteudo)` inline — o CSS global aplica esse token em
   `textarea/input/select`, então `.font-mono` da textarea é sobreposto e vale Inter).
-- Build de arquivo único **validado** (`dist/index.html` ~1,26 MB, CSS+JS+fontes embutidos, sem
+- Build de arquivo único **validado** (`dist/index.html` ~16 MB desde a v0.84.0 —
+  pdf.js + tesseract + português embutidos; era ~1,3 MB — CSS+JS+fontes embutidos, sem
   referências externas).
 - **Campo Placa** (v0.2.3): input abaixo de **Parcelas** (maiúsculas, máx. 8) que vai para o
   histórico; **não** entra no PNG/tabela de saída (decisão do usuário). No histórico aparece
@@ -439,6 +440,11 @@ orcamento_web/
     tire/utils/marcas.ts     getBrandStyle (cores por marca)
     tire/utils/descricaoWhats.ts texto COPIAR PNEUS (medida + marcas)
     tire/types.ts            TireData / PromoInfo
+    sistema/SistemaCard.tsx  card 3 (PDF/print → revisão → DADOS; nº/data)
+    sistema/extracao.ts      puro: linhas do PDF + normalizar + cabeçalho
+    sistema/pdf.ts           pdf.js via Blob (offline) + texto por página
+    sistema/ocr.ts           tesseract via Blob + fetch do idioma interceptado
+    sistema/por.traineddata.gz português do OCR (base64 no build)
     dados/DadosApp.tsx       tela da aba Dados (sub-abas + busca + grifo)
     dados/components/OrdenarTabela.tsx janelinha "Ordenar por coluna"
     dados/utils/tabelas.ts   modelo { abas, ordem } + seleção em grade + ordenar + notas
@@ -560,6 +566,15 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Abas em âmbar no grafite** (v0.83.0): ideia 01 de `ideias/abas-cores.md` (ativa âmbar
   cheia + letra preta, demais em fantasma âmbar) aplicada **só com `tema === 'grafite'`**
   (`App.tsx`: `abaAtiva`/`abaNormal`); os demais temas seguem azuis.
+- **Orçamento do sistema em PDF/print** (v0.84.0): card **3. ORÇAMENTO DO SISTEMA
+  (PDF/PRINT)** na aba Orçamentos, alternativo aos campos 1 e 2 (que seguem iguais).
+  Extrai o texto — PDF via `pdfjs-dist` embutido (linhas reconstruídas por coordenada Y,
+  resolve o "colou tudo numa linha"); prints via OCR `tesseract.js` embutido
+  (português `por.traineddata.gz` inline; worker/núcleo via Blob — 100% offline).
+  Cabeçalho detectado (nº, placa, nome, data) preenche nº/data e completa placa/nome;
+  nº e data entram no histórico (busca + anti-duplicado). Fluxo sempre com revisão:
+  o texto cai para conferência e só vira DADOS no clique — a soma é a mesma lógica
+  (que passou a aceitar `Peca` sem acento e ignora linhas de cabeçalho sem ID).
 
 ## 8. Pendências
 

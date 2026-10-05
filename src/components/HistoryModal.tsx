@@ -155,7 +155,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
         tituloBusca="Pesquisar"
         busca={busca}
         onBusca={setBusca}
-        placeholderBusca="Pesquisar por data, placa, telefone, cor ou item… (ex.: 24/09, ABC1D23, verde, freio)"
+        placeholderBusca="Pesquisar por data, placa, telefone, nº, cor ou item… (ex.: 24/09, ABC1D23, 4471, freio)"
         totalVisiveis={visiveis.length}
         totalLista={lista.length}
         faixaExtras={
@@ -217,6 +217,18 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   <>
                     <span className="text-slate-600"> · </span>
                     <span className="text-green-300">{r.telefone}</span>
+                  </>
+                ) : null}
+                {r.numeroOrcamento ? (
+                  <>
+                    <span className="text-slate-600"> · </span>
+                    <span className="text-violet-300">Nº {r.numeroOrcamento}</span>
+                  </>
+                ) : null}
+                {r.dataDoc ? (
+                  <>
+                    <span className="text-slate-600"> · </span>
+                    <span className="text-slate-400">{r.dataDoc}</span>
                   </>
                 ) : null}
                 {temNaoRealizados(r) ? (
