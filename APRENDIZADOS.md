@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [Ideias de cor das abas superiores (sem versão — mockups)](#bloco-ideias-abas) — Ideias de cor das abas superiores (sem versão — mockups)
 - [v0.82.0](#v08200) — 2026-10-05 — Cadeado com senha + históricos mais altos (v0.82.0)
 - [v0.81.0](#v08100) — 2026-10-05 — Execução das melhorias da varredura (v0.81.0)
 - [v0.80.0](#v08000) — 2026-10-05 — Varredura: pontas soltas, limpeza e docs (v0.80.0)
@@ -140,6 +141,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="bloco-ideias-abas"></a>
+## Ideias de cor das abas superiores (sem versão — mockups)
+
+**Pedido:** link com 10 ideias de cor para os botões das abas superiores (usuário sugeriu
+âmbar + fonte preta).
+
+**Feito:** `ideias/abas-cores.md` + 10 PNGs (`abas-c01..c10`, PIL + Inter ExtraBold, fundo
+`#020617`): 01 âmbar+preta (sugestão do usuário), 02 verde, 03 vermelho, 04 violeta,
+05 grafite claro, 06 laranja, 07 ciano, 08 rosa, 09 lima+preta, 10 papel. Cada imagem mostra
+a aba ativa preenchida + demais em fantasma. Link enviado (blob do GitHub, sem release —
+app não mudou, versão continua `0.82.0`).
+
+---
 
 <a id="v08200"></a>
 ## 2026-10-05 — Cadeado com senha + históricos mais altos (v0.82.0)
