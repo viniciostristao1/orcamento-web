@@ -1,8 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import { VERSAO } from '../src/utils/versao';
-// @ts-expect-error — JSON sem tipos: o tsconfig cobre só `src`, então o
-// typecheck não passa por aqui; o vitest resolve o JSON em runtime.
 import pkg from '../package.json';
 
 /**

@@ -2,9 +2,188 @@
 
 Diário técnico do projeto: cada bloco de trabalho anexa aqui **o que foi feito, decisões e
 gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/config.
+O [índice de versões](#indice-de-versoes) lista todos os blocos.
+
+---
+<!-- INDICE-VERSOES-INICIO -->
+<a id="indice-de-versoes"></a>
+
+## Índice de versões
+
+- [v0.81.0](#v08100) — 2026-10-05 — Execução das melhorias da varredura (v0.81.0)
+- [v0.80.0](#v08000) — 2026-10-05 — Varredura: pontas soltas, limpeza e docs (v0.80.0)
+- [v0.79.0](#v07900) — 2026-10-05 — Cor do cliente nos históricos: verde/vermelho (v0.79.0)
+- [v0.78.0](#v07800) — 2026-10-05 — Telefone + botão WhatsApp nos históricos (v0.78.0)
+- [v0.77.0](#v07700) — 2026-10-02 — Whats: Novo Contato + Relatório um pouco mais largos (v0.77.0)
+- [v0.76.0](#v07600) — 2026-10-02 — Relatório de Envios mais largo (v0.76.0)
+- [v0.75.0](#v07500) — 2026-10-02 — Whats mais estreito (v0.75.0)
+- [v0.74.0](#v07400) — 2026-10-02 — Abas superiores iguais às sub-abas (v0.74.0)
+- [v0.73.0](#v07300) — 2026-10-02 — Logo Toyota azul no tema claro (v0.73.0)
+- [v0.72.0](#v07200) — 2026-10-02 — Tire Flyer: COPIAR PNEUS abaixo do CONTATO (v0.72.0)
+- [v0.71.0](#v07100) — 2026-10-02 — Sub-abas: minimizada fantasma azul (v0.71.0)
+- [v0.70.0](#v07000) — 2026-10-02 — Excluir pede confirmação no histórico (v0.70.0)
+- [v0.69.0](#v06900) — 2026-10-02 — Clique simples sem pintar a célula (v0.69.0)
+- [v0.68.0](#v06800) — 2026-10-02 — Sub-abas mais baixas (v0.68.0)
+- [v0.67.0](#v06700) — 2026-10-02 — Scripts Pneus/Revisão sem negrito (v0.67.0)
+- [v0.66.0](#v06600) — 2026-10-02 — Sub-abas na medida dos títulos + botões proporcionais (v0.66.0)
+- [v0.65.0](#v06500) — 2026-10-02 — Ordenar entende data + autocompletar na coluna (v0.65.0)
+- [v0.64.0](#v06400) — 2026-10-02 — Lupa limpa sozinha após 1 min (v0.64.0)
+- [v0.63.0](#v06300) — 2026-10-02 — Grifo do cabeçalho alinhado + grifo na nota (v0.63.0)
+- [v0.62.0](#v06200) — 2026-10-01 — Resumos dos históricos em branco (v0.62.0)
+- [v0.61.0](#v06100) — 2026-10-01 — Grifo no lugar certo com acentos + mesma fonte do input (v0.61.0)
+- [v0.60.0](#v06000) — 2026-10-01 — X de Dados limpa atalho + DESCRIÇÃO sem scrollbar (v0.60.0)
+- [v0.59.0](#v05900) — 2026-10-01 — Grifo sem pintar a célula (v0.59.0)
+- [v0.58.0](#v05800) — 2026-10-01 — Lupa leva o foco para os Dados (v0.58.0)
+- [v0.57.0](#v05700) — 2026-10-01 — Lupa pula ao digitar, X limpa, grifo só no termo (v0.57.0)
+- [v0.56.0](#v05600) — 2026-10-01 — Lupa do atalho avança no Enter + feedback ao digitar (v0.56.0)
+- [v0.55.0](#v05500) — 2026-10-01 — Faixa 164px + lupa pesquisa nos Dados (v0.55.0)
+- [v0.54.0](#v05400) — 2026-10-01 — Esquerda ~425px + faixa 148px (v0.54.0)
+- [v0.53.0](#v05300) — 2026-10-01 — Tabela preenche o cartão, sem vão à direita (v0.53.0)
+- [v0.52.0](#v05200) — 2026-10-01 — Botões subir/descer tabela na aba Dados (v0.52.0)
+- [v0.51.0](#v05100) — 2026-10-01 — Esquerda ~461px (v0.51.0)
+- [v0.50.0](#v05000) — 2026-10-01 — Esquerda ~501px + faixa 132px (v0.50.0)
+- [v0.49.0](#v04900) — 2026-10-01 — Coluna esquerda bem mais estreita (v0.49.0)
+- [v0.48.0](#v04800) — 2026-10-01 — Selo de versão no cabeçalho (v0.48.0)
+- [v0.47.0](#v04700) — 2026-10-01 — Coluna esquerda mais estreita + botões de atalho maiores (v0.47.0)
+- [v0.46.0](#v04600) — 2026-10-01 — Faixa de atalhos fora da largura dos cards (v0.46.0)
+- [v0.45.0](#v04500) — 2026-10-01 — APROVADO E DESCONTO com largura original + faixa ao lado (v0.45.0)
+- [v0.44.0](#v04400) — 2026-10-01 — SUB ATALHOS ao lado do APROVADO E DESCONTO (v0.44.0)
+- [v0.43.0](#v04300) — 2026-10-01 — Lembrete menor/todo clicável + SUB ATALHOS p/ sub-abas de Dados (v0.43.0)
+- [v0.42.0](#v04200) — 2026-10-01 — Lembrete global vinculado aos contatos de hoje (v0.42.0)
+- [v0.41.0](#v04100) — 2026-10-01 — Lembrete de disparo configurável na aba Whats (v0.41.0)
+- [v0.40.0](#v04000) — 2026-10-01 — Histórico mostra os itens em duas linhas (v0.40.0)
+- [v0.39.0](#v03900) — 2026-10-01 — Títulos internos padrão NeonCard + sub-abas Dados padrão cabeçalho (v0.39.0)
+- [v0.38.0](#v03800) — 2026-09-29 — Títulos das abas menores + lista desliga removendo a bolinha (v0.38.0)
+- [v0.37.0](#v03700) — 2026-09-29 — Lista da nota na linha do cursor + barra maior (v0.37.0)
+- [v0.36.0](#v03600) — 2026-09-29 — Clique edita a nota e alça de 6 pontinhos reordena (até entre tabelas) (v0.36.0)
+- [v0.35.0](#v03500) — 2026-09-29 — Nota sem negrito, ícone de lista e DESCRIÇÃO = DADOS DO ORÇAMENTO (v0.35.0)
+- [v0.34.0](#v03400) — 2026-09-29 — Notas na aba Dados, data antes do nome e fonte da descrição (v0.34.0)
+- [v0.33.0](#v03300) — 2026-09-29 — Enter na última linha da tabela cria linha nova (v0.33.0)
+- [v0.32.0](#v03200) — 2026-09-29 — Itens do orçamento com valores/resumo e descrição do flyer (v0.32.0)
+- [v0.31.0](#v03100) — 2026-09-29 — Abas sem contagem, títulos no tamanho do orçamento e células menores (v0.31.0)
+- [v0.30.0](#v03000) — 2026-09-29 — Whats: janelinhas de observação e mensagem no cartão (v0.30.0)
+- [v0.29.0](#v02900) — 2026-09-28 — Flyer "MARCAS", temas removidos, técnico sem negrito e TAB/Enter (v0.29.0)
+- [v0.28.0](#v02800) — 2026-09-28 — Dados: contador na busca; Whats: cartão compacto com lista (v0.28.0)
+- [v0.27.0](#v02700) — 2026-09-28 — Dados: busca com Enter (N de M) + células na fonte do orçamento (v0.27.0)
+- [v0.26.0](#v02600) — 2026-09-28 — Dados: Ctrl+X/Delete no bloco + barra de baixo sob a última coluna (v0.26.0)
+- [v0.25.1](#v02501) — 2026-09-28 — Dados: excluir tabela na barra de baixo + dica removida (v0.25.1)
+- [v0.25.0](#v02500) — 2026-09-28 — Dados: adicionar coluna no cabeçalho + espaçamento das ações da linha (v0.25.0)
+- [v0.24.1](#v02401) — 2026-09-28 — Ajustes de texto nos flyers (v0.24.1)
+- [v0.24.0](#v02400) — 2026-09-28 — Dados: ordenar por coluna + ajustes na seleção (v0.24.0)
+- [v0.23.0](#v02300) — 2026-09-28 — Dados: selecionar várias células (arrastar/Ctrl+C) e colar de planilha (v0.23.0)
+- [v0.22.1](#v02201) — 2026-09-28 — Botões "Limpar" com borracha (v0.22.1)
+- [v0.22.0](#v02200) — 2026-09-28 — Aba Dados: ações por linha/coluna + excluir tabela no cabeçalho + TAB (v0.22.0)
+- [v0.21.0](#v02100) — 2026-09-27 — Tire Flyer: +3 layouts coloridos (laranja, racing, encarte) (v0.21.0)
+- [v0.20.0](#v02000) — 2026-09-27 — Tire Flyer: seletor de layout de saída (clássico + tabela + etiqueta) (v0.20.0)
+- [v0.19.2](#v01902) — 2026-09-27 — Ícone Borracha nos "limpar" + Desfazer na exclusão de sub-aba (v0.19.2)
+- [v0.19.1](#v01901) — 2026-09-27 — Ajustes Grafite: negrito nos títulos + botão "+" (v0.19.1)
+- [v0.19.0](#v01900) — 2026-09-27 — 8º tema "Grafite" (estilo das tabelas do Claude.ai) (v0.19.0)
+- [v0.18.1](#v01801) — 2026-09-27 — Busca do histórico também por item (v0.18.1)
+- [v0.18.0](#v01800) — 2026-09-26 — 5 temas novos + renomear os 2 antigos (v0.18.0)
+- [v0.17.0](#v01700) — 2026-09-24 — Excluir cada sub-aba, caixinhas por linha e renomear abas/títulos (v0.17.0)
+- [v0.16.1](#v01601) — 2026-09-24 — Dados: proporção fonte/célula, excluir sub-aba e header ajustado (v0.16.1)
+- [v0.16.0](#v01600) — 2026-09-24 — Dados: sub-abas dinâmicas, copiar célula, largura de coluna e fontes maiores (v0.16.0)
+- [v0.15.0](#v01500) — 2026-09-24 — Nova aba "DADOS" (tabelas de Peças e O.S's) (v0.15.0)
+- [v0.14.6](#v01406) — 2026-09-24 — Whats em 2 colunas: contato+scripts à esquerda, relatório à direita (v0.14.6)
+- [v0.14.5](#v01405) — 2026-09-24 — Títulos menores + observação e mensagem lado a lado no contato (v0.14.5)
+- [v0.14.4](#v01404) — 2026-09-24 — Relatório de Envios: layout "Foco na observação" (v0.14.4)
+- [v0.14.3](#v01403) — 2026-09-24 — RESUMO LÍQUIDO compacto e rente ao card 2 (v0.14.3)
+- [v0.14.2](#v01402) — 2026-09-24 — Coluna direita mais junta e Ajustes com 2 linhas (v0.14.2)
+- [v0.14.1](#v01401) — 2026-09-24 — Vassoura/formatador nos valores e Ajustes na coluna direita (v0.14.1)
+- [v0.14.0](#v01400) — 2026-09-24 — Campos em pares no orçamento + scripts Pneus/Revisão no Whats (v0.14.0)
+- [v0.13.5](#v01305) — 2026-09-24 — Formulário do Whats mais compacto (v0.13.5)
+- [v0.13.4](#v01304) — 2026-09-24 — Títulos dos históricos em maiúsculas e popup menor (v0.13.4)
+- [v0.13.3](#v01303) — 2026-09-24 — Contagem das abas segue a pesquisa (v0.13.3)
+- [v0.13.2](#v01302) — 2026-09-24 — "Aprovado/Não aprovado" só nos registros salvos + título maior (v0.13.2)
+- [v0.13.1](#v01301) — 2026-09-24 — Título do popup maior + data/hora do histórico no documento (v0.13.1)
+- [v0.13.0](#v01300) — 2026-09-24 — Busca por nome, itens aprovados/recusados no histórico + zoom do modal (v0.13.0)
+- [v0.12.0](#v01200) — 2026-09-24 — Histórico do Tire Flyer + card CONTATO (v0.12.0)
+- [v0.11.0](#v01100) — 2026-09-24 — Histórico com abas + salvar não realizados + ver itens (v0.11.0)
+- [v0.10.0](#v01000) — 2026-09-24 — Último orçamento gerado fica salvo ao reabrir (v0.10.0)
+- [v0.9.1](#v00901) — 2026-09-24 — Histórico com valor bruto (v0.9.1)
+- [v0.9.0](#v00900) — 2026-09-24 — Backup geral dentro de Configurações (v0.9.0)
+- [v0.8.5](#v00805) — 2026-09-24 — TOTAL no resumo + caixa TOTAL GERAL + correção da fonte gigante (v0.8.5)
+- [v0.8.4](#v00804) — 2026-09-24 — Lembrar o último orçamento digitado (v0.8.4)
+- [v0.8.3](#v00803) — 2026-09-24 — Claude mais escuro + títulos das abas sem a linha embaixo (v0.8.3)
+- [v0.8.2](#v00802) — 2026-09-24 — Impressão idêntica ao PNG + RESUMO LÍQUIDO compacto (v0.8.2)
+- [v0.8.1](#v00801) — 2026-09-24 — Menos espaço acima do título ORÇAMENTOS (v0.8.1)
+- [v0.8.0](#v00800) — 2026-09-24 — Botões só com ícone + fundo do Claude atrás dos cards em preto (v0.8.0)
+- [v0.7.8](#v00708) — 2026-09-24 — Títulos centralizados, cards compactos e botão play (v0.7.8)
+- [v0.7.7](#v00707) — 2026-09-24 — Títulos das abas, maiúsculas no orçamento, histórico maior, Claude mais escuro (v0.7.7)
+- [v0.7.6](#v00706) — 2026-09-24 — Aba Whats com o título colado no topo (v0.7.6)
+- [v0.7.5](#v00705) — 2026-09-24 — Ajustes de layout do Orçamentos + Claude mais escuro (v0.7.5)
+- [v0.7.4](#v00704) — 2026-09-24 — Aba Whats sem a "Agenda de Tarefas" + Limpar nos Ajustes Manuais (v0.7.4)
+- [v0.7.3](#v00703) — 2026-09-24 — Fonte do campo de pneus = campo do orçamento + Histórico fora da caixa (v0.7.3)
+- [v0.7.2](#v00702) — 2026-09-24 — Cabeçalho padrão nas 3 abas + Histórico ao lado do APROVADO E DESCONTO (v0.7.2)
+- [v0.7.1](#v00701) — 2026-09-24 — Tire Flyer mais compacto (campo, preview e topo) (v0.7.1)
+- [v0.7.0](#v00700) — 2026-09-24 — Nova aba "Whats" (contatos/agenda do WhatsApp) (v0.7.0)
+- [v0.6.3](#v00603) — 2026-09-24 — Tema Claude: textos em branco (v0.6.3)
+- [v0.6.2](#v00602) — 2026-09-24 — Tema Claude ainda mais escuro + "Limpar Texto" sem confirmação (v0.6.2)
+- [v0.6.1](#v00601) — 2026-09-24 — Tema Claude: fonte no conteúdo dos campos + fundo mais escuro (v0.6.1)
+- [v0.6.0](#v00600) — 2026-09-24 — Tema Claude com tipografia e acabamento do Claude (v0.6.0)
+- [v0.5.0](#v00500) — 2026-09-24 — Temas Original/Claude + logo Toyota + aba de pneus unificada (v0.5.0)
+- [v0.4.2](#v00402) — 2026-09-24 — Tire Flyer: largura do campo ajustada (v0.4.2)
+- [v0.4.1](#v00401) — 2026-09-24 — Tire Flyer: campo "Dados da Tabela" mais largo (v0.4.1)
+- [v0.4.0](#v00400) — 2026-09-24 — Nova aba "TIRE FLYER" (promoção de pneus) (v0.4.0)
+- [v0.3.2](#v00302) — 2026-09-24 — PNG: último item não realizado longe do "Total Não Realizado" (v0.3.2)
+- [v0.3.1](#v00301) — 2026-09-24 — Desmarcados riscados no PNG + caixa "Itens Não Realizados" (v0.3.1)
+- [v0.3.0](#v00300) — 2026-09-24 — Interface a 75% + caixinhas para escolher os itens (v0.3.0)
+- [v0.2.5](#v00205) — 2026-09-24 — Pesquisar no histórico por data ou placa (v0.2.5)
+- [v0.2.4](#v00204) — 2026-09-24 — Sem espaço acima dos campos da direita (v0.2.4)
+- [v0.2.3](#v00203) — 2026-09-24 — Campo Placa (só no histórico) + card direito compacto (v0.2.3)
+- [v0.2.2](#v00202) — 2026-09-24 — Histórico: nº de itens + fonte maior (v0.2.2)
+- [v0.2.1](#v00201) — 2026-09-24 — Fonte igual à do AI Studio: Inter + JetBrains Mono embutidas (v0.2.1)
+- [v0.2.0](#v00200-1) — 2026-09-24 — Publicação (repo público + Release) — v0.2.0
+- [v0.2.0](#v00200) — 2026-09-24 — Componentes reais + Exportar PNG + Histórico (v0.2.0)
+- [2026-09-24 — quoteLogic integrado + testes de lógica (exemplo Hilux)](#bloco-2026-09-24-quotelogic-integrado-testes-de-logica-exemplo-hil) — 2026-09-24 — quoteLogic integrado + testes de lógica (exemplo Hilux)
+- [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
+
+<!-- INDICE-VERSOES-FIM -->
+
+<a id="v08100"></a>
+## 2026-10-05 — Execução das melhorias da varredura (v0.81.0)
+
+**Pedido:** executar as 8 melhorias sugeridas na v0.80.0 (sem implementar features novas).
+
+**Feito:**
+- `utils/busca.ts`: `normalizarBusca` em definição única; `historico.ts` e
+  `historicoFlyer.ts` importam de lá (antes duplicada).
+- Telefone unificado: `ContactList.formatPhone` (aba Whats) removido — `handleSend` usa
+  `normalizarTelefoneParaWhats` (regra idêntica, agora num lugar só).
+- Backup mescla listas por id: `restaurarBackup` não apaga mais o que já está no
+  navegador — orçamentos, flyers e contatos fazem união por `id` (conflito: vale o
+  atual); resto segue sobrescrevendo. `CHAVES_LISTA` marca as chaves-lista;
+  `CONTATOS_KEY` reutilizado de `contatosHoje.ts` (antes duplicado). `ResumoBackup`
+  ganhou `flyers` (mensagem de restaurado + testes atualizados).
+- Modais unificados: novo `components/HistoricoBase.tsx` (overlay, cabeçalho, ações,
+  busca, filtro de cor, lista) — `HistoryModal` (485→~440 linhas) e `FlyerHistoryModal`
+  (239→~200) entram com título/botões/faixas/cartões. `SeloCor` + `classeBordaCor` em
+  `CorCliente.tsx` (borda/bolinha antes inline nos dois). DOM, classes, aria-labels e
+  placeholders intactos (é o que o smoke cobre).
+- Smoke do selo: header `vX.Y.Z` conferido na tela (`title="Versão do arquivo"`).
+- `tsconfig.app.json` inclui `tests/` + `resolveJsonModule` (typecheck agora cobre os
+  testes; `@ts-expect-error` do teste de versão removido — passou limpo de primeira).
+- Índice de versões no topo deste arquivo (âncoras `<a id>` + marcadores de regeneração;
+  rerodar o gerador após cada release).
+- `ideias/`: verificado — 63 arquivos, 11 MB, todos os PNGs referenciados pelos 5 `.md`
+  (que o AGENTS.md cita por caminho). Zipar quebraria os links das imagens e não
+  enxugaria o clone (histórico git mantém tudo): mantido como está, por decisão.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**144/144 (12 arquivos)**, `npm run build` OK (`dist/index.html` ~1,29 MB, 0 refs externas).
+Selo `v0.81.0`.
+
+**Gotchas / decisões:**
+- Mesclar backup: conflito de `id` mantém o ATUAL do navegador (nunca apaga dado novo);
+  backup inédito entra no fim da lista.
+- Unificar modal por render-props/slots em vez de herança: cada modal continua dono do
+  estado/pipeline; a base só renderiza a casca.
+- Typecheck em `tests/`: `vitest`, `@testing-library` e DOM já tipados; único ajuste foi
+  `resolveJsonModule` para o `package.json`.
 
 ---
 
+<a id="v08000"></a>
 ## 2026-10-05 — Varredura: pontas soltas, limpeza e docs (v0.80.0)
 
 **Pedido:** ler o projeto inteiro, achar pontas soltas e coisas por documentar, organizar
@@ -49,6 +228,7 @@ Selo `v0.80.0`.
 
 ---
 
+<a id="v07900"></a>
 ## 2026-10-05 — Cor do cliente nos históricos: verde/vermelho (v0.79.0)
 
 **Pedido:** no histórico (orçamentos e tire flyer), marcar cada contato de verde
@@ -81,6 +261,7 @@ Selo `v0.80.0`.
 
 ---
 
+<a id="v07800"></a>
 ## 2026-10-05 — Telefone + botão WhatsApp nos históricos (v0.78.0)
 
 **Pedido:** (1) botão WhatsApp com símbolo nos históricos de Orçamentos e Tire Flyer
@@ -120,6 +301,7 @@ números DDD+número; botão abre só a conversa (`wa.me/<numero>`, sem texto); 
 
 ---
 
+<a id="v07700"></a>
 ## 2026-10-02 — Whats: Novo Contato + Relatório um pouco mais largos (v0.77.0)
 
 **Pedido:** Novo Contato um pouco mais largo e Relatório de Envios bem pouquinho.
@@ -131,6 +313,7 @@ esquerda ~510px → ~567px (+57), direita ~665px → ~709px (+44). Selo `v0.77.0
 
 ---
 
+<a id="v07600"></a>
 ## 2026-10-02 — Relatório de Envios mais largo (v0.76.0)
 
 **Pedido:** aumentar um pouco a largura da parte Relatório de Envios (Whats).
@@ -142,6 +325,7 @@ esquerda ~510px em 1200px). Selo `v0.76.0`.
 
 ---
 
+<a id="v07500"></a>
 ## 2026-10-02 — Whats mais estreito (v0.75.0)
 
 **Pedido:** diminuir a largura das caixas da aba Whats (Novo Contato, Relatório, scripts).
@@ -154,6 +338,7 @@ campos espremiam (~135px cada, o `date` cortava). Selo `v0.75.0`.
 
 ---
 
+<a id="v07400"></a>
 ## 2026-10-02 — Abas superiores iguais às sub-abas (v0.74.0)
 
 **Pedido:** botões das abas superiores (Orçamentos/Tire Flyer/Whats/Dados) com o mesmo
@@ -169,6 +354,7 @@ branca) e `fontFamily conteudo` inline; sombra do ativo removida; renomear acomp
 
 ---
 
+<a id="v07300"></a>
 ## 2026-10-02 — Logo Toyota azul no tema claro (v0.73.0)
 
 **Pedido:** no tema claro o logo branco sumia no fundo papel; trocar para azul.
@@ -183,6 +369,7 @@ Só vale no papel (nos escuros segue branco); sem asset novo, `img` ganhou a cla
 
 ---
 
+<a id="v07200"></a>
 ## 2026-10-02 — Tire Flyer: COPIAR PNEUS abaixo do CONTATO (v0.72.0)
 
 **Pedido:** "Descrição para WhatsApp" com a largura e logo abaixo do CONTATO (ordem:
@@ -198,6 +385,7 @@ só com preview + layout + download). Smoke: ordem dos títulos + copiar. Selo `
 
 ---
 
+<a id="v07100"></a>
 ## 2026-10-02 — Sub-abas: minimizada fantasma azul (v0.71.0)
 
 **Pedido:** das 12 prévias (`ideias/sub-abas-*.png`), a escolhida foi a **03** (fantasma azul).
@@ -210,6 +398,7 @@ só com preview + layout + download). Smoke: ordem dos títulos + copiar. Selo `
 
 ---
 
+<a id="v07000"></a>
 ## 2026-10-02 — Excluir pede confirmação no histórico (v0.70.0)
 
 **Pedido:** excluir um orçamento no histórico (Todos ou Não Realizados) deve perguntar
@@ -224,6 +413,7 @@ negar mantém, confirmar remove (nas duas abas). Selo `v0.70.0`.
 
 ---
 
+<a id="v06900"></a>
 ## 2026-10-02 — Clique simples sem pintar a célula (v0.69.0)
 
 **Pedido:** clicar numa célula pintava ela inteira na cor do tema (estilo Excel); não
@@ -240,6 +430,7 @@ Smoke novo: clique = sem `bg-blue-600/35`; arrastar = bloco pintado. Selo `v0.69
 
 ---
 
+<a id="v06800"></a>
 ## 2026-10-02 — Sub-abas mais baixas (v0.68.0)
 
 **Pedido:** botões das sub-abas mais curtos — menos espaço em cima/embaixo.
@@ -251,6 +442,7 @@ mantida; botão "+" `p-2.5`/ícone 16 já fica na mesma altura final). Selo `v0.
 
 ---
 
+<a id="v06700"></a>
 ## 2026-10-02 — Scripts Pneus/Revisão sem negrito (v0.67.0)
 
 **Pedido:** o conteúdo dentro de Script Pneus e Script Revisão não deve ficar em negrito.
@@ -264,6 +456,7 @@ ainda não publicada).
 
 ---
 
+<a id="v06600"></a>
 ## 2026-10-02 — Sub-abas na medida dos títulos + botões proporcionais (v0.66.0)
 
 **Pedido:** sub-abas com a mesma fonte/tamanho da 1ª linha das colunas; botões sem
@@ -278,6 +471,7 @@ Selo `v0.66.0` (leva junto a v0.65.0 — ordenar data + autocompletar — ainda 
 
 ---
 
+<a id="v06500"></a>
 ## 2026-10-02 — Ordenar entende data + autocompletar na coluna (v0.65.0)
 
 **Pedidos:** (1) ordenar por data saía pelo dia (`02/09` na frente de `03/09` pedindo a
@@ -300,6 +494,7 @@ mais recente); (2) ao digitar "PED" numa célula, sugerir "PEDRO" já presente n
 
 ---
 
+<a id="v06400"></a>
 ## 2026-10-02 — Lupa limpa sozinha após 1 min (v0.64.0)
 
 **Pedido:** o termo da lupa deve sumir sozinho após 1 min, no BUSCAR (Orçamentos) e no
@@ -315,6 +510,7 @@ Testes com fake timers (59s mantém, +1s limpa) nos dois campos. Selo `v0.64.0`.
 
 ---
 
+<a id="v06300"></a>
 ## 2026-10-02 — Grifo do cabeçalho alinhado + grifo na nota (v0.63.0)
 
 **Pedido:** buscar "FACILITADA" mostrava `FACIL(FACIL)` no título da coluna (5 letras
@@ -347,6 +543,7 @@ uppercase`, o mais largo):
 
 ---
 
+<a id="v06200"></a>
 ## 2026-10-01 — Resumos dos históricos em branco (v0.62.0)
 
 **Pedido:** itens do resumo no Histórico de Orçamentos (Todos/Não Realizados) em branco e sem
@@ -360,6 +557,7 @@ tabela): `text-slate-300` → `text-slate-100` (negrito mantido, como pedido). S
 
 ---
 
+<a id="v06100"></a>
 ## 2026-10-01 — Grifo no lugar certo com acentos + mesma fonte do input (v0.61.0)
 
 **Bug:** com acento antes do termo (ex.: "ÓLEO FÁCIL" buscando "facil"), o grifo saía
@@ -378,6 +576,7 @@ deslocado — `destacarTermo` usava o índice da string NFD direto no original (
 
 ---
 
+<a id="v06000"></a>
 ## 2026-10-01 — X de Dados limpa atalho + DESCRIÇÃO sem scrollbar (v0.60.0)
 
 **Pedidos:** (1) X do "Pesquisar nas tabelas" limpar também o "buscar" dos Orçamentos;
@@ -393,6 +592,7 @@ deslocado — `destacarTermo` usava o índice da string NFD direto no original (
 
 ---
 
+<a id="v05900"></a>
 ## 2026-10-01 — Grifo sem pintar a célula (v0.59.0)
 
 **Pedido:** clicar na célula mostrava a célula pintada (âmbar da busca + azul da seleção em
@@ -408,6 +608,7 @@ de seleção (modelo planilha, mantido). Validado em screenshot headless.
 
 ---
 
+<a id="v05800"></a>
 ## 2026-10-01 — Lupa leva o foco para os Dados (v0.58.0)
 
 **Bug:** a lupa só pulava na 1ª letra — ao trocar de aba o campo do atalho sumia e o foco
@@ -421,6 +622,7 @@ digitando e Enter avança. Teste da lupa cobre foco (`document.activeElement`) e
 
 ---
 
+<a id="v05700"></a>
 ## 2026-10-01 — Lupa pula ao digitar, X limpa, grifo só no termo (v0.57.0)
 
 **Pedidos:** (1) X do atalho não limpava; (2) atalho não pulava ao digitar como o campo de lá;
@@ -441,6 +643,7 @@ digitando e Enter avança. Teste da lupa cobre foco (`document.activeElement`) e
 
 ---
 
+<a id="v05600"></a>
 ## 2026-10-01 — Lupa do atalho avança no Enter + feedback ao digitar (v0.56.0)
 
 **Pedidos:** (1) Enter na lupa ficava só no 1º termo (no "Pesquisar nas tabelas" o Enter pula
@@ -460,6 +663,7 @@ para o próximo); (2) sem feedback ao digitar se o termo existe.
 
 ---
 
+<a id="v05500"></a>
 ## 2026-10-01 — Faixa 164px + lupa pesquisa nos Dados (v0.55.0)
 
 **Pedidos:** (1) botões do atalho só um pouco mais largos; (2) lupa como 1º botão, fazendo o
@@ -480,6 +684,7 @@ mesmo que "Pesquisar nas tabelas" e levando da aba Orçamentos ao termo nos Dado
 
 ---
 
+<a id="v05400"></a>
 ## 2026-10-01 — Esquerda ~425px + faixa 148px (v0.54.0)
 
 **Pedido:** esquerda mais estreita de novo; botões de atalho mais largos de novo.
@@ -491,6 +696,7 @@ mesmo que "Pesquisar nas tabelas" e levando da aba Orçamentos ao termo nos Dado
 
 ---
 
+<a id="v05300"></a>
 ## 2026-10-01 — Tabela preenche o cartão, sem vão à direita (v0.53.0)
 
 **Bug:** com poucas colunas, a tabela (largura fixa = soma das colunas) era mais estreita que
@@ -509,6 +715,7 @@ Teste da barra agora confere `width: 100%` + `minWidth 432px`. Selo `v0.53.0`.
 
 ---
 
+<a id="v05200"></a>
 ## 2026-10-01 — Botões subir/descer tabela na aba Dados (v0.52.0)
 
 **Pedido:** botão para mover as tabelas para cima/baixo, mudando a ordem (as notas já tinham
@@ -528,6 +735,7 @@ arrastar pela alça; tabelas não tinham como trocar de lugar).
 
 ---
 
+<a id="v05100"></a>
 ## 2026-10-01 — Esquerda ~461px (v0.51.0)
 
 **Pedido:** estreitar mais um pouco 1. DESCRIÇÃO / 2. DADOS.
@@ -539,6 +747,7 @@ arrastar pela alça; tabelas não tinham como trocar de lugar).
 
 ---
 
+<a id="v05000"></a>
 ## 2026-10-01 — Esquerda ~501px + faixa 132px (v0.50.0)
 
 **Pedido:** esquerda um pouco mais estreita; botões de atalho um pouco mais largos.
@@ -550,6 +759,7 @@ arrastar pela alça; tabelas não tinham como trocar de lugar).
 
 ---
 
+<a id="v04900"></a>
 ## 2026-10-01 — Coluna esquerda bem mais estreita (v0.49.0)
 
 **Contexto:** o selo v0.48.0 provou que o usuário estava no arquivo novo — as diferenças de
@@ -562,6 +772,7 @@ arrastar pela alça; tabelas não tinham como trocar de lugar).
 
 ---
 
+<a id="v04800"></a>
 ## 2026-10-01 — Selo de versão no cabeçalho (v0.48.0)
 
 **Contexto:** usuário reportou 2x que "não mudou nada" (v0.47.0) mesmo com o release correto
@@ -577,6 +788,7 @@ antigo/cache — sem versão visível, impossível confirmar.
 
 ---
 
+<a id="v04700"></a>
 ## 2026-10-01 — Coluna esquerda mais estreita + botões de atalho maiores (v0.47.0)
 
 **Pedido:** diminuir a largura de 1. DESCRIÇÃO DO REPARO / 2. DADOS DO ORÇAMENTO e aumentar um
@@ -591,6 +803,7 @@ pouquinho os botões do SUB ATALHOS.
 
 ---
 
+<a id="v04600"></a>
 ## 2026-10-01 — Faixa de atalhos fora da largura dos cards (v0.46.0)
 
 **Pedido:** APROVADO E DESCONTO com a **mesma largura do 3. AJUSTES MANUAIS**; a faixa não pode
@@ -608,6 +821,7 @@ roubar largura do card (a página tem que acomodar, não o card).
 
 ---
 
+<a id="v04500"></a>
 ## 2026-10-01 — APROVADO E DESCONTO com largura original + faixa ao lado (v0.45.0)
 
 **Pedido:** os atalhos ao lado estreitaram o card; o card deve manter a largura original.
@@ -623,6 +837,7 @@ roubar largura do card (a página tem que acomodar, não o card).
 
 ---
 
+<a id="v04400"></a>
 ## 2026-10-01 — SUB ATALHOS ao lado do APROVADO E DESCONTO (v0.44.0)
 
 **Pedido:** atalhos à **direita** do card APROVADO E DESCONTO (estavam abaixo dele), podendo
@@ -638,6 +853,7 @@ diminuir a largura dos botões.
 
 ---
 
+<a id="v04300"></a>
 ## 2026-10-01 — Lembrete menor/todo clicável + SUB ATALHOS p/ sub-abas de Dados (v0.43.0)
 
 **Pedidos:** (1) janelinha do lembrete menor e inteiramente clicável; (2) na aba Orçamentos,
@@ -662,6 +878,7 @@ botões de atalho (lado do APROVADO E DESCONTO, fora das caixas) para cada sub-a
 
 ---
 
+<a id="v04200"></a>
 ## 2026-10-01 — Lembrete global vinculado aos contatos de hoje (v0.42.0)
 
 **Pedido:** descartar o lembrete mensal (v0.41.0); o aviso deve (1) disparar pela **data do
@@ -685,6 +902,7 @@ contato** no Relatório de Envios, (2) **levar até o contato** ao clicar e (3) 
 
 ---
 
+<a id="v04100"></a>
 ## 2026-10-01 — Lembrete de disparo configurável na aba Whats (v0.41.0)
 
 **Pedido:** o aviso "HOJE É DIA 01 · Disparar Agora!" era fixo no dia 01; tornar configurável
@@ -710,6 +928,7 @@ input resolve para um único controle (sem duplicidade).
 
 ---
 
+<a id="v04000"></a>
 ## 2026-10-01 — Histórico mostra os itens em duas linhas (v0.40.0)
 
 **Pedido:** no Histórico da aba Orçamentos (abas TODOS e NÃO REALIZADOS), o resumo dos itens
@@ -724,6 +943,7 @@ aparecia numa linha só; mostrar em **duas linhas**.
 
 ---
 
+<a id="v03900"></a>
 ## 2026-10-01 — Títulos internos padrão NeonCard + sub-abas Dados padrão cabeçalho (v0.39.0)
 
 **Pedido:** títulos **ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS** no mesmo tamanho/fonte de
@@ -747,6 +967,7 @@ das tabelas.
 
 ---
 
+<a id="v03800"></a>
 ## 2026-09-29 — Títulos das abas menores + lista desliga removendo a bolinha (v0.38.0)
 
 **Pedidos:** (1) os títulos **ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP e DADOS** com fonte menor;
@@ -763,6 +984,7 @@ sequência clicar-lista → `• conferir freio`, clicar de novo → `conferir f
 build autocontido; Chromium headless: títulos **24px** nas 4 abas e `COM LISTA "• conferir freio"`
 / `SEM LISTA "conferir freio"`.
 
+<a id="v03700"></a>
 ## 2026-09-29 — Lista da nota na linha do cursor + barra maior (v0.37.0)
 
 **Pedidos:** (1) o ícone de lista deve criar a bolinha **na linha onde está o cursor** (não numa
@@ -785,6 +1007,7 @@ baixo e encerrar no item vazio; copiar confere o texto da lista); build autocont
 headless: cursor na 2ª linha → `primeira linha\n• segunda linha`; seleção da 1ª → `• primeira
 linha\n• segunda linha`; Enter no fim → `…\n• `; barra com **31px** de altura.
 
+<a id="v03600"></a>
 ## 2026-09-29 — Clique edita a nota e alça de 6 pontinhos reordena (até entre tabelas) (v0.36.0)
 
 **Pedidos:** (1) clicar dentro da nota deve colocar o **cursor de edição no ponto clicado**;
@@ -822,6 +1045,7 @@ autocontido; Chromium headless: clique no fim da linha deixou o caret em 13 e di
 - `dragTo` do Playwright não funciona no meio da cadeia se o alvo casar um card escondido da
   outra aba — usar um alvo visível (ex.: `table`) e deixar o evento borbulhar até o card.
 
+<a id="v03500"></a>
 ## 2026-09-29 — Nota sem negrito, ícone de lista e DESCRIÇÃO = DADOS DO ORÇAMENTO (v0.35.0)
 
 **Pedidos:** (1) o texto da **nota** sem negrito, como as células das tabelas; (2) novo **ícone
@@ -846,6 +1070,7 @@ encerrando; o smoke inicial confere os dois textareas com `text-lg`); build auto
 headless: 18px = 18px nos dois campos, peso 400 na nota e a sequência de itens
 (`• trocar óleo`, `• alinhar pneus`, bolinha extra removida no fim).
 
+<a id="v03400"></a>
 ## 2026-09-29 — Notas na aba Dados, data antes do nome e fonte da descrição (v0.34.0)
 
 **Pedidos:** (1) a **descrição para WhatsApp** deve usar a mesma fonte (nome/estilo/tamanho) do
@@ -882,6 +1107,7 @@ seguindo o mouse no resize, `data-atual=1` na busca e fontes Inter/18/400 idênt
   `--tema-fonte-conteudo` inline em vez de classes.
 - O resize da nota compensa o zoom .75 igual ao das colunas: a borda acompanha o ponteiro 1:1.
 
+<a id="v03300"></a>
 ## 2026-09-29 — Enter na última linha da tabela cria linha nova (v0.33.0)
 
 **Pedido:** na tabela Dados, dar **Enter na última linha** (em qualquer coluna) deve **abrir uma
@@ -901,6 +1127,7 @@ nova focada (linha 2, coluna 1, vazia).
 erros "unhandled" de `scrollIntoView` (jsdom não implementa) — resolvido com o stub
 `Element.prototype.scrollIntoView ??= () => {}` no topo do `app_smoke.test.tsx`.
 
+<a id="v03200"></a>
 ## 2026-09-29 — Itens do orçamento com valores/resumo e descrição do flyer (v0.32.0)
 
 **Pedidos:** (1) no histórico (não realizados), embaixo da janela de itens, a soma de
@@ -927,6 +1154,7 @@ resumo 426,60 · 2.203,04 · 16% · 2.629,64, +descrição/copiar no smoke do fl
 autocontido (1.258 kB); Chromium headless: título 20px = HISTÓRICO 20px, resumo correto, caixinha
 com **562px na tela = 750px CSS** (zoom .75) e clipboard com o texto da descrição.
 
+<a id="v03100"></a>
 ## 2026-09-29 — Abas sem contagem, títulos no tamanho do orçamento e células menores (v0.31.0)
 
 **Pedidos:** (1) na aba Dados, **tirar a quantidade de tabelas** do lado do nome da sub-aba
@@ -947,6 +1175,7 @@ build autocontido (1.254 kB); Chromium headless: fontes medidas **20px = 20px = 
 (DESCRIÇÃO DO REPARO / Novo Contato / Relatório de Envios), abas `["PEÇAS","O.S'S"]` e célula
 16px com linha 25px no zoom (33 reais).
 
+<a id="v03000"></a>
 ## 2026-09-29 — Whats: janelinhas de observação e mensagem no cartão (v0.30.0)
 
 **Pedido:** no Relatório de Envios, criar um **ícone para a observação** e um **ícone para a
@@ -981,6 +1210,7 @@ data, clipboard com a observação copiada, edição visível e fechamento funci
 - A janelinha é **inline** (não `absolute`): o painel do relatório tem `overflow-hidden` e cortaria
   um dropdown nas últimas linhas.
 
+<a id="v02900"></a>
 ## 2026-09-28 — Flyer "MARCAS", temas removidos, técnico sem negrito e TAB/Enter (v0.29.0)
 
 **Pedidos:** (1) no histórico do Tire Flyer, trocar "N PNEUS" por **"N MARCAS"** (a contagem é a
@@ -1014,6 +1244,7 @@ histórico semeado com `numPneus: 4` exibindo **"4 MARCAS"**.
 - O destaque e o foco agora são sempre movidos juntos; o `focus:bg-slate-900` continua para
   indicar onde se edita.
 
+<a id="v02800"></a>
 ## 2026-09-28 — Dados: contador na busca; Whats: cartão compacto com lista (v0.28.0)
 
 **Pedidos:** (1) Dados: mostrar a **quantidade de termos dentro do próprio campo de pesquisa**,
@@ -1052,6 +1283,7 @@ ações na linha do nome, painel lista visível, `navigator.clipboard.readText()
   quebra o tema; o chassi ausente mostra "Sem chassi" em vez de some (evita cartão “vazio”).
 - O contador dentro do campo precisa de `pointer-events-none`, senão rouba o clique do X.
 
+<a id="v02700"></a>
 ## 2026-09-28 — Dados: busca com Enter (N de M) + células na fonte do orçamento (v0.27.0)
 
 **Pedidos:** (1) na busca, **Enter deve pular para a próxima ocorrência**, rolando até ela e
@@ -1089,6 +1321,7 @@ fontes 18px = 18px, linha 28px no zoom (37 reais) e screenshot com o destaque fo
 - `getByPlaceholderText` não funcionou no playwright-core 1.63 usado no teste visual (cache
   chromium-1243) — usar `locator('input[placeholder*=…]')`.
 
+<a id="v02600"></a>
 ## 2026-09-28 — Dados: Ctrl+X/Delete no bloco + barra de baixo sob a última coluna (v0.26.0)
 
 **Pedidos:** (1) **Ctrl+X não funcionava** quando havia várias células selecionadas, assim como
@@ -1125,6 +1358,7 @@ tableBottom`, lixeira **dentro** do intervalo da última coluna, e arrastar 2×2
 - A barra com `width: larguraTotal` pode ficar ~1px menor que a `<table>` no modelo de bordas
   colapsadas — imperceptível (medido: 451 vs 452).
 
+<a id="v02501"></a>
 ## 2026-09-28 — Dados: excluir tabela na barra de baixo + dica removida (v0.25.1)
 
 **Pedidos:** (1) remover a frase "Arraste sobre as células para selecionar · Ctrl+C copia · cole
@@ -1140,6 +1374,7 @@ linha) à esquerda e a **lixeira** (excluir tabela) à direita — o botão cont
 **não** está no `thead` e que divide a barra com o adicionar linha); build ok; screenshot do
 `dist` confirma **+** à esquerda e lixeira à direita, sem a frase.
 
+<a id="v02500"></a>
 ## 2026-09-28 — Dados: adicionar coluna no cabeçalho + espaçamento das ações da linha (v0.25.0)
 
 **Pedidos:** (1) botão para **adicionar coluna** ao lado do ordenar e do excluir tabela;
@@ -1165,6 +1400,7 @@ linha alinhadas.
   só as `larguras[]` das colunas de dados são persistidas).
 - Os botões novos também levam `tabIndex={-1}` (TAB continua indo de célula em célula).
 
+<a id="v02401"></a>
 ## 2026-09-28 — Ajustes de texto nos flyers (v0.24.1)
 
 **Pedidos do usuário:**
@@ -1182,6 +1418,7 @@ linha alinhadas.
 3 layouts (tabela, etiqueta e encarte) — as alturas caíram um pouco porque o texto encurtou
 (tabela 897→852, encarte 953→928).
 
+<a id="v02400"></a>
 ## 2026-09-28 — Dados: ordenar por coluna + ajustes na seleção (v0.24.0)
 
 **Pedidos:** (1) um botão **ao lado do excluir tabela** para **ordenar uma coluna** (ex.: ordem
@@ -1220,6 +1457,7 @@ deu **ARROZ, MORANGO, ZEBRA**.
 - O destaque tem de ficar no **input**, não no `<td>`: o input preenche a célula e cobre o fundo
   do `<td>` quando focado (era a causa do "bug" relatado).
 
+<a id="v02300"></a>
 ## 2026-09-28 — Dados: selecionar várias células (arrastar/Ctrl+C) e colar de planilha (v0.23.0)
 
 **Pedido:** não dava para **selecionar várias células** para copiar; e ao **colar de uma planilha
@@ -1252,6 +1490,7 @@ o arrastar marcou **3 células** e o Ctrl+C devolveu `"CARE042501\tVIA TANQUE FL
   atravessando os inputs.
 - A seleção é por tabela (`tabelaId`); em outra tabela nada fica marcado.
 
+<a id="v02201"></a>
 ## 2026-09-28 — Botões "Limpar" com borracha (v0.22.1)
 
 **Pedido:** trocar a **lixeira** pelo **ícone de borracha** nos cards **DESCRIÇÃO DO REPARO**,
@@ -1265,6 +1504,7 @@ campo. `aria-label`/`title` não mudaram (testes e Playwright seguem iguais).
 **Validação:** typecheck limpo; 88 testes passando; build ok; no Chromium, os 4 botões
 (Limpar ×3 + Limpar Texto do Tire Flyer) renderizam o `path` do `Eraser`.
 
+<a id="v02200"></a>
 ## 2026-09-28 — Aba Dados: ações por linha/coluna + excluir tabela no cabeçalho + TAB (v0.22.0)
 
 **Pedido (4 itens):** (1) excluir linha deve pedir **"tem certeza?"**; (2) botão do lado da
@@ -1305,6 +1545,7 @@ confirmação e remove (2→1 colunas), e o diário de diálogos registrou só
 - Nos testes jsdom, `navigator.clipboard` não existe: o teste define
   `Object.defineProperty(navigator, 'clipboard', ...)` antes de clicar em copiar.
 
+<a id="v02100"></a>
 ## 2026-09-27 — Tire Flyer: +3 layouts coloridos (laranja, racing, encarte) (v0.21.0)
 
 **Pedido:** o usuário aprovou 3 ideias da galeria de cores nova
@@ -1339,6 +1580,7 @@ aprovados e o clássico segue **pixel-idêntico** (0 diferenças, 1500×3632).
 - O smoke do jsdom não renderiza gradiente/quebra de linha, então a checagem visual desses 3
   depende do Playwright (feito) — o teste de tela checa `data-layout` + persistência.
 
+<a id="v02000"></a>
 ## 2026-09-27 — Tire Flyer: seletor de layout de saída (clássico + tabela + etiqueta) (v0.20.0)
 
 **Pedido:** dos 10 mockups publicados em `ideias/tire-flyer-valores.md`, o usuário escolheu as
@@ -1374,6 +1616,7 @@ layouts, persiste após reload e o clássico continua **pixel-idêntico** (diff 
 - O menu do seletor abre **para cima** (`bottom-full`) de propósito: o botão fica embaixo do
   preview, que pode ser mais alto que a viewport.
 
+<a id="v01902"></a>
 ## 2026-09-27 — Ícone Borracha nos "limpar" + Desfazer na exclusão de sub-aba (v0.19.2)
 
 Escolhas do usuário (após a galeria de ícones):
@@ -1387,6 +1630,7 @@ Escolhas do usuário (após a galeria de ícones):
   (`abas.slice(0,idx)+aba+slice(idx)`). Toast renderizado **fora do `ui-compacta`** (fragmento no
   return) p/ o `zoom:0.75` não encolher/reposicionar o `position:fixed`. Timer limpo no unmount.
 
+<a id="v01901"></a>
 ## 2026-09-27 — Ajustes Grafite: negrito nos títulos + botão "+" (v0.19.1)
 
 Feedback do usuário sobre o tema Grafite:
@@ -1401,6 +1645,7 @@ Feedback do usuário sobre o tema Grafite:
   Entregue como **galeria-Artifact de opções de ícone** ([[feedback-ideias-layout-link-imagens]]);
   aplicar após a escolha.
 
+<a id="v01900"></a>
 ## 2026-09-27 — 8º tema "Grafite" (estilo das tabelas do Claude.ai) (v0.19.0)
 
 **Pedido:** copiar o estilo de tabela do Claude.ai (print que o usuário mandou: dashboard
@@ -1435,6 +1680,7 @@ cabeçalho mais claro**, linhas de grade sutis, fonte limpa, texto claro.
 - **O tema NÃO vaza para as saídas** segue valendo — o PNG do cliente (`#printable-quote`) e o
   flyer resetam os tokens; este tema muda só a INTERFACE (a tabela estilizada é a da aba Dados).
 
+<a id="v01801"></a>
 ## 2026-09-27 — Busca do histórico também por item (v0.18.1)
 
 **Pedido:** na lupa do histórico, além de data/placa, poder procurar pelo **item** — ex.:
@@ -1462,6 +1708,7 @@ Realizados**, para saber quem já recusou/tem aquele serviço).
 - Validação no Chromium (`valida_busca_item.mjs`, no dir de repro): busca "freio" → "1 de 2"
   com `<mark>FREIO</mark>`; "palhetas" → "1 de 2" com `PALHETAS` grifado.
 
+<a id="v01800"></a>
 ## 2026-09-26 — 5 temas novos + renomear os 2 antigos (v0.18.0)
 
 **Pedido:** integrar 5 temas da galeria de mockups (Claro Papel, Executivo Premium, Verde
@@ -1503,6 +1750,7 @@ dois atuais — que passam a se chamar **Azul** (era "Original") e **Terracota**
 
 ---
 
+<a id="v01700"></a>
 ## 2026-09-24 — Excluir cada sub-aba, caixinhas por linha e renomear abas/títulos (v0.17.0)
 
 **Pedidos:** excluir **uma** sub-aba por vez (o botão antigo parecia apagar tudo); caixinha de
@@ -1528,6 +1776,7 @@ WHATSAPP etc.).
   Validado no Chromium: renomear aba do topo, sub-aba, título interno; marcar linha risca; e
   excluir apenas a sub-aba escolhida (as outras ficam).
 
+<a id="v01601"></a>
 ## 2026-09-24 — Dados: proporção fonte/célula, excluir sub-aba e header ajustado (v0.16.1)
 
 **Pedidos:** o aumento da v0.16.0 foi só de fonte — o usuário queria a **relação fonte/altura**
@@ -1545,6 +1794,7 @@ sub-abas**.
   volta PEÇAS/O.S's) e o loader deixou de "ressuscitar" abas apagadas.
 - Testes: **76** (novo caso de `removerAba` + exclusão no smoke com `confirm` mockado).
 
+<a id="v01600"></a>
 ## 2026-09-24 — Dados: sub-abas dinâmicas, copiar célula, largura de coluna e fontes maiores (v0.16.0)
 
 **Pedidos (em sequência):** tirar o texto "Tabela 1 · O.S's / data · colunas · linhas"; aumentar
@@ -1571,6 +1821,7 @@ dentro de cada célula.
   (arrastar a coluna 170→330 e persistir, criar sub-aba, copiar "FILTRO DE OLEO", busca
   trocando de aba). O backup das Configurações inclui `dados_tabelas_v1` (todas as sub-abas).
 
+<a id="v01500"></a>
 ## 2026-09-24 — Nova aba "DADOS" (tabelas de Peças e O.S's) (v0.15.0)
 
 **Pedido:** uma aba **DADOS** com sub-abas **PEÇAS** e **O.S's**; botão **Criar tabela** no alto
@@ -1593,6 +1844,7 @@ termo está, com o termo **grifado**.
   (criar 4 colunas, títulos em peso 900, busca "pastilhas" grifa 1 célula e "maria" troca para
   O.S's).
 
+<a id="v01406"></a>
 ## 2026-09-24 — Whats em 2 colunas: contato+scripts à esquerda, relatório à direita (v0.14.6)
 
 **Pedidos:** observação/mensagem com **1 linha** (estavam com 3) e novo layout: **NOVO CONTATO à
@@ -1608,6 +1860,7 @@ esquerda**, **RELATÓRIO DE ENVIOS à direita** (lado a lado), com o relatório 
 - Validado no Chromium: colunas lado a lado (629px cada), um cartão por linha (603px) e os dois
   campos com 27px de altura (1 linha). Testes: 67.
 
+<a id="v01405"></a>
 ## 2026-09-24 — Títulos menores + observação e mensagem lado a lado no contato (v0.14.5)
 
 **Pedidos:** (1) diminuir a fonte dos títulos **ORÇAMENTOS / TIRE FLYER / PAINEL WHATSAPP**;
@@ -1625,6 +1878,7 @@ podendo ler/escrever várias linhas com **barra de rolagem** aparecendo quando p
 - Validado no Chromium: campos no mesmo `top` (lado a lado), valores carregados do
   localStorage e `overflow-y: auto`. Testes: 67.
 
+<a id="v01404"></a>
 ## 2026-09-24 — Relatório de Envios: layout "Foco na observação" (v0.14.4)
 
 **Pedido:** o usuário escolheu, entre 10 mockups publicados em `ideias/relatorio-2colunas.md`, a
@@ -1641,6 +1895,7 @@ Cabeçalho (Processo mensal / %) e estado vazio mantidos; ordenação por data m
 Os mockups ficaram em `ideias/` com um `.md` para navegação. Testes: 67 (o smoke já cobria
 cadastro/busca do contato); validado no Chromium com 6 contatos em situações diferentes.
 
+<a id="v01403"></a>
 ## 2026-09-24 — RESUMO LÍQUIDO compacto e rente ao card 2 (v0.14.3)
 
 **Pedidos:** diminuir a altura dos valores do RESUMO LÍQUIDO, deixá-lo **rente ao final do
@@ -1651,6 +1906,7 @@ card 2. DADOS DO ORÇAMENTO** e diminuir um pouco a altura do botão play.
 **`mt-auto`** — ele encosta no fim da coluna; medido no Chromium, o rodapé do RESUMO ficou a
 **6px** do fim do card 2 (praticamente rente). Testes: 67.
 
+<a id="v01402"></a>
 ## 2026-09-24 — Coluna direita mais junta e Ajustes com 2 linhas (v0.14.2)
 
 **Pedido:** menos espaço do card **3. AJUSTES MANUAIS (ID VALOR)** em relação ao APROVADO E
@@ -1660,6 +1916,7 @@ DESCONTO e ao RESUMO LÍQUIDO; e o campo dos ajustes com espaço para **duas lin
 **12px físicos**, medido) e o textarea dos ajustes de `rows={3}` → **`rows={2}`** (altura 68px
 físicos, 2 linhas). Testes: 67.
 
+<a id="v01401"></a>
 ## 2026-09-24 — Vassoura/formatador nos valores e Ajustes na coluna direita (v0.14.1)
 
 **Pedidos:** (1) botãozinho de **vassoura** para limpar "Total Revisão (R$)" e "Peças na
@@ -1678,6 +1935,7 @@ entre o APROVADO E DESCONTO e o RESUMO LÍQUIDO, com o campo mostrando **só 3 l
   (altura 89px) e a ordem certa na coluna.
 - Testes: **67** (4 novos de formatação/paste/vassoura).
 
+<a id="v01400"></a>
 ## 2026-09-24 — Campos em pares no orçamento + scripts Pneus/Revisão no Whats (v0.14.0)
 
 **Pedidos:** (1) no orçamento, **Total Revisão | Peças na Revisão** lado a lado, **Desconto |
@@ -1698,6 +1956,7 @@ a coluna dos scripts se preciso).
 - Testes: **63** (`tests/whats_scripts.test.ts` novo, com migração e persistência);
   flyer segue **0 diferenças**.
 
+<a id="v01305"></a>
 ## 2026-09-24 — Formulário do Whats mais compacto (v0.13.5)
 
 **Pedido:** na aba Whats, WhatsApp ao lado direito de **Nome Completo**, **Número do Chassi**
@@ -1708,6 +1967,7 @@ ao lado direito de **Dia do Envio**, e remover o máximo de espaço entre os cam
 inputs `px-5 py-4` → `px-4 py-3`, rótulo `mb-1.5 ml-4` → `mb-1 ml-2` e cabeçalho `mb-10` →
 `mb-5`. Validado no Chromium (campos na mesma linha e vão entre linhas ~23px). Testes: 60.
 
+<a id="v01304"></a>
 ## 2026-09-24 — Títulos dos históricos em maiúsculas e popup menor (v0.13.4)
 
 **Pedido:** onde diz "Histórico" em maiúsculas; e reduzir a fonte de "ITENS DO ORÇAMENTO".
@@ -1716,6 +1976,7 @@ inputs `px-5 py-4` → `px-4 py-3`, rótulo `mb-1.5 ml-4` → `mb-1 ml-2` e cabe
 `.titulo-tema`): `HISTÓRICO` e `HISTÓRICO — TIRE FLYER`. O título do popup foi de 30px →
 **26px** (`text-[26px]`). Testes: 60.
 
+<a id="v01303"></a>
 ## 2026-09-24 — Contagem das abas segue a pesquisa (v0.13.3)
 
 **Pedido:** ao pesquisar no histórico, as abas mostravam o total geral (`Todos (N)`); o correto
@@ -1727,6 +1988,7 @@ números continuam sendo os totais. O indicador `N de M` do campo de busca foi m
 Validado no Chromium: 3 registros → `Todos (3) / Não Realizados (2)`; busca "abc" →
 `Todos (1) / Não Realizados (1)`; busca "zzz" → `(0) / (0)`. Testes: 60.
 
+<a id="v01302"></a>
 ## 2026-09-24 — "Aprovado/Não aprovado" só nos registros salvos + título maior (v0.13.2)
 
 **Pedido:** no "Ver itens do orçamento" da aba **Todos** não deve aparecer "Aprovado pelo
@@ -1741,6 +2003,7 @@ salvos em **Não Realizados**; e aumentar/maiúscular o título.
   (novamente: no tema Claude o `.titulo-tema` tira o `text-transform`).
 - Testes: **60** (o caso das abas agora confere os dois cenários); flyer com PNG idêntico.
 
+<a id="v01301"></a>
 ## 2026-09-24 — Título do popup maior + data/hora do histórico no documento (v0.13.1)
 
 **Pedidos:** (1) no "Ver itens do orçamento", título **ITENS DO ORÇAMENTO** maior e tudo em
@@ -1755,6 +2018,7 @@ registro** (de quando foi criado), não a de agora.
   re-salvo com a data atual.
 - Testes: **60** (novo caso conferindo a data do registro no documento); flyer com PNG idêntico.
 
+<a id="v01300"></a>
 ## 2026-09-24 — Busca por nome, itens aprovados/recusados no histórico + zoom do modal (v0.13.0)
 
 **Pedidos:** (1) no orçamento, o campo "PLACA" vira **PLACA, NOME, CONTATO** com limite maior,
@@ -1775,6 +2039,7 @@ fonte menor que o dos orçamentos.
   fonte igual à do histórico de orçamentos (16px/zoom 1, conferido no Chromium).
 - Testes: **59** (asserts novos no popup e no campo); flyer segue **0 diferenças** no PNG.
 
+<a id="v01200"></a>
 ## 2026-09-24 — Histórico do Tire Flyer + card CONTATO (v0.12.0)
 
 **Pedidos:** (1) botão **Histórico** no card "DADOS DA TABELA" do Tire Flyer; (2) trocar
@@ -1797,6 +2062,7 @@ fonte menor que o dos orçamentos.
 - Testes: **59** (3 novos de histórico + 1 de UI); validado no Chromium (busca "joao" e
   "265/60" acham; backup lista a chave). Flyer segue **0 diferenças** no PNG.
 
+<a id="v01100"></a>
 ## 2026-09-24 — Histórico com abas + salvar não realizados + ver itens (v0.11.0)
 
 **Pedidos:** (1) no histórico, duas abas: **Todos** e **Não Realizados**; (2) um botão ao lado
@@ -1818,6 +2084,7 @@ Realizados"; (3) um botão ao lado de **Abrir orçamento** que abre uma **janeli
 - Testes: **55** (3 novos) — inclui salvar com desmarcados indo para a aba e a janelinha.
   Flyer segue **0 diferenças**; o orçamento já tinha mudado na v0.8.5 (pedido).
 
+<a id="v01000"></a>
 ## 2026-09-24 — Último orçamento gerado fica salvo ao reabrir (v0.10.0)
 
 **Pedido:** o visual do orçamento gerado sumia ao reabrir o app ("tenho que gerar sempre para
@@ -1831,6 +2098,7 @@ Validado no Chromium: processar → desmarcar item → recarregar → documento 
 item desmarcado; backup lista `orcamento_ultimo_v1`. Testes: **52**; flyer segue com PNG
 idêntico.
 
+<a id="v00901"></a>
 ## 2026-09-24 — Histórico com valor bruto (v0.9.1)
 
 **Pedido:** no resumo que aparece nos cartões do histórico, não mostrar valor líquido — mostrar
@@ -1840,6 +2108,7 @@ idêntico.
 (revisão aprovada + orçamento adicional, sem o desconto). Os outros itens (Revisão, Peças,
 Serviços) já eram brutos. Testes: 51; nada mudou nos PNGs de saída.
 
+<a id="v00900"></a>
 ## 2026-09-24 — Backup geral dentro de Configurações (v0.9.0)
 
 **Pedido:** o "Centro de Dados" (backup) deve ficar na engrenagem **Configurações**, depois do
@@ -1862,6 +2131,7 @@ etc.
   a string crua (teste cobre).
 - Testes: **51** (4 de backup + asserts no smoke); flyer continua **0 diferenças** no PNG.
 
+<a id="v00805"></a>
 ## 2026-09-24 — TOTAL no resumo + caixa TOTAL GERAL + correção da fonte gigante (v0.8.5)
 
 **Pedido:** no documento gerado, o "TOTAL GERAL" do Resumo Financeiro vira **"TOTAL"** = itens
@@ -1886,6 +2156,7 @@ etc.
 **Gotcha:** a checagem "PNG idêntico à v0.4.2" deixa de valer para o orçamento a partir daqui —
 foi uma mudança pedida no layout de saída.
 
+<a id="v00804"></a>
 ## 2026-09-24 — Lembrar o último orçamento digitado (v0.8.4)
 
 **Pedido:** ao reabrir o app, em vez do exemplo embutido, vir o **último orçamento** que o
@@ -1904,6 +2175,7 @@ Testes: **45** (1 novo); PNGs do orçamento/flyer: **0 diferenças**.
 rascunho, tema e contatos ficam no `localStorage` do Chrome (típico 5–10 MB por arquivo/origem;
 o histórico guarda até 100 orçamentos). Limpar dados do navegador apaga → usar o backup JSON.
 
+<a id="v00803"></a>
 ## 2026-09-24 — Claude mais escuro + títulos das abas sem a linha embaixo (v0.8.3)
 
 **Pedidos:** (1) o fundo do Claude (o que fica atrás das caixinhas) um pouco mais escuro;
@@ -1920,6 +2192,7 @@ deve vir logo abaixo do título (como nos cards "1. DESCRIÇÃO DO REPARO"/"DADO
   da aba Whats também saiu, para as três ficarem iguais.
 - PNGs do orçamento/flyer: **0 diferenças**; testes: 44.
 
+<a id="v00802"></a>
 ## 2026-09-24 — Impressão idêntica ao PNG + RESUMO LÍQUIDO compacto (v0.8.2)
 
 **Pedidos:** (1) a **impressão** saía em formato diferente do PNG — maior, colunas com
@@ -1948,6 +2221,7 @@ título→1ª caixa caiu de ~42px para **18px** e o de baixo para **13px**.
 
 **Testes:** 44; PNGs do orçamento/flyer: **0 diferenças**.
 
+<a id="v00801"></a>
 ## 2026-09-24 — Menos espaço acima do título ORÇAMENTOS (v0.8.1)
 
 **Pedido:** reduzir o espaço acima do título "ORÇAMENTOS".
@@ -1956,6 +2230,7 @@ título→1ª caixa caiu de ~42px para **18px** e o de baixo para **13px**.
 abas** (o Tire Flyer/Whats já somavam o `pt-1` do root). Gap medido: **32px → 12px**. PNGs:
 0 diferenças. Testes: 44.
 
+<a id="v00800"></a>
 ## 2026-09-24 — Botões só com ícone + fundo do Claude atrás dos cards em preto (v0.8.0)
 
 **Pedidos:** (1) os botões devem ser **apenas ícone** (Histórico, Limpar, Limpar Texto,
@@ -1975,6 +2250,7 @@ caixinhas** — mais escuro.
 - Claude: `--tema-fundo` → **`#000000`** (o que aparece atrás dos cards); painel `#0a0a09` e
   bordas `#171715/#262624` mantêm os cards visíveis.
 
+<a id="v00708"></a>
 ## 2026-09-24 — Títulos centralizados, cards compactos e botão play (v0.7.8)
 
 **Pedidos (em sequência):** (1) remover o subtítulo "Painel de Controle de Ofertas";
@@ -1994,6 +2270,7 @@ tamanho; (3) **remover o espaço** entre o título dos cards 1, 2 e 3 e o campo 
   Testes atualizados de `getByText` para `getByRole('button', { name: … })`.
 - Testes: **44**; PNGs do orçamento/flyer: **0 diferenças**.
 
+<a id="v00707"></a>
 ## 2026-09-24 — Títulos das abas, maiúsculas no orçamento, histórico maior, Claude mais escuro (v0.7.7)
 
 **Pedidos (em sequência):** (1) "TIRE FLYER" no lugar de "DASHBOARD TIRE FLYER" (TIRE branco,
@@ -2016,6 +2293,7 @@ como o card 2; (4) **fonte maior dentro do histórico**; (5) fundo do **Claude m
 - Testes atualizados (título da aba com `getByRole('heading', …)` e título do card 1 maiúsculo):
   **44**. PNGs do orçamento/flyer: **0 diferenças**.
 
+<a id="v00706"></a>
 ## 2026-09-24 — Aba Whats com o título colado no topo (v0.7.6)
 
 **Pedido:** reduzir o espaço entre "PAINEL WHATSAPP" e a barra superior (Toyota Weiand Lajeado).
@@ -2024,6 +2302,7 @@ como o card 2; (4) **fonte maior dentro do histórico**; (5) fundo do **Claude m
 `mb-10 pb-8` → `mb-8 pb-6` — mesmo padrão do Tire Flyer. Gap medido no Chromium: **15px**
 (antes ~42px). PNGs do orçamento/flyer: **0 diferenças**. Testes: 44.
 
+<a id="v00705"></a>
 ## 2026-09-24 — Ajustes de layout do Orçamentos + Claude mais escuro (v0.7.5)
 
 **Pedidos (em sequência):** (1) Histórico no cabeçalho do card **1. Descrição do Reparo**, ao
@@ -2046,6 +2325,7 @@ do APROVADO E DESCONTO, com os valores **empilhados**.
   e gap de 24px físicos.
 - Testes: 44. PNGs do orçamento/flyer: **0 diferenças** nos dois temas.
 
+<a id="v00704"></a>
 ## 2026-09-24 — Aba Whats sem a "Agenda de Tarefas" + Limpar nos Ajustes Manuais (v0.7.4)
 
 **Pedidos:** (1) remover toda a parte de **Agenda de Tarefas** (Controle Operacional Weiand,
@@ -2065,6 +2345,7 @@ também precisa do botão "Limpar".
 - Testes: os 2 casos da aba Whats foram atualizados (um deles agora garante que não existe mais
   "Agenda de Tarefas"). Seguem **44** e os PNGs do orçamento/flyer com **0 diferenças**.
 
+<a id="v00703"></a>
 ## 2026-09-24 — Fonte do campo de pneus = campo do orçamento + Histórico fora da caixa (v0.7.3)
 
 **Pedido:** (1) o conteúdo de "DADOS DA TABELA" (pneus) com a **mesma fonte/tamanho** do campo
@@ -2078,6 +2359,7 @@ deixá-lo à direita, fora da caixinha.
   cobria a borda inferior). Agora fica **acima e à direita** do card, fora da caixa (vão ~25px).
 - PNGs do orçamento/flyer seguem **0 diferenças**. Testes: 44.
 
+<a id="v00702"></a>
 ## 2026-09-24 — Cabeçalho padrão nas 3 abas + Histórico ao lado do APROVADO E DESCONTO (v0.7.2)
 
 **Pedido:** padronizar o cabeçalho das abas (no Orçamentos o botão Histórico fazia o título
@@ -2094,6 +2376,7 @@ Histórico cabe ao lado da tabela **APROVADO E DESCONTO**, tirá-lo do topo.
 - (Aba Tire Flyer também ganhou o conteúdo centralizado com margens laterais na v0.7.2 —
   largura útil do painel ~pela metade, `max-w-[1150px] mx-auto`.)
 
+<a id="v00701"></a>
 ## 2026-09-24 — Tire Flyer mais compacto (campo, preview e topo) (v0.7.1)
 
 **Pedido:** (1) reduzir pela metade a altura do campo "DADOS DA TABELA"; (2) reduzir pela
@@ -2112,6 +2395,7 @@ e a barra de cima.
   html-to-image usa. Com `transform` + altura medida, o PNG voltou a **1500x3728 com 0
   diferenças** (nos dois temas). Testes: 44.
 
+<a id="v00700"></a>
 ## 2026-09-24 — Nova aba "Whats" (contatos/agenda do WhatsApp) (v0.7.0)
 
 **Pedido:** terceira aba (ao lado de Tire Flyer) com o app **ZapZap Manager** do AI Studio —
@@ -2138,6 +2422,7 @@ backup/restauração JSON. Nome da aba: **Whats**. Visual unificado às outras a
 - Cuidado ao usar `emerald-*` em estados semânticos: no Claude ele é remapeado para o laranja
   do tema; use `green-*` quando precisar de verde de verdade.
 
+<a id="v00603"></a>
 ## 2026-09-24 — Tema Claude: textos em branco (v0.6.3)
 
 **Pedido:** no tema Claude, as fontes devem ser de cor **branca**.
@@ -2147,6 +2432,7 @@ backup/restauração JSON. Nome da aba: **Whats**. Visual unificado às outras a
 em vez dos tons quentes — mantém a hierarquia (rótulos um pouco mais apagados) com o texto
 branco. Saídas revalidadas pixel a pixel vs v0.4.2: **0 diferenças**. Testes: 42.
 
+<a id="v00602"></a>
 ## 2026-09-24 — Tema Claude ainda mais escuro + "Limpar Texto" sem confirmação (v0.6.2)
 
 **Pedidos:** (1) fundo do Claude mais escuro; (2) o que acontece no "Limpar Texto" da tabela de
@@ -2161,6 +2447,7 @@ pneus — por que aparece a janela de confirmação?
   preview por engano. Validado no Chromium (nenhum diálogo; campo vazio; flyer intacto).
 - Saídas revalidadas pixel a pixel vs v0.4.2: **0 diferenças**. Testes: 42.
 
+<a id="v00601"></a>
 ## 2026-09-24 — Tema Claude: fonte no conteúdo dos campos + fundo mais escuro (v0.6.1)
 
 **Pedido:** (1) o que é digitado/colado nos campos também com as fontes do Claude; (2) o fundo
@@ -2180,6 +2467,7 @@ do Claude mais escuro.
 **Gotcha:** se algum dia quiser a tabela de pneus em fonte mono no tema Claude, é só remover
 `textarea` da regra (o campo continua com a classe `font-mono` no tema Original).
 
+<a id="v00600"></a>
 ## 2026-09-24 — Tema Claude com tipografia e acabamento do Claude (v0.6.0)
 
 **Pedido:** o tema Claude não devia ser só cores — "quero letras e estilo Claude".
@@ -2207,6 +2495,7 @@ do Claude mais escuro.
   saídas (mudaria o PNG).
 - Build subiu de ~715 kB para ~901 kB por causa da serifada embutida (aceitável para uso local).
 
+<a id="v00500"></a>
 ## 2026-09-24 — Temas Original/Claude + logo Toyota + aba de pneus unificada (v0.5.0)
 
 **Pedido (3 partes):** (1) as duas abas com o **mesmo estilo**; (2) **botão de configurações**
@@ -2248,6 +2537,7 @@ iguais); **dois** temas (Original/Claude); no Original a aba de pneus **iguala a
   [data-saida='flyer']` (valores originais em oklch), senão a saída muda de cor.
 - `body` usa `var(--tema-fundo)`; o `@media print` continua forçando fundo branco.
 
+<a id="v00402"></a>
 ## 2026-09-24 — Tire Flyer: largura do campo ajustada (v0.4.2)
 
 **Pedido:** a v0.4.1 deixou a largura "um pouco exagerada"; reduzir um pouco.
@@ -2257,6 +2547,7 @@ iguais); **dois** temas (Original/Claude); no Original a aba de pneus **iguala a
 antes) — segue **sem rolagem lateral** (`scrollWidth == clientWidth`) e as duas colunas
 continuam. Flyer (750px) e PNG (1500px) inalterados. Testes: 40.
 
+<a id="v00401"></a>
 ## 2026-09-24 — Tire Flyer: campo "Dados da Tabela" mais largo (v0.4.1)
 
 **Pedido:** o textarea da tabela de pneus era estreito — tinha que rolar para o lado para ver
@@ -2271,6 +2562,7 @@ padrão aparece **sem rolagem horizontal**. As duas colunas (entrada + preview) 
 **Sem regressão:** flyer segue 750px lógicos e o PNG segue **1500x3728** (`pixelRatio: 2`);
 main da aba de orçamentos continua 1050. Testes: 40 (nenhum novo — só layout).
 
+<a id="v00400"></a>
 ## 2026-09-24 — Nova aba "TIRE FLYER" (promoção de pneus) (v0.4.0)
 
 **Pedido:** uma nova aba no header (onde está "Toyota Weiand Lajeado") com o app **Tire Flyer**
@@ -2307,6 +2599,7 @@ Atualizar Flyer" atualiza o preview, download `Promocao-265-60R18.png` = **1500x
   o PNG. Não "consertar" isso pondo zoom no `body`.
 - `Flyer` tipado com `React.RefObject<HTMLDivElement | null>` (React 19).
 
+<a id="v00302"></a>
 ## 2026-09-24 — PNG: último item não realizado longe do "Total Não Realizado" (v0.3.2)
 
 **Pedido:** ao gerar o PNG, o último item da caixa "Itens Não Realizados" ficava **longe**
@@ -2344,6 +2637,7 @@ vão. Documento completo do caso padrão conferido visualmente: tabela, resumo e
 - Nunca "consertar" isso mexendo no CSS da linha (altura fixa continua sendo copiada): o
   problema é a métrica da fonte na captura, não o layout do navegador.
 
+<a id="v00301"></a>
 ## 2026-09-24 — Desmarcados riscados no PNG + caixa "Itens Não Realizados" (v0.3.1)
 
 **Pedido (3 partes):** (1) ao desmarcar um item, o PNG saía com linhas mais altas/distorcidas;
@@ -2368,6 +2662,7 @@ desmarcados — e **só** quando houver algum.
 na linha) e **nunca** filtrar a linha inteira — o html-to-image captura a tela e pequenas
 diferenças de estilo podem alterar a métrica das linhas.
 
+<a id="v00300"></a>
 ## 2026-09-24 — Interface a 75% + caixinhas para escolher os itens (v0.3.0)
 
 **Pedidos:** (1) a interface ficava confortável só com o Chrome a 75% → deixar o app já nesse
@@ -2402,6 +2697,7 @@ marcadas entram no orçamento.
 **Gotcha:** `Set` no estado do React → sempre criar um `new Set(prev)` ao alternar; mutar o
 mesmo Set não re-renderiza.
 
+<a id="v00205"></a>
 ## 2026-09-24 — Pesquisar no histórico por data ou placa (v0.2.5)
 
 **Pedido:** botão de busca no histórico (entre "Restaurar backup" e "Limpar tudo") por **data
@@ -2422,6 +2718,7 @@ ou placa**.
 gera `id`/`criadoEm` próprios (sempre "agora"). Para testar busca por data, gravar direto no
 `localStorage["orcamentos_historico_v1"]` com os registros desejados.
 
+<a id="v00204"></a>
 ## 2026-09-24 — Sem espaço acima dos campos da direita (v0.2.4)
 
 **Pedido:** remover o espaço acima de Total Revisão, Peças na Revisão, etc. (a v0.2.3 já tinha
@@ -2436,6 +2733,7 @@ compactado os inputs, mas ainda sobrava respiro).
 **Gotcha:** para reduzir espaçamento de um card só sem mexer nos outros, prop com default é
 melhor que alterar o `NeonCard` global (o mesmo componente veste as 3 seções da esquerda).
 
+<a id="v00203"></a>
 ## 2026-09-24 — Campo Placa (só no histórico) + card direito compacto (v0.2.3)
 
 **Pedido:** (1) campo de **placa** abaixo de Parcelas; (2) a placa aparece **apenas no
@@ -2457,6 +2755,7 @@ campos da direita (Total Revisão, Peças na Revisão, Desconto, Parcelas).
 equivalente — usar `(a.placa ?? '') === (b.placa ?? '')`, senão todo registro antigo (sem o
 campo) pareceria diferente após a atualização.
 
+<a id="v00202"></a>
 ## 2026-09-24 — Histórico: nº de itens + fonte maior (v0.2.2)
 
 **Pedido:** na tela do Histórico, fonte um pouco maior e, ao lado de data/hora, o **número de
@@ -2475,6 +2774,7 @@ itens** do orçamento.
 não tem `numItens`; sem o fallback a lista mostraria "undefined" após a atualização. Sempre que
 adicionar campo ao registro do histórico, prever o fallback dos dados antigos.
 
+<a id="v00201"></a>
 ## 2026-09-24 — Fonte igual à do AI Studio: Inter + JetBrains Mono embutidas (v0.2.1)
 
 **Problema:** o `.html` saía com a fonte padrão do Tailwind (Segoe UI no Windows), diferente
@@ -2501,6 +2801,7 @@ Fonts (Inter 400/700/900 + JetBrains Mono 400/700) e Tailwind via **CDN**.
 `.font-mono-data`, que os componentes não usam). Se o `index.css` do AI Studio (ainda não
 recebido) sobrescrever `font-mono`, aí embutimos/trocamos para JetBrains.
 
+<a id="v00200-1"></a>
 ## 2026-09-24 — Publicação (repo público + Release) — v0.2.0
 
 **Feito:** repo público **`viniciostristao1/orcamento-web`** criado e código enviado
@@ -2514,6 +2815,7 @@ recebido) sobrescrever `font-mono`, aí embutimos/trocamos para JetBrains.
 **mesmo caminho/arquivo** mantém o histórico; trocar o nome do arquivo pode perdê-lo (por isso
 o asset de nome estável + o backup JSON).
 
+<a id="v00200"></a>
 ## 2026-09-24 — Componentes reais + Exportar PNG + Histórico (v0.2.0)
 
 **Feito:**
@@ -2539,6 +2841,7 @@ o asset de nome estável + o backup JSON).
 - Em `html-to-image`, o nó capturado é `#printable-quote` (o documento branco) — os botões
   ficam fora dele, então não saem na imagem.
 
+<a id="bloco-2026-09-24-quotelogic-integrado-testes-de-logica-exemplo-hil"></a>
 ## 2026-09-24 — quoteLogic integrado + testes de lógica (exemplo Hilux)
 
 **Feito:** `src/utils/quoteLogic.ts` colado **1:1** do AI Studio (parse de número BR, ajustes
@@ -2563,6 +2866,7 @@ Itens: `01 PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS` (peças 1.438,24 / se
 - Descrição: `removerPalavras` tira `TR `/`TROCAR `/`TROCA ` e `substituicoesCondicionais`
   normaliza `OXI`, `RET`, pastilhas etc. — é aí que o texto "bonito" da saída é montado.
 
+<a id="bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba"></a>
 ## 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 **Contexto:** app gerado no Google AI Studio (React+TS+Tailwind+lucide-react) que gera

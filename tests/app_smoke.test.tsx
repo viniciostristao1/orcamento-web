@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
 import HistoryModal from '../src/components/HistoryModal';
 import type { OrcamentoSalvo } from '../src/utils/historico';
+import { VERSAO } from '../src/utils/versao';
 import { RASCUNHO_KEY } from '../src/utils/rascunho';
 import { ULTIMO_KEY } from '../src/utils/ultimoOrcamento';
 
@@ -42,6 +43,8 @@ describe('App — smoke test (render + processar)', () => {
     const { container } = render(<App />);
     expect(screen.getByText(/Toyota Weiand/i)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' })).toBeTruthy();
+    // selo de versão do header acompanha o package.json (trava contra selo defasado)
+    expect(screen.getByTitle('Versão do arquivo').textContent).toBe(`v${VERSAO}`);
     // títulos das abas no mesmo tamanho/fonte de DESCRIÇÃO DO REPARO (text-xl)
     expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' }).className).toContain('text-xl');
     expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();

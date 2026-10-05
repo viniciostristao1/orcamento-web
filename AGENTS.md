@@ -80,7 +80,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **142 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **144 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -355,6 +355,13 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Selo de versão no header** (v0.80.0): `utils/versao.ts` (`VERSAO`) mostra `vX.Y.Z` ao lado
   de "Gestão de Vendas" — **manter igual à `version` do package.json a cada release**
   (v0.78.0/v0.79.0 saíram mostrando "v0.77.0"); `tests/versao.test.ts` trava isso.
+- **Unificações** (v0.81.0, sem mudança funcional): `utils/busca.ts` (`normalizarBusca` única
+  para os dois históricos); telefone normalizado num lugar só (`ContactList` usa
+  `normalizarTelefoneParaWhats`); `restaurarBackup` **mescla listas por id** (orçamentos,
+  flyers, contatos — conflito: vale o atual; resumo ganhou `flyers`); shell único dos
+  históricos (`components/HistoricoBase.tsx` — cada modal entra com título/botões/cartões);
+  `tsconfig` cobre `tests/` (`resolveJsonModule` para o teste de versão); índice de versões
+  no topo do `APRENDIZADOS.md` (âncoras `<a id>`; regenerar o bloco entre os marcadores).
 - **Publicado**: repo público `viniciostristao1/orcamento-web` — cada Release tem
   `Orcamento-vX.Y.Z.html` + a cópia de nome estável **`Orcamento.html`**. ⚠️ **Contrato**: TODA
   release precisa subir a cópia `Orcamento.html` — o **link fixo do usuário** é
@@ -385,7 +392,8 @@ orcamento_web/
     types.ts                 tipos (QuoteSummary, QuoteItem)
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
     utils/historico.ts       HISTÓRICO orçamentos (localStorage) + backup/restaurar JSON
-    utils/telefone.ts        normalizar/validar telefone + wa.me (v0.78.0)
+    utils/busca.ts           normalizarBusca (definição única, dois históricos)
+    utils/telefone.ts        normalizar/validar telefone + wa.me (v0.78.0; também na aba Whats)
     utils/corCliente.ts      CorCliente/FiltroCor + filtrarPorCor + corDaBusca (v0.79.0)
     utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
     utils/tema.ts            tema da interface (6 temas; azul padrão) + persistência
@@ -399,6 +407,7 @@ orcamento_web/
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/HistoryModal.tsx  painel do histórico (abrir/excluir/limpar/backup/busca/
                              abas Todos|Não Realizados/filtro de cor/WhatsApp)
+    components/HistoricoBase.tsx casca dos dois históricos (overlay/cabeçalho/busca/cor/lista)
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)

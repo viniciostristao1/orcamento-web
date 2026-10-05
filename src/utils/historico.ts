@@ -1,5 +1,6 @@
 import type { QuoteSummary } from '../types';
 import { somenteDigitos } from './telefone';
+import { normalizarBusca } from './busca';
 import { corDaBusca, type CorCliente } from './corCliente';
 
 /** Um orçamento salvo no histórico local do navegador. */
@@ -190,17 +191,6 @@ export const temNaoRealizados = (r: OrcamentoSalvo): boolean => (r.naoRealizados
 export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): OrcamentoSalvo[] {
   return aba === 'naoRealizados' ? lista.filter(temNaoRealizados) : lista;
 }
-
-/**
- * Normaliza para busca: sem acentos, maiúsculas e só letras/números
- * (ignora / - . : e espaços) — "JOÃO" casa com "joao".
- */
-const normalizarBusca = (s: string): string =>
-  (s ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '');
 
 /**
  * Filtra o histórico por **data, placa (nome/contato), telefone, cor ou item** —

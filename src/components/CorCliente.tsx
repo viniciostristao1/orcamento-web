@@ -2,6 +2,25 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { ROTULO_COR, type CorCliente, type FiltroCor } from '../utils/corCliente';
 
+/** Borda do cartão conforme a cor marcada (sem cor = borda padrão). */
+export const classeBordaCor = (cor?: CorCliente): string =>
+  cor === 'verde'
+    ? 'border-green-600/70 hover:border-green-500'
+    : cor === 'vermelho'
+      ? 'border-red-600/70 hover:border-red-500'
+      : 'border-slate-800 hover:border-slate-700';
+
+/** Bolinha na linha do cartão marcando a cor (nada quando sem cor). */
+export const SeloCor: React.FC<{ cor?: CorCliente }> = ({ cor }) => {
+  if (!cor) return null;
+  return (
+    <span
+      title={ROTULO_COR[cor]}
+      className={`inline-block w-3 h-3 rounded-full mr-1 ${cor === 'verde' ? 'bg-green-500' : 'bg-red-500'}`}
+    />
+  );
+};
+
 /**
  * Bolinhas verde/vermelha de cada cartão do histórico: marcam a situação do
  * cliente (verde = quer fazer em breve; vermelho = só pesquisou). Clicar na cor

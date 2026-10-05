@@ -1,4 +1,4 @@
-/** Telefone do cliente (só histórico): normalização para o WhatsApp. */
+/** Telefone do cliente: normalização para o WhatsApp (históricos + aba Whats). */
 
 /** Só os dígitos do que foi digitado (tira espaços, traços, parênteses, +). */
 export function somenteDigitos(valor: string | undefined | null): string {
@@ -7,8 +7,8 @@ export function somenteDigitos(valor: string | undefined | null): string {
 
 /**
  * Normaliza para abrir no WhatsApp (`wa.me/<digitos>`).
- * Mesma regra da aba Whats (`formatPhone`): DDD+numero (10/11 dígitos)
- * ganha o `55`; quem já veio com `55` (12/13 dígitos) fica como está.
+ * DDD+numero (10/11 dígitos) ganha o `55`; quem já veio com `55`
+ * (12/13 dígitos) fica como está.
  */
 export function normalizarTelefoneParaWhats(valor: string | undefined | null): string {
   const digitos = somenteDigitos(valor);

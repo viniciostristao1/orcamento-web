@@ -53,7 +53,7 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
         return;
       }
       alert(
-        `✅ Backup restaurado!\n\n${resultado.resumo.orcamentos} orçamentos e ${resultado.resumo.contatos} contatos.\nO app vai recarregar agora.`,
+        `✅ Backup restaurado!\n\n${resultado.resumo.orcamentos} orçamentos, ${resultado.resumo.flyers} flyers e ${resultado.resumo.contatos} contatos.\nO app vai recarregar agora.`,
       );
       window.location.reload();
     };

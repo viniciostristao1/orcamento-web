@@ -1,4 +1,5 @@
 import { somenteDigitos } from '../../utils/telefone';
+import { normalizarBusca } from '../../utils/busca';
 import { corDaBusca, type CorCliente } from '../../utils/corCliente';
 
 /** Um flyer salvo no histórico local do Tire Flyer. */
@@ -102,17 +103,6 @@ export function limparFlyerHistorico(): void {
     /* ignora */
   }
 }
-
-/**
- * Normaliza para busca: sem acentos, maiúsculas e só letras/números
- * (ignora / - . : e espaços) — "JOÃO" casa com "joao".
- */
-const normalizarBusca = (s: string): string =>
-  (s ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '');
 
 /**
  * Filtra por **contato, telefone, cor, data ou medida** (busca "contém", ignorando

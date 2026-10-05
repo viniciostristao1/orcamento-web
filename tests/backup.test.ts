@@ -36,6 +36,7 @@ describe('backup de tudo (Configurações)', () => {
       versao: 2,
       dados: {
         [HISTORICO_KEY]: [{ id: '1' }],
+        flyer_historico_v1: [{ id: 'f1' }],
         zap_contacts: [{ id: 'c1' }],
         zap_template: 'Oi',
         orcamentos_tema_v1: 'claude',
@@ -44,10 +45,33 @@ describe('backup de tudo (Configurações)', () => {
     });
     const r = restaurarBackup(conteudo);
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.resumo).toEqual({ orcamentos: 1, contatos: 1 });
+    if (r.ok) expect(r.resumo).toEqual({ orcamentos: 1, flyers: 1, contatos: 1 });
     expect(JSON.parse(localStorage.getItem('zap_contacts') ?? '[]')).toHaveLength(1);
     expect(localStorage.getItem('zap_template')).toBe('Oi');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('claude');
+  });
+
+  it('restaurar mescla listas por id (não apaga o que já está no navegador)', () => {
+    localStorage.setItem(HISTORICO_KEY, JSON.stringify([{ id: '1', placa: 'ATUAL' }]));
+    const r = restaurarBackup(
+      JSON.stringify({
+        app: 'toyota-orcamentos-whats',
+        versao: 2,
+        dados: { [HISTORICO_KEY]: [{ id: '1', placa: 'BACKUP' }, { id: '2' }] },
+      }),
+    );
+    expect(r.ok).toBe(true);
+    const lista = JSON.parse(localStorage.getItem(HISTORICO_KEY) ?? '[]');
+    expect(lista).toHaveLength(2); // união, sem duplicar o id 1
+    expect(lista.find((i: { id: string }) => i.id === '1').placa).toBe('ATUAL'); // conflito: vale o atual
+    expect(lista.find((i: { id: string }) => i.id === '2')).toBeTruthy(); // id novo entra
+  });
+
+  it('formato antigo também mescla (não sobrescreve o histórico atual)', () => {
+    localStorage.setItem(HISTORICO_KEY, JSON.stringify([{ id: 'atual' }]));
+    const r = restaurarBackup(JSON.stringify([{ id: 'atual' }, { id: 'novo' }]));
+    expect(r.ok).toBe(true);
+    expect(JSON.parse(localStorage.getItem(HISTORICO_KEY) ?? '[]')).toHaveLength(2);
   });
 
   it('aceita backup antigo (só histórico) e rejeita arquivo inválido', () => {

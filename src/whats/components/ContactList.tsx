@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { Contact } from '../types';
+import { normalizarTelefoneParaWhats } from '../../utils/telefone';
 
 interface ContactListProps {
   contacts: Contact[];
@@ -63,18 +64,10 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, onRemove, onMarkAsS
     return [...contacts].sort((a, b) => a.targetDate.localeCompare(b.targetDate));
   }, [contacts]);
   
-  const formatPhone = (phone: string) => {
-    const clean = phone.replace(/\D/g, '');
-    if (clean.length === 10 || clean.length === 11) {
-      return `55${clean}`;
-    }
-    return clean;
-  };
-
   const handleSend = (contact: Contact) => {
     const finalMessage = contact.customMessage || messageTemplate;
     const encodedMsg = encodeURIComponent(finalMessage);
-    const phone = formatPhone(contact.phone);
+    const phone = normalizarTelefoneParaWhats(contact.phone);
     const url = `https://wa.me/${phone}?text=${encodedMsg}`;
     window.open(url, '_blank');
     onMarkAsSent(contact.id);
