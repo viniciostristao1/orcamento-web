@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.93.0](#v09300) — 2026-10-05 — Play usa revisão + PLACA no card 1 (v0.93.0)
 - [v0.92.0](#v09200) — 2026-10-05 — Card redondo: +, sem números, telefone/nome (v0.92.0)
 - [v0.91.0](#v09100) — 2026-10-05 — Lembretes com data/hora nos históricos (v0.91.0)
 - [v0.90.0](#v09000) — 2026-10-05 — Bug: play silencioso com campo vazio (v0.90.0)
@@ -151,6 +152,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09300"></a>
+## 2026-10-05 — Play usa revisão + PLACA no card 1 (v0.93.0)
+
+**Pedido:** (1) anexou + play deu alerta mesmo com texto extraído; (2) PLACA ao lado
+do NOME no card do sistema.
+
+**Feito:** revisão virou estado do app (`revDesc`/`revDados` controlados): play vazio usa
+o extraído (só alerta sem nada em nenhum lugar) e preenche os campos junto; PLACA saiu
+do APROVADO para o card (lado do NOME). Smoke do fallback direto.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**178/178 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.93.0`.
+
+---
 
 <a id="v09200"></a>
 ## 2026-10-05 — Card redondo: +, sem números, telefone/nome (v0.92.0)

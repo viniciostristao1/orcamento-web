@@ -54,8 +54,11 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   processar de novo). Também entra no backup geral.
 - **Layout dos Orçamentos** (sem números nos títulos desde a v0.92.0): botão **Histórico
   no card do SISTEMA** (ao lado do + e da borracha); esquerda na ordem **SISTEMA (Nº,
-  Data, Telefone + Nome abaixo) → DADOS**; direita na ordem **APROVADO E DESCONTO
-  (revisão, desconto, parcelas, PLACA) → AJUSTES → RESUMO LÍQUIDO → DESCRIÇÃO**; **preview do orçamento na metade** na tela
+  Data, Telefone + Placa e Nome abaixo) → DADOS**; direita na ordem **APROVADO E DESCONTO
+  (revisão, desconto, parcelas) → AJUSTES → RESUMO LÍQUIDO → DESCRIÇÃO**;
+- **Play aproveita a revisão** (v0.93.0): com DESCRIÇÃO/DADOS vazios, vale o texto já
+  extraído no card (anexar + play direto gera); o alerta só aparece sem nada em nenhum
+  dos dois lugares. **preview do orçamento na metade** na tela
   (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
   impressão sai normal). Título interno **ORÇAMENTOS** na cor de acento (v0.7.7) e títulos dos
   cards em **maiúsculas no texto-fonte**. Desde a v0.35.0 o conteúdo de **DESCRIÇÃO DO REPARO**
@@ -81,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **177 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **178 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do

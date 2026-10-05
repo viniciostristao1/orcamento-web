@@ -41,6 +41,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   // Cabeçalho do orçamento do sistema (card 3): nº e data do documento.
   const [numero, setNumero] = useState<string>(() => rascunho?.numero ?? "");
   const [dataDoc, setDataDoc] = useState<string>(() => rascunho?.dataDoc ?? "");
+  // Texto em revisão no card do sistema: se os campos estiverem vazios na hora
+  // do play, vale o que já foi extraído (sem obrigar o clique em "Usar").
+  const [revDesc, setRevDesc] = useState('');
+  const [revDados, setRevDados] = useState('');
   // Último documento gerado: reabre o app já com o visual do orçamento na tela.
   const [ultimo] = useState(lerUltimoOrcamento);
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
@@ -69,25 +73,31 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   }, [abrirLembrete]);
 
   const handleGenerate = () => {
-    // Sem os dois campos não há o que somar: avisa em vez de sair em silêncio
+    // Vale o campo preenchido; se vazio, vale o que já foi extraído no card
+    // do sistema (anexar + play direto, sem o "Usar", também gera).
+    const descEfetiva = descReparo.trim() || revDesc.trim();
+    const dadosEfetivos = orcamentoRaw.trim() || revDados.trim();
+    // Sem os dois não há o que somar: avisa em vez de sair em silêncio
     // (sem aviso o usuário acha que "não gerou": sem scroll e sem imagem).
-    if (!descReparo.trim() || !orcamentoRaw.trim()) {
+    if (!descEfetiva || !dadosEfetivos) {
       alert(
         'Preencha a DESCRIÇÃO e os DADOS — ou anexe o PDF/print no card do sistema e clique em "Usar no orçamento manual".',
       );
       return;
-    };
+    }
+    if (!descReparo.trim()) setDescReparo(revDesc);
+    if (!orcamentoRaw.trim()) setOrcamentoRaw(revDados);
     const finalRevAprovada = parseBrazilianNumber(revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(revPecasInput);
     
-    const result = processQuote(descReparo, orcamentoRaw, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
+    const result = processQuote(descEfetiva, dadosEfetivos, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
     setSummary(result);
     setSelecionados(new Set(result.items.map((i) => i.id))); // começa com todos marcados
 
     // Histórico local (localStorage): salva a cada "Processar Tudo".
     adicionarAoHistorico({
-      descReparo,
-      orcamentoRaw,
+      descReparo: descEfetiva,
+      orcamentoRaw: dadosEfetivos,
       ajustesManuais,
       revAprovadaInput,
       revPecasInput,
@@ -196,14 +206,20 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               onCabecalho={aplicarCabecalho}
               telefone={telefone}
               nome={nome}
+              placa={placa}
               onTelefone={setTelefone}
               onNome={setNome}
+              onPlaca={setPlaca}
               onLimparContato={() => {
                 setPlaca('');
                 setTelefone('');
                 setNome('');
               }}
               onAbrirHistorico={onAbrirHistorico}
+              revDesc={revDesc}
+              revDados={revDados}
+              onRevDesc={setRevDesc}
+              onRevDados={setRevDados}
               onUsarTextos={(desc, dados) => {
                 if (desc.trim()) setDescReparo(desc);
                 if (dados.trim()) setOrcamentoRaw(dados);
@@ -334,29 +350,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                     <select className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
                       {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
                     </select>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">PLACA</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white uppercase tracking-wide focus:border-blue-500 outline-none"
-                      value={placa}
-                      onChange={(e) => setPlaca(e.target.value.toUpperCase())}
-                      placeholder="Ex.: ABC1D23"
-                      maxLength={10}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setPlaca('')}
-                      aria-label="Limpar Placa"
-                      title="Limpar Placa"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
-                    >
-                      <Eraser size={16} />
-                    </button>
                   </div>
                 </div>
 

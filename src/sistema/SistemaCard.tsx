@@ -16,16 +16,23 @@ interface SistemaCardProps {
   dataDoc: string;
   telefone: string;
   nome: string;
+  placa: string;
   onNumero: (v: string) => void;
   onDataDoc: (v: string) => void;
   onTelefone: (v: string) => void;
   onNome: (v: string) => void;
+  onPlaca: (v: string) => void;
   /** Preenche placa (se vazia) com placa/nome extraídos. */
   onCabecalho: (c: CabecalhoOrcamento) => void;
   /** Limpa PLACA, NOME, CONTATO e TELEFONE (borracha do card). */
   onLimparContato: () => void;
   /** Abre o histórico de orçamentos. */
   onAbrirHistorico: () => void;
+  /** Texto em revisão (controlado pelo app: o play usa quando os campos vazios). */
+  revDesc: string;
+  revDados: string;
+  onRevDesc: (v: string) => void;
+  onRevDados: (v: string) => void;
   /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
   onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
 }
@@ -45,27 +52,31 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   dataDoc,
   telefone,
   nome,
+  placa,
   onNumero,
   onDataDoc,
   onTelefone,
   onNome,
+  onPlaca,
   onCabecalho,
   onLimparContato,
   onAbrirHistorico,
+  revDesc,
+  revDados,
+  onRevDesc,
+  onRevDados,
   onUsarTextos,
 }) => {
-  const [extraidoDesc, setExtraidoDesc] = useState('');
-  const [extraidoDados, setExtraidoDados] = useState('');
   const [estado, setEstado] = useState('');
   const [ocupado, setOcupado] = useState(false);
   const [msg, setMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const temTexto = extraidoDesc.trim() || extraidoDados.trim();
+  const temTexto = revDesc.trim() || revDados.trim();
 
   const limpar = () => {
-    setExtraidoDesc('');
-    setExtraidoDados('');
+    onRevDesc('');
+    onRevDados('');
     onNumero('');
     onDataDoc('');
     onLimparContato();
@@ -78,12 +89,12 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     const sis = extrairSistemaToyota(limpo);
     const cab = extrairCabecalho(limpo);
     if (sis.dados || sis.descReparo) {
-      setExtraidoDados(sis.dados);
-      setExtraidoDesc(sis.descReparo);
+      onRevDados(sis.dados);
+      onRevDesc(sis.descReparo);
     } else {
       // Layout desconhecido: tudo vai para DADOS revisar.
-      setExtraidoDados(limpo);
-      setExtraidoDesc('');
+      onRevDados(limpo);
+      onRevDesc('');
     }
     const numeroDoc = sis.numero || cab.numero;
     onNumero(numeroDoc.trim());
@@ -214,23 +225,36 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Nome</label>
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => onNome(e.target.value.toUpperCase())}
-            placeholder="Ex.: JOÃO DA SILVA"
-            maxLength={60}
-            className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
-          />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Placa</label>
+            <input
+              type="text"
+              value={placa}
+              onChange={(e) => onPlaca(e.target.value.toUpperCase())}
+              placeholder="Ex.: ABC1D23"
+              maxLength={10}
+              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Nome</label>
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => onNome(e.target.value.toUpperCase())}
+              placeholder="Ex.: JOÃO DA SILVA"
+              maxLength={60}
+              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+            />
+          </div>
         </div>
 
         <div className="space-y-1">
           <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DESCRIÇÃO</label>
           <textarea
-            value={extraidoDesc}
-            onChange={(e) => setExtraidoDesc(e.target.value)}
+            value={revDesc}
+            onChange={(e) => onRevDesc(e.target.value)}
             placeholder="As reclamações do cliente aparecem aqui para revisão…"
             aria-label="Descrição extraída para revisão"
             wrap="off"
@@ -241,8 +265,8 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         <div className="space-y-1">
           <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DADOS</label>
           <textarea
-            value={extraidoDados}
-            onChange={(e) => setExtraidoDados(e.target.value)}
+            value={revDados}
+            onChange={(e) => onRevDados(e.target.value)}
             placeholder="Os itens (peças/serviços) aparecem aqui para revisão…"
             aria-label="Dados extraídos para revisão"
             wrap="off"
@@ -254,7 +278,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           type="button"
           onClick={() => {
             if (!temTexto) return;
-            onUsarTextos(extraidoDesc, extraidoDados);
+            onUsarTextos(revDesc, revDados);
             setMsg('Preenchido na DESCRIÇÃO e nos DADOS — confira e clique em Processar Tudo.');
           }}
           disabled={!temTexto || ocupado}

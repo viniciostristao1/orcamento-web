@@ -1654,14 +1654,38 @@ describe('App — smoke test (render + processar)', () => {
     const livres = Array.from(container.querySelectorAll('textarea')).filter(
       (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
     );
-    expect(livres).toHaveLength(2); // DESCRIÇÃO (3) e DADOS (2)
+    expect(livres).toHaveLength(2); // DESCRIÇÃO e DADOS
     fireEvent.change(livres[0], { target: { value: '' } });
     fireEvent.change(livres[1], { target: { value: '' } });
     const alerta = vi.spyOn(window, 'alert').mockImplementation(() => {});
     try {
       fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
-      expect(alerta).toHaveBeenCalledWith(expect.stringContaining('Usar no orçamento'));
+      expect(alerta).toHaveBeenCalledWith(expect.stringContaining('Usar no orçamento manual'));
       expect(document.querySelector('#printable-quote')).toBeNull();
+    } finally {
+      alerta.mockRestore();
+    }
+  });
+
+  it('play usa o texto em revisão quando os campos estão vazios', () => {
+    const { container } = render(<App />);
+    const livres = Array.from(container.querySelectorAll('textarea')).filter(
+      (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
+    );
+    fireEvent.change(livres[0], { target: { value: '' } });
+    fireEvent.change(livres[1], { target: { value: '' } });
+    fireEvent.change(screen.getByLabelText('Descrição extraída para revisão'), {
+      target: { value: '01 TESTE' },
+    });
+    fireEvent.change(screen.getByLabelText('Dados extraídos para revisão'), {
+      target: { value: '1 Peça X 1 10,00' },
+    });
+    const alerta = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    try {
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      expect(alerta).not.toHaveBeenCalled();
+      expect(document.querySelector('#printable-quote')).toBeTruthy();
+      expect(screen.getByText('TESTE')).toBeTruthy();
     } finally {
       alerta.mockRestore();
     }
