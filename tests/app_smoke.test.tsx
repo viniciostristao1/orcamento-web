@@ -50,9 +50,8 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('1. DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('2. DADOS DO ORÇAMENTO')).toBeTruthy();
     // DESCRIÇÃO DO REPARO e DADOS DO ORÇAMENTO com a mesma fonte (text-lg)
-    const textareas = container.querySelectorAll('textarea');
-    expect(textareas[0].className).toContain('text-lg');
-    expect(textareas[1].className).toContain('text-lg');
+    const grandes = container.querySelectorAll('textarea.text-lg');
+    expect(grandes.length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Processar Tudo/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Histórico' })).toBeTruthy();
@@ -121,12 +120,16 @@ describe('App — smoke test (render + processar)', () => {
 
   it('lembra o último orçamento digitado (rascunho no localStorage)', () => {
     const { unmount, container } = render(<App />);
-    const primeiroTextarea = container.querySelector('textarea') as HTMLTextAreaElement;
+    const primeiroTextarea = Array.from(container.querySelectorAll('textarea')).find((t) =>
+      (t as HTMLTextAreaElement).value.includes('PASTILHAS'),
+    ) as HTMLTextAreaElement;
     fireEvent.change(primeiroTextarea, { target: { value: '01 TESTE PERSISTIDO' } });
     unmount();
 
     const { container: novo } = render(<App />);
-    const textareaDepois = novo.querySelector('textarea') as HTMLTextAreaElement;
+    const textareaDepois = Array.from(novo.querySelectorAll('textarea')).find((t) =>
+      (t as HTMLTextAreaElement).value.includes('TESTE PERSISTIDO'),
+    ) as HTMLTextAreaElement;
     expect(textareaDepois.value).toBe('01 TESTE PERSISTIDO');
   });
 
@@ -1601,9 +1604,23 @@ describe('App — smoke test (render + processar)', () => {
     const dataInput = screen.getByPlaceholderText('Ex.: 24/09/2026') as HTMLInputElement;
     fireEvent.change(numInput, { target: { value: '20234' } });
     fireEvent.change(dataInput, { target: { value: '05/10/2026' } });
+    fireEvent.change(screen.getByPlaceholderText(/ABC1D23 \/ JOÃO/i), { target: { value: 'ABC1D23' } });
+    fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51999999999' } });
     fireEvent.click(screen.getByRole('button', { name: 'Limpar extração' }));
     expect(numInput.value).toBe('');
     expect(dataInput.value).toBe('');
+    expect((screen.getByPlaceholderText(/ABC1D23 \/ JOÃO/i) as HTMLInputElement).value).toBe('');
+    expect((screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement).value).toBe('');
+  });
+
+  it('ordem dos cards: sistema no topo, descrição abaixo, dados abaixo de ajustes', () => {
+    render(<App />);
+    const hSistema = screen.getByRole('heading', { name: '3. ORÇAMENTO DO SISTEMA (PDF/PRINT)' });
+    const hDesc = screen.getByText('1. DESCRIÇÃO DO REPARO');
+    const hDados = screen.getByText('2. DADOS DO ORÇAMENTO');
+    const hAjustes = screen.getByText(/3\. AJUSTES MANUAIS/);
+    expect(hSistema.compareDocumentPosition(hDesc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hAjustes.compareDocumentPosition(hDados) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('aprovado e desconto: borracha limpa a janela toda', () => {

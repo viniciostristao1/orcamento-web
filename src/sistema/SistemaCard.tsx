@@ -18,6 +18,8 @@ interface SistemaCardProps {
   onDataDoc: (v: string) => void;
   /** Preenche placa (se vazia) com placa/nome extraídos. */
   onCabecalho: (c: CabecalhoOrcamento) => void;
+  /** Limpa PLACA, NOME, CONTATO e TELEFONE (borracha do card). */
+  onLimparContato: () => void;
   /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
   onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
 }
@@ -38,6 +40,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onNumero,
   onDataDoc,
   onCabecalho,
+  onLimparContato,
   onUsarTextos,
 }) => {
   const [extraidoDesc, setExtraidoDesc] = useState('');
@@ -54,6 +57,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     setExtraidoDados('');
     onNumero('');
     onDataDoc('');
+    onLimparContato();
     setMsg('');
   };
 

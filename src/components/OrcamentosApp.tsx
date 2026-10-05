@@ -167,6 +167,22 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_601px] gap-10 print:hidden ui-compacta">
           <div className="min-w-0 space-y-6">
+            <SistemaCard
+              numero={numero}
+              dataDoc={dataDoc}
+              onNumero={setNumero}
+              onDataDoc={setDataDoc}
+              onCabecalho={aplicarCabecalho}
+              onLimparContato={() => {
+                setPlaca('');
+                setTelefone('');
+              }}
+              onUsarTextos={(desc, dados) => {
+                if (desc.trim()) setDescReparo(desc);
+                if (dados.trim()) setOrcamentoRaw(dados);
+              }}
+            />
+
             <NeonCard
               title="1. DESCRIÇÃO DO REPARO"
               borderColor="blue-500"
@@ -192,28 +208,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 onChange={(e) => setDescReparo(e.target.value)} 
               />
             </NeonCard>
-            
-            <NeonCard title="2. DADOS DO ORÇAMENTO" borderColor="blue-600" compact actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}>
-              <textarea 
-                className="w-full h-96 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
-                value={orcamentoRaw} 
-                onChange={(e) => setOrcamentoRaw(e.target.value)} 
-                wrap="off" 
-              />
-            </NeonCard>
 
-            <SistemaCard
-              numero={numero}
-              dataDoc={dataDoc}
-              onNumero={setNumero}
-              onDataDoc={setDataDoc}
-              onCabecalho={aplicarCabecalho}
-              onUsarTextos={(desc, dados) => {
-                if (desc.trim()) setDescReparo(desc);
-                if (dados.trim()) setOrcamentoRaw(dados);
-              }}
-            />
-            
           </div>
 
           {/* Coluna em flex: o RESUMO LÍQUIDO (mt-auto) encosta no fim da
@@ -394,6 +389,15 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 placeholder="Ex: 1 50,00" 
                 value={ajustesManuais} 
                 onChange={(e) => setAjustesManuais(e.target.value)} 
+              />
+            </NeonCard>
+
+            <NeonCard title="2. DADOS DO ORÇAMENTO" borderColor="blue-600" compact actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}>
+              <textarea 
+                className="w-full h-96 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
+                value={orcamentoRaw} 
+                onChange={(e) => setOrcamentoRaw(e.target.value)} 
+                wrap="off" 
               />
             </NeonCard>
 

@@ -52,9 +52,10 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Último documento gerado** (v0.10.0): `utils/ultimoOrcamento.ts` (`orcamento_ultimo_v1`)
   guarda o resumo + a marcação dos itens; ao abrir, o orçamento já aparece na tela (sem
   processar de novo). Também entra no backup geral.
-- **Layout do Orçamentos** (v0.7.5): botão **Histórico no cabeçalho do card 1** (ao lado de
-  Limpar); coluna direita na ordem **APROVADO E DESCONTO → 3. AJUSTES MANUAIS (campo com
-  `rows={3}`) → RESUMO LÍQUIDO** (pares de valores, v0.14.0/0.14.1); **preview do orçamento na metade** na tela
+- **Layout do Orçamentos** (v0.7.5; ordem refeita na v0.88.0): botão **Histórico no
+  cabeçalho do card 1** (ao lado de Limpar); esquerda na ordem **3. SISTEMA → 1.
+  DESCRIÇÃO**; direita na ordem **APROVADO E DESCONTO → 3. AJUSTES MANUAIS (campo com
+  `rows={3}`) → 2. DADOS → RESUMO LÍQUIDO** (pares de valores, v0.14.0/0.14.1); **preview do orçamento na metade** na tela
   (`.preview-orcamento`, `transform: scale(.5)` + altura medida; `@media print` reseta → a
   impressão sai normal). Título interno **ORÇAMENTOS** na cor de acento (v0.7.7) e títulos dos
   cards em **maiúsculas no texto-fonte**. Desde a v0.35.0 o conteúdo de **DESCRIÇÃO DO REPARO**
@@ -80,7 +81,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **161 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **168 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -582,6 +583,10 @@ npm run build        # gera dist/index.html (arquivo único)
   partes para revisão e preenche os campos 1 e 2.
 - **Card 3 automático** (v0.87.0): anexar já extrai sozinho (sem botão extrair);
   botão único **"Novo arquivo"**; novo anexo **substitui** o anterior (nunca soma).
+- **Nova ordem + borrachas** (v0.88.0): esquerda = 3. SISTEMA no topo e 1. DESCRIÇÃO
+  abaixo; direita = APROVADO, 3. AJUSTES, 2. DADOS e RESUMO (títulos mantidos).
+  Borracha do card 3 apaga também Nº/Data e PLACA/NOME/TELEFONE; borracha geral no
+  APROVADO (zera revisão/peças, desconto 0, parcelas 1x, limpa placa/telefone).
 - **Ajustes do card 3 e borrachas** (v0.86.0): a borracha do card 3 apaga também Nº e Data;
   o card APROVADO E DESCONTO ganhou borracha geral (zera revisão/peças, desconto 0,
   parcelas 1x, limpa placa/telefone); "Usar no orçamento" **sobrescreve** PLACA/NOME e

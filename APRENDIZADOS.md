@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.88.0](#v08800) — 2026-10-05 — Nova ordem dos cards + borrachas (v0.88.0)
 - [v0.87.0](#v08700) — 2026-10-05 — Card 3 automático: extrai ao anexar, substitui (v0.87.0)
 - [v0.86.0](#v08600) — 2026-10-05 — Borrachas e sobrescrita do card 3 (v0.86.0)
 - [v0.85.0](#v08500) — 2026-10-05 — PDF real: separação por seção (v0.85.0)
@@ -146,6 +147,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v08800"></a>
+## 2026-10-05 — Nova ordem dos cards + borrachas (v0.88.0)
+
+**Pedido:** (1) borracha do card 3 limpa PLACA/NOME/TELEFONE; (2) 3. SISTEMA no topo,
+1. DESCRIÇÃO abaixo dele, 2. DADOS abaixo de 3. AJUSTES.
+
+**Feito:** `onLimparContato` no card 3 (zera placa+telefone); esquerda =
+SISTEMA + DESCRIÇÃO; direita = APROVADO + AJUSTES + DADOS + RESUMO (só posição,
+títulos e lógica intactos). Smoke cobre a ordem (`compareDocumentPosition`) e a
+borracha; 2 testes antigos que indexavam "primeira textarea" passaram a mirar o
+campo certo.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**168/168 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.88.0`.
+
+---
 
 <a id="v08700"></a>
 ## 2026-10-05 — Card 3 automático: extrai ao anexar, substitui (v0.87.0)
