@@ -1,3 +1,6 @@
+import { somenteDigitos } from '../../utils/telefone';
+import { corDaBusca, type CorCliente } from '../../utils/corCliente';
+
 /** Um flyer salvo no histórico local do Tire Flyer. */
 export interface FlyerSalvo {
   id: string;
@@ -14,9 +17,6 @@ export interface FlyerSalvo {
   /** Quantas marcas foram cotadas (uma linha da tabela = uma marca). */
   numMarcas: number;
 }
-
-import { somenteDigitos } from '../../utils/telefone';
-import { corDaBusca, type CorCliente } from '../../utils/corCliente';
 
 /** Registro antigo, de antes da v0.29.0 (o campo chamava `numPneus`). */
 type FlyerSalvoAntigo = Omit<FlyerSalvo, 'numMarcas'> & { numMarcas?: number; numPneus?: number };

@@ -5,6 +5,50 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-05 — Varredura: pontas soltas, limpeza e docs (v0.80.0)
+
+**Pedido:** ler o projeto inteiro, achar pontas soltas e coisas por documentar, organizar
+arquivos/pastas; sugestões de melhoria só listadas, sem executar.
+
+**Pontas soltas encontradas e corrigidas:**
+- `utils/versao.ts` parado em `0.77.0` (package em `0.79.0`): v0.78.0/v0.79.0 saíram com o
+  selo do header defasado. Corrigido + travado por `tests/versao.test.ts` (VERSAO ===
+  package.json; o tsconfig cobre só `src/`, então o teste importa o JSON com
+  `@ts-expect-error` — vitest resolve em runtime).
+- Arquivos mortos apagados (eram só peso no repo; nada os importava): `src/assets/hero.png`,
+  `react.svg`, `vite.svg`, `logo_toyota.PNG` (duplicata do `.png` usado no header) e
+  `public/` inteiro (`favicon.svg`, `icons.svg` — template Vite; `index.html` não referencia).
+  Único asset restante: `src/assets/logo_toyota.png`. Build sem `public/` passa normal.
+- Tipos mortos em `whats/types.ts` (`Task`, `AppState`, `CampaignStatus` — agenda removida
+  na v0.7.4, nada os usava). Ficou só `Contact`.
+- Lint: import `Download` sem uso (`QuoteTable.tsx`) e states `revAprovada`/`revPecas`
+  escritos mas nunca lidos (`OrcamentosApp.tsx` — saíram os states e as 2 linhas de
+  "consistência" no `handleGenerate`; os `*Input` continuam donos do valor). Restam só
+  warnings conhecidos (`set-state-in-effect` nos modais/listas = reset ao abrir, padrão
+  aceito; `only-export-components` no `RotulosContext`).
+- `tire/utils/historicoFlyer.ts`: imports estavam após a interface — movidos para o topo.
+
+**Documentação:**
+- `AGENTS.md`: §1"quatro abas" listava 3 → 4 (faltava Dados); §2 testes 94 → 142 + bullets
+  v0.78.0/v0.79.0/v0.80.0; §3 árvore reescrita (faltavam ~20 arquivos; `BackupManager`
+  listado não existe — backup mora em `ConfiguracoesTema`); §4 `npm test` corrigido para
+  `vitest run` + `lint` + aviso de que o typecheck cobre só `src/`; §5 checklist com
+  `versao.ts` + lint; §6 regras de telefone/cor/VERSAO; §7 decisões registradas.
+- `README.md` era template do Vite — virou resumo do projeto com abas, comandos e entrega.
+- `ideias/` mantido (mockups já implementados; histórico das escolhas de layout).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**142/142 (12 arquivos)**, `npm run build` OK (`dist/index.html` ~1,29 MB, 0 refs externas).
+Selo `v0.80.0`.
+
+**Gotchas / decisões:**
+- Organização aqui = só remoção de mortos + docs; nenhum arquivo `.tsx/.ts` mudou de pasta
+  (mover quebraria ~40 imports por ganho zero — ver sugestões).
+- `public/` não faz falta: com `vite-plugin-singlefile` + `assetsInlineLimit` alto, tudo vai
+  embutido; nada referencia a pasta.
+
+---
+
 ## 2026-10-05 — Cor do cliente nos históricos: verde/vermelho (v0.79.0)
 
 **Pedido:** no histórico (orçamentos e tire flyer), marcar cada contato de verde

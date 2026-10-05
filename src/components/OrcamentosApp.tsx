@@ -29,8 +29,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [descReparo, setDescReparo] = useState<string>(() => rascunho?.descReparo ?? EXEMPLO_DESC);
   const [orcamentoRaw, setOrcamentoRaw] = useState<string>(() => rascunho?.orcamentoRaw ?? EXEMPLO_ORCAMENTO);
   const [ajustesManuais, setAjustesManuais] = useState<string>(() => rascunho?.ajustesManuais ?? "");
-  const [revAprovada, setRevAprovada] = useState<number>(1766.23);
-  const [revPecas, setRevPecas] = useState<number>(1000.00);
   const [desconto, setDesconto] = useState<number>(() => rascunho?.desconto ?? 5);
   const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 3);
   const [placa, setPlaca] = useState<string>(() => rascunho?.placa ?? "");
@@ -76,10 +74,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       telefone: telefone.trim(),
       ...retratoDoResumo(result),
     });
-    
-    // Atualiza os estados numéricos para consistência
-    setRevAprovada(finalRevAprovada);
-    setRevPecas(finalRevPecas);
     
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
   };

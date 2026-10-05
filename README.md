@@ -1,32 +1,36 @@
-# React + TypeScript + Vite
+# Gerador de Orçamentos — Toyota Weiand Lajeado
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+App local (arquivo `.html` único, sem servidor e sem internet) para gerar orçamentos de
+oficina, flyers de promoção de pneus, acompanhar contatos de WhatsApp e tabelas de apoio.
+O resultado é exportado como **PNG** e enviado ao cliente pelo WhatsApp.
 
-Currently, two official plugins are available:
+> Documentação de trabalho (leitura obrigatória antes de mexer no código):
+> [`AGENTS.md`](AGENTS.md) — o que é, como rodar/entregar e o que não pode quebrar.
+> [`APRENDIZADOS.md`](APRENDIZADOS.md) — diário técnico de cada versão.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Abas
 
-## React Compiler
+- **Orçamentos** — cola a descrição do reparo + os dados do orçamento, aplica desconto em
+  peças, parcela, exporta o PNG e guarda no histórico (placa, telefone e cor do cliente).
+- **Tire Flyer** — cola a tabela de pneus e gera o flyer de promoção (6 layouts) em PNG.
+- **Whats** — contatos, scripts de mensagem e relatório de envios.
+- **Dados** — tabelas e notas de apoio (peças, O.S's etc.).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Comandos
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install          # dependências
+npm run dev          # servidor de desenvolvimento
+npm run typecheck    # tsc -b (cobre só `src/`)
+npm run lint         # oxlint
+npm test             # vitest run
+npm run build        # gera dist/index.html (arquivo único entregue ao usuário)
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Entrega
+
+Cada versão sai em `Orcamento-vX.Y.Z.html` + cópia estável `Orcamento.html` na
+[página de releases](https://github.com/viniciostristao1/orcamento-web/releases/latest).
+Link fixo do usuário:
+`https://github.com/viniciostristao1/orcamento-web/releases/latest/download/Orcamento.html`
+(baixar e substituir o arquivo **na mesma pasta**, para manter o `localStorage`).

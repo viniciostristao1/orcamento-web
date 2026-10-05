@@ -15,8 +15,9 @@ peças/serviços, aplica **desconto em peças (%)**, divide em **parcelas** e mo
 tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pelo **WhatsApp**.
 
 O app tem **quatro abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
-pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e **Whats** (v0.7.0 —
-contatos, template de mensagem e backup JSON para disparos mensais no WhatsApp). As três abas
+pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG), **Whats** (v0.7.0 —
+contatos, template de mensagem e backup JSON para disparos mensais no WhatsApp) e
+**Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.). As quatro abas
 compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **6 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium):
 **Azul** (padrão, era "Original"), **Claro Papel** (modo claro), **Verde WhatsApp**,
@@ -79,9 +80,12 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **94 passando** (`npm test`) — lógica (`tests/quote_logic.test.ts`), histórico
-  (`tests/historico.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
-  (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`) e smoke de tela
+- Testes: **142 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+  histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
+  (`tests/versao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
+  (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
+  flyer (`tests/flyer_historico.test.ts`), dados (`tests/dados.test.ts`), backup
+  (`tests/backup.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
   persistência) e a troca de layout do Tire Flyer.
 - **Aba Whats** (v0.7.0; agenda removida na v0.7.4; backup global na v0.9.0; scripts divididos
@@ -332,6 +336,25 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   contato) e descrição dos itens** — ex.: buscar "freio" acha os orçamentos com pastilhas
   (útil na aba **Não Realizados**); o termo encontrado fica **grifado** na descrição do cartão
   (`destacarTermo`, NFD/case-insensitive, sem quebrar acentos).
+- **Telefone + botão WhatsApp nos históricos** (v0.78.0): campo **TELEFONE (DDD + número)**
+  nos orçamentos (abaixo de PLACA/NOME/CONTATO) e no Tire Flyer (card CONTATO);
+  `utils/telefone.ts` (`somenteDigitos`/`normalizarTelefoneParaWhats` — 10–11 dígitos ganham
+  `55`, igual ao `formatPhone` da aba Whats —/`temTelefoneValido`/`urlWhats`/`abrirWhats`).
+  Entra na busca e no anti-duplicado (dígitos normalizados); **não** vai para o PNG.
+  `components/BotaoWhats.tsx` (ícone-only, SVG da marca — o lucide não tem brand icon;
+  verde habilitado, `disabled`+`opacity-40` sem número) abre **só a conversa**
+  (`wa.me/<numero>`, sem texto) nos dois modais (`max-w-3xl` → `max-w-4xl` para caber).
+- **Cor do cliente nos históricos** (v0.79.0): bolinhas **verde** (quer fazer em breve) /
+  **vermelha** (só pesquisou) em cada cartão (`utils/corCliente.ts`:
+  `CorCliente`/`FiltroCor`/`filtrarPorCor`/`corDaBusca`; UI em `components/CorCliente.tsx`:
+  `MarcadorCor` + `FiltroCorCliente` com contagens). Marcada **depois de gerar, no
+  histórico** (salva na hora; clicar na ativa limpa); filtro `Todas | Verdes (N) |
+  Vermelhos (N)` combina com busca e abas; buscar "verde"/"vermelho" também filtra.
+  A cor **não** entra no anti-duplicado e o reprocessamento a preserva
+  (`novo.cor ?? antiga`). Cartão marcado ganha borda/bolinha na cor.
+- **Selo de versão no header** (v0.80.0): `utils/versao.ts` (`VERSAO`) mostra `vX.Y.Z` ao lado
+  de "Gestão de Vendas" — **manter igual à `version` do package.json a cada release**
+  (v0.78.0/v0.79.0 saíram mostrando "v0.77.0"); `tests/versao.test.ts` trava isso.
 - **Publicado**: repo público `viniciostristao1/orcamento-web` — cada Release tem
   `Orcamento-vX.Y.Z.html` + a cópia de nome estável **`Orcamento.html`**. ⚠️ **Contrato**: TODA
   release precisa subir a cópia `Orcamento.html` — o **link fixo do usuário** é
@@ -353,32 +376,63 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 orcamento_web/
   index.html                 (lang pt-BR; título "Gerador de Orçamentos")
   vite.config.ts             react + @tailwindcss/vite + vite-plugin-singlefile; base './'
+                             (assetsInlineLimit alto → fontes/imagens em base64; sem pasta public)
   src/
-    main.tsx                 entrada (StrictMode)
+    main.tsx                 entrada (StrictMode; aplica o tema salvo antes do 1º render)
     index.css                @import "tailwindcss"; @utility scrollbar-hide; @media print
-    App.tsx                  SHELL: header (logo + abas + configurações) + telas
+    App.tsx                  SHELL: header (logo + abas + selo vX.Y.Z + configurações) + telas
+                             (todas montadas, a inativa com `hidden`) + lembrete global
     types.ts                 tipos (QuoteSummary, QuoteItem)
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
-    utils/historico.ts       HISTÓRICO local (localStorage) + backup/restaurar JSON
+    utils/historico.ts       HISTÓRICO orçamentos (localStorage) + backup/restaurar JSON
+    utils/telefone.ts        normalizar/validar telefone + wa.me (v0.78.0)
+    utils/corCliente.ts      CorCliente/FiltroCor + filtrarPorCor + corDaBusca (v0.79.0)
     utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
     utils/tema.ts            tema da interface (6 temas; azul padrão) + persistência
                              (fontes/paleta em index.css; .titulo-tema = fonte do tema)
-    assets/logo_toyota.png   logo do header (fundo transparente)
+    utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
+    utils/rascunho.ts        rascunho em edição (orcamento_rascunho_v1)
+    utils/ultimoOrcamento.ts último documento gerado (orcamento_ultimo_v1)
+    utils/backup.ts          backup geral (todas as chaves) + restaurar
+    utils/rotulos.ts         rótulos editáveis (rotulos_v1)
+    assets/logo_toyota.png   logo do header (fundo transparente; único asset)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
-    components/ConfiguracoesTema.tsx engrenagem: escolhe o tema
-    components/ClearButton.tsx botão "Limpar" (usado nas duas abas)
-    components/NeonCard.tsx  card com borda neon
+    components/HistoryModal.tsx  painel do histórico (abrir/excluir/limpar/backup/busca/
+                             abas Todos|Não Realizados/filtro de cor/WhatsApp)
+    components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
+    components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
-    components/HistoryModal.tsx painel do histórico (abrir/excluir/limpar/backup)
+    components/NeonCard.tsx  card com borda neon (prop `compact`)
+    components/ClearButton.tsx botão "Limpar" (usado nas abas)
+    components/ConfiguracoesTema.tsx engrenagem: tema + BACKUP DOS DADOS
+    components/TituloEditavel.tsx título editável com duplo clique
+    components/RotulosContext.tsx provider dos rótulos (abas + títulos)
+    components/AtalhosDados.tsx faixa SUB ATALHOS (lupa + sub-abas de Dados)
+    components/LembreteContatos.tsx pop-up global de contatos para hoje
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
-    tire/components/Flyer.tsx flyer 750px (layout de saída, 1:1 do AI Studio)
+    tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
+    tire/components/FlyerTabela.tsx / FlyerEtiqueta.tsx / FlyerLaranja.tsx /
+      FlyerRacing.tsx / FlyerEncarte.tsx (os 5 layouts alternativos)
+    tire/components/FlyerHistoryModal.tsx histórico do flyer (busca/filtro cor/WhatsApp)
+    tire/components/SeletorLayoutFlyer.tsx botão ícone-only do layout de saída
     tire/utils/parser.ts     parse da tabela de pneus (TABs) + preço BRL
+    tire/utils/historicoFlyer.ts histórico local (flyer_historico_v1)
+    tire/utils/layoutFlyer.ts layout escolhido (flyer_layout_v1)
+    tire/utils/marcas.ts     getBrandStyle (cores por marca)
+    tire/utils/descricaoWhats.ts texto COPIAR PNEUS (medida + marcas)
     tire/types.ts            TireData / PromoInfo
-    whats/WhatsApp.tsx       tela da aba Whats (contatos + backup)
-    whats/components/*.tsx   ContactForm, ContactList, MessageEditor, BackupManager
-    whats/types.ts           Contact / Task / AppState
-  tests/                     vitest: quote_logic, historico, export_image, tire_flyer, app_smoke
-  dist/index.html            BUILD = arquivo único entregue ao usuário
+    dados/DadosApp.tsx       tela da aba Dados (sub-abas + busca + grifo)
+    dados/components/OrdenarTabela.tsx janelinha "Ordenar por coluna"
+    dados/utils/tabelas.ts   modelo { abas, ordem } + seleção em grade + ordenar + notas
+    whats/WhatsApp.tsx       tela da aba Whats (contatos + scripts + relatório)
+    whats/components/ContactForm.tsx / ContactList.tsx / MessageEditor.tsx
+    whats/utils/contatosHoje.ts lerContatos + contatosParaHoje + evento zap:contatos
+    whats/utils/scripts.ts   scripts pneus/revisão (chaves + migração do legado)
+    whats/types.ts           Contact (só; agenda/Task saiu na v0.7.4)
+  tests/                     vitest run: quote_logic, historico, telefone, versao,
+                             export_image, tire_flyer, flyer_layout, flyer_historico,
+                             dados, backup, whats_scripts, app_smoke (jsdom)
+  dist/index.html            BUILD = arquivo único entregue ao usuário (ignorado no git)
 ```
 
 ## 4. Comandos
@@ -386,8 +440,9 @@ orcamento_web/
 ```bash
 npm install          # dependências
 npm run dev          # servidor de desenvolvimento (testar no navegador)
-npm run typecheck    # tsc -b
-npm test             # testes de lógica (node --test tests/)
+npm run typecheck    # tsc -b (cobre só `src/`; testes ficam de fora — ver gotcha)
+npm run lint         # oxlint (há warnings conhecidos: set-state-in-effect nos modais)
+npm test             # vitest run (toda a suíte)
 npm run build        # gera dist/index.html (arquivo único)
 ```
 
@@ -402,11 +457,14 @@ npm run build        # gera dist/index.html (arquivo único)
 > O passo 8 (mandar o link fixo) faz parte da entrega.
 
 1. Editar a lógica/tela.
-2. `npm run typecheck` e `npm test` limpos (e testar no `npm run dev` quando mexer em UI).
+2. `npm run typecheck`, `npm run lint` (só erros; warnings de `set-state-in-effect` nos
+   modais/listas são padrão aceito) e `npm test` limpos (e testar no `npm run dev` quando
+   mexer em UI).
 3. `npm run build` → conferir que `dist/index.html` continua **autocontido** (sem
    `<script src=...>`/`<link rel=stylesheet>` externos).
 4. Anexar o bloco em [`APRENDIZADOS.md`](APRENDIZADOS.md) (o que mudou + decisões + gotchas).
-5. Subir a versão em `package.json`.
+5. Subir a versão em `package.json` **e em `src/utils/versao.ts`** (o selo do header;
+   `tests/versao.test.ts` quebra se divergirem).
 6. `git commit && git push`.
 7. Publicar no Release do repo público `viniciostristao1/orcamento-web`:
    `cp dist/index.html /tmp/Orcamento-vX.Y.Z.html` →
@@ -438,10 +496,15 @@ npm run build        # gera dist/index.html (arquivo único)
   ou trocar de PC). Salvar a cada "Processar Tudo". O `localStorage` no `file://` é por origem
   do navegador — para não depender disso, o Release publica também o `Orcamento.html` de nome
   estável (abrir sempre do mesmo caminho) e há o backup JSON.
-- **Placa, Nome, Contato** (v0.13.0; era só "Placa") é dado **só do histórico** (não aparece no
-  PNG enviado ao cliente), campo livre com `maxLength 60`, e **entra na comparação de
-  duplicidade**: mesmo conteúdo substitui o último; diferente = novo registro. A busca do
-  histórico ignora acentos (`normalizarBusca` com `normalize('NFD')`).
+- **Placa, Nome, Contato + Telefone** (v0.13.0; telefone na v0.78.0) são dados **só do
+  histórico** (não aparecem no PNG enviado ao cliente). Placa é campo livre (`maxLength 60`),
+  telefone é DDD + número (`maxLength 20`, normalizado para `wa.me`); **ambos entram na
+  comparação de duplicidade**: mesmo conteúdo substitui o último; diferente = novo registro.
+  A busca do histórico ignora acentos (`normalizarBusca` com `normalize('NFD')`) e máscaras.
+- **Cor do cliente** (v0.79.0) é marcação **posterior, no histórico** (verde = quer fazer;
+  vermelho = só pesquisou): **não** entra no anti-duplicado e o reprocessamento a preserva.
+- **Selo de versão**: `VERSAO` (`utils/versao.ts`) = `version` do `package.json`, sempre
+  (travado por `tests/versao.test.ts`).
 - **Flyer de pneus também é layout de saída**: 750px, `font-sans` do sistema e emojis (igual ao
   app original) e export em `pixelRatio: 2` (1500px). Não trocar fonte/cor/estrutura nem pôr
   `zoom` no `body` — o `zoom` do wrapper do preview é seguro (`clientWidth` segue 750).
@@ -467,6 +530,11 @@ npm run build        # gera dist/index.html (arquivo único)
   `ideias/tire-flyer-valores.md`) + "Laranja Queima-Estoque", "Vermelho Racing" e "Amarelo
   Encarte" (ideias 01, 02 e 09 de `ideias/tire-flyer-cores.md`), trocados por um ícone ao lado
   do download — nunca substituindo o layout atual.
+- **Telefone do cliente** (v0.78.0): campo próprio (não dentro de placa/contato), só
+  números; o botão WhatsApp abre **só a conversa** (`wa.me`, sem texto pronto) e fica
+  desabilitado sem número válido.
+- **Cor do cliente** (v0.79.0): verde = quer fazer em breve, vermelho = só pesquisou;
+  marcada no histórico depois de gerar, com filtro por cor nos dois históricos.
 
 ## 8. Pendências
 

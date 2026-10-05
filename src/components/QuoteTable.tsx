@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QuoteSummary } from '../types';
 import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
-import { Printer, Download, Image as ImageIcon, Save, Check } from 'lucide-react';
+import { Printer, Image as ImageIcon, Save, Check } from 'lucide-react';
 import { exportarPng } from '../utils/exportImage';
 
 interface QuoteTableProps {
