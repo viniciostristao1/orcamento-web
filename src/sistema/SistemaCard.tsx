@@ -24,8 +24,10 @@ interface SistemaCardProps {
   onPlaca: (v: string) => void;
   /** Preenche placa (se vazia) com placa/nome extraídos. */
   onCabecalho: (c: CabecalhoOrcamento) => void;
-  /** Limpa PLACA, NOME, CONTATO e TELEFONE (borracha do card). */
+  /** Limpa PLACA, NOME e TELEFONE (borracha do card). */
   onLimparContato: () => void;
+  /** Limpa revisão, ajustes, DADOS e DESCRIÇÃO (borracha do card). */
+  onLimparValores: () => void;
   /** Abre o histórico de orçamentos. */
   onAbrirHistorico: () => void;
   /** Texto em revisão (controlado pelo app: o play usa quando os campos vazios). */
@@ -60,6 +62,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onPlaca,
   onCabecalho,
   onLimparContato,
+  onLimparValores,
   onAbrirHistorico,
   revDesc,
   revDados,
@@ -80,6 +83,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     onNumero('');
     onDataDoc('');
     onLimparContato();
+    onLimparValores();
     setMsg('');
   };
 
@@ -225,7 +229,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1">
             <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Placa</label>
             <input
@@ -237,7 +241,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
               className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 col-span-2">
             <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Nome</label>
             <input
               type="text"

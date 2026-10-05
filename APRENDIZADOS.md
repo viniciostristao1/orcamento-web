@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.94.0](#v09400) — 2026-10-05 — Escopo das borrachas + RESUMO colado (v0.94.0)
 - [v0.93.0](#v09300) — 2026-10-05 — Play usa revisão + PLACA no card 1 (v0.93.0)
 - [v0.92.0](#v09200) — 2026-10-05 — Card redondo: +, sem números, telefone/nome (v0.92.0)
 - [v0.91.0](#v09100) — 2026-10-05 — Lembretes com data/hora nos históricos (v0.91.0)
@@ -152,6 +153,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09400"></a>
+## 2026-10-05 — Escopo das borrachas + RESUMO colado (v0.94.0)
+
+**Pedido:** APROVADO limpa só revisão+ajustes; SISTEMA limpa também revisão, ajustes,
+DADOS e DESCRIÇÃO; PLACA com a largura do Nº e NOME no resto; sem vão entre AJUSTES
+e RESUMO.
+
+**Feito:** escopos trocados (`onLimparValores` no card); grade PLACA (1 col) + NOME
+(2 cols) na mesma grade do Nº; `mt-auto` fora do RESUMO. Smoke dos dois escopos.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**178/178 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.94.0`.
+
+---
 
 <a id="v09300"></a>
 ## 2026-10-05 — Play usa revisão + PLACA no card 1 (v0.93.0)

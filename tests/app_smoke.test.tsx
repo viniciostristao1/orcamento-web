@@ -1608,7 +1608,7 @@ describe('App — smoke test (render + processar)', () => {
   });
 
   it('card 3: borracha apaga extração, nº e data', () => {
-    render(<App />);
+    const { container } = render(<App />);
     const numInput = screen.getByPlaceholderText('Ex.: 4471') as HTMLInputElement;
     const dataInput = screen.getByPlaceholderText('Ex.: 24/09/2026') as HTMLInputElement;
     fireEvent.change(numInput, { target: { value: '20234' } });
@@ -1616,12 +1616,23 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(screen.getByPlaceholderText('Ex.: ABC1D23'), { target: { value: 'ABC1D23' } });
     fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51999999999' } });
     fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'JOAO' } });
+    fireEvent.change(screen.getByLabelText('Descrição extraída para revisão'), { target: { value: '01 X' } });
+    fireEvent.change(screen.getByLabelText('Dados extraídos para revisão'), { target: { value: '1 Peça X 1 10,00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Limpar extração' }));
     expect(numInput.value).toBe('');
     expect(dataInput.value).toBe('');
     expect((screen.getByPlaceholderText('Ex.: ABC1D23') as HTMLInputElement).value).toBe('');
     expect((screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement).value).toBe('');
     expect((screen.getByPlaceholderText('Ex.: JOÃO DA SILVA') as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText('Descrição extraída para revisão') as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText('Dados extraídos para revisão') as HTMLInputElement).value).toBe('');
+    // revisão, ajustes e textos principais também zeram
+    expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
+    expect((screen.getByPlaceholderText('Ex: 1 50,00') as HTMLInputElement).value).toBe('');
+    const livres = Array.from(container.querySelectorAll('textarea')).filter(
+      (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
+    );
+    expect(livres.map((t) => t.value)).toEqual(['', '']);
   });
 
   it('ordem dos cards: sistema, dados, ajustes, resumo, descrição', () => {
@@ -1637,16 +1648,21 @@ describe('App — smoke test (render + processar)', () => {
     expect(hResumo.compareDocumentPosition(hDesc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('aprovado e desconto: borracha limpa a janela toda', () => {
+  it('aprovado: borracha limpa só revisão e ajustes (resto fica)', () => {
     render(<App />);
     fireEvent.change(screen.getByPlaceholderText('Ex.: ABC1D23'), { target: { value: 'ABC1D23' } });
     fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51999999999' } });
+    fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'JOAO' } });
+    fireEvent.change(screen.getByPlaceholderText('Ex: 1 50,00'), { target: { value: '1 50,00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Limpar aprovado e desconto' }));
-    expect((screen.getByPlaceholderText('Ex.: ABC1D23') as HTMLInputElement).value).toBe('');
-    expect((screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement).value).toBe('');
     expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
-    expect(screen.getByDisplayValue('6x')).toBeTruthy();
+    expect((screen.getByPlaceholderText('Ex: 1 50,00') as HTMLInputElement).value).toBe('');
+    // desconto, parcelas, placa, telefone e nome ficam
     expect(screen.getByDisplayValue('5')).toBeTruthy();
+    expect(screen.getByDisplayValue('6x')).toBeTruthy();
+    expect((screen.getByPlaceholderText('Ex.: ABC1D23') as HTMLInputElement).value).toBe('ABC1D23');
+    expect((screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement).value).toBe('51999999999');
+    expect((screen.getByPlaceholderText('Ex.: JOÃO DA SILVA') as HTMLInputElement).value).toBe('JOAO');
   });
 
   it('play com campo vazio avisa em vez de sair em silêncio (sem scroll/imagem)', () => {

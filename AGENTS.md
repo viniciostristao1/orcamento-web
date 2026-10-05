@@ -594,6 +594,10 @@ npm run build        # gera dist/index.html (arquivo único)
   sem frase explicativa; **TELEFONE e NOME moram no card** (Nº, Data, Telefone + Nome
   abaixo); botão virou **"Usar no orçamento manual"**. NOME é campo próprio no histórico
   (busca + anti-duplicado); borrachas o limpam junto.
+- **Borrachas certas + RESUMO colado** (v0.94.0): APROVADO limpa só revisão e ajustes
+  (desconto, parcelas, placa, telefone e nome ficam); SISTEMA limpa também revisão,
+  ajustes, DADOS e DESCRIÇÃO; PLACA com a largura do Nº e NOME no resto da linha;
+  RESUMO sem `mt-auto` (colado no AJUSTES).
 - **Play com campo vazio avisa** (v0.90.0): sem DESCRIÇÃO ou DADOS, o processar mostra
   alerta orientando (usar o card 1) em vez de sair em silêncio sem scroll/imagem.
 - **Lembretes com data/hora** (v0.91.0): botão relógio em cada cartão dos dois históricos

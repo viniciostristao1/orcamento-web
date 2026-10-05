@@ -215,6 +215,13 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 setTelefone('');
                 setNome('');
               }}
+              onLimparValores={() => {
+                setRevAprovadaInput('');
+                setRevPecasInput('');
+                setAjustesManuais('');
+                setDescReparo('');
+                setOrcamentoRaw('');
+              }}
               onAbrirHistorico={onAbrirHistorico}
               revDesc={revDesc}
               revDados={revDados}
@@ -242,8 +249,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
           </div>
 
-          {/* Coluna em flex: o RESUMO LÍQUIDO (mt-auto) encosta no fim da
-              coluna, rente ao final da DESCRIÇÃO. */}
+          {/* Coluna em flex: os cards da pilha seguem em sequência. */}
           <div className="flex gap-3 items-start min-w-0">
             {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO) + faixa de
                 atalhos ao lado, sem roubar a largura dos cards. */}
@@ -257,11 +263,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   onClick={() => {
                     setRevAprovadaInput('');
                     setRevPecasInput('');
-                    setDesconto(5);
-                    setParcelas(6);
-                    setPlaca('');
-                    setTelefone('');
-                    setNome('');
+                    setAjustesManuais('');
                   }}
                   label="Limpar aprovado e desconto"
                 />
@@ -377,9 +379,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               />
             </NeonCard>
 
-            {/* RESUMO LÍQUIDO logo abaixo do AJUSTES, em pares. */}
+            {/* RESUMO LÍQUIDO colado abaixo do AJUSTES, em pares. */}
             {visivel && (
-              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact className="mt-auto">
+              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact>
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">
