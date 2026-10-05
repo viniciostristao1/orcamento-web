@@ -7,6 +7,7 @@ export interface RascunhoOrcamento {
   desconto: number;
   parcelas: number;
   placa: string;
+  telefone: string;
 }
 
 export const RASCUNHO_KEY = 'orcamento_rascunho_v1';
@@ -31,6 +32,7 @@ export const lerRascunho = (): RascunhoOrcamento | null => {
       desconto: typeof d.desconto === 'number' ? d.desconto : 5,
       parcelas: typeof d.parcelas === 'number' ? d.parcelas : 3,
       placa: typeof d.placa === 'string' ? d.placa : '',
+      telefone: typeof d.telefone === 'string' ? d.telefone : '',
     };
   } catch {
     return null;

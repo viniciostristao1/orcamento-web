@@ -7,6 +7,7 @@ import {
   listarFlyerHistorico,
   removerDoFlyerHistorico,
 } from '../utils/historicoFlyer';
+import BotaoWhats from '../../components/BotaoWhats';
 
 interface FlyerHistoryModalProps {
   aberto: boolean;
@@ -48,7 +49,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 print:hidden">
-      <div data-neon-box className="w-full max-w-3xl max-h-[85vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta">
+      <div data-neon-box className="w-full max-w-4xl max-h-[85vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between px-6 py-5 bg-slate-950/60 border-b border-slate-800/60">
           <div className="flex items-center gap-4">
@@ -75,7 +76,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
               setBusca('');
             }}
             aria-label="Pesquisar"
-            title="Pesquisar (contato, data ou medida)"
+            title="Pesquisar (contato, telefone, data ou medida)"
             className={`flex items-center justify-center p-2.5 rounded-xl transition-all border cursor-pointer active:scale-95 ${
               buscaAberta
                 ? 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500'
@@ -105,7 +106,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
                 type="text"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Pesquisar por contato, data ou medida… (ex.: JOÃO, 24/09, 265/60R18)"
+                placeholder="Pesquisar por contato, telefone, data ou medida… (ex.: JOÃO, 51 99999-9999, 24/09, 265/60R18)"
                 className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-base font-bold text-slate-200 focus:border-blue-500 outline-none"
               />
               {busca && (
@@ -153,6 +154,12 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
                       <span className="text-blue-300">{r.contato}</span>
                     </>
                   ) : null}
+                  {r.telefone ? (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-green-300">{r.telefone}</span>
+                    </>
+                  ) : null}
                   <span className="text-slate-600"> · </span>
                   <span className="text-amber-300">{r.medida}</span>
                   <span className="text-slate-600"> · </span>
@@ -161,6 +168,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
                   </span>
                 </span>
                 <div className="flex items-center gap-2">
+                  <BotaoWhats telefone={r.telefone} />
                   <button
                     type="button"
                     onClick={() => onAbrir(r)}

@@ -15,6 +15,7 @@ import {
   temNaoRealizados,
 } from '../utils/historico';
 import { formatCurrency, parseBrazilianNumber, processQuote, resumoAprovacao } from '../utils/quoteLogic';
+import BotaoWhats from './BotaoWhats';
 
 interface HistoryModalProps {
   aberto: boolean;
@@ -99,7 +100,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 print:hidden">
-      <div data-neon-box className="w-full max-w-3xl max-h-[85vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta">
+      <div data-neon-box className="w-full max-w-4xl max-h-[85vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between px-6 py-5 bg-slate-950/60 border-b border-slate-800/60">
           <div className="flex items-center gap-4">
@@ -176,7 +177,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 type="text"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Pesquisar por data, placa ou item… (ex.: 24/09, ABC1D23, freio)"
+                placeholder="Pesquisar por data, placa, telefone ou item… (ex.: 24/09, ABC1D23, 51 99999-9999, freio)"
                 className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-base font-bold text-slate-200 focus:border-blue-500 outline-none"
               />
               {busca && (
@@ -252,6 +253,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                       <span className="text-amber-300">{r.placa}</span>
                     </>
                   ) : null}
+                  {r.telefone ? (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-green-300">{r.telefone}</span>
+                    </>
+                  ) : null}
                   {temNaoRealizados(r) ? (
                     <>
                       <span className="text-slate-600"> · </span>
@@ -260,6 +267,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   ) : null}
                 </span>
                 <div className="flex items-center gap-2">
+                  <BotaoWhats telefone={r.telefone} />
                   <button
                     type="button"
                     onClick={() => setItensDe(r)}

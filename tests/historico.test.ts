@@ -88,6 +88,23 @@ describe('histórico (localStorage)', () => {
     expect(filtrarHistorico(lista, 'zzz')).toEqual([]); // nada
   });
 
+  it('filtra por telefone (ignora máscara: espaços, traços, parênteses)', () => {
+    const a: OrcamentoSalvo = { ...base, id: '1', criadoEm: '24/09/2026 12:30:00', telefone: '51 99999-9999' };
+    const b: OrcamentoSalvo = { ...base, id: '2', criadoEm: '01/08/2026 09:00:00', telefone: '51 3333-4444' };
+    const lista = [a, b];
+    expect(filtrarHistorico(lista, '99999-9999').map((r) => r.id)).toEqual(['1']);
+    expect(filtrarHistorico(lista, '(51) 33334444').map((r) => r.id)).toEqual(['2']);
+    expect(filtrarHistorico(lista, '51').length).toBe(2);
+  });
+
+  it('telefone: mesmo número com máscara diferente substitui; número diferente vira outro registro', () => {
+    adicionarAoHistorico({ ...base, telefone: '51 99999-9999' });
+    adicionarAoHistorico({ ...base, telefone: '(51) 99999-9999' });
+    expect(listarHistorico().length).toBe(1);
+    adicionarAoHistorico({ ...base, telefone: '51 3333-4444' });
+    expect(listarHistorico().length).toBe(2);
+  });
+
   it('placa: mesma placa substitui; placa diferente vira outro registro', () => {
     adicionarAoHistorico({ ...base, placa: 'ABC1D23' });
     adicionarAoHistorico({ ...base, placa: 'ABC1D23' });

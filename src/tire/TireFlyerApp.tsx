@@ -27,6 +27,7 @@ const TireFlyerApp: React.FC = () => {
   const [inputText, setInputText] = useState(DEFAULT_INPUT);
   const [promoData, setPromoData] = useState<PromoInfo>(parseInput(DEFAULT_INPUT));
   const [contato, setContato] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [layout, setLayout] = useState<LayoutFlyer>(lerLayoutFlyer);
   const [alturaFlyer, setAlturaFlyer] = useState(0);
@@ -59,9 +60,10 @@ const TireFlyerApp: React.FC = () => {
     }
     const parsed = parseInput(inputText);
     setPromoData(parsed);
-    // Histórico do Tire Flyer: guarda data/hora + contato para consulta.
+    // Histórico do Tire Flyer: guarda data/hora + contato/telefone para consulta.
     adicionarAoFlyerHistorico({
       contato: contato.trim(),
+      telefone: telefone.trim(),
       medida: parsed.measure,
       inputText,
       numMarcas: parsed.tires.length,
@@ -72,6 +74,7 @@ const TireFlyerApp: React.FC = () => {
   const abrirDoHistorico = (r: FlyerSalvo) => {
     setInputText(r.inputText);
     setContato(r.contato ?? '');
+    setTelefone(r.telefone ?? '');
     setPromoData(parseInput(r.inputText));
     setHistoricoAberto(false);
   };
@@ -169,7 +172,7 @@ const TireFlyerApp: React.FC = () => {
                 type="text"
                 value={contato}
                 onChange={(e) => setContato(e.target.value)}
-                placeholder="Nome, placa, telefone… (ex.: JOÃO / ABC1D23)"
+                placeholder="Nome, placa… (ex.: JOÃO / ABC1D23)"
                 className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-lg font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
               />
               <button
@@ -177,6 +180,26 @@ const TireFlyerApp: React.FC = () => {
                 onClick={() => setContato('')}
                 aria-label="Limpar Contato"
                 title="Limpar Contato"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+              >
+                <Eraser size={16} />
+              </button>
+            </div>
+            <div className="relative mt-2">
+              <input
+                type="tel"
+                inputMode="numeric"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                placeholder="Telefone (DDD + número) — ex.: 51 99999-9999"
+                maxLength={20}
+                className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-lg font-bold text-white tracking-wide focus:border-blue-500 outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setTelefone('')}
+                aria-label="Limpar Telefone"
+                title="Limpar Telefone"
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
               >
                 <Eraser size={16} />

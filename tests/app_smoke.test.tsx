@@ -224,7 +224,7 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByText('Tire Flyer'));
 
-    fireEvent.change(screen.getByPlaceholderText(/Nome, placa, telefone/i), { target: { value: 'JOAO ABC1D23' } });
+    fireEvent.change(screen.getByPlaceholderText(/Nome, placa/i), { target: { value: 'JOAO ABC1D23' } });
     fireEvent.click(screen.getByRole('button', { name: /Processar e Atualizar Flyer/i }));
 
     const salvos = JSON.parse(localStorage.getItem('flyer_historico_v1') ?? '[]');
@@ -238,14 +238,85 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('JOAO ABC1D23')).toBeTruthy();
     expect(screen.getByText(/\d+ marcas?/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por contato, data ou medida/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por contato/i), {
       target: { value: 'abc-1d23' },
     });
     expect(screen.getByText(/1 de 1/)).toBeTruthy();
   });
 
-  it('aba Tire Flyer: processar atualiza o flyer', () => {
+  it('telefone + WhatsApp: orçamentos salva, busca acha e o botão abre wa.me', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    const abertas: string[] = [];
+    const original = window.open;
+    (window as any).open = (url: string) => {
+      abertas.push(url);
+      return null;
+    };
+    try {
+      render(<App />);
+      fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51 99999-9999' } });
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      expect(salvos[0].telefone).toBe('51 99999-9999');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      // telefone aparece no cartão + botão habilitado abre a conversa (sem texto)
+      expect(screen.getByText('51 99999-9999')).toBeTruthy();
+      const botao = screen.getByRole('button', { name: 'Chamar no WhatsApp' });
+      expect((botao as HTMLButtonElement).disabled).toBe(false);
+      fireEvent.click(botao);
+      expect(abertas).toEqual(['https://wa.me/5551999999999']);
+
+      // busca por telefone acha o registro
+      fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
+      fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), {
+        target: { value: '99999-9999' },
+      });
+      expect(screen.getByText(/1 de 1/)).toBeTruthy();
+    } finally {
+      window.open = original;
+    }
+  });
+
+  it('telefone + WhatsApp: sem telefone o botão fica desabilitado', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
     render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+    const botao = screen.getByRole('button', { name: 'Chamar no WhatsApp' });
+    expect((botao as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('telefone + WhatsApp: tire flyer salva e o botão abre wa.me', () => {
+    localStorage.removeItem('flyer_historico_v1');
+    const abertas: string[] = [];
+    const original = window.open;
+    (window as any).open = (url: string) => {
+      abertas.push(url);
+      return null;
+    };
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByText('Tire Flyer'));
+      fireEvent.change(screen.getByPlaceholderText(/Telefone \(DDD/i), { target: { value: '(51) 3333-4444' } });
+      fireEvent.click(screen.getByRole('button', { name: /Processar e Atualizar Flyer/i }));
+
+      const salvos = JSON.parse(localStorage.getItem('flyer_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      expect(salvos[0].telefone).toBe('(51) 3333-4444');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico do Tire Flyer' }));
+      expect(screen.getByText('(51) 3333-4444')).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Chamar no WhatsApp' }));
+      expect(abertas).toEqual(['https://wa.me/555133334444']);
+    } finally {
+      window.open = original;
+    }
+  });
+
+  it('aba Tire Flyer: processar atualiza o flyer', () => {    render(<App />);
     fireEvent.click(screen.getByText('Tire Flyer'));
     fireEvent.change(screen.getByPlaceholderText('Cole aqui a tabela de pneus...'), {
       target: {
@@ -1289,11 +1360,11 @@ describe('App — smoke test (render + processar)', () => {
 
     // contagens das abas acompanham a pesquisa
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), { target: { value: 'xyz' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: 'xyz' } });
     expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Não Realizados \(0\)/i })).toBeTruthy();
 
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), { target: { value: 'abc' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: 'abc' } });
     expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Não Realizados \(1\)/i })).toBeTruthy();
   });
@@ -1303,7 +1374,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.setItem('orcamentos_historico_v1', JSON.stringify([comFreio]));
     render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), {
       target: { value: 'freio' },
     });
     expect(screen.getByText(/1 de 1/)).toBeTruthy();
@@ -1324,14 +1395,14 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('XYZ9A87')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), {
       target: { value: 'abc-1d23' },
     });
     expect(screen.getByText('ABC1D23')).toBeTruthy();
     expect(screen.queryByText('XYZ9A87')).toBeNull();
 
     // Busca por data também
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa ou item/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), {
       target: { value: '01/08' },
     });
     expect(screen.getByText('XYZ9A87')).toBeTruthy();

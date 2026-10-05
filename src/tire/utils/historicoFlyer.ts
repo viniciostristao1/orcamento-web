@@ -2,14 +2,18 @@
 export interface FlyerSalvo {
   id: string;
   criadoEm: string;
-  /** O que o usuário digitou em CONTATO (nome, placa, telefone…). */
+  /** O que o usuário digitou em CONTATO (nome, placa…). */
   contato: string;
+  /** Telefone do cliente (DDD + número; só no histórico, para o botão WhatsApp). */
+  telefone?: string;
   medida: string;
   /** A tabela colada (para reabrir o flyer). */
   inputText: string;
   /** Quantas marcas foram cotadas (uma linha da tabela = uma marca). */
   numMarcas: number;
 }
+
+import { somenteDigitos } from '../../utils/telefone';
 
 /** Registro antigo, de antes da v0.29.0 (o campo chamava `numPneus`). */
 type FlyerSalvoAntigo = Omit<FlyerSalvo, 'numMarcas'> & { numMarcas?: number; numPneus?: number };
@@ -42,15 +46,20 @@ function gravar(lista: FlyerSalvo[]): void {
 }
 
 /**
- * Salva um flyer. Se o mais recente tiver a mesma tabela e o mesmo contato,
- * substitui (evita duplicar a cada clique em "Processar e Atualizar Flyer").
+ * Salva um flyer. Se o mais recente tiver a mesma tabela, o mesmo contato e o
+ * mesmo telefone, substitui (evita duplicar a cada clique em "Processar e Atualizar Flyer").
  */
 export function adicionarAoFlyerHistorico(
   novo: Omit<FlyerSalvo, 'id' | 'criadoEm'>,
 ): FlyerSalvo[] {
   const lista = listarFlyerHistorico();
   const ultimo = lista[0];
-  if (ultimo && ultimo.inputText === novo.inputText && (ultimo.contato ?? '') === (novo.contato ?? '')) {
+  if (
+    ultimo &&
+    ultimo.inputText === novo.inputText &&
+    (ultimo.contato ?? '') === (novo.contato ?? '') &&
+    somenteDigitos(ultimo.telefone) === somenteDigitos(novo.telefone)
+  ) {
     lista[0] = { ...ultimo, ...novo, id: ultimo.id, criadoEm: ultimo.criadoEm };
     gravar(lista);
     return lista;
@@ -91,7 +100,7 @@ const normalizarBusca = (s: string): string =>
     .replace(/[^A-Z0-9]/g, '');
 
 /**
- * Filtra por **contato, data ou medida** (busca "contém", ignorando
+ * Filtra por **contato, telefone, data ou medida** (busca "contém", ignorando
  * separadores). Termo vazio devolve a lista inteira.
  */
 export function filtrarFlyerHistorico(lista: FlyerSalvo[], termo: string): FlyerSalvo[] {
@@ -100,6 +109,7 @@ export function filtrarFlyerHistorico(lista: FlyerSalvo[], termo: string): Flyer
   return lista.filter(
     (r) =>
       normalizarBusca(r.contato).includes(t) ||
+      normalizarBusca(r.telefone ?? '').includes(t) ||
       normalizarBusca(r.criadoEm).includes(t) ||
       normalizarBusca(r.medida).includes(t),
   );

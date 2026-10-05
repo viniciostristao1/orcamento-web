@@ -1,4 +1,5 @@
 import type { QuoteSummary } from '../types';
+import { somenteDigitos } from './telefone';
 
 /** Um orçamento salvo no histórico local do navegador. */
 export interface OrcamentoSalvo {
@@ -13,6 +14,8 @@ export interface OrcamentoSalvo {
   parcelas: number;
   // Placa do veículo (opcional; aparece só na lista do histórico).
   placa?: string;
+  // Telefone do cliente (DDD + número; só no histórico, para o botão WhatsApp).
+  telefone?: string;
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -57,7 +60,8 @@ const mesmosDados = (a: OrcamentoSalvo, b: Omit<OrcamentoSalvo, 'id' | 'criadoEm
   a.revPecasInput === b.revPecasInput &&
   a.desconto === b.desconto &&
   a.parcelas === b.parcelas &&
-  (a.placa ?? '') === (b.placa ?? ''); // placa identifica o veículo: placa diferente = outro orçamento
+  (a.placa ?? '') === (b.placa ?? '') && // placa identifica o veículo: placa diferente = outro orçamento
+  somenteDigitos(a.telefone) === somenteDigitos(b.telefone); // telefone diferente = outro orçamento
 
 /**
  * Salva um orçamento. Se o mais recente tiver os MESMOS dados, substitui
@@ -183,7 +187,7 @@ const normalizarBusca = (s: string): string =>
     .replace(/[^A-Z0-9]/g, '');
 
 /**
- * Filtra o histórico por **data, placa (nome/contato) ou item** — busca "contém",
+ * Filtra o histórico por **data, placa (nome/contato), telefone ou item** — busca "contém",
  * sem acentos e ignorando separadores (ex.: buscar "freio" acha os orçamentos com
  * pastilhas de freio; útil na aba "Não Realizados"). Termo vazio devolve a lista.
  */
@@ -193,6 +197,7 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
   return lista.filter(
     (r) =>
       normalizarBusca(r.placa ?? '').includes(t) ||
+      normalizarBusca(r.telefone ?? '').includes(t) ||
       normalizarBusca(r.criadoEm).includes(t) ||
       normalizarBusca(r.descReparo).includes(t),
   );

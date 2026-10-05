@@ -34,6 +34,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [desconto, setDesconto] = useState<number>(() => rascunho?.desconto ?? 5);
   const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 3);
   const [placa, setPlaca] = useState<string>(() => rascunho?.placa ?? "");
+  const [telefone, setTelefone] = useState<string>(() => rascunho?.telefone ?? "");
   // Último documento gerado: reabre o app já com o visual do orçamento na tela.
   const [ultimo] = useState(lerUltimoOrcamento);
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
@@ -45,8 +46,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   // Salva o rascunho enquanto o usuário edita (reabre com o que estava fazendo).
   useEffect(() => {
-    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa });
-  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa]);
+    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone });
+  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone]);
 
   // Mantém o último documento gerado salvo (inclusive a marcação dos itens).
   useEffect(() => {
@@ -72,6 +73,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       desconto,
       parcelas,
       placa: placa.trim(),
+      telefone: telefone.trim(),
       ...retratoDoResumo(result),
     });
     
@@ -92,6 +94,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setDesconto(r.desconto);
     setParcelas(r.parcelas);
     setPlaca(r.placa ?? '');
+    setTelefone(r.telefone ?? '');
     onFecharHistorico();
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
@@ -118,6 +121,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       desconto,
       parcelas,
       placa: placa.trim(),
+      telefone: telefone.trim(),
       naoRealizados: visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id),
       ...retratoDoResumo(visivel),
     });
@@ -286,7 +290,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                       className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white uppercase tracking-wide focus:border-blue-500 outline-none"
                       value={placa}
                       onChange={(e) => setPlaca(e.target.value.toUpperCase())}
-                      placeholder="Ex.: ABC1D23 / JOÃO / 51 99999-9999"
+                      placeholder="Ex.: ABC1D23 / JOÃO"
                       maxLength={60}
                     />
                     <button
@@ -294,6 +298,30 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                       onClick={() => setPlaca('')}
                       aria-label="Limpar Placa, Nome, Contato"
                       title="Limpar Placa, Nome, Contato"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                    >
+                      <Eraser size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">TELEFONE (DDD + NÚMERO)</label>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white tracking-wide focus:border-blue-500 outline-none"
+                      value={telefone}
+                      onChange={(e) => setTelefone(e.target.value)}
+                      placeholder="Ex.: 51 99999-9999"
+                      maxLength={20}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setTelefone('')}
+                      aria-label="Limpar Telefone"
+                      title="Limpar Telefone"
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
                     >
                       <Eraser size={16} />

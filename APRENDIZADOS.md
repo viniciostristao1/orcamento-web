@@ -5,6 +5,45 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-05 — Telefone + botão WhatsApp nos históricos (v0.78.0)
+
+**Pedido:** (1) botão WhatsApp com símbolo nos históricos de Orçamentos e Tire Flyer
+(alargar o histórico se preciso); (2) novo campo Telefone nos dois, buscável no histórico,
+e o botão abre o WhatsApp Web para chamar o cliente. Decisões do usuário: telefone só
+números DDD+número; botão abre só a conversa (`wa.me/<numero>`, sem texto); sem telefone
+= botão desabilitado.
+
+**Feito:**
+- Novo `src/utils/telefone.ts`: `somenteDigitos` / `normalizarTelefoneParaWhats`
+  (10–11 dígitos ganham `55`, igual ao `formatPhone` da aba Whats) / `temTelefoneValido`
+  (12–13 dígitos) / `urlWhats` / `abrirWhats` (`window.open`, nova aba).
+- `OrcamentoSalvo.telefone?` + `FlyerSalvo.telefone?`: entram na busca
+  (`filtrarHistorico`, `filtrarFlyerHistorico` — `normalizarBusca` já ignora máscara) e no
+  anti-duplicado (dígitos normalizados; máscara diferente não duplica).
+- Entradas: `OrcamentosApp` ganha `TELEFONE (DDD + NÚMERO)` abaixo de PLACA/NOME/CONTATO
+  (`type=tel`, `maxLength 20`, salva no rascunho/histórico/não-realizados, restaura ao abrir,
+  fora do PNG); `TireFlyerApp` ganha TELEFONE no card CONTATO (mesmo padrão).
+  Placeholder da placa voltou a `Ex.: ABC1D23 / JOÃO` (telefone tem campo próprio).
+- Novo `src/components/BotaoWhats.tsx` (ícone-only, `aria-label="Chamar no WhatsApp"`):
+  SVG da marca WhatsApp (lucide não tem brand icon), verde quando válido, `disabled` +
+  `opacity-40` sem número. Nos dois modais, antes do Abrir; telefone exibido em verde no
+  cartão; modais `max-w-3xl` → `max-w-4xl`.
+- Testes: novo `tests/telefone.test.ts` (5); `historico.test.ts` +2 (busca/dedup por
+  telefone); `flyer_historico.test.ts` +2; `app_smoke.test.tsx` +3 (salva/busca/wa.me nas
+  duas abas, desabilitado sem número) + correção de 5 placeholders antigos
+  (`placa ou item` → prefixo, por causa do novo texto com "telefone").
+
+**Validação:** `npm run typecheck` limpo, `npm test` **136/136 (11 arquivos)**,
+`npm run build` OK (`dist/index.html` ~1,29 MB, 0 refs externas). Selo `v0.78.0`.
+
+**Gotchas / decisões:**
+- `getByPlaceholderText(/51 99999-9999/)` casa 2 inputs (orçamento + flyer montados juntos)
+  — no smoke usar o placeholder exato `Ex.: 51 99999-9999` do orçamento.
+- Registros/backups antigos sem `telefone` = `undefined` → botão desabilitado; nada migra.
+- `wa.me` é link runtime (precisa internet na hora) — não quebra a regra offline do arquivo único.
+
+---
+
 ## 2026-10-02 — Whats: Novo Contato + Relatório um pouco mais largos (v0.77.0)
 
 **Pedido:** Novo Contato um pouco mais largo e Relatório de Envios bem pouquinho.

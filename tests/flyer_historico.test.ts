@@ -45,6 +45,14 @@ describe('histórico do Tire Flyer (localStorage)', () => {
     expect(listarFlyerHistorico()).toHaveLength(2);
   });
 
+  it('telefone diferente vira outro registro; mesma máscara não duplica', () => {
+    adicionarAoFlyerHistorico({ ...base, telefone: '51 99999-9999' });
+    adicionarAoFlyerHistorico({ ...base, telefone: '(51) 99999-9999' });
+    expect(listarFlyerHistorico()).toHaveLength(1);
+    adicionarAoFlyerHistorico({ ...base, telefone: '51 3333-4444' });
+    expect(listarFlyerHistorico()).toHaveLength(2);
+  });
+
   it('filtra por contato, data ou medida', () => {
     adicionarAoFlyerHistorico(base);
     adicionarAoFlyerHistorico({ ...base, contato: 'MARIA', inputText: 'outra', medida: '205/55R16' });
@@ -56,5 +64,14 @@ describe('histórico do Tire Flyer (localStorage)', () => {
     expect(filtrarFlyerHistorico(lista, '265/60R18')).toHaveLength(1);
     expect(filtrarFlyerHistorico(lista, '')).toHaveLength(2);
     expect(filtrarFlyerHistorico(lista, 'zzz')).toHaveLength(0);
+  });
+
+  it('filtra por telefone (ignora máscara)', () => {
+    limparFlyerHistorico();
+    adicionarAoFlyerHistorico({ ...base, contato: 'JOAO', telefone: '51 99999-9999' });
+    adicionarAoFlyerHistorico({ ...base, contato: 'MARIA', telefone: '51 3333-4444', inputText: 'outra' });
+    const lista = listarFlyerHistorico();
+    expect(filtrarFlyerHistorico(lista, '99999-9999').map((r) => r.contato)).toEqual(['JOAO']);
+    expect(filtrarFlyerHistorico(lista, '(51) 33334444').map((r) => r.contato)).toEqual(['MARIA']);
   });
 });
