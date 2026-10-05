@@ -19,6 +19,8 @@ const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, 
   if (itens.length === 0) return null;
 
   const irPrimeiro = () => onIrPara(itens[0]);
+  const nomeAcao = (item: LembreteVencido): string =>
+    item.origem === 'rapido' ? `Concluir lembrete ${item.rotulo}` : `Ir para orçamento ${item.rotulo}`;
 
   return (
     <div className="animate-pulse print:hidden">
@@ -34,7 +36,7 @@ const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, 
         }}
         aria-label={
           itens.length === 1
-            ? `Ir para orçamento ${itens[0].rotulo}`
+            ? nomeAcao(itens[0])
             : `Ir para os ${itens.length} orçamentos com lembrete`
         }
         title="Ir para o orçamento"
@@ -48,7 +50,8 @@ const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, 
             {itens.length === 1 ? 'Lembrete: 1 orçamento' : `Lembretes: ${itens.length} orçamentos`}
           </p>
           <div className="flex flex-col gap-0.5 mt-0.5">
-            {itens.map((item) => (
+            {itens.map((item) => {
+              return (
               <button
                 key={`${item.origem}:${item.id}`}
                 type="button"
@@ -56,13 +59,14 @@ const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, 
                   e.stopPropagation();
                   onIrPara(item);
                 }}
-                aria-label={`Ir para orçamento ${item.rotulo}`}
-                title={`Abrir ${item.origem === 'flyer' ? 'flyer' : 'orçamento'} ${item.rotulo}`}
+                aria-label={nomeAcao(item)}
+                title={item.origem === 'rapido' ? `Concluir "${item.rotulo}"` : `Abrir ${item.origem === 'flyer' ? 'flyer' : 'orçamento'} ${item.rotulo}`}
                 className="font-extrabold text-slate-100 text-lg tracking-tight truncate text-left hover:text-amber-300 transition-colors cursor-pointer"
               >
                 {item.rotulo}
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
         <button

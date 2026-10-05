@@ -4,6 +4,7 @@ import { ULTIMO_KEY } from './ultimoOrcamento';
 import { SCRIPT_PNEUS_KEY, SCRIPT_REVISAO_KEY } from '../whats/utils/scripts';
 import { CONTATOS_KEY } from '../whats/utils/contatosHoje';
 import { SENHA_KEY } from './bloqueio';
+import { RAPIDOS_KEY } from './lembretesRapidos';
 
 /** Chave do histórico de orçamentos (a mesma usada em utils/historico.ts). */
 export const HISTORICO_KEY = 'orcamentos_historico_v1';
@@ -29,6 +30,7 @@ export const CHAVES_BACKUP = [
   'dados_tabelas_v1',
   'rotulos_v1',
   SENHA_KEY, // a senha do cadeado acompanha o backup (restaurar mantém a senha)
+  RAPIDOS_KEY, // lembretes rápidos do sino
 ] as const;
 
 /**
@@ -36,7 +38,7 @@ export const CHAVES_BACKUP = [
  * restaurar, mesclam por id em vez de sobrescrever — o que já está no navegador
  * nunca é apagado. As demais chaves são "estado atual" e seguem sobrescritas.
  */
-const CHAVES_LISTA: readonly string[] = [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY];
+const CHAVES_LISTA: readonly string[] = [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY, RAPIDOS_KEY];
 
 export interface ResumoBackup {
   orcamentos: number;

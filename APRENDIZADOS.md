@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.96.0](#v09600) — 2026-10-05 — Sino: lembretes rápidos + lista geral (v0.96.0)
 - [v0.95.0](#v09500) — 2026-10-05 — Detalhes do flyer + colunas alinhadas (v0.95.0)
 - [v0.94.0](#v09400) — 2026-10-05 — Escopo das borrachas + RESUMO colado (v0.94.0)
 - [v0.93.0](#v09300) — 2026-10-05 — Play usa revisão + PLACA no card 1 (v0.93.0)
@@ -154,6 +155,28 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09600"></a>
+## 2026-10-05 — Sino: lembretes rápidos + lista geral (v0.96.0)
+
+**Pedido:** tirar a frase do PDF; sino entre cadeado e engrenagem com campo de lembrete
+rápido + lista de todos os lembretes dos históricos.
+
+**Feito:** sem a frase de sucesso do PDF (OCR mantém a sua); `lembretesRapidos.ts`
+(CRUD, máx. 100, chave no backup com merge); `SinoLembretes.tsx` (criar + listar tudo
+com excluir + selo de quantidade); vencidos rápidos no popup (clique conclui);
+`listarTodosLembretes` para o sino. Nomes do popup por origem (área + botão iguais com
+1 item, como no aviso do Whats).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**185/185 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.96.0`.
+
+**Gotchas / decisões:**
+- Rápidos não têm orçamento: no popup o clique só conclui (nome "Concluir…").
+- Teste do sino isola as 3 chaves (vazamento do teste do X do flyer quebrava a contagem).
+
+---
 
 <a id="v09500"></a>
 ## 2026-10-05 — Detalhes do flyer + colunas alinhadas (v0.95.0)

@@ -1772,8 +1772,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].lembreteEm).toBeNull();
   });
 
-  it('relógio: X dispensa o aviso do flyer sem apagar o lembrete', () => {
-    localStorage.setItem(
+  it('relógio: X dispensa o aviso do flyer sem apagar o lembrete', () => {    localStorage.setItem(
       'flyer_historico_v1',
       JSON.stringify([
         { id: 'f1', criadoEm: '24/09/2026 12:30:00', contato: 'MARIA', medida: '205/55R16', inputText: 'a\nb', numMarcas: 1, lembreteEm: '2020-01-01T09:00' },
@@ -1787,5 +1786,56 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByRole('button', { name: 'Ir para orçamento MARIA' })).toBeNull();
     // dispensar esconde; o lembrete continua salvo
     expect(JSON.parse(localStorage.getItem('flyer_historico_v1') ?? '[]')[0].lembreteEm).toBe('2020-01-01T09:00');
+  });
+
+  it('sino: cria lembrete rápido e lista junto dos históricos', () => {
+    localStorage.removeItem('lembretes_rapidos_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([{ ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), lembreteEm: '2999-01-01T09:00' }]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      fireEvent.change(screen.getByLabelText('Texto do lembrete'), { target: { value: 'Ligar cliente' } });
+      fireEvent.change(screen.getByLabelText('Data e hora do lembrete rápido'), {
+        target: { value: '2999-02-01T10:00' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar lembrete' }));
+
+      const rapidos = JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]');
+      expect(rapidos).toHaveLength(1);
+      expect(rapidos[0].texto).toBe('Ligar cliente');
+      // lista o rápido + o do histórico
+      expect(screen.getByText('Ligar cliente')).toBeTruthy();
+      expect(screen.getByText('ABC1D23')).toBeTruthy();
+
+      // excluir o rápido tira da lista
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir lembrete Ligar cliente' }));
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')).toHaveLength(0);
+      expect(screen.queryByText('Ligar cliente')).toBeNull();
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('sino: rápido vencido pisca e o clique conclui', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'lembretes_rapidos_v1',
+      JSON.stringify([{ id: 'q1', texto: 'Buscar peças', quando: '2020-01-01T09:00', criadoEm: 'x' }]),
+    );
+    try {
+      render(<App />);
+      expect(screen.getAllByRole('button', { name: 'Concluir lembrete Buscar peças' })).toHaveLength(2);
+      fireEvent.click(screen.getAllByRole('button', { name: 'Concluir lembrete Buscar peças' })[1]);
+      expect(screen.queryByRole('button', { name: 'Concluir lembrete Buscar peças' })).toBeNull();
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')).toHaveLength(0);
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
+    }
   });
 });

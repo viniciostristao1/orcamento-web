@@ -6,10 +6,12 @@ import WhatsApp from './whats/WhatsApp';
 import DadosApp from './dados/DadosApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
 import Bloqueio from './components/Bloqueio';
+import SinoLembretes from './components/SinoLembretes';
 import LembreteContatos from './components/LembreteContatos';
 import LembreteHistorico from './components/LembreteHistorico';
 import { atualizarLembreteHistorico } from './utils/historico';
 import { atualizarLembreteFlyer } from './tire/utils/historicoFlyer';
+import { removerRapido } from './utils/lembretesRapidos';
 import {
   LEMBRETES_EVENTO,
   listarLembretesVencidos,
@@ -83,15 +85,20 @@ const AppInterno: React.FC = () => {
   const mostrarLembretes = lembretes.length > 0 && lembretesDisp !== chaveLembretes;
 
   // Clique no aviso: troca para a aba certa, abre o orçamento e conclui o lembrete.
+  // Rápido não tem orçamento: só conclui.
   const irParaLembrete = (item: LembreteVencido) => {
-    setAba(item.origem === 'flyer' ? 'pneus' : 'orcamentos');
-    setIrParaRegistro((d) => ({
-      origem: item.origem,
-      id: item.id,
-      vez: (d?.vez ?? 0) + 1,
-    }));
-    if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, null);
-    else atualizarLembreteHistorico(item.id, null);
+    if (item.origem === 'rapido') {
+      removerRapido(item.id);
+    } else {
+      setAba(item.origem === 'flyer' ? 'pneus' : 'orcamentos');
+      setIrParaRegistro((d) => ({
+        origem: item.origem,
+        id: item.id,
+        vez: (d?.vez ?? 0) + 1,
+      }));
+      if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, null);
+      else atualizarLembreteHistorico(item.id, null);
+    }
     setLembretes(listarLembretesVencidos());
   };
   // Cadeado: cobre a tela com a senha, sem desmontar o app.
@@ -220,6 +227,7 @@ const AppInterno: React.FC = () => {
             >
               <Lock size={18} />
             </button>
+            <SinoLembretes />
             <ConfiguracoesTema tema={tema} onChange={setTema} />
           </div>
         </div>

@@ -129,7 +129,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
       setMsg(
         imagens.length > 0
           ? 'Texto lido e separado — confira com atenção (OCR pode errar).'
-          : 'Texto extraído e separado — confira abaixo e use no orçamento.',
+          : '',
       );
     } catch {
       setMsg('Não consegui ler. Tente de novo ou cole o texto à mão no campo 2.');

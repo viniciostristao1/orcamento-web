@@ -84,12 +84,12 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **179 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **185 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
   flyer (`tests/flyer_historico.test.ts`), dados (`tests/dados.test.ts`), backup
-  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
+  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`, `tests/lembretesRapidos.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
   persistência) e a troca de layout do Tire Flyer.
 - **Aba Whats** (v0.7.0; agenda removida na v0.7.4; backup global na v0.9.0; scripts divididos
@@ -413,6 +413,7 @@ orcamento_web/
     utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
     utils/bloqueio.ts        senha do cadeado (criar/trocar/conferir; entra no backup)
     utils/lembretes.ts       vencidos + formatos + evento (dois históricos)
+    utils/lembretesRapidos.ts rápidos avulsos do sino (CRUD + chave)
     utils/rascunho.ts        rascunho em edição (orcamento_rascunho_v1)
     utils/ultimoOrcamento.ts último documento gerado (orcamento_ultimo_v1)
     utils/backup.ts          backup geral (todas as chaves) + restaurar
@@ -434,6 +435,7 @@ orcamento_web/
     components/Bloqueio.tsx  tela do cadeado (criar senha / desbloquear)
     components/LembreteRelogio.tsx BotaoRelogio + EditorLembrete (dois históricos)
     components/LembreteHistorico.tsx popup âmbar pulsante dos vencidos
+    components/SinoLembretes.tsx sino do header (rápidos + lista geral)
     components/LembreteContatos.tsx pop-up global de contatos para hoje
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
@@ -608,6 +610,10 @@ npm run build        # gera dist/index.html (arquivo único)
   orçamento + data do lembrete (sem contagem de itens/marcas). Vencidos piscam no canto
   inferior direito (`LembreteHistorico`, mesmo padrão do aviso do Whats); o clique abre o
   orçamento/flyer e conclui o lembrete (X dispensa até mudar). Reprocessar preserva.
+- **Sino de lembretes** (v0.96.0): botão entre cadeado e engrenagem com selo de
+  quantidade; cria **lembretes rápidos** (texto + data/hora, avulsos) e lista TODOS
+  (rápidos + históricos, com excluir). Rápidos vencidos piscam no mesmo popup (o clique
+  conclui); entram no backup com merge por id.
 - **Nova ordem + borrachas** (v0.88.0; renumeração na v0.89.0): esquerda = 1. SISTEMA
   e 2. DADOS (largo); direita = APROVADO, 3. AJUSTES, 3. DESCRIÇÃO e RESUMO. O botão
   **Histórico** fica no card 1. SISTEMA, ao lado da borracha. Borracha do card 1 apaga
