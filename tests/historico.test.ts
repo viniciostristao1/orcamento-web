@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   type OrcamentoSalvo,
   adicionarAoHistorico,
+  atualizarCorHistorico,
   contarItensDaDescricao,
   destacarTermo,
   filtrarHistorico,
@@ -13,6 +14,7 @@ import {
   removerDoHistorico,
   temNaoRealizados,
 } from '../src/utils/historico';
+import { filtrarPorCor } from '../src/utils/corCliente';
 
 const base = {
   descReparo: '1 X',
@@ -113,6 +115,38 @@ describe('histórico (localStorage)', () => {
     const lista = listarHistorico();
     expect(lista.length).toBe(2);
     expect(lista[0].placa).toBe('XYZ9A87');
+  });
+
+  it('cor: marca/desmarca e filtra por cor (botões + busca textual)', () => {
+    // ids explícitos: dois adicionar() no mesmo milissegundo gerariam o mesmo id
+    const a: OrcamentoSalvo = { ...base, id: 'a', criadoEm: '24/09/2026 12:30:00', placa: 'AAA' };
+    const b: OrcamentoSalvo = { ...base, id: 'b', criadoEm: '01/08/2026 09:00:00', placa: 'BBB' };
+    localStorage.setItem('orcamentos_historico_v1', JSON.stringify([a, b]));
+    // marca verde no 1º, vermelho no 2º
+    atualizarCorHistorico('a', 'verde');
+    atualizarCorHistorico('b', 'vermelho');
+    const lista = listarHistorico();
+    expect(filtrarPorCor(lista, 'todas')).toHaveLength(2);
+    expect(filtrarPorCor(lista, 'verde').map((r) => r.id)).toEqual(['a']);
+    expect(filtrarPorCor(lista, 'vermelho').map((r) => r.id)).toEqual(['b']);
+    // busca textual também acha pela cor
+    expect(filtrarHistorico(lista, 'verde').map((r) => r.id)).toEqual(['a']);
+    expect(filtrarHistorico(lista, 'vermelho').map((r) => r.id)).toEqual(['b']);
+    expect(filtrarHistorico(lista, 'vermelha').map((r) => r.id)).toEqual(['b']);
+    // clicar de novo limpa (volta a sem cor: some dos dois filtros)
+    atualizarCorHistorico('a', undefined);
+    expect(filtrarPorCor(listarHistorico(), 'verde')).toHaveLength(0);
+    expect(filtrarPorCor(listarHistorico(), 'todas')).toHaveLength(2);
+  });
+
+  it('cor: reprocessar o mesmo orçamento não apaga a cor marcada', () => {
+    adicionarAoHistorico(base);
+    const id = listarHistorico()[0].id;
+    atualizarCorHistorico(id, 'verde');
+    adicionarAoHistorico(base); // mesmos dados → substitui, sem duplicar
+    const lista = listarHistorico();
+    expect(lista).toHaveLength(1);
+    expect(lista[0].cor).toBe('verde');
   });
 
   it('conta os itens da descrição (linhas que começam com número)', () => {

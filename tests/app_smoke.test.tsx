@@ -1442,4 +1442,71 @@ describe('App — smoke test (render + processar)', () => {
       confirmar.mockRestore();
     }
   });
+
+  it('cor do cliente: marca verde/vermelho no histórico e filtra por cor', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
+        registro('2', 'XYZ9A87', '01/08/2026 09:00:00'),
+      ]),
+    );
+    render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+
+    // marca o 1º de verde (quer fazer) e o 2º de vermelho (só pesquisou)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Marcar de verde (quer fazer em breve)' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Marcar de vermelho (só pesquisou)' })[1]);
+    const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+    expect(salvos.find((r: OrcamentoSalvo) => r.placa === 'ABC1D23').cor).toBe('verde');
+    expect(salvos.find((r: OrcamentoSalvo) => r.placa === 'XYZ9A87').cor).toBe('vermelho');
+
+    // filtro verde mostra só o verde
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar só clientes verdes' }));
+    expect(screen.getByText('ABC1D23')).toBeTruthy();
+    expect(screen.queryByText('XYZ9A87')).toBeNull();
+
+    // filtro vermelho mostra só o vermelho
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar só clientes vermelhos' }));
+    expect(screen.queryByText('ABC1D23')).toBeNull();
+    expect(screen.getByText('XYZ9A87')).toBeTruthy();
+
+    // busca textual "verde" também filtra pela cor
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar todas as cores' }));
+    fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: 'verde' } });
+    expect(screen.getByText('ABC1D23')).toBeTruthy();
+    expect(screen.queryByText('XYZ9A87')).toBeNull();
+
+    // clicar de novo na cor limpa a marcação
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: '' } });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Marcar de verde (quer fazer em breve)' })[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar só clientes verdes' }));
+    expect(screen.getByText('Nenhum cliente verde.')).toBeTruthy();
+  });
+
+  it('cor do cliente: tire flyer marca e filtra por cor', () => {
+    localStorage.setItem(
+      'flyer_historico_v1',
+      JSON.stringify([
+        { id: 'f1', criadoEm: '24/09/2026 12:30:00', contato: 'JOAO', medida: '265/60R18', inputText: 'a\nb', numMarcas: 1 },
+        { id: 'f2', criadoEm: '01/08/2026 09:00:00', contato: 'MARIA', medida: '205/55R16', inputText: 'c\nd', numMarcas: 1 },
+      ]),
+    );
+    render(<App />);
+    fireEvent.click(screen.getByText('Tire Flyer'));
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico do Tire Flyer' }));
+
+    expect(screen.getByText('JOAO')).toBeTruthy();
+    expect(screen.getByText('MARIA')).toBeTruthy();
+
+    // marca o 2º (MARIA) de vermelho e filtra: só ela aparece
+    fireEvent.click(screen.getAllByRole('button', { name: 'Marcar de vermelho (só pesquisou)' })[1]);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar só clientes vermelhos' }));
+    expect(screen.queryByText('JOAO')).toBeNull();
+    expect(screen.getByText('MARIA')).toBeTruthy();
+
+    // nenhum verde marcado
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar só clientes verdes' }));
+    expect(screen.getByText('Nenhum cliente verde.')).toBeTruthy();
+  });
 });

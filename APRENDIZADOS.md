@@ -5,6 +5,38 @@ gotchas** (para não repetir). Topo = mais recente. Ler antes de mexer em build/
 
 ---
 
+## 2026-10-05 — Cor do cliente nos históricos: verde/vermelho (v0.79.0)
+
+**Pedido:** no histórico (orçamentos e tire flyer), marcar cada contato de verde
+(quer fazer em breve) ou vermelho (só orçamento/pesquisou), e filtrar por cor
+(clicar no verde mostra só verdes; no vermelho, só vermelhos).
+
+**Feito:**
+- Novo `src/utils/corCliente.ts`: `CorCliente` (`verde`|`vermelho`), `FiltroCor`
+  (`todas`|cor), `filtrarPorCor`, `corDaBusca` ("verde"/"vermelho"/"vermelha" na busca
+  textual) e `ROTULO_COR` (legendas).
+- `OrcamentoSalvo.cor?` + `FlyerSalvo.cor?` (só histórico, fora do PNG): entram na busca
+  textual e ganham `atualizarCorHistorico`/`atualizarCorFlyer` (salva na hora). A cor NÃO
+  entra no anti-duplicado e o reprocessamento preserva a cor marcada
+  (`novo.cor ?? antiga`).
+- Novo `src/components/CorCliente.tsx`: `MarcadorCor` (2 bolinhas por cartão, clicar na
+  ativa limpa, `aria-pressed`) + `FiltroCorCliente` (linha `Cor: Todas | Verdes (N) |
+  Vermelhos (N)`, contagens seguem a busca). Nos dois modais; cartão marcado ganha borda
+  e bolinha na cor; mensagem de vazio por cor ("Nenhum cliente verde.").
+- Testes: +2 unidade (marca/filtra/preserva, nas duas abas) +2 smoke (marcar, filtrar e
+  limpar nos dois modais).
+
+**Validação:** `npm run typecheck` limpo, `npm test` **141/141 (11 arquivos)**,
+`npm run build` OK (`dist/index.html` ~1,29 MB, 0 refs externas). Selo `v0.79.0`.
+
+**Gotchas / decisões:**
+- `String(Date.now())` como id colide se dois `adicionar*` caem no mesmo ms — nos testes
+  novos, semear o localStorage com ids explícitos em vez de dois adicionar seguidos.
+- Filtro de cor combina com busca textual e com as abas Todos/Não Realizados (tudo
+  conjuntivo); sem cor = só aparece em "Todas".
+
+---
+
 ## 2026-10-05 — Telefone + botão WhatsApp nos históricos (v0.78.0)
 
 **Pedido:** (1) botão WhatsApp com símbolo nos históricos de Orçamentos e Tire Flyer

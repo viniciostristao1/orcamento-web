@@ -1,5 +1,6 @@
 import type { QuoteSummary } from '../types';
 import { somenteDigitos } from './telefone';
+import { corDaBusca, type CorCliente } from './corCliente';
 
 /** Um orçamento salvo no histórico local do navegador. */
 export interface OrcamentoSalvo {
@@ -16,6 +17,9 @@ export interface OrcamentoSalvo {
   placa?: string;
   // Telefone do cliente (DDD + número; só no histórico, para o botão WhatsApp).
   telefone?: string;
+  // Cor do cliente: verde = quer fazer em breve; vermelho = só pesquisou.
+  // Marcada no histórico, depois de gerar (não entra no PNG nem no anti-duplicado).
+  cor?: CorCliente;
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -72,7 +76,9 @@ export function adicionarAoHistorico(
 ): OrcamentoSalvo[] {
   const lista = listarHistorico();
   if (lista.length > 0 && mesmosDados(lista[0], novo)) {
-    lista[0] = { ...lista[0], ...novo, id: lista[0].id, criadoEm: lista[0].criadoEm };
+    // A cor é marcação posterior (não entra no anti-duplicado): reprocessar o
+    // mesmo orçamento não pode apagar a cor já marcada.
+    lista[0] = { ...lista[0], ...novo, cor: novo.cor ?? lista[0].cor, id: lista[0].id, criadoEm: lista[0].criadoEm };
     gravar(lista);
     return lista;
   }
@@ -88,6 +94,16 @@ export function adicionarAoHistorico(
 
 export function removerDoHistorico(id: string): OrcamentoSalvo[] {
   const out = listarHistorico().filter((r) => r.id !== id);
+  gravar(out);
+  return out;
+}
+
+/**
+ * Marca/desmarca a cor do cliente num registro (verde = quer fazer em breve,
+ * vermelho = só pesquisou; `undefined` limpa). Salva na hora.
+ */
+export function atualizarCorHistorico(id: string, cor: CorCliente | undefined): OrcamentoSalvo[] {
+  const out = listarHistorico().map((r) => (r.id === id ? { ...r, cor } : r));
   gravar(out);
   return out;
 }
@@ -187,19 +203,22 @@ const normalizarBusca = (s: string): string =>
     .replace(/[^A-Z0-9]/g, '');
 
 /**
- * Filtra o histórico por **data, placa (nome/contato), telefone ou item** — busca "contém",
- * sem acentos e ignorando separadores (ex.: buscar "freio" acha os orçamentos com
- * pastilhas de freio; útil na aba "Não Realizados"). Termo vazio devolve a lista.
+ * Filtra o histórico por **data, placa (nome/contato), telefone, cor ou item** —
+ * busca "contém", sem acentos e ignorando separadores (ex.: buscar "freio" acha os
+ * orçamentos com pastilhas de freio; útil na aba "Não Realizados"). Buscar "verde"
+ * ou "vermelho" lista os registros marcados com essa cor. Termo vazio = tudo.
  */
 export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): OrcamentoSalvo[] {
   const t = normalizarBusca(termo);
   if (!t) return lista;
+  const corBuscada = corDaBusca(t);
   return lista.filter(
     (r) =>
       normalizarBusca(r.placa ?? '').includes(t) ||
       normalizarBusca(r.telefone ?? '').includes(t) ||
       normalizarBusca(r.criadoEm).includes(t) ||
-      normalizarBusca(r.descReparo).includes(t),
+      normalizarBusca(r.descReparo).includes(t) ||
+      (corBuscada !== null && r.cor === corBuscada),
   );
 }
 

@@ -2,11 +2,13 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   adicionarAoFlyerHistorico,
+  atualizarCorFlyer,
   filtrarFlyerHistorico,
   limparFlyerHistorico,
   listarFlyerHistorico,
   removerDoFlyerHistorico,
 } from '../src/tire/utils/historicoFlyer';
+import { filtrarPorCor } from '../src/utils/corCliente';
 
 const base = {
   contato: 'JOÃO ABC1D23',
@@ -73,5 +75,29 @@ describe('histórico do Tire Flyer (localStorage)', () => {
     const lista = listarFlyerHistorico();
     expect(filtrarFlyerHistorico(lista, '99999-9999').map((r) => r.contato)).toEqual(['JOAO']);
     expect(filtrarFlyerHistorico(lista, '(51) 33334444').map((r) => r.contato)).toEqual(['MARIA']);
+  });
+
+  it('cor: marca/desmarca e filtra por cor (botões + busca textual)', () => {
+    // ids explícitos: dois adicionar() no mesmo milissegundo gerariam o mesmo id
+    // (ordem: MARIA em cima, como se tivesse sido salva por último)
+    localStorage.setItem(
+      'flyer_historico_v1',
+      JSON.stringify([
+        { ...base, id: 'b', criadoEm: '01/08/2026 09:00:00', contato: 'MARIA', inputText: 'outra' },
+        { ...base, id: 'a', criadoEm: '24/09/2026 12:30:00', contato: 'JOAO' },
+      ]),
+    );
+    atualizarCorFlyer('b', 'verde');
+    atualizarCorFlyer('a', 'vermelho');
+    const lista = listarFlyerHistorico();
+    expect(filtrarPorCor(lista, 'todas')).toHaveLength(2);
+    expect(filtrarPorCor(lista, 'verde').map((r) => r.contato)).toEqual(['MARIA']);
+    expect(filtrarPorCor(lista, 'vermelho').map((r) => r.contato)).toEqual(['JOAO']);
+    expect(filtrarFlyerHistorico(lista, 'verde').map((r) => r.contato)).toEqual(['MARIA']);
+    expect(filtrarFlyerHistorico(lista, 'vermelha').map((r) => r.contato)).toEqual(['JOAO']);
+    // reprocessar o mesmo flyer não apaga a cor marcada
+    adicionarAoFlyerHistorico({ ...base, contato: 'MARIA', inputText: 'outra' });
+    expect(listarFlyerHistorico()).toHaveLength(2);
+    expect(listarFlyerHistorico()[0].cor).toBe('verde');
   });
 });

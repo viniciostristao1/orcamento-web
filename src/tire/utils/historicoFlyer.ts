@@ -6,6 +6,8 @@ export interface FlyerSalvo {
   contato: string;
   /** Telefone do cliente (DDD + número; só no histórico, para o botão WhatsApp). */
   telefone?: string;
+  /** Cor do cliente: verde = quer fazer em breve; vermelho = só pesquisou. */
+  cor?: CorCliente;
   medida: string;
   /** A tabela colada (para reabrir o flyer). */
   inputText: string;
@@ -14,6 +16,7 @@ export interface FlyerSalvo {
 }
 
 import { somenteDigitos } from '../../utils/telefone';
+import { corDaBusca, type CorCliente } from '../../utils/corCliente';
 
 /** Registro antigo, de antes da v0.29.0 (o campo chamava `numPneus`). */
 type FlyerSalvoAntigo = Omit<FlyerSalvo, 'numMarcas'> & { numMarcas?: number; numPneus?: number };
@@ -60,7 +63,9 @@ export function adicionarAoFlyerHistorico(
     (ultimo.contato ?? '') === (novo.contato ?? '') &&
     somenteDigitos(ultimo.telefone) === somenteDigitos(novo.telefone)
   ) {
-    lista[0] = { ...ultimo, ...novo, id: ultimo.id, criadoEm: ultimo.criadoEm };
+    // A cor é marcação posterior (não entra no anti-duplicado): reprocessar o
+    // mesmo flyer não pode apagar a cor já marcada.
+    lista[0] = { ...ultimo, ...novo, cor: novo.cor ?? ultimo.cor, id: ultimo.id, criadoEm: ultimo.criadoEm };
     gravar(lista);
     return lista;
   }
@@ -76,6 +81,16 @@ export function adicionarAoFlyerHistorico(
 
 export function removerDoFlyerHistorico(id: string): FlyerSalvo[] {
   const out = listarFlyerHistorico().filter((r) => r.id !== id);
+  gravar(out);
+  return out;
+}
+
+/**
+ * Marca/desmarca a cor do cliente num flyer (verde = quer fazer em breve,
+ * vermelho = só pesquisou; `undefined` limpa). Salva na hora.
+ */
+export function atualizarCorFlyer(id: string, cor: CorCliente | undefined): FlyerSalvo[] {
+  const out = listarFlyerHistorico().map((r) => (r.id === id ? { ...r, cor } : r));
   gravar(out);
   return out;
 }
@@ -100,17 +115,20 @@ const normalizarBusca = (s: string): string =>
     .replace(/[^A-Z0-9]/g, '');
 
 /**
- * Filtra por **contato, telefone, data ou medida** (busca "contém", ignorando
- * separadores). Termo vazio devolve a lista inteira.
+ * Filtra por **contato, telefone, cor, data ou medida** (busca "contém", ignorando
+ * separadores). Buscar "verde" ou "vermelho" lista os marcados com essa cor.
+ * Termo vazio devolve a lista inteira.
  */
 export function filtrarFlyerHistorico(lista: FlyerSalvo[], termo: string): FlyerSalvo[] {
   const t = normalizarBusca(termo);
   if (!t) return lista;
+  const corBuscada = corDaBusca(t);
   return lista.filter(
     (r) =>
       normalizarBusca(r.contato).includes(t) ||
       normalizarBusca(r.telefone ?? '').includes(t) ||
       normalizarBusca(r.criadoEm).includes(t) ||
-      normalizarBusca(r.medida).includes(t),
+      normalizarBusca(r.medida).includes(t) ||
+      (corBuscada !== null && r.cor === corBuscada),
   );
 }

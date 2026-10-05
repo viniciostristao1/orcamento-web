@@ -3,6 +3,7 @@ import { CheckCircle2, Database, FolderOpen, List, Search, Trash2, Upload, X, XC
 import {
   type AbaHistorico,
   type OrcamentoSalvo,
+  atualizarCorHistorico,
   baixarBackup,
   contarItensDaDescricao,
   destacarTermo,
@@ -14,6 +15,8 @@ import {
   removerDoHistorico,
   temNaoRealizados,
 } from '../utils/historico';
+import { filtrarPorCor, type CorCliente, type FiltroCor } from '../utils/corCliente';
+import { FiltroCorCliente, MarcadorCor } from './CorCliente';
 import { formatCurrency, parseBrazilianNumber, processQuote, resumoAprovacao } from '../utils/quoteLogic';
 import BotaoWhats from './BotaoWhats';
 
@@ -29,6 +32,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
   const [buscaAberta, setBuscaAberta] = useState(false);
   const [busca, setBusca] = useState('');
   const [aba, setAba] = useState<AbaHistorico>('todos');
+  const [filtroCor, setFiltroCor] = useState<FiltroCor>('todas');
   // Registro com a janelinha de itens aberta (descrição do reparo, linha a linha).
   const [itensDe, setItensDe] = useState<OrcamentoSalvo | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -40,6 +44,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
       setBuscaAberta(false);
       setBusca('');
       setAba('todos');
+      setFiltroCor('todas');
       setItensDe(null);
     }
   }, [aberto]);
@@ -62,12 +67,17 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
 
   if (!aberto) return null;
 
-  // As contagens das abas seguem a pesquisa (não a lista inteira).
+  // As contagens das abas seguem a pesquisa e o filtro de cor (não a lista inteira).
+  const porCor = filtrarPorCor(filtrarHistorico(lista, busca), filtroCor);
   const porAba = {
-    todos: filtrarHistorico(lista, busca),
-    naoRealizados: filtrarHistorico(filtrarPorAba(lista, 'naoRealizados'), busca),
+    todos: porCor,
+    naoRealizados: filtrarPorAba(porCor, 'naoRealizados'),
   };
   const visiveis = porAba[aba];
+  // Contagem das cores segue a pesquisa (sem o filtro de cor, para dar para comparar).
+  const baseBusca = filtrarHistorico(lista, busca);
+  const nVerdes = baseBusca.filter((r) => r.cor === 'verde').length;
+  const nVermelhos = baseBusca.filter((r) => r.cor === 'vermelho').length;
   // O registro aberto em "Ver itens" tem seleção salva (aprovados/não aprovados)?
   const temSelecao = (itensDe?.naoRealizados?.length ?? 0) > 0;
 
@@ -96,6 +106,13 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
   const handleExcluir = (id: string) => {
     if (!window.confirm('Tem certeza que deseja excluir este orçamento?')) return;
     setLista(removerDoHistorico(id));
+  };
+
+  // Marca/desmarca a cor do cliente (salva na hora; a janelinha de itens
+  // acompanha se for o registro aberto nela).
+  const handleMudarCor = (id: string, cor: CorCliente | undefined) => {
+    setLista(atualizarCorHistorico(id, cor));
+    setItensDe((atual) => (atual && atual.id === id ? { ...atual, cor } : atual));
   };
 
   return (
@@ -177,7 +194,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                 type="text"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Pesquisar por data, placa, telefone ou item… (ex.: 24/09, ABC1D23, 51 99999-9999, freio)"
+                placeholder="Pesquisar por data, placa, telefone, cor ou item… (ex.: 24/09, ABC1D23, verde, freio)"
                 className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-10 py-2 text-base font-bold text-slate-200 focus:border-blue-500 outline-none"
               />
               {busca && (
@@ -218,6 +235,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
           ))}
         </div>
 
+        {/* Filtro por cor do cliente (verde = quer fazer; vermelho = só pesquisou) */}
+        <FiltroCorCliente valor={filtroCor} verdes={nVerdes} vermelhos={nVermelhos} onMudar={setFiltroCor} />
+
         {msg && (
           <div className="px-6 py-3 text-base font-bold text-blue-300 bg-blue-600/10 border-b border-blue-500/20">{msg}</div>
         )}
@@ -231,19 +251,37 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
           )}
           {lista.length > 0 && visiveis.length === 0 && (
             <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-base">
-              {aba === 'naoRealizados'
-                ? 'Nenhum orçamento com itens não realizados.'
-                : 'Nenhum orçamento encontrado.'}
+              {filtroCor === 'verde'
+                ? 'Nenhum cliente verde.'
+                : filtroCor === 'vermelho'
+                  ? 'Nenhum cliente vermelho.'
+                  : aba === 'naoRealizados'
+                    ? 'Nenhum orçamento com itens não realizados.'
+                    : 'Nenhum orçamento encontrado.'}
             </p>
           )}
           {visiveis.map((r) => {
             const itens = r.numItens ?? contarItensDaDescricao(r.descReparo);
             const descricao = r.descReparo.split('\n').filter((l) => l.trim()).join(' · ') || '(sem descrição)';
             const grifado = busca.trim() ? destacarTermo(descricao, busca) : null;
+            const bordaCor =
+              r.cor === 'verde'
+                ? 'border-green-600/70 hover:border-green-500'
+                : r.cor === 'vermelho'
+                  ? 'border-red-600/70 hover:border-red-500'
+                  : 'border-slate-800 hover:border-slate-700';
             return (
-            <div key={r.id} className="border border-slate-800 rounded-2xl p-4 bg-slate-950/40 hover:border-slate-700 transition-colors">
+            <div key={r.id} className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${bordaCor}`}>
               <div className="flex items-center justify-between gap-4 mb-2">
                 <span className="text-base font-black uppercase tracking-widest text-slate-500">
+                  {r.cor ? (
+                    <>
+                      <span
+                        title={r.cor === 'verde' ? 'Verde — quer fazer em breve' : 'Vermelho — só pesquisou'}
+                        className={`inline-block w-3 h-3 rounded-full mr-1 ${r.cor === 'verde' ? 'bg-green-500' : 'bg-red-500'}`}
+                      />
+                    </>
+                  ) : null}
                   {r.criadoEm}
                   <span className="text-slate-600"> · </span>
                   <span className="text-blue-300">{itens} {itens === 1 ? 'item' : 'itens'}</span>
@@ -267,6 +305,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
                   ) : null}
                 </span>
                 <div className="flex items-center gap-2">
+                  <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
                   <BotaoWhats telefone={r.telefone} />
                   <button
                     type="button"
