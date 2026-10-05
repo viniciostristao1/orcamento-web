@@ -575,6 +575,11 @@ npm run build        # gera dist/index.html (arquivo único)
   nº e data entram no histórico (busca + anti-duplicado). Fluxo sempre com revisão:
   o texto cai para conferência e só vira DADOS no clique — a soma é a mesma lógica
   (que passou a aceitar `Peca` sem acento e ignora linhas de cabeçalho sem ID).
+  Desde a v0.85.0 o texto é separado por seção do PDF real (layouts Toyota):
+  `extrairSistemaToyota` tira DADOS (itens entre "It Tipo Código…" e "Fechamento"),
+  DESCRIÇÃO (entre "Reclamações Originais…" e "Sugestão"), cliente após "Cliente
+  Cadastro", número = 1º do documento e o resto é ignorado — o card mostra as duas
+  partes para revisão e preenche os campos 1 e 2.
 
 ## 8. Pendências
 

@@ -209,7 +209,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               onNumero={setNumero}
               onDataDoc={setDataDoc}
               onCabecalho={aplicarCabecalho}
-              onUsarTexto={setOrcamentoRaw}
+              onUsarTextos={(desc, dados) => {
+                if (desc.trim()) setDescReparo(desc);
+                if (dados.trim()) setOrcamentoRaw(dados);
+              }}
             />
             
           </div>

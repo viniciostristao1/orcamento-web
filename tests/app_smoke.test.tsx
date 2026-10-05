@@ -1592,6 +1592,6 @@ describe('App — smoke test (render + processar)', () => {
     // sem arquivos, extração desabilitada
     expect((screen.getByRole('button', { name: 'Extrair texto do PDF' }) as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByRole('button', { name: 'Ler prints (OCR)' }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole('button', { name: 'Usar como dados do orçamento' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Usar no orçamento' }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

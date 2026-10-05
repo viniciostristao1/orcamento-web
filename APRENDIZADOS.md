@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.85.0](#v08500) — 2026-10-05 — PDF real: separação por seção (v0.85.0)
 - [v0.84.0](#v08400) — 2026-10-05 — Orçamento do sistema em PDF/print (v0.84.0)
 - [v0.83.0](#v08300) — 2026-10-05 — Abas em âmbar só no tema grafite (v0.83.0)
 - [Ideias de cor das abas superiores (sem versão — mockups)](#bloco-ideias-abas) — Ideias de cor das abas superiores (sem versão — mockups)
@@ -143,6 +144,27 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v08500"></a>
+## 2026-10-05 — PDF real: separação por seção (v0.85.0)
+
+**Pedido:** com o PDF de verdade, DADOS = só itens após "It Tipo Código…", DESCRIÇÃO =
+reclamações, cliente após "Cliente Cadastro", nº = 1º do documento, resto ignorado.
+
+**Feito:** `extrairSistemaToyota` (seções por marcadores + filtro de linha de item;
+cliente sem o "Cadastro" colado; número = 1ª linha só-dígitos; data do cabeçalho).
+Card 3 com duas revisões (descrição + dados) e botão único que preenche os campos 1 e 2
+(só preenche o não-vazio, sem apagar o digitado). Testes com o texto real colado.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**164/164 (14 arquivos)**, CDP com o fluxo novo OK, `npm run build` OK
+(`dist/index.html` ~16 MB, 0 refs externas). Selo `v0.85.0`.
+
+**Gotchas / decisões:**
+- Sem os marcadores (layout desconhecido), cai no fluxo integral em DADOS (v0.84.0).
+- "NºOrçamento Interno05/10/2026" é a DATA; o número é o solto no topo (20234).
+
+---
 
 <a id="v08400"></a>
 ## 2026-10-05 — Orçamento do sistema em PDF/print (v0.84.0)

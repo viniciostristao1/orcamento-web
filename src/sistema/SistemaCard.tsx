@@ -4,6 +4,7 @@ import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import {
   extrairCabecalho,
+  extrairSistemaToyota,
   normalizarTextoExtraido,
   type CabecalhoOrcamento,
 } from './extracao';
@@ -17,8 +18,8 @@ interface SistemaCardProps {
   onDataDoc: (v: string) => void;
   /** Preenche placa (se vazia) com placa/nome extraídos. */
   onCabecalho: (c: CabecalhoOrcamento) => void;
-  /** Cola o texto revisado no campo 2. DADOS DO ORÇAMENTO. */
-  onUsarTexto: (texto: string) => void;
+  /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
+  onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
 }
 
 const ehPdf = (f: File) => /\.pdf$/i.test(f.name) || f.type === 'application/pdf';
@@ -26,8 +27,9 @@ const ehImagem = (f: File) => !ehPdf(f);
 
 /**
  * 3. ORÇAMENTO DO SISTEMA (PDF/PRINT): fluxo alternativo aos campos 1 e 2.
- * Extrai o texto (pdf.js ou OCR), mostra para revisão com o cabeçalho
- * detectado (número, placa, nome, data) e, no clique, vira DADOS DO ORÇAMENTO.
+ * Extrai o texto (pdf.js ou OCR), separa por seção (itens → DADOS, reclamações →
+ * DESCRIÇÃO, resto ignorado), mostra para revisão com o cabeçalho detectado
+ * (número, placa, nome, data) e, no clique, preenche os campos 1 e 2.
  * A soma continua a mesma lógica de sempre — nada muda no cálculo nem no PNG.
  */
 const SistemaCard: React.FC<SistemaCardProps> = ({
@@ -36,10 +38,11 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onNumero,
   onDataDoc,
   onCabecalho,
-  onUsarTexto,
+  onUsarTextos,
 }) => {
   const [arquivos, setArquivos] = useState<File[]>([]);
-  const [extraido, setExtraido] = useState('');
+  const [extraidoDesc, setExtraidoDesc] = useState('');
+  const [extraidoDados, setExtraidoDados] = useState('');
   const [estado, setEstado] = useState('');
   const [ocupado, setOcupado] = useState(false);
   const [msg, setMsg] = useState('');
@@ -47,6 +50,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
 
   const pdfs = arquivos.filter(ehPdf);
   const imagens = arquivos.filter(ehImagem);
+  const temTexto = extraidoDesc.trim() || extraidoDados.trim();
 
   const escolher = (e: React.ChangeEvent<HTMLInputElement>) => {
     setArquivos(Array.from(e.target.files ?? []));
@@ -54,10 +58,28 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     e.target.value = '';
   };
 
-  const aplicarCabecalho = (texto: string) => {
-    const cab = extrairCabecalho(texto);
-    onCabecalho(cab);
-    return cab;
+  const limpar = () => {
+    setExtraidoDesc('');
+    setExtraidoDados('');
+    setMsg('');
+  };
+
+  /** Separa por seção, preenche as revisões e o cabeçalho. */
+  const aplicarTexto = (texto: string) => {
+    const limpo = normalizarTextoExtraido(texto);
+    const sis = extrairSistemaToyota(limpo);
+    const cab = extrairCabecalho(limpo);
+    if (sis.dados || sis.descReparo) {
+      setExtraidoDados((atual) => (atual ? `${atual}\n${sis.dados}` : sis.dados));
+      setExtraidoDesc((atual) => (atual ? `${atual}\n${sis.descReparo}` : sis.descReparo));
+    } else {
+      // Layout desconhecido: tudo vai para DADOS revisar (fluxo da v0.84.0).
+      setExtraidoDados((atual) => (atual ? `${atual}\n${limpo}` : limpo));
+    }
+    const numeroDoc = sis.numero || cab.numero;
+    if (numeroDoc.trim()) onNumero(numeroDoc.trim());
+    if (sis.data.trim()) onDataDoc(sis.data.trim());
+    onCabecalho({ numero: numeroDoc, placa: cab.placa, nome: sis.cliente || cab.nome, data: sis.data });
   };
 
   const extrairPdf = async () => {
@@ -71,10 +93,8 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         const r = await extrairTextoPdf(pdfs[i]);
         partes.push(r.texto);
       }
-      const texto = normalizarTextoExtraido(partes.join('\n'));
-      setExtraido((atual) => (atual ? `${atual}\n${texto}` : texto));
-      aplicarCabecalho(texto);
-      setMsg('Texto extraído — confira abaixo e use como DADOS.');
+      aplicarTexto(partes.join('\n'));
+      setMsg('Texto extraído e separado — confira abaixo e use no orçamento.');
     } catch {
       setMsg('Não consegui ler esse PDF. Tente colar o texto à mão no campo 2.');
     } finally {
@@ -91,10 +111,8 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
       const texto = await lerPrints(imagens, (etapa, fracao) =>
         setEstado(`OCR: ${etapa} (${Math.round(fracao * 100)}%)`),
       );
-      const limpo = normalizarTextoExtraido(texto);
-      setExtraido((atual) => (atual ? `${atual}\n${limpo}` : limpo));
-      aplicarCabecalho(limpo);
-      setMsg('Texto lido — confira com atenção (OCR pode errar) e use como DADOS.');
+      aplicarTexto(texto);
+      setMsg('Texto lido e separado — confira com atenção (OCR pode errar).');
     } catch {
       setMsg('O OCR falhou. Confira a imagem e tente de novo.');
     } finally {
@@ -108,7 +126,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
       title="3. ORÇAMENTO DO SISTEMA (PDF/PRINT)"
       borderColor="blue-500"
       compact
-      actions={<ClearButton onClick={() => { setExtraido(''); setMsg(''); }} label="Limpar extração" />}
+      actions={<ClearButton onClick={limpar} label="Limpar extração" />}
     >
       <div className="space-y-3">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 leading-relaxed">
@@ -187,29 +205,44 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           </div>
         </div>
 
-        <textarea
-          value={extraido}
-          onChange={(e) => setExtraido(e.target.value)}
-          placeholder="O texto extraído aparece aqui para revisão…"
-          aria-label="Texto extraído para revisão"
-          wrap="off"
-          className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-4 text-base font-mono leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
-        />
+        <div className="space-y-1">
+          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Descrição extraída (vai para o campo 1)</label>
+          <textarea
+            value={extraidoDesc}
+            onChange={(e) => setExtraidoDesc(e.target.value)}
+            placeholder="As reclamações do cliente aparecem aqui para revisão…"
+            aria-label="Descrição extraída para revisão"
+            wrap="off"
+            className="w-full h-28 campo-tema border border-slate-800 rounded-2xl p-4 text-base font-medium leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Dados extraídos (vão para o campo 2)</label>
+          <textarea
+            value={extraidoDados}
+            onChange={(e) => setExtraidoDados(e.target.value)}
+            placeholder="Os itens (peças/serviços) aparecem aqui para revisão…"
+            aria-label="Dados extraídos para revisão"
+            wrap="off"
+            className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-4 text-base font-mono leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+          />
+        </div>
 
         <button
           type="button"
           onClick={() => {
-            if (!extraido.trim()) return;
-            onUsarTexto(extraido);
-            setMsg('Colado no campo 2 — confira e clique em Processar Tudo.');
+            if (!temTexto) return;
+            onUsarTextos(extraidoDesc, extraidoDados);
+            setMsg('Preenchido nos campos 1 e 2 — confira e clique em Processar Tudo.');
           }}
-          disabled={!extraido.trim() || ocupado}
-          aria-label="Usar como dados do orçamento"
-          title="Usar como dados do orçamento"
+          disabled={!temTexto || ocupado}
+          aria-label="Usar no orçamento"
+          title="Usar no orçamento"
           className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-black py-3 rounded-xl shadow-2xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
         >
           <ClipboardPaste size={20} />
-          Usar como dados do orçamento
+          Usar no orçamento
         </button>
       </div>
     </NeonCard>

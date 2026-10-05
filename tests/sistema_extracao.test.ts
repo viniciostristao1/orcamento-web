@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   agruparLinhasPdf,
   extrairCabecalho,
+  extrairSistemaToyota,
   normalizarTextoExtraido,
 } from '../src/sistema/extracao';
 
@@ -53,5 +54,50 @@ describe('extração do orçamento do sistema (puro)', () => {
 
   it('placa antiga com hífen também vale', () => {
     expect(extrairCabecalho('PLACA ABC-1234').placa).toBe('ABC-1234');
+  });
+});
+
+describe('extrairSistemaToyota — PDF real do sistema', () => {
+  // Trechos do orçamento de verdade (o resto — cabeçalho da empresa, veículo,
+  // fechamento, assinaturas — deve ser ignorado).
+  const TEXTO = [
+    '20234',
+    'Empresa: WEIAND VEICULOS LTDA CNPJ: 94.674.934/0001-52',
+    'NºOrçamento Interno05/10/2026 Impressão: 09:2309:19Emissao : 05/10/2026',
+    'Cliente CadastroCLACI ZANONI RUTHNER',
+    'CPF: 466.524.340-91',
+    'Reclamações Originais feita pelo Cliente',
+    '01 OXI',
+    '02 APLICAR VIA TANQUE',
+    'Sugestão {peças e serviços}',
+    'It Tipo Código Descrição Qtde Preço Unitário Preço TotalDisp',
+    '1 Serviço HIGMOTO HIGIENIZACAO AR CONDICIONADO 0,05000 0,000000 0,00',
+    '1 Peça CARE010701 OXY-SANITIZATION APP 1 109,900000 109,90',
+    '1 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 99,730000 99,73',
+    '2 Serviço REQ REQUISICAO DE PECAS 0,00000 0,000000 0,00',
+    '2 Peça CARE042501 LIMPADOR SISTEMA GASOLINA TUNAP 1 199,890000 199,89',
+    'Fechamento (Revisão) (sugestão) (acessórios) (descontos)',
+    'Total Líquido',
+    '409,52',
+  ].join('\n');
+
+  it('DADOS = só os itens (resto ignorado)', () => {
+    const sis = extrairSistemaToyota(TEXTO);
+    expect(sis.dados.split('\n')).toHaveLength(5);
+    expect(sis.dados).toContain('1 Peça CARE010701 OXY-SANITIZATION APP 1 109,900000 109,90');
+    expect(sis.dados).toContain('2 Peça CARE042501 LIMPADOR SISTEMA GASOLINA TUNAP 1 199,890000 199,89');
+    expect(sis.dados).not.toContain('WEIAND');
+    expect(sis.dados).not.toContain('Fechamento');
+  });
+
+  it('DESCRIÇÃO = reclamações originais', () => {
+    expect(extrairSistemaToyota(TEXTO).descReparo).toBe('01 OXI\n02 APLICAR VIA TANQUE');
+  });
+
+  it('cliente sem o "Cadastro" colado, número = 1º do documento, data do cabeçalho', () => {
+    const sis = extrairSistemaToyota(TEXTO);
+    expect(sis.cliente).toBe('CLACI ZANONI RUTHNER');
+    expect(sis.numero).toBe('20234');
+    expect(sis.data).toBe('05/10/2026');
   });
 });

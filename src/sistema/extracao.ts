@@ -57,6 +57,75 @@ export function normalizarTextoExtraido(texto: string): string {
     .join('\n');
 }
 
+/** Resultado da leitura do orçamento do sistema Toyota (seções mapeadas). */
+export interface SistemaToyota {
+  /** Linhas de itens (vão para DADOS DO ORÇAMENTO). */
+  dados: string;
+  /** Reclamações originais (vão para DESCRIÇÃO DO REPARO). */
+  descReparo: string;
+  cliente: string;
+  numero: string;
+  data: string;
+}
+
+/** Linha de item do sistema: `ID Serviço|Peça ...` (com ou sem acento). */
+const LINHA_ITEM = /^\d+\s+(?:Servi[cç]o|Pe[cç]a)\b/i;
+
+/**
+ * Mapeia o texto do PDF/print do sistema por seção (layout real):
+ * - DADOS: linhas de item entre "It Tipo Código…" e "Fechamento";
+ * - DESCRIÇÃO: linhas entre "Reclamações Originais…" e "Sugestão";
+ * - cliente: o que vem após "Cliente Cadastro" (o "Cadastro" vem colado);
+ * - número: o primeiro número do documento (primeira coisa que aparece);
+ * - data: do cabeçalho (inclusive colada em "NºOrçamento Interno…").
+ * Todo o resto é ignorado.
+ */
+export function extrairSistemaToyota(texto: string): SistemaToyota {
+  const linhas = texto.split('\n');
+  const out: SistemaToyota = { dados: '', descReparo: '', cliente: '', numero: '', data: '' };
+
+  const idxItens = linhas.findIndex((l) => /^\s*It\s+Tipo\s+C[oó]digo/i.test(l));
+  const idxFech = linhas.findIndex((l, i) => i > idxItens && /Fechamento/i.test(l));
+  if (idxItens >= 0) {
+    const fim = idxFech > idxItens ? idxFech : linhas.length;
+    out.dados = linhas
+      .slice(idxItens + 1, fim)
+      .map((l) => l.trim())
+      .filter((l) => LINHA_ITEM.test(l))
+      .join('\n');
+  }
+
+  const idxRec = linhas.findIndex((l) => /Reclama[cç][oõ]es Originais/i.test(l));
+  const idxSug = linhas.findIndex((l, i) => i > idxRec && /Sugest[aã]o/i.test(l));
+  if (idxRec >= 0) {
+    const fim = idxSug > idxRec ? idxSug : Math.min(idxRec + 12, linhas.length);
+    out.descReparo = linhas
+      .slice(idxRec + 1, fim)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0)
+      .join('\n');
+  }
+
+  const mCli = texto.match(/Cliente\s*Cadastro\s*([A-ZÀ-Ú0-9 .&'/-]{3,60})/i);
+  if (mCli) out.cliente = mCli[1].trim().replace(/\s+/g, ' ');
+
+  for (const l of linhas.slice(0, 6)) {
+    const m = l.trim().match(/^(\d{4,})\s*$/);
+    if (m) {
+      out.numero = m[1];
+      break;
+    }
+  }
+
+  const cab = extrairCabecalho(texto);
+  if (!cab.data) {
+    const m = texto.match(/Or[cç]amento Interno\s*(\d{2}\/\d{2}\/\d{4})/i);
+    if (m) cab.data = m[1];
+  }
+  out.data = cab.data;
+  return out;
+}
+
 /** Cabeçalho detectado no texto (tudo opcional; editável antes de salvar). */
 export interface CabecalhoOrcamento {
   numero: string;
