@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.90.0](#v09000) — 2026-10-05 — Bug: play silencioso com campo vazio (v0.90.0)
 - [v0.89.0](#v08900) — 2026-10-05 — Padrão 5%/6x, renumeração e Histórico no SISTEMA (v0.89.0)
 - [v0.88.0](#v08800) — 2026-10-05 — Nova ordem dos cards + borrachas (v0.88.0)
 - [v0.87.0](#v08700) — 2026-10-05 — Card 3 automático: extrai ao anexar, substitui (v0.87.0)
@@ -148,6 +149,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09000"></a>
+## 2026-10-05 — Bug: play silencioso com campo vazio (v0.90.0)
+
+**Bug:** anexar o PDF e dar play sem nada gerava: sem scroll e sem imagem — porque o
+`handleGenerate` saía em silêncio com campo vazio. Reproduzido o fluxo fiel no Chrome
+headless (PDF com seções → extração, Usar, play: total 409,52 e scroll OK) — o fluxo
+nominal estava são; a falha era o retorno mudo.
+
+**Feito:** alerta orientando (preencher campos 2/3 ou usar o card 1) + smoke que zera os
+campos, clica e confere alerta + ausência de `#printable-quote`.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**169/169 (14 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.90.0`.
+
+---
 
 <a id="v08900"></a>
 ## 2026-10-05 — Padrão 5%/6x, renumeração e Histórico no SISTEMA (v0.89.0)

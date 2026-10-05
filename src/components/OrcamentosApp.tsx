@@ -58,7 +58,14 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   }, [summary, selecionados]);
 
   const handleGenerate = () => {
-    if (!descReparo.trim() || !orcamentoRaw.trim()) return;
+    // Sem os dois campos não há o que somar: avisa em vez de sair em silêncio
+    // (sem aviso o usuário acha que "não gerou": sem scroll e sem imagem).
+    if (!descReparo.trim() || !orcamentoRaw.trim()) {
+      alert(
+        'Preencha a DESCRIÇÃO (campo 3) e os DADOS (campo 2) — ou anexe o PDF/print no card 1 e clique em "Usar no orçamento".',
+      );
+      return;
+    };
     const finalRevAprovada = parseBrazilianNumber(revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(revPecasInput);
     

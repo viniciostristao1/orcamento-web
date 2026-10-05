@@ -1634,4 +1634,22 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByDisplayValue('6x')).toBeTruthy();
     expect(screen.getByDisplayValue('5')).toBeTruthy();
   });
+
+  it('play com campo vazio avisa em vez de sair em silêncio (sem scroll/imagem)', () => {
+    const { container } = render(<App />);
+    const livres = Array.from(container.querySelectorAll('textarea')).filter(
+      (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
+    );
+    expect(livres).toHaveLength(2); // DESCRIÇÃO (3) e DADOS (2)
+    fireEvent.change(livres[0], { target: { value: '' } });
+    fireEvent.change(livres[1], { target: { value: '' } });
+    const alerta = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    try {
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      expect(alerta).toHaveBeenCalledWith(expect.stringContaining('Usar no orçamento'));
+      expect(document.querySelector('#printable-quote')).toBeNull();
+    } finally {
+      alerta.mockRestore();
+    }
+  });
 });

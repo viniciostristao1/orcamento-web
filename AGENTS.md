@@ -585,6 +585,8 @@ npm run build        # gera dist/index.html (arquivo único)
   partes para revisão e preenche os campos 1 e 2.
 - **Card 3 automático** (v0.87.0): anexar já extrai sozinho (sem botão extrair);
   botão único **"Novo arquivo"**; novo anexo **substitui** o anterior (nunca soma).
+- **Play com campo vazio avisa** (v0.90.0): sem DESCRIÇÃO ou DADOS, o processar mostra
+  alerta orientando (usar o card 1) em vez de sair em silêncio sem scroll/imagem.
 - **Nova ordem + borrachas** (v0.88.0; renumeração na v0.89.0): esquerda = 1. SISTEMA
   e 2. DADOS (largo); direita = APROVADO, 3. AJUSTES, 3. DESCRIÇÃO e RESUMO. O botão
   **Histórico** fica no card 1. SISTEMA, ao lado da borracha. Borracha do card 1 apaga
