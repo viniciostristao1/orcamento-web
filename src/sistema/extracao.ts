@@ -4,6 +4,8 @@
  * extraído aparece para conferência e só vira DADOS DO ORÇAMENTO no clique.
  */
 
+import { normalizarTelefoneParaWhats, temTelefoneValido } from '../utils/telefone';
+
 /** Um fragmento de texto do pdf.js (str + posição + quebra de linha). */
 export interface FragmentoPdf {
   str: string;
@@ -132,9 +134,11 @@ export interface CabecalhoOrcamento {
   placa: string;
   nome: string;
   data: string;
+  /** Telefone normalizado (55 + DDD + número) ou '' quando inválido. */
+  telefone: string;
 }
 
-const VAZIO: CabecalhoOrcamento = { numero: '', placa: '', nome: '', data: '' };
+const VAZIO: CabecalhoOrcamento = { numero: '', placa: '', nome: '', data: '', telefone: '' };
 
 /**
  * Procura número, placa, nome/cliente e data nas linhas (rótulos comuns de
@@ -171,6 +175,16 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
   if (!out.data) {
     const m = linhas.join(' ').match(/\b(\d{2}\/\d{2}\/\d{4})\b/);
     if (m) out.data = m[1];
+  }
+
+  // Telefone: prefere o Celular (móvel com DDD); cai para Fone/Tel.
+  // Normalizado com 55 na frente (ex.: 51-981765337 → 5551981765337).
+  const mCel =
+    texto.match(/(?:CELULAR|CEL)[\s:.]*([\d\s().-]{8,25})/i) ??
+    texto.match(/(?:FONE|TEL(?:EFONE)?)[\s:.]*([\d\s().-]{8,25})/i);
+  if (mCel) {
+    const normalizado = normalizarTelefoneParaWhats(mCel[1]);
+    if (temTelefoneValido(normalizado)) out.telefone = normalizado;
   }
   return out;
 }

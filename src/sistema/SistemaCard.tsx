@@ -61,6 +61,8 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   const limpar = () => {
     setExtraidoDesc('');
     setExtraidoDados('');
+    onNumero('');
+    onDataDoc('');
     setMsg('');
   };
 
@@ -79,7 +81,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     const numeroDoc = sis.numero || cab.numero;
     if (numeroDoc.trim()) onNumero(numeroDoc.trim());
     if (sis.data.trim()) onDataDoc(sis.data.trim());
-    onCabecalho({ numero: numeroDoc, placa: cab.placa, nome: sis.cliente || cab.nome, data: sis.data });
+    onCabecalho({ numero: numeroDoc, placa: cab.placa, nome: sis.cliente || cab.nome, data: sis.data, telefone: cab.telefone });
   };
 
   const extrairPdf = async () => {

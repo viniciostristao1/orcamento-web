@@ -1594,4 +1594,27 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByRole('button', { name: 'Ler prints (OCR)' }) as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByRole('button', { name: 'Usar no orçamento' }) as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it('card 3: borracha apaga extração, nº e data', () => {
+    render(<App />);
+    const numInput = screen.getByPlaceholderText('Ex.: 4471') as HTMLInputElement;
+    const dataInput = screen.getByPlaceholderText('Ex.: 24/09/2026') as HTMLInputElement;
+    fireEvent.change(numInput, { target: { value: '20234' } });
+    fireEvent.change(dataInput, { target: { value: '05/10/2026' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar extração' }));
+    expect(numInput.value).toBe('');
+    expect(dataInput.value).toBe('');
+  });
+
+  it('aprovado e desconto: borracha limpa a janela toda', () => {
+    render(<App />);
+    fireEvent.change(screen.getByPlaceholderText(/ABC1D23 \/ JOÃO/i), { target: { value: 'ABC1D23' } });
+    fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51999999999' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar aprovado e desconto' }));
+    expect((screen.getByPlaceholderText(/ABC1D23 \/ JOÃO/i) as HTMLInputElement).value).toBe('');
+    expect((screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement).value).toBe('');
+    expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
+    expect(screen.getByDisplayValue('1x')).toBeTruthy();
+    expect(screen.getByDisplayValue('0')).toBeTruthy();
+  });
 });

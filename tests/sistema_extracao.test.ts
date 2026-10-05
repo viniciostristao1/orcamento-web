@@ -42,7 +42,7 @@ describe('extração do orçamento do sistema (puro)', () => {
         '1 Peça X 1 10,00',
       ].join('\n'),
     );
-    expect(cab).toEqual({ numero: '4471', placa: 'ABC1D23', nome: 'JOÃO DA SILVA', data: '24/09/2026' });
+    expect(cab).toEqual({ numero: '4471', placa: 'ABC1D23', nome: 'JOÃO DA SILVA', data: '24/09/2026', telefone: '' });
   });
 
   it('acha placa e data avulsas sem rótulo', () => {
@@ -54,6 +54,16 @@ describe('extração do orçamento do sistema (puro)', () => {
 
   it('placa antiga com hífen também vale', () => {
     expect(extrairCabecalho('PLACA ABC-1234').placa).toBe('ABC-1234');
+  });
+
+  it('telefone vem do Celular com 55 na frente (cai para Fone)', () => {
+    expect(extrairCabecalho('Celular: 51-997831108').telefone).toBe('5551997831108');
+    expect(extrairCabecalho('CELULAR 51997831108').telefone).toBe('5551997831108');
+    expect(extrairCabecalho('Fone: 51-37485088').telefone).toBe('555137485088');
+    // celular tem prioridade sobre o fixo
+    expect(extrairCabecalho('Fone: 51-37485088\nCelular: 51-997831108').telefone).toBe('5551997831108');
+    // curto demais não vale (não sobrescreve o campo)
+    expect(extrairCabecalho('Fone: 1234').telefone).toBe('');
   });
 });
 

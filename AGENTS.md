@@ -580,7 +580,10 @@ npm run build        # gera dist/index.html (arquivo único)
   DESCRIÇÃO (entre "Reclamações Originais…" e "Sugestão"), cliente após "Cliente
   Cadastro", número = 1º do documento e o resto é ignorado — o card mostra as duas
   partes para revisão e preenche os campos 1 e 2.
-
+- **Ajustes do card 3 e borrachas** (v0.86.0): a borracha do card 3 apaga também Nº e Data;
+  o card APROVADO E DESCONTO ganhou borracha geral (zera revisão/peças, desconto 0,
+  parcelas 1x, limpa placa/telefone); "Usar no orçamento" **sobrescreve** PLACA/NOME e
+  TELEFONE (só com conteúdo) — telefone sai do `Celular:` normalizado com 55 na frente.
 ## 8. Pendências
 
 - Usuário **testar no Chrome** (abrir o `.html` baixado) e validar a lógica com 1–2 casos

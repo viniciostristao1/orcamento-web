@@ -148,14 +148,13 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const visivel = summary ? recalcularComSelecao(summary, selecionados) : null;
 
   // Cabeçalho extraído do PDF/print: nº e data preenchem os próprios campos;
-  // placa/nome completam o campo livre só quando ele está vazio.
+  // PLACA/NOME e TELEFONE são escritos/sobrescritos (só quando veio conteúdo).
   const aplicarCabecalho = (c: CabecalhoOrcamento) => {
     if (c.numero.trim()) setNumero(c.numero.trim());
     if (c.data.trim()) setDataDoc(c.data.trim());
-    setPlaca((atual) => {
-      if (atual.trim()) return atual;
-      return [c.placa.trim(), c.nome.trim()].filter(Boolean).join(' / ');
-    });
+    const contato = [c.placa.trim(), c.nome.trim()].filter(Boolean).join(' / ');
+    if (contato) setPlaca(contato);
+    if (c.telefone.trim()) setTelefone(c.telefone.trim());
   };
 
   return (
@@ -223,7 +222,24 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO) + faixa de
                 atalhos ao lado, sem roubar a largura dos cards. */}
             <div className="flex flex-col gap-4 flex-1 min-w-0 xl:flex-none xl:w-[425px] self-stretch">
-            <NeonCard title="APROVADO E DESCONTO" borderColor="emerald-500" compact>
+            <NeonCard
+              title="APROVADO E DESCONTO"
+              borderColor="emerald-500"
+              compact
+              actions={
+                <ClearButton
+                  onClick={() => {
+                    setRevAprovadaInput('');
+                    setRevPecasInput('');
+                    setDesconto(0);
+                    setParcelas(1);
+                    setPlaca('');
+                    setTelefone('');
+                  }}
+                  label="Limpar aprovado e desconto"
+                />
+              }
+            >
               <div className="space-y-2">
                 {/* Total Revisão | Peças na Revisão (com vassoura para limpar e
                     formatação automática de milhar/centavos ao colar ou sair) */}
