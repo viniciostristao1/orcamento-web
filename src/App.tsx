@@ -103,6 +103,17 @@ const AppInterno: React.FC = () => {
     setAbaEditando(null);
   };
 
+  // Ideia 01 (âmbar + preta) vale SÓ no tema grafite; os demais temas seguem azuis.
+  const abaAtiva =
+    tema === 'grafite'
+      ? 'bg-amber-500 text-black border-amber-500'
+      : 'bg-blue-600 text-white border-blue-500';
+  const abaNormal =
+    tema === 'grafite'
+      ? 'bg-amber-500/10 text-amber-200 border-amber-500/20 hover:bg-amber-500/20'
+      : 'bg-blue-500/10 text-blue-200 border-blue-500/20 hover:bg-blue-500/20';
+  const abaEditandoBorda = tema === 'grafite' ? 'border-amber-500' : 'border-blue-500';
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 pb-24">
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden ui-compacta">
@@ -126,7 +137,7 @@ const AppInterno: React.FC = () => {
                   }}
                   onBlur={confirmarNomeAba}
                   aria-label="Renomear aba"
-                  className="px-3 py-1 rounded-xl text-lg font-black uppercase campo-tema border border-blue-500 outline-none w-40"
+                  className={`px-3 py-1 rounded-xl text-lg font-black uppercase campo-tema border outline-none w-40 ${abaEditandoBorda}`}
                 />
               ) : (
                 <button
@@ -140,9 +151,7 @@ const AppInterno: React.FC = () => {
                   title="Duplo clique para renomear"
                   style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                   className={`px-4 py-1 rounded-xl transition-all text-lg font-black uppercase border cursor-pointer active:scale-95 whitespace-nowrap ${
-                    aba === t.id
-                      ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-blue-500/10 text-blue-200 border-blue-500/20 hover:bg-blue-500/20'
+                    aba === t.id ? abaAtiva : abaNormal
                   }`}
                 >
                   {rotulos.abas[t.id] ?? t.label}

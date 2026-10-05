@@ -80,7 +80,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **150 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **151 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -557,6 +557,9 @@ npm run build        # gera dist/index.html (arquivo único)
   marcada no histórico depois de gerar, com filtro por cor nos dois históricos.
 - **Cadeado com senha** (v0.82.0): botão Sair bloqueia a tela (overlay, app continua
   montado); senha local com mín. 4 caracteres, troca nas Configurações, incluída no backup.
+- **Abas em âmbar no grafite** (v0.83.0): ideia 01 de `ideias/abas-cores.md` (ativa âmbar
+  cheia + letra preta, demais em fantasma âmbar) aplicada **só com `tema === 'grafite'`**
+  (`App.tsx`: `abaAtiva`/`abaNormal`); os demais temas seguem azuis.
 
 ## 8. Pendências
 

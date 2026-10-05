@@ -166,6 +166,31 @@ describe('App — smoke test (render + processar)', () => {
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('azul');
   });
 
+  it('abas superiores: âmbar + preta só no tema grafite', () => {
+    localStorage.removeItem('orcamentos_tema_v1');
+    render(<App />);
+    const abaOrc = () => screen.getByRole('button', { name: 'Orçamentos' });
+    const abaDados = () => screen.getByRole('button', { name: 'Dados' });
+
+    // padrão (azul): ativa azul com letra branca, demais em fantasma azul
+    expect(abaOrc().className).toContain('bg-blue-600');
+    expect(abaOrc().className).toContain('text-white');
+    expect(abaDados().className).toContain('text-blue-200');
+
+    // grafite: ativa âmbar com letra preta, demais em fantasma âmbar
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByText('Grafite'));
+    expect(abaOrc().className).toContain('bg-amber-500');
+    expect(abaOrc().className).toContain('text-black');
+    expect(abaDados().className).toContain('text-amber-200');
+
+    // voltou ao azul: volta ao azul
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByText('Azul'));
+    expect(abaOrc().className).toContain('bg-blue-600');
+    expect(abaDados().className).toContain('text-blue-200');
+  });
+
   it('logo Toyota tem classe própria (o tema claro o tinge de azul via CSS)', () => {
     render(<App />);
     const logo = screen.getByAltText('Toyota');

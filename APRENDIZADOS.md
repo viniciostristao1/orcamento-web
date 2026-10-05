@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.83.0](#v08300) — 2026-10-05 — Abas em âmbar só no tema grafite (v0.83.0)
 - [Ideias de cor das abas superiores (sem versão — mockups)](#bloco-ideias-abas) — Ideias de cor das abas superiores (sem versão — mockups)
 - [v0.82.0](#v08200) — 2026-10-05 — Cadeado com senha + históricos mais altos (v0.82.0)
 - [v0.81.0](#v08100) — 2026-10-05 — Execução das melhorias da varredura (v0.81.0)
@@ -141,6 +142,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v08300"></a>
+## 2026-10-05 — Abas em âmbar só no tema grafite (v0.83.0)
+
+**Pedido:** aplicar a ideia 01 (âmbar + preta) apenas no tema grafite.
+
+**Feito:** `App.tsx` escolhe as classes das abas superiores pelo tema
+(`abaAtiva`/`abaNormal`/`abaEditandoBorda`): grafite = ativa `bg-amber-500 text-black`,
+demais `text-amber-200` em fantasma; outros temas seguem azuis como antes. Teste smoke
+confere as classes nos dois temas.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**151/151 (13 arquivos)**, `npm run build` OK (`dist/index.html` autocontido). Selo `v0.83.0`.
+
+---
 
 <a id="bloco-ideias-abas"></a>
 ## Ideias de cor das abas superiores (sem versão — mockups)
