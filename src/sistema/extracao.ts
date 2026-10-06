@@ -128,6 +128,38 @@ export function extrairSistemaToyota(texto: string): SistemaToyota {
   return out;
 }
 
+/** Entrada da escolha de fonte do play (tudo já trimado fora, compara-se aqui). */
+export interface EstadoFontePlay {
+  descCampo: string;
+  dadosCampo: string;
+  revDesc: string;
+  revDados: string;
+  /** O usuário digitou nos campos depois da última extração/uso? */
+  camposSujos: boolean;
+  /** Chegou extração nova ainda não usada? */
+  revisaoFresca: boolean;
+}
+
+/**
+ * Decide o que o play soma: revisão fresca + campos intactos = vale a revisão
+ * (anexar + play direto funciona, sem o "Usar"); de resto, cada lado cai para
+ * o que tiver conteúdo (campo primeiro). Edição manual nos campos vence sempre.
+ */
+export function decidirFontePlay(e: EstadoFontePlay): {
+  desc: string;
+  dados: string;
+  usouRevisao: boolean;
+} {
+  const descCampo = e.descCampo.trim();
+  const dadosCampo = e.dadosCampo.trim();
+  const revDesc = e.revDesc.trim();
+  const revDados = e.revDados.trim();
+  if (!e.camposSujos && e.revisaoFresca && (revDesc || revDados)) {
+    return { desc: revDesc || descCampo, dados: revDados || dadosCampo, usouRevisao: true };
+  }
+  return { desc: descCampo || revDesc, dados: dadosCampo || revDados, usouRevisao: false };
+}
+
 /** Cabeçalho detectado no texto (tudo opcional; editável antes de salvar). */
 export interface CabecalhoOrcamento {
   numero: string;

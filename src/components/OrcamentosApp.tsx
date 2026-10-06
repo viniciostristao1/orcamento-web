@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { processQuote, formatCurrency, formatarValorInput, parseBrazilianNumber, recalcularComSelecao } from '../utils/quoteLogic';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
@@ -10,7 +10,7 @@ import TituloEditavel from './TituloEditavel';
 import MenuDados from './MenuDados';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import SistemaCard from '../sistema/SistemaCard';
-import type { CabecalhoOrcamento } from '../sistema/extracao';
+import { decidirFontePlay, type CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
 import { lerUltimoOrcamento, salvarUltimoOrcamento } from '../utils/ultimoOrcamento';
 
@@ -45,6 +45,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   // do play, vale o que já foi extraído (sem obrigar o clique em "Usar").
   const [revDesc, setRevDesc] = useState('');
   const [revDados, setRevDados] = useState('');
+  // Revisão fresca (extração nova ainda não usada) + campos sujos (edição manual):
+  // o play prefere a revisão fresca com campos intactos (decidirFontePlay).
+  const revNonce = useRef(0);
+  const revNonceUsed = useRef(0);
+  const camposSujos = useRef(false);
   // Último documento gerado: reabre o app já com o visual do orçamento na tela.
   const [ultimo] = useState(lerUltimoOrcamento);
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
@@ -65,31 +70,43 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   }, [summary, selecionados]);
 
   const handleGenerate = () => {
-    // Vale o campo preenchido; se vazio, vale o que já foi extraído no card
-    // do sistema (anexar + play direto, sem o "Usar", também gera).
-    const descEfetiva = descReparo.trim() || revDesc.trim();
-    const dadosEfetivos = orcamentoRaw.trim() || revDados.trim();
+    // Fonte do play (decidirFontePlay): revisão fresca + campos intactos = vale
+    // a revisão (anexar o 2º orçamento + play gera o 2º, sem o "Usar"); edição
+    // manual nos campos vence sempre; vazio dos dois lados cai na revisão.
+    const fonte = decidirFontePlay({
+      descCampo: descReparo,
+      dadosCampo: orcamentoRaw,
+      revDesc,
+      revDados,
+      camposSujos: camposSujos.current,
+      revisaoFresca: revNonce.current !== revNonceUsed.current,
+    });
     // Sem os dois não há o que somar: avisa em vez de sair em silêncio
     // (sem aviso o usuário acha que "não gerou": sem scroll e sem imagem).
-    if (!descEfetiva || !dadosEfetivos) {
+    if (!fonte.desc || !fonte.dados) {
       alert(
         'Preencha a DESCRIÇÃO e os DADOS — ou anexe o PDF/print no card do sistema e clique em "Usar no orçamento manual".',
       );
       return;
     }
-    if (!descReparo.trim()) setDescReparo(revDesc);
-    if (!orcamentoRaw.trim()) setOrcamentoRaw(revDados);
+    if (fonte.usouRevisao) {
+      // Alinha os campos com o que foi somado (a próxima vez vale o campo).
+      setDescReparo(fonte.desc);
+      setOrcamentoRaw(fonte.dados);
+      revNonceUsed.current = revNonce.current;
+      camposSujos.current = false;
+    }
     const finalRevAprovada = parseBrazilianNumber(revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(revPecasInput);
     
-    const result = processQuote(descEfetiva, dadosEfetivos, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
+    const result = processQuote(fonte.desc, fonte.dados, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
     setSummary(result);
     setSelecionados(new Set(result.items.map((i) => i.id))); // começa com todos marcados
 
     // Histórico local (localStorage): salva a cada "Processar Tudo".
     adicionarAoHistorico({
-      descReparo: descEfetiva,
-      orcamentoRaw: dadosEfetivos,
+      descReparo: fonte.desc,
+      orcamentoRaw: fonte.dados,
       ajustesManuais,
       revAprovadaInput,
       revPecasInput,
@@ -107,6 +124,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   };
 
   // Reabre um orçamento do histórico na tela (recalcula a partir dos textos).
+  // Zera a revisão pendente: o contexto agora é o registro aberto.
   const abrirDoHistorico = (r: OrcamentoSalvo) => {
     setDescReparo(r.descReparo);
     setOrcamentoRaw(r.orcamentoRaw);
@@ -120,6 +138,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setNome(r.nome ?? '');
     setNumero(r.numeroOrcamento ?? '');
     setDataDoc(r.dataDoc ?? '');
+    setRevDesc('');
+    setRevDados('');
+    revNonceUsed.current = revNonce.current;
+    camposSujos.current = false;
     onFecharHistorico();
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
@@ -223,9 +245,16 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               revDados={revDados}
               onRevDesc={setRevDesc}
               onRevDados={setRevDados}
+              onExtraido={() => {
+                // Extração nova: revisão fresca e campos intactos de novo.
+                revNonce.current += 1;
+                camposSujos.current = false;
+              }}
               onUsarTextos={(desc, dados) => {
                 if (desc.trim()) setDescReparo(desc);
                 if (dados.trim()) setOrcamentoRaw(dados);
+                revNonceUsed.current = revNonce.current;
+                camposSujos.current = false;
               }}
             />
 
@@ -239,7 +268,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               <textarea 
                 className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
                 value={orcamentoRaw} 
-                onChange={(e) => setOrcamentoRaw(e.target.value)} 
+                onChange={(e) => { setOrcamentoRaw(e.target.value); camposSujos.current = true; }} 
                 wrap="off" 
               />
             </NeonCard>
@@ -412,7 +441,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               <textarea 
                 className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide" 
                 value={descReparo} 
-                onChange={(e) => setDescReparo(e.target.value)} 
+                onChange={(e) => { setDescReparo(e.target.value); camposSujos.current = true; }} 
               />
             </NeonCard>
             </div>

@@ -35,6 +35,8 @@ interface SistemaCardProps {
   revDados: string;
   onRevDesc: (v: string) => void;
   onRevDados: (v: string) => void;
+  /** Avisa que chegou extração nova (revisão fresca de novo). */
+  onExtraido: () => void;
   /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
   onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
 }
@@ -68,6 +70,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   revDados,
   onRevDesc,
   onRevDados,
+  onExtraido,
   onUsarTextos,
 }) => {
   const [estado, setEstado] = useState('');
@@ -104,6 +107,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     onNumero(numeroDoc.trim());
     onDataDoc(sis.data.trim());
     onCabecalho({ numero: numeroDoc, placa: cab.placa, nome: sis.cliente || cab.nome, data: sis.data, telefone: cab.telefone });
+    onExtraido();
   };
 
   const extrairArquivos = async (arquivos: File[]) => {

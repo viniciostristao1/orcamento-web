@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.100.0](#v10000) — 2026-10-06 — Play prefere extração nova (v0.100.0)
 - [v0.99.1](#v09901) — 2026-10-06 — Fonte do MENU DADOS igual à dos campos (v0.99.1)
 - [v0.99.0](#v09900) — 2026-10-06 — Observação no lembrete + menu e filtro (v0.99.0)
 - [v0.98.0](#v09800) — 2026-10-06 — MENU DADOS à esquerda (ideia 03) (v0.98.0)
@@ -159,6 +160,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10000"></a>
+## 2026-10-06 — Play prefere extração nova (v0.100.0)
+
+**Bug:** anexar o 2º orçamento + play gerava os itens do 1º (campos ainda com o
+anterior). **Feito:** `decidirFontePlay` pura + fiação (nonce da extração, dirty dos
+campos, limpa ao abrir histórico); anexar + play direto gera o novo; edição manual
+vence. Smoke com PDF mockado (sem worker) reproduz o cenário. MENU DADOS em
+`text-base`.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**193/193 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.100.0`.
+
+---
 
 <a id="v09901"></a>
 ## 2026-10-06 — Fonte do MENU DADOS igual à dos campos (v0.99.1)

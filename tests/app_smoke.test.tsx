@@ -8,6 +8,16 @@ import { VERSAO } from '../src/utils/versao';
 import { RASCUNHO_KEY } from '../src/utils/rascunho';
 import { ULTIMO_KEY } from '../src/utils/ultimoOrcamento';
 
+// PDF mockado (sem worker): o texto varia pelo nome do arquivo.
+vi.mock('../src/sistema/pdf', () => ({
+  extrairTextoPdf: async (arquivo: File) => ({
+    paginas: 1,
+    texto: arquivo.name.includes('segundo')
+      ? 'It Tipo Codigo\n2 Peca P2 1 20,00\nFechamento\nReclamacoes Originais\n02 SEGUNDO\nSugestao'
+      : 'It Tipo Codigo\n1 Peca P1 1 10,00\nFechamento\nReclamacoes Originais\n01 PRIMEIRO\nSugestao',
+  }),
+}));
+
 const registro = (id: string, placa: string, criadoEm: string): OrcamentoSalvo => ({
   id,
   criadoEm,
@@ -1870,6 +1880,34 @@ describe('App — smoke test (render + processar)', () => {
       expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')).toHaveLength(0);
     } finally {
       localStorage.removeItem('lembretes_rapidos_v1');
+    }
+  });
+
+  it('segundo anexo vence o primeiro no play (sem precisar do Usar)', async () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      const { container } = render(<App />);
+      const input = container.querySelector('input[accept=".pdf,.png,.jpg,.jpeg"]') as HTMLInputElement;
+      const pdf = (nome: string) => new File(['x'], nome, { type: 'application/pdf' });
+
+      // 1º anexo + Usar + play = PRIMEIRO
+      fireEvent.change(input, { target: { files: [pdf('primeiro.pdf')] } });
+      await screen.findByDisplayValue('01 PRIMEIRO');
+      fireEvent.click(screen.getByRole('button', { name: 'Usar no orçamento manual' }));
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      expect(screen.getByText('PRIMEIRO')).toBeTruthy();
+
+      // 2º anexo + play direto (sem Usar) = SEGUNDO
+      fireEvent.change(input, { target: { files: [pdf('segundo.pdf')] } });
+      await screen.findByDisplayValue('02 SEGUNDO');
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      expect(screen.getByText('SEGUNDO')).toBeTruthy();
+
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(2);
+      expect(salvos[0].descReparo).toContain('SEGUNDO');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
     }
   });
 });

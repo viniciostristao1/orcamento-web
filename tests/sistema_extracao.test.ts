@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   agruparLinhasPdf,
+  decidirFontePlay,
   extrairCabecalho,
   extrairSistemaToyota,
   normalizarTextoExtraido,
@@ -64,6 +65,70 @@ describe('extração do orçamento do sistema (puro)', () => {
     expect(extrairCabecalho('Fone: 51-37485088\nCelular: 51-997831108').telefone).toBe('5551997831108');
     // curto demais não vale (não sobrescreve o campo)
     expect(extrairCabecalho('Fone: 1234').telefone).toBe('');
+  });
+});
+
+describe('decidirFontePlay — qual texto o play soma', () => {
+  it('revisão fresca + campos intactos: vale a revisão (2º anexo vence o 1º)', () => {
+    expect(
+      decidirFontePlay({
+        descCampo: '01 VELHO',
+        dadosCampo: '1 Peça V 1 10,00',
+        revDesc: '01 NOVO',
+        revDados: '1 Peça N 1 20,00',
+        camposSujos: false,
+        revisaoFresca: true,
+      }),
+    ).toEqual({ desc: '01 NOVO', dados: '1 Peça N 1 20,00', usouRevisao: true });
+  });
+
+  it('edição manual nos campos vence a revisão fresca', () => {
+    const r = decidirFontePlay({
+      descCampo: '01 MANUAL',
+      dadosCampo: '1 Peça V 1 10,00',
+      revDesc: '01 NOVO',
+      revDados: '1 Peça N 1 20,00',
+      camposSujos: true,
+      revisaoFresca: true,
+    });
+    expect(r).toEqual({ desc: '01 MANUAL', dados: '1 Peça V 1 10,00', usouRevisao: false });
+  });
+
+  it('revisão já usada: vale o campo', () => {
+    const r = decidirFontePlay({
+      descCampo: '01 VELHO',
+      dadosCampo: '1 Peça V 1 10,00',
+      revDesc: '01 NOVO',
+      revDados: '1 Peça N 1 20,00',
+      camposSujos: false,
+      revisaoFresca: false,
+    });
+    expect(r.usouRevisao).toBe(false);
+    expect(r.desc).toBe('01 VELHO');
+  });
+
+  it('campo vazio cai para a revisão (mesmo já usada)', () => {
+    const r = decidirFontePlay({
+      descCampo: '',
+      dadosCampo: '',
+      revDesc: '01 NOVO',
+      revDados: '1 Peça N 1 20,00',
+      camposSujos: false,
+      revisaoFresca: false,
+    });
+    expect(r).toEqual({ desc: '01 NOVO', dados: '1 Peça N 1 20,00', usouRevisao: false });
+  });
+
+  it('sem nada dos dois lados: vazio (play avisa)', () => {
+    const r = decidirFontePlay({
+      descCampo: '',
+      dadosCampo: '',
+      revDesc: '',
+      revDados: '',
+      camposSujos: false,
+      revisaoFresca: true,
+    });
+    expect(r).toEqual({ desc: '', dados: '', usouRevisao: false });
   });
 });
 

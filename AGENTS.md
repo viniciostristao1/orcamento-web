@@ -86,7 +86,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **187 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **193 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -622,9 +622,13 @@ npm run build        # gera dist/index.html (arquivo único)
   MENU DADOS em `ideias/menu-dados.md` (8 ideias, sem implementar).
 - **Lembrete maior + menu e filtro** (v0.99.0): editor de data/hora maior com
   **observação** na mesma linha (buscável nos dois históricos, mostrada no cartão);
-  MENU DADOS em branco, mesma fonte do DADOS (`var(--tema-fonte-conteudo)` — o CSS
-  global força os campos nessa fonte, então `font-mono` no menu destoava), sem negrito; filtro Todas/Verdes/Vermelhos na linha de
+  MENU DADOS em branco mono sem negrito; filtro Todas/Verdes/Vermelhos na linha de
   ações (entre lupa e limpar).
+- **Fonte do MENU igual à dos campos** (v0.99.1): itens com a fonte de conteúdo do tema
+  (o CSS global já força os campos nela; `font-mono` destoava).
+- **Play prefere extração nova** (v0.100.0): anexar o 2º orçamento + play gera o 2º sem
+  precisar do "Usar" (`decidirFontePlay` pura: revisão fresca + campos intactos = vale
+  a revisão; edição manual vence sempre). MENU DADOS em `text-base` (igual ao conteúdo).
 - **Nova ordem + borrachas** (v0.88.0; renumeração na v0.89.0): esquerda = 1. SISTEMA
   e 2. DADOS (largo); direita = APROVADO, 3. AJUSTES, 3. DESCRIÇÃO e RESUMO. O botão
   **Histórico** fica no card 1. SISTEMA, ao lado da borracha. Borracha do card 1 apaga
