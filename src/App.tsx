@@ -165,15 +165,13 @@ const AppInterno: React.FC = () => {
     setAbaEditando(null);
   };
 
-  // Ideia 01 (âmbar + preta) vale SÓ no tema grafite; os demais temas seguem azuis.
-  const abaAtiva =
-    tema === 'grafite'
-      ? 'bg-amber-500 text-black border-amber-500'
-      : 'bg-blue-600 text-white border-blue-500';
-  const abaNormal =
-    tema === 'grafite'
-      ? 'bg-amber-500/10 text-amber-200 border-amber-500/20 hover:bg-amber-500/20'
-      : 'bg-blue-500/10 text-blue-200 border-blue-500/20 hover:bg-blue-500/20';
+  // Ideia 01 (sublinhado): só texto, ativa com traço âmbar embaixo.
+  // Vale em todos os temas; no claro (papel) o texto é escuro.
+  const claro = tema === 'papel';
+  const abaAtiva = claro ? 'text-slate-900' : 'text-white';
+  const abaNormal = claro
+    ? 'text-slate-500 hover:text-slate-800'
+    : 'text-slate-400 hover:text-slate-200';
   const abaEditandoBorda = tema === 'grafite' ? 'border-amber-500' : 'border-blue-500';
 
   return (
@@ -212,11 +210,14 @@ const AppInterno: React.FC = () => {
                   }}
                   title="Duplo clique para renomear"
                   style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
-                  className={`px-4 py-1 rounded-xl transition-all text-lg font-black uppercase border cursor-pointer active:scale-95 whitespace-nowrap ${
+                  className={`relative px-3 py-2 transition-colors text-lg font-black uppercase tracking-wide cursor-pointer active:scale-95 whitespace-nowrap ${
                     aba === t.id ? abaAtiva : abaNormal
                   }`}
                 >
                   {rotulos.abas[t.id] ?? t.label}
+                  {aba === t.id && (
+                    <span className="absolute bottom-0 left-3 right-3 h-1 rounded-full bg-amber-500" />
+                  )}
                 </button>
               ),
             )}

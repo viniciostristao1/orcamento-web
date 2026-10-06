@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.102.0](#v10200) — 2026-10-06 — Abas em sublinhado (v0.102.0)
 - [v0.101.0](#v10100) — 2026-10-06 — Sino limpa rascunho, menu menor, estilos de abas (v0.101.0)
 - [v0.100.0](#v10000) — 2026-10-06 — Play prefere extração nova (v0.100.0)
 - [v0.99.1](#v09901) — 2026-10-06 — Fonte do MENU DADOS igual à dos campos (v0.99.1)
@@ -161,6 +162,25 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10200"></a>
+## 2026-10-06 — Abas em sublinhado (v0.102.0)
+
+**Pedido:** ideia 01 de `ideias/abas-estilos.md` (sublinhado).
+
+**Feito:** abas só-texto com traço âmbar na ativa (branca nos escuros, escura no papel);
+saíram as pílulas (e o caso especial do grafite). Smoke confere texto + traço único +
+tema claro; screenshot conferido.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**194/194 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.102.0`.
+
+**Gotchas / decisões:**
+- Seletor do traço no teste: escopado em `header nav` (os spans âmbar do MENU DADOS,
+  invisíveis, casavam o seletor solto).
+
+---
 
 <a id="v10100"></a>
 ## 2026-10-06 — Sino limpa rascunho, menu menor, estilos de abas (v0.101.0)

@@ -575,9 +575,9 @@ npm run build        # gera dist/index.html (arquivo único)
   marcada no histórico depois de gerar, com filtro por cor nos dois históricos.
 - **Cadeado com senha** (v0.82.0): botão Sair bloqueia a tela (overlay, app continua
   montado); senha local com mín. 4 caracteres, troca nas Configurações, incluída no backup.
-- **Abas em âmbar no grafite** (v0.83.0): ideia 01 de `ideias/abas-cores.md` (ativa âmbar
-  cheia + letra preta, demais em fantasma âmbar) aplicada **só com `tema === 'grafite'`**
-  (`App.tsx`: `abaAtiva`/`abaNormal`); os demais temas seguem azuis.
+- **Abas em sublinhado** (v0.102.0, ideia 01 de `ideias/abas-estilos.md`): só texto,
+  ativa com traço âmbar embaixo (branca nos temas escuros, escura no papel);
+  substitui as pílulas (inclusive o âmbar do grafite).
 - **Orçamento do sistema em PDF/print** (v0.84.0): card **3. ORÇAMENTO DO SISTEMA
   (PDF/PRINT)** na aba Orçamentos, alternativo aos campos 1 e 2 (que seguem iguais).
   Extrai o texto — PDF via `pdfjs-dist` embutido (linhas reconstruídas por coordenada Y,

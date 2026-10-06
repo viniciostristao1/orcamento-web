@@ -179,29 +179,30 @@ describe('App — smoke test (render + processar)', () => {
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('azul');
   });
 
-  it('abas superiores: âmbar + preta só no tema grafite', () => {
+  it('abas superiores: sublinhado âmbar na ativa (ideia 01)', () => {
     localStorage.removeItem('orcamentos_tema_v1');
-    render(<App />);
+    const { container } = render(<App />);
     const abaOrc = () => screen.getByRole('button', { name: 'Orçamentos' });
     const abaDados = () => screen.getByRole('button', { name: 'Dados' });
+    const sublinhados = () =>
+      container.querySelectorAll('header nav button span.bg-amber-500');
 
-    // padrão (azul): ativa azul com letra branca, demais em fantasma azul
-    expect(abaOrc().className).toContain('bg-blue-600');
+    // padrão (azul): ativa branca com traço, demais apagadas, um traço só
     expect(abaOrc().className).toContain('text-white');
-    expect(abaDados().className).toContain('text-blue-200');
+    expect(abaDados().className).toContain('text-slate-400');
+    expect(sublinhados()).toHaveLength(1);
 
-    // grafite: ativa âmbar com letra preta, demais em fantasma âmbar
-    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-    fireEvent.click(screen.getByText('Grafite'));
-    expect(abaOrc().className).toContain('bg-amber-500');
-    expect(abaOrc().className).toContain('text-black');
-    expect(abaDados().className).toContain('text-amber-200');
+    // trocar de aba move o traço junto
+    fireEvent.click(abaDados());
+    expect(abaDados().className).toContain('text-white');
+    expect(abaOrc().className).toContain('text-slate-400');
+    expect(sublinhados()).toHaveLength(1);
 
-    // voltou ao azul: volta ao azul
+    // tema claro: ativa escura (branco sumiria no fundo papel)
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-    fireEvent.click(screen.getByText('Azul'));
-    expect(abaOrc().className).toContain('bg-blue-600');
-    expect(abaDados().className).toContain('text-blue-200');
+    fireEvent.click(screen.getByText('Claro Papel'));
+    expect(abaDados().className).toContain('text-slate-900');
+    expect(sublinhados()).toHaveLength(1);
   });
 
   it('logo Toyota tem classe própria (o tema claro o tinge de azul via CSS)', () => {
