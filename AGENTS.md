@@ -578,6 +578,10 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Abas em sublinhado** (v0.102.0, ideia 01 de `ideias/abas-estilos.md`): só texto,
   ativa com traço âmbar embaixo (branca nos temas escuros, escura no papel);
   substitui as pílulas (inclusive o âmbar do grafite).
+- **Sem títulos internos** (v0.103.0): saiu o cabeçalho centralizado de cada aba
+  (ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS) — a aba ativa já diz onde estamos.
+  Saiu junto o `TituloEditavel` (+ renomear do contexto); renomear das abas no topo
+  continua.
 - **Orçamento do sistema em PDF/print** (v0.84.0): card **3. ORÇAMENTO DO SISTEMA
   (PDF/PRINT)** na aba Orçamentos, alternativo aos campos 1 e 2 (que seguem iguais).
   Extrai o texto — PDF via `pdfjs-dist` embutido (linhas reconstruídas por coordenada Y,

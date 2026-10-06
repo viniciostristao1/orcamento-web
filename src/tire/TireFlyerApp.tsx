@@ -8,7 +8,6 @@ import ClearButton from '../components/ClearButton';
 import { Play, Image as ImageIcon, History, Eraser, Copy, Check } from 'lucide-react';
 import { montarDescricaoWhats } from './utils/descricaoWhats';
 import FlyerHistoryModal from './components/FlyerHistoryModal';
-import TituloEditavel from '../components/TituloEditavel';
 import { adicionarAoFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
 import { lerLayoutFlyer, salvarLayoutFlyer, type LayoutFlyer } from './utils/layoutFlyer';
 import SeletorLayoutFlyer from './components/SeletorLayoutFlyer';
@@ -130,9 +129,6 @@ const TireFlyerApp: React.FC<{
       {/* Conteúdo mais estreito e centralizado: margens laterais no painel
           "DADOS DA TABELA" e no flyer (a largura útil cai ~pela metade). */}
       <div className="max-w-[1150px] mx-auto">
-      <header className="mb-4 text-center">
-        <TituloEditavel id="pneus" estilo="duas-cores" className="titulo-tema text-xl font-black tracking-widest uppercase" />
-      </header>
 
       <div className="grid lg:grid-cols-[1fr_auto] gap-10 items-start">
         {/* Seção de Entrada */}

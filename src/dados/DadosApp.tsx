@@ -16,7 +16,6 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import TituloEditavel from '../components/TituloEditavel';
 import OrdenarTabela from './components/OrdenarTabela';
 import { destacarTermo } from '../utils/historico';
 import {
@@ -562,9 +561,6 @@ const DadosApp: React.FC<{
   return (
     <>
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
-      <header className="mb-4 text-center">
-        <TituloEditavel id="dados" className="titulo-tema text-xl font-black tracking-widest uppercase" />
-      </header>
 
       <div className="max-w-[1150px] mx-auto">
         {/* Pesquisa + criar tabela */}

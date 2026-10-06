@@ -52,11 +52,11 @@ describe('App — smoke test (render + processar)', () => {
   it('renderiza a tela com os textos principais', () => {
     const { container } = render(<App />);
     expect(screen.getByText(/Toyota Weiand/i)).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' })).toBeTruthy();
+    // sem título interno: a aba ativa (só texto + traço) já diz onde estamos
+    expect(screen.queryByRole('heading', { name: 'ORÇAMENTOS' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Orçamentos' }).className).toContain('text-white');
     // selo de versão do header acompanha o package.json (trava contra selo defasado)
     expect(screen.getByTitle('Versão do arquivo').textContent).toBe(`v${VERSAO}`);
-    // títulos das abas no mesmo tamanho/fonte de DESCRIÇÃO DO REPARO (text-xl)
-    expect(screen.getByRole('heading', { name: 'ORÇAMENTOS' }).className).toContain('text-xl');
     expect(screen.getByText('DESCRIÇÃO DO REPARO')).toBeTruthy();
     expect(screen.getByText('DADOS DO ORÇAMENTO')).toBeTruthy();
     // DESCRIÇÃO DO REPARO e DADOS DO ORÇAMENTO com a mesma fonte (text-lg)
@@ -235,7 +235,7 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByText('Tire Flyer'));
 
-    expect(screen.getByRole('heading', { name: 'TIRE FLYER' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'TIRE FLYER' })).toBeNull();
     expect(screen.getByText('265/60R18')).toBeTruthy();
     expect(screen.getByText('Firestone')).toBeTruthy();
     expect(screen.getByText('Michelin LTX Trail')).toBeTruthy();
@@ -433,7 +433,7 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByText('Whats'));
 
-    expect(screen.getByText('PAINEL')).toBeTruthy();
+    expect(screen.queryByText('PAINEL WHATSAPP')).toBeNull();
     expect(screen.getByText('Novo Contato')).toBeTruthy();
     expect(screen.getByText('Script Pneus')).toBeTruthy();
     expect(screen.getByText('Script Revisão')).toBeTruthy();

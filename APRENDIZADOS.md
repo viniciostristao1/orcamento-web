@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.103.0](#v10300) — 2026-10-06 — Sem títulos internos nas abas (v0.103.0)
 - [v0.102.0](#v10200) — 2026-10-06 — Abas em sublinhado (v0.102.0)
 - [v0.101.0](#v10100) — 2026-10-06 — Sino limpa rascunho, menu menor, estilos de abas (v0.101.0)
 - [v0.100.0](#v10000) — 2026-10-06 — Play prefere extração nova (v0.100.0)
@@ -162,6 +163,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10300"></a>
+## 2026-10-06 — Sem títulos internos nas abas (v0.103.0)
+
+**Pedido:** tirar o título centralizado de cada aba (a aba ativa já indica).
+
+**Feito:** removidos os 4 cabeçalhos + `TituloEditavel.tsx` + `renomearTitulo` do
+contexto (`titulos` segue no model por compatibilidade com backups); renomear das
+abas no topo continua. Smoke sem os headings.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**194/194 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.103.0`.
+
+---
 
 <a id="v10200"></a>
 ## 2026-10-06 — Abas em sublinhado (v0.102.0)

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import MessageEditor from './components/MessageEditor';
-import TituloEditavel from '../components/TituloEditavel';
 import { Contact } from './types';
 import {
   SCRIPT_PNEUS_KEY,
@@ -85,9 +84,6 @@ const WhatsApp: React.FC<WhatsAppProps> = ({ destaque = null }) => {
 
   return (
     <div className="ui-compacta pt-1 pb-20 text-slate-200">
-      <header className="mb-4 text-center">
-        <TituloEditavel id="whats" estilo="duas-cores" className="titulo-tema text-xl font-black tracking-widest uppercase" />
-      </header>
 
       {/* Esquerda: NOVO CONTATO + scripts. Direita: RELATÓRIO DE ENVIOS
           (uma coluna de contatos, um pouco mais larga). O lembrete de hoje é
