@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.99.0](#v09900) — 2026-10-06 — Observação no lembrete + menu e filtro (v0.99.0)
 - [v0.98.0](#v09800) — 2026-10-06 — MENU DADOS à esquerda (ideia 03) (v0.98.0)
 - [v0.97.0](#v09700) — 2026-10-05 — Selo de vencidos, lembrete no histórico, menu (v0.97.0)
 - [v0.96.0](#v09600) — 2026-10-05 — Sino: lembretes rápidos + lista geral (v0.96.0)
@@ -157,6 +158,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09900"></a>
+## 2026-10-06 — Observação no lembrete + menu e filtro (v0.99.0)
+
+**Pedido:** (1) data/hora maior + observação na mesma linha, buscável nos dois
+históricos; (2) MENU DADOS branco, mono, sem negrito; (3) filtro de cor na linha,
+entre lupa e limpar.
+
+**Feito:** `EditorLembrete` com inputs `text-lg` + campo observação (120 máx.);
+`observacao` nos dois registros (busca, cartão, limpar junto); menu em
+`font-mono font-normal text-slate-100`; `FiltroCorCliente compacto` na linha de ações
+do `HistoricoBase` (vale nos dois modais). Screenshots headless conferidos.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**187/187 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.99.0`.
+
+---
 
 <a id="v09800"></a>
 ## 2026-10-06 — MENU DADOS à esquerda (ideia 03) (v0.98.0)

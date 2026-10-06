@@ -15,6 +15,8 @@ export interface FlyerSalvo {
   cor?: CorCliente;
   /** Lembrete com data/hora (botão relógio do cartão; ISO "YYYY-MM-DDTHH:mm"). */
   lembreteEm?: string | null;
+  /** Observação do lembrete (mesma linha da data; entra na busca). */
+  observacao?: string;
   medida: string;
   /** A tabela colada (para reabrir o flyer). */
   inputText: string;
@@ -100,11 +102,18 @@ export function atualizarCorFlyer(id: string, cor: CorCliente | undefined): Flye
 }
 
 /**
- * Agenda/limpa o lembrete do flyer (ISO "YYYY-MM-DDTHH:mm"; `null` limpa).
- * Salva na hora e avisa o popup global.
+ * Agenda o lembrete do flyer (ISO "YYYY-MM-DDTHH:mm" + observação; `null`
+ * limpa os dois). Salva na hora e avisa o popup global.
  */
-export function atualizarLembreteFlyer(id: string, lembreteEm: string | null): FlyerSalvo[] {
-  const out = listarFlyerHistorico().map((r) => (r.id === id ? { ...r, lembreteEm } : r));
+export function atualizarLembreteFlyer(
+  id: string,
+  lembreteEm: string | null,
+  observacao: string = '',
+): FlyerSalvo[] {
+  const obs = lembreteEm ? observacao.trim().slice(0, 120) : '';
+  const out = listarFlyerHistorico().map((r) =>
+    r.id === id ? { ...r, lembreteEm, observacao: obs } : r,
+  );
   gravar(out);
   avisarLembretesMudaram();
   return out;
@@ -130,6 +139,7 @@ export function filtrarFlyerHistorico(lista: FlyerSalvo[], termo: string): Flyer
   return lista.filter(
     (r) =>
       normalizarBusca(r.contato).includes(t) ||
+      normalizarBusca(r.observacao ?? '').includes(t) ||
       normalizarBusca(r.telefone ?? '').includes(t) ||
       normalizarBusca(r.criadoEm).includes(t) ||
       normalizarBusca(r.medida).includes(t) ||

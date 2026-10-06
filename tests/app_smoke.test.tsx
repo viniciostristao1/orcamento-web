@@ -1743,11 +1743,22 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(screen.getByLabelText('Data e hora do lembrete'), {
       target: { value: '2026-10-12T09:00' },
     });
+    fireEvent.change(screen.getByLabelText('Observação do lembrete'), {
+      target: { value: 'LIGAR DE MANHA' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar lembrete' }));
 
     const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
     expect(salvos[0].lembreteEm).toBe('2026-10-12T09:00');
+    expect(salvos[0].observacao).toBe('LIGAR DE MANHA');
     expect(screen.getByText('12/10/2026 09:00')).toBeTruthy();
+    expect(screen.getByText('LIGAR DE MANHA')).toBeTruthy();
+
+    // a lupa acha pela observação
+    fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: 'manha' } });
+    expect(screen.getByText(/1 de 1/)).toBeTruthy();
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: '' } });
 
     // limpar tira a data
     fireEvent.click(screen.getByRole('button', { name: 'Lembrete' }));

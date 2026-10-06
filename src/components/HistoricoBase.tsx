@@ -100,6 +100,8 @@ const HistoricoBase: React.FC<HistoricoBaseProps> = ({
         >
           <Search size={18} />
         </button>
+        {/* Filtro de cor na mesma linha: entre a lupa e o limpar tudo. */}
+        <FiltroCorCliente compacto valor={filtroCor} verdes={verdes} vermelhos={vermelhos} onMudar={onFiltroCor} />
         <button
           type="button"
           onClick={onLimpar}
@@ -143,9 +145,6 @@ const HistoricoBase: React.FC<HistoricoBaseProps> = ({
       )}
 
       {faixaExtras}
-
-      {/* Filtro por cor do cliente (verde = quer fazer; vermelho = só pesquisou) */}
-      <FiltroCorCliente valor={filtroCor} verdes={verdes} vermelhos={vermelhos} onMudar={onFiltroCor} />
 
       {msg && (
         <div className="px-6 py-3 text-base font-bold text-blue-300 bg-blue-600/10 border-b border-blue-500/20">{msg}</div>

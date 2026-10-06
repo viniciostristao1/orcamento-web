@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   adicionarAoFlyerHistorico,
   atualizarCorFlyer,
+  atualizarLembreteFlyer,
   filtrarFlyerHistorico,
   limparFlyerHistorico,
   listarFlyerHistorico,
@@ -99,5 +100,15 @@ describe('histórico do Tire Flyer (localStorage)', () => {
     adicionarAoFlyerHistorico({ ...base, contato: 'MARIA', inputText: 'outra' });
     expect(listarFlyerHistorico()).toHaveLength(2);
     expect(listarFlyerHistorico()[0].cor).toBe('verde');
+  });
+
+  it('observação do lembrete entra na busca', () => {
+    limparFlyerHistorico();
+    adicionarAoFlyerHistorico({ ...base, contato: 'JOAO' });
+    const [r] = listarFlyerHistorico();
+    atualizarLembreteFlyer(r.id, '2026-10-12T09:00', 'aguardando peca');
+    expect(listarFlyerHistorico()[0].observacao).toBe('aguardando peca');
+    expect(filtrarFlyerHistorico(listarFlyerHistorico(), 'aguardando')).toHaveLength(1);
+    expect(filtrarFlyerHistorico(listarFlyerHistorico(), 'joao')).toHaveLength(1);
   });
 });

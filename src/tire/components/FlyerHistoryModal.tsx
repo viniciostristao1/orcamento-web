@@ -93,8 +93,8 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
   };
 
   // Agenda/limpa o lembrete do flyer (salva na hora; avisa o popup global).
-  const handleLembrete = (id: string, iso: string | null) => {
-    setLista(atualizarLembreteFlyer(id, iso));
+  const handleLembrete = (id: string, iso: string | null, observacao: string = '') => {
+    setLista(atualizarLembreteFlyer(id, iso, observacao));
     setLembreteDe(null);
   };
 
@@ -200,8 +200,9 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
           {lembreteDe === r.id && (
             <EditorLembrete
               inicial={r.lembreteEm}
+              obsInicial={r.observacao}
               temAtual={!!formatarLembrete(r.lembreteEm)}
-              onConfirmar={(iso) => handleLembrete(r.id, iso)}
+              onConfirmar={(iso, obs) => handleLembrete(r.id, iso, obs)}
               onLimpar={() => handleLembrete(r.id, null)}
               onFechar={() => setLembreteDe(null)}
             />
@@ -209,6 +210,11 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
           <p className="text-lg text-slate-100 font-bold truncate">
             {r.inputText.split('\n').filter((l) => l.trim()).slice(1, 4).join(' · ') || '(sem tabela)'}
           </p>
+          {r.observacao ? (
+            <p className="mt-1 text-sm font-bold text-slate-400 truncate" title={r.observacao}>
+              {r.observacao}
+            </p>
+          ) : null}
         </div>
         );
       })}

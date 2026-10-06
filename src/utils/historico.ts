@@ -32,6 +32,8 @@ export interface OrcamentoSalvo {
   // Lembrete com data/hora (botão relógio do cartão; ISO "YYYY-MM-DDTHH:mm").
   // Marcação posterior: não entra no anti-duplicado e o reprocessar preserva.
   lembreteEm?: string | null;
+  // Observação do lembrete (mesma linha da data; entra na busca).
+  observacao?: string;
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -131,11 +133,18 @@ export function atualizarCorHistorico(id: string, cor: CorCliente | undefined): 
 }
 
 /**
- * Agenda/limpa o lembrete do registro (ISO "YYYY-MM-DDTHH:mm"; `null` limpa).
- * Salva na hora e avisa o popup global.
+ * Agenda o lembrete do registro (ISO "YYYY-MM-DDTHH:mm" + observação; `null`
+ * limpa os dois). Salva na hora e avisa o popup global.
  */
-export function atualizarLembreteHistorico(id: string, lembreteEm: string | null): OrcamentoSalvo[] {
-  const out = listarHistorico().map((r) => (r.id === id ? { ...r, lembreteEm } : r));
+export function atualizarLembreteHistorico(
+  id: string,
+  lembreteEm: string | null,
+  observacao: string = '',
+): OrcamentoSalvo[] {
+  const obs = lembreteEm ? observacao.trim().slice(0, 120) : '';
+  const out = listarHistorico().map((r) =>
+    r.id === id ? { ...r, lembreteEm, observacao: obs } : r,
+  );
   gravar(out);
   avisarLembretesMudaram();
   return out;
@@ -238,6 +247,7 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
     (r) =>
       normalizarBusca(r.placa ?? '').includes(t) ||
       normalizarBusca(r.nome ?? '').includes(t) ||
+      normalizarBusca(r.observacao ?? '').includes(t) ||
       normalizarBusca(r.telefone ?? '').includes(t) ||
       normalizarBusca(r.numeroOrcamento ?? '').includes(t) ||
       normalizarBusca(r.dataDoc ?? '').includes(t) ||

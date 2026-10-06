@@ -148,7 +148,7 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
             className="group relative w-full flex items-center gap-3 pl-4 pr-3 py-2.5 text-left cursor-pointer"
           >
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="text-sm font-bold uppercase tracking-wide text-slate-400 group-hover:text-slate-100 transition-colors">
+            <span className="text-lg font-mono font-normal uppercase tracking-wide text-slate-100 group-hover:text-white transition-colors">
               Buscar
             </span>
             <Search size={14} className="ml-auto shrink-0 text-slate-600 group-hover:text-amber-400 transition-colors" />
@@ -164,7 +164,7 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
             className="group relative w-full flex items-center gap-3 pl-4 pr-3 py-2.5 text-left cursor-pointer"
           >
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="truncate text-sm font-bold uppercase tracking-wide text-slate-400 group-hover:text-slate-100 transition-colors">
+            <span className="truncate text-lg font-mono font-normal uppercase tracking-wide text-slate-100 group-hover:text-white transition-colors">
               {a.rotulo}
             </span>
           </button>

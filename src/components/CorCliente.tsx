@@ -67,13 +67,15 @@ export const MarcadorCor: React.FC<{
 /**
  * Filtro por cor da lista do histórico: Todas | Verdes | Vermelhos, com a
  * contagem de cada cor. Segue o visual das abas Todos/Não Realizados.
+ * `compacto` = só os botões (para a linha de ações, entre lupa e limpar).
  */
 export const FiltroCorCliente: React.FC<{
   valor: FiltroCor;
   verdes: number;
   vermelhos: number;
   onMudar: (f: FiltroCor) => void;
-}> = ({ valor, verdes, vermelhos, onMudar }) => {
+  compacto?: boolean;
+}> = ({ valor, verdes, vermelhos, onMudar, compacto = false }) => {
   const botao = (id: FiltroCor, rotulo: string, titulo: string, dot?: string) => {
     const ativo = valor === id;
     const corAtiva =
@@ -105,6 +107,15 @@ export const FiltroCorCliente: React.FC<{
       </button>
     );
   };
+  if (compacto) {
+    return (
+      <>
+        {botao('todas', 'Todas', 'Mostrar todas as cores')}
+        {botao('verde', `Verdes (${verdes})`, ROTULO_COR.verde, 'bg-green-400')}
+        {botao('vermelho', `Vermelhos (${vermelhos})`, ROTULO_COR.vermelho, 'bg-red-400')}
+      </>
+    );
+  }
   return (
     <div className="flex flex-wrap items-center gap-2 px-6 py-3 border-b border-slate-800/60">
       <span className="text-[11px] font-black uppercase tracking-widest text-slate-500 mr-1">Cor:</span>

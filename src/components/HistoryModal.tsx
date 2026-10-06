@@ -135,8 +135,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   };
 
   // Agenda/limpa o lembrete do registro (salva na hora; avisa o popup global).
-  const handleLembrete = (id: string, iso: string | null) => {
-    setLista(atualizarLembreteHistorico(id, iso));
+  const handleLembrete = (id: string, iso: string | null, observacao: string = '') => {
+    setLista(atualizarLembreteHistorico(id, iso, observacao));
     setLembreteDe(null);
   };
 
@@ -313,8 +313,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
               {lembreteDe === r.id && (
                 <EditorLembrete
                   inicial={r.lembreteEm}
+                  obsInicial={r.observacao}
                   temAtual={!!formatarLembrete(r.lembreteEm)}
-                  onConfirmar={(iso) => handleLembrete(r.id, iso)}
+                  onConfirmar={(iso, obs) => handleLembrete(r.id, iso, obs)}
                   onLimpar={() => handleLembrete(r.id, null)}
                   onFechar={() => setLembreteDe(null)}
                 />
@@ -330,12 +331,17 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 descricao
               )}
             </p>
-            <div className="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-base font-bold text-slate-500">
-              <span>Revisão: <span className="text-slate-300">{r.revAprovadaInput}</span></span>
-              <span>Peças: <span className="text-slate-300">{formatCurrency(r.totalPecasGeral)}</span></span>
-              <span>Serviços: <span className="text-slate-300">{formatCurrency(r.totalServicosGeral)}</span></span>
-              <span>Bruto: <span className="text-blue-300 text-lg">{formatCurrency(r.totalGeral)}</span></span>
-            </div>
+              <div className="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-base font-bold text-slate-500">
+                <span>Revisão: <span className="text-slate-300">{r.revAprovadaInput}</span></span>
+                <span>Peças: <span className="text-slate-300">{formatCurrency(r.totalPecasGeral)}</span></span>
+                <span>Serviços: <span className="text-slate-300">{formatCurrency(r.totalServicosGeral)}</span></span>
+                <span>Bruto: <span className="text-blue-300 text-lg">{formatCurrency(r.totalGeral)}</span></span>
+              </div>
+              {r.observacao ? (
+                <p className="mt-1 text-sm font-bold text-slate-400 truncate" title={r.observacao}>
+                  {r.observacao}
+                </p>
+              ) : null}
           </div>
           );
         })}
