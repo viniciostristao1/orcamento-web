@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.101.0](#v10100) — 2026-10-06 — Sino limpa rascunho, menu menor, estilos de abas (v0.101.0)
 - [v0.100.0](#v10000) — 2026-10-06 — Play prefere extração nova (v0.100.0)
 - [v0.99.1](#v09901) — 2026-10-06 — Fonte do MENU DADOS igual à dos campos (v0.99.1)
 - [v0.99.0](#v09900) — 2026-10-06 — Observação no lembrete + menu e filtro (v0.99.0)
@@ -160,6 +161,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10100"></a>
+## 2026-10-06 — Sino limpa rascunho, menu menor, estilos de abas (v0.101.0)
+
+**Pedido:** (1) fechar o sino limpa texto/data; (2) sub-abas do MENU um pouco menores;
+(3) link com 10 estilos para as abas superiores.
+
+**Feito:** `fechar()` no sino (vale para sino, fora e Escape); itens do menu
+`text-lg`→`text-sm`; `ideias/abas-estilos.md` + 10 PNGs (link enviado, sem implementar).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**194/194 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.101.0`.
+
+---
 
 <a id="v10000"></a>
 ## 2026-10-06 — Play prefere extração nova (v0.100.0)

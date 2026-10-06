@@ -1865,6 +1865,26 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('sino: fechar limpa o que estava escrevendo', () => {
+    localStorage.removeItem('lembretes_rapidos_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      fireEvent.change(screen.getByLabelText('Texto do lembrete'), { target: { value: 'RASCUNHO' } });
+      fireEvent.change(screen.getByLabelText('Data e hora do lembrete rápido'), {
+        target: { value: '2999-02-01T10:00' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      expect(screen.queryByText('Todos os lembretes (0)')).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      expect((screen.getByLabelText('Texto do lembrete') as HTMLInputElement).value).toBe('');
+      expect((screen.getByLabelText('Data e hora do lembrete rápido') as HTMLInputElement).value).toBe('');
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')).toHaveLength(0);
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
+    }
+  });
+
   it('sino: rápido vencido pisca e o clique conclui', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     localStorage.removeItem('flyer_historico_v1');

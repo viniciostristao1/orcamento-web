@@ -29,6 +29,14 @@ const SinoLembretes: React.FC = () => {
 
   const recarregar = () => setItens(listarTodosLembretes());
 
+  // Fechar (por qualquer caminho) limpa o que estava sendo escrito.
+  const fechar = () => {
+    setTexto('');
+    setQuando('');
+    setErro('');
+    setAberto(false);
+  };
+
   useEffect(() => {
     recarregar();
     const timer = window.setInterval(recarregar, 30000);
@@ -44,10 +52,10 @@ const SinoLembretes: React.FC = () => {
   useEffect(() => {
     if (!aberto) return;
     const aoClicarFora = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setAberto(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) fechar();
     };
     const aoTeclar = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setAberto(false);
+      if (e.key === 'Escape') fechar();
     };
     document.addEventListener('mousedown', aoClicarFora);
     document.addEventListener('keydown', aoTeclar);
@@ -55,6 +63,7 @@ const SinoLembretes: React.FC = () => {
       document.removeEventListener('mousedown', aoClicarFora);
       document.removeEventListener('keydown', aoTeclar);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aberto]);
 
   const salvar = () => {
@@ -90,8 +99,11 @@ const SinoLembretes: React.FC = () => {
       <button
         type="button"
         onClick={() => {
-          recarregar();
-          setAberto((a) => !a);
+          if (aberto) fechar();
+          else {
+            recarregar();
+            setAberto(true);
+          }
         }}
         aria-label="Lembretes"
         title="Lembretes (rápidos + históricos)"

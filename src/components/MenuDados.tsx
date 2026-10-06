@@ -168,7 +168,7 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
           >
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span
-              className="truncate text-base font-normal uppercase tracking-wide text-slate-100 group-hover:text-white transition-colors"
+              className="truncate text-sm font-normal uppercase tracking-wide text-slate-100 group-hover:text-white transition-colors"
               style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
             >
               {a.rotulo}

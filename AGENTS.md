@@ -86,7 +86,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **193 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **194 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -615,7 +615,7 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Sino de lembretes** (v0.96.0): botão entre cadeado e engrenagem com selo de
   quantidade; cria **lembretes rápidos** (texto + data/hora, avulsos) e lista TODOS
   (rápidos + históricos, com excluir). Rápidos vencidos piscam no mesmo popup (o clique
-  conclui); entram no backup com merge por id.
+  conclui); entram no backup com merge por id. Fechar o sino limpa o rascunho (v0.101.0).
 - **Ajustes de lembrete + menu** (v0.97.0): selo do sino conta só vencidos; DESCRIÇÃO
   da revisão com +1 linha (review de DADOS compensa, alinhamento mantido); clique no
   aviso abre o **histórico** no cartão destacado (não gera na tela); mockups do
