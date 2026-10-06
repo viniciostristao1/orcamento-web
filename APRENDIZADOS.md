@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.99.1](#v09901) — 2026-10-06 — Fonte do MENU DADOS igual à dos campos (v0.99.1)
 - [v0.99.0](#v09900) — 2026-10-06 — Observação no lembrete + menu e filtro (v0.99.0)
 - [v0.98.0](#v09800) — 2026-10-06 — MENU DADOS à esquerda (ideia 03) (v0.98.0)
 - [v0.97.0](#v09700) — 2026-10-05 — Selo de vencidos, lembrete no histórico, menu (v0.97.0)
@@ -158,6 +159,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09901"></a>
+## 2026-10-06 — Fonte do MENU DADOS igual à dos campos (v0.99.1)
+
+**Pedido:** a fonte do menu não parecia a do conteúdo de DADOS.
+
+**Causa:** o CSS global força `textarea/input/select` em `var(--tema-fonte-conteudo)`
+(Inter) — o `font-mono` do menu destoava. **Feito:** itens do menu com a mesma fonte
+via inline style (padrão das abas superiores), brancos e sem negrito. Screenshot
+conferido.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**187/187 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.99.1`.
+
+---
 
 <a id="v09900"></a>
 ## 2026-10-06 — Observação no lembrete + menu e filtro (v0.99.0)

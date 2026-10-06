@@ -622,7 +622,8 @@ npm run build        # gera dist/index.html (arquivo único)
   MENU DADOS em `ideias/menu-dados.md` (8 ideias, sem implementar).
 - **Lembrete maior + menu e filtro** (v0.99.0): editor de data/hora maior com
   **observação** na mesma linha (buscável nos dois históricos, mostrada no cartão);
-  MENU DADOS em branco mono sem negrito; filtro Todas/Verdes/Vermelhos na linha de
+  MENU DADOS em branco, mesma fonte do DADOS (`var(--tema-fonte-conteudo)` — o CSS
+  global força os campos nessa fonte, então `font-mono` no menu destoava), sem negrito; filtro Todas/Verdes/Vermelhos na linha de
   ações (entre lupa e limpar).
 - **Nova ordem + borrachas** (v0.88.0; renumeração na v0.89.0): esquerda = 1. SISTEMA
   e 2. DADOS (largo); direita = APROVADO, 3. AJUSTES, 3. DESCRIÇÃO e RESUMO. O botão
