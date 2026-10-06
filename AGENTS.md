@@ -53,9 +53,11 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   guarda o resumo + a marcação dos itens; ao abrir, o orçamento já aparece na tela (sem
   processar de novo). Também entra no backup geral.
 - **Layout dos Orçamentos** (sem números nos títulos desde a v0.92.0): botão **Histórico
-  no card do SISTEMA** (ao lado do + e da borracha); esquerda na ordem **SISTEMA (Nº,
-  Data, Telefone + Placa e Nome abaixo) → DADOS**; direita na ordem **APROVADO E DESCONTO
-  (revisão, desconto, parcelas) → AJUSTES → RESUMO LÍQUIDO → DESCRIÇÃO**;
+  no card do SISTEMA** (ao lado do + e da borracha); **MENU DADOS** em lateral esquerda
+  fixa (ideia 03: barra âmbar no item, quase-preto; v0.98.0, era a faixa SUB ATALHOS à
+  direita); centro na ordem **SISTEMA (Nº, Data, Telefone + Placa e Nome abaixo) →
+  DADOS**; direita na ordem **APROVADO E DESCONTO (revisão, desconto, parcelas) →
+  AJUSTES → RESUMO LÍQUIDO → DESCRIÇÃO**; página em `max-w-[1400px]`;
 - **Play aproveita a revisão** (v0.93.0): com DESCRIÇÃO/DADOS vazios, vale o texto já
   extraído no card (anexar + play direto gera); o alerta só aparece sem nada em nenhum
   dos dois lugares. **preview do orçamento na metade** na tela

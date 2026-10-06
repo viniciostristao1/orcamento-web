@@ -134,14 +134,14 @@ const AppInterno: React.FC = () => {
     setDestaque((d) => ({ id, vez: (d?.vez ?? 0) + 1 }));
   };
 
-  // Atalho SUB ATALHOS: vai para a aba Dados com a sub-aba aberta.
+  // Atalho MENU DADOS: vai para a aba Dados com a sub-aba aberta.
   const [subAbaDados, setSubAbaDados] = useState<{ id: string; vez: number } | null>(null);
   const irParaSubAbaDados = (id: string) => {
     setAba('dados');
     setSubAbaDados((d) => ({ id, vez: (d?.vez ?? 0) + 1 }));
   };
 
-  // Lupa do SUB ATALHOS: pesquisa o termo na aba Dados (igual a digitar no
+  // Lupa do MENU DADOS: pesquisa o termo na aba Dados (igual a digitar no
   // "Pesquisar nas tabelas" de lá — abre a sub-aba do 1º resultado).
   // `repor` (digitando) sempre recomeça do 1º; Enter repetido no mesmo termo
   // avança (Shift+Enter volta), como lá.
@@ -240,7 +240,7 @@ const AppInterno: React.FC = () => {
         </div>
       </header>
 
-      <main className={`mx-auto px-[30px] pt-3 ${aba === 'orcamentos' ? 'max-w-[1125px]' : 'max-w-[1400px]'}`}>
+      <main className="mx-auto px-[30px] pt-3 max-w-[1400px]">
         <div className={aba === 'orcamentos' ? '' : 'hidden'}>
           <OrcamentosApp
             historicoAberto={historicoAberto}

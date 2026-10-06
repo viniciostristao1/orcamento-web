@@ -180,7 +180,7 @@ const DadosApp: React.FC<{
     return () => window.clearTimeout(id);
   }, [busca, ocorrenciaAtual, abaId]);
 
-  // Busca vinda da lupa do SUB ATALHOS (aba Orçamentos): digitando (`repor`) ou
+  // Busca vinda da lupa do MENU DADOS (aba Orçamentos): digitando (`repor`) ou
   // termo novo sempre recomeça do 1º; Enter repetido no MESMO termo avança
   // (Shift+Enter volta) — igual ao Enter no campo de busca de cá.
   // Leva o foco junto para o campo de busca (o do atalho some com a troca de
@@ -597,7 +597,7 @@ const DadosApp: React.FC<{
                 type="button"
                 onClick={() => {
                   handleBusca('');
-                  // A lupa do SUB ATALHOS (aba Orçamentos) limpa junto.
+                  // A lupa do MENU DADOS (aba Orçamentos) limpa junto.
                   window.dispatchEvent(new Event(DADOS_BUSCA_LIMPA_EVENTO));
                 }}
                 aria-label="Limpar busca"

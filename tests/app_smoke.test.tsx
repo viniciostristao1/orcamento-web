@@ -497,7 +497,7 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('orçamentos: SUB ATALHOS leva até a sub-aba da aba Dados', () => {
+  it('orçamentos: MENU DADOS leva até a sub-aba da aba Dados', () => {
     localStorage.removeItem('dados_tabelas_v1');
     localStorage.setItem(
       'dados_tabelas_v1',
@@ -512,7 +512,7 @@ describe('App — smoke test (render + processar)', () => {
     try {
       render(<App />);
       // titulozinho + um botão por sub-aba, um abaixo do outro
-      expect(screen.getByText('Sub Atalhos')).toBeTruthy();
+      expect(screen.getByText('Menu Dados')).toBeTruthy();
       expect(screen.getByRole('button', { name: 'Ir para sub-aba PEÇAS' })).toBeTruthy();
       expect(screen.getByRole('button', { name: "Ir para sub-aba O.S'S" })).toBeTruthy();
       expect(screen.getByRole('button', { name: 'Ir para sub-aba MEMÓRIA' })).toBeTruthy();
@@ -781,7 +781,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(valoresPrimeiraTabela()).toContain('PRIMEIRA');
   });
 
-  it('orçamentos: lupa do SUB ATALHOS pesquisa nos Dados e abre no resultado', async () => {
+  it('orçamentos: lupa do MENU DADOS pesquisa nos Dados e abre no resultado', async () => {
     localStorage.removeItem('dados_tabelas_v1');
     localStorage.setItem(
       'dados_tabelas_v1',

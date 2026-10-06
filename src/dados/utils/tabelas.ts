@@ -50,12 +50,12 @@ export const DADOS_EVENTO = 'dados:atualizados';
 
 /**
  * Disparado ao limpar a busca na aba Dados (X do "Pesquisar nas tabelas") — o
- * campo da lupa do SUB ATALHOS (aba Orçamentos) limpa junto.
+ * campo da lupa do MENU DADOS (aba Orçamentos) limpa junto.
  */
 export const DADOS_BUSCA_LIMPA_EVENTO = 'dados:busca-limpa';
 
 /**
- * A busca da lupa ("Pesquisar nas tabelas" + BUSCAR do SUB ATALHOS) limpa
+ * A busca da lupa ("Pesquisar nas tabelas" + BUSCAR do MENU DADOS) limpa
  * sozinha após este tempo sem digitar (1 min) — evita grifo velho na tela.
  */
 export const BUSCA_AUTO_LIMPA_MS = 60_000;

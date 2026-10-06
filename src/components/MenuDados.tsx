@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CornerUpRight, Search, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import {
   BUSCA_AUTO_LIMPA_MS,
   DADOS_BUSCA_LIMPA_EVENTO,
@@ -11,7 +11,7 @@ import {
   type DadosTabelas,
 } from '../dados/utils/tabelas';
 
-interface AtalhosDadosProps {
+interface MenuDadosProps {
   /** Vai para a aba Dados com a sub-aba correspondente aberta. */
   onIr: (abaId: string) => void;
   /**
@@ -21,15 +21,13 @@ interface AtalhosDadosProps {
   onBuscar: (termo: string, passo: 1 | -1, repor: boolean) => void;
 }
 
-const CLASSE_BOTAO =
-  'w-full flex items-center justify-between gap-1.5 px-4 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer active:scale-[0.98]';
-
 /**
- * "SUB ATALHOS": lupa de pesquisa + um botão por sub-aba da aba Dados
- * (um abaixo do outro). A lista acompanha criações/exclusões/renomeações na hora
- * (evento próprio + `storage` entre janelas). Sem caixa — só o titulozinho e os botões.
+ * "MENU DADOS": menu lateral das sub-abas da aba Dados (ideia 03 — barra âmbar
+ * no item sob o mouse, quase-preto como o fundo, sem botões cinza). A lista
+ * acompanha criações/exclusões/renomeações na hora (evento próprio + `storage`
+ * entre janelas). Inclui a lupa de pesquisa nas tabelas.
  */
-const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
+const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
   const [dados, setDados] = useState<DadosTabelas>(() => lerDados());
   // Lupa aberta (vira campo de busca) + termo digitado.
   const [buscando, setBuscando] = useState(false);
@@ -87,13 +85,13 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
     .join(' · ');
 
   return (
-    <div>
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 ml-1">
-        Sub Atalhos
+    <nav aria-label="Menu Dados" className="rounded-2xl border border-slate-800/60 bg-slate-950/60 p-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-3 pt-1 pb-2">
+        Menu Dados
       </p>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         {buscando ? (
-          <div>
+          <div className="px-1">
             <div className="relative">
               <input
                 autoFocus
@@ -109,17 +107,17 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
                 onBlur={() => setBuscando(false)}
                 placeholder="Buscar…"
                 aria-label="Buscar nas tabelas"
-                className="w-full campo-tema border border-blue-500 rounded-xl pl-3 pr-8 py-2.5 text-sm font-bold text-slate-100 outline-none"
+                className="w-full campo-tema border border-amber-500/60 rounded-xl pl-3 pr-8 py-2 text-sm font-bold text-slate-100 outline-none bg-transparent"
               />
               {termo ? (
-              <button
-                type="button"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => setTermo('')}
-                aria-label="Limpar busca do atalho"
-                title="Limpar"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
-              >
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setTermo('')}
+                  aria-label="Limpar busca do atalho"
+                  title="Limpar"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
+                >
                   <X size={14} />
                 </button>
               ) : (
@@ -147,10 +145,13 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
             onClick={() => setBuscando(true)}
             aria-label="Buscar termo nos Dados"
             title="Pesquisar nas tabelas da aba Dados"
-            className={CLASSE_BOTAO}
+            className="group relative w-full flex items-center gap-3 pl-4 pr-3 py-2.5 text-left cursor-pointer"
           >
-            <span className="truncate">Buscar</span>
-            <Search size={14} className="shrink-0 text-slate-500" />
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="text-sm font-bold uppercase tracking-wide text-slate-400 group-hover:text-slate-100 transition-colors">
+              Buscar
+            </span>
+            <Search size={14} className="ml-auto shrink-0 text-slate-600 group-hover:text-amber-400 transition-colors" />
           </button>
         )}
         {dados.abas.map((a) => (
@@ -160,15 +161,17 @@ const AtalhosDados: React.FC<AtalhosDadosProps> = ({ onIr, onBuscar }) => {
             onClick={() => onIr(a.id)}
             aria-label={`Ir para sub-aba ${a.rotulo}`}
             title={`Abrir ${a.rotulo} na aba Dados`}
-            className={CLASSE_BOTAO}
+            className="group relative w-full flex items-center gap-3 pl-4 pr-3 py-2.5 text-left cursor-pointer"
           >
-            <span className="truncate">{a.rotulo}</span>
-            <CornerUpRight size={14} className="shrink-0 text-slate-500" />
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="truncate text-sm font-bold uppercase tracking-wide text-slate-400 group-hover:text-slate-100 transition-colors">
+              {a.rotulo}
+            </span>
           </button>
         ))}
       </div>
-    </div>
+    </nav>
   );
 };
 
-export default AtalhosDados;
+export default MenuDados;

@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.98.0](#v09800) — 2026-10-06 — MENU DADOS à esquerda (ideia 03) (v0.98.0)
 - [v0.97.0](#v09700) — 2026-10-05 — Selo de vencidos, lembrete no histórico, menu (v0.97.0)
 - [v0.96.0](#v09600) — 2026-10-05 — Sino: lembretes rápidos + lista geral (v0.96.0)
 - [v0.95.0](#v09500) — 2026-10-05 — Detalhes do flyer + colunas alinhadas (v0.95.0)
@@ -156,6 +157,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09800"></a>
+## 2026-10-06 — MENU DADOS à esquerda (ideia 03) (v0.98.0)
+
+**Pedido:** ideia 03 (barra âmbar) no lugar do SUB ATALHOS, em menu lateral esquerdo.
+
+**Feito:** `AtalhosDados.tsx` virou `MenuDados.tsx` (mesma lógica/busca/aria-labels;
+visual: painel quase-preto, linhas de texto, barra âmbar no hover, busca com foco
+âmbar); grade com sidebar `210px` fixa no topo ao rolar; página de orçamentos em
+`max-w-[1400px]`; comentários SUB ATALHOS renomeados. Screenshot headless conferido.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**186/186 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.98.0`.
+
+---
 
 <a id="v09700"></a>
 ## 2026-10-05 — Selo de vencidos, lembrete no histórico, menu (v0.97.0)

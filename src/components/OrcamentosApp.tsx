@@ -7,7 +7,7 @@ import { Play, Percent, Eraser } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import TituloEditavel from './TituloEditavel';
-import AtalhosDados from './AtalhosDados';
+import MenuDados from './MenuDados';
 import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import SistemaCard from '../sistema/SistemaCard';
 import type { CabecalhoOrcamento } from '../sistema/extracao';
@@ -188,7 +188,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         </header>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_601px] gap-10 print:hidden ui-compacta">
+      <div className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_425px] gap-8 print:hidden ui-compacta">
+          {/* MENU DADOS: lateral esquerda, fixo no topo ao rolar. */}
+          <aside className="min-w-0 xl:sticky xl:top-24 self-start">
+            <MenuDados onIr={onIrParaSubAba} onBuscar={onBuscarNosDados} />
+          </aside>
           <div className="min-w-0 space-y-6">
             <SistemaCard
               numero={numero}
@@ -242,11 +246,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
           </div>
 
-          {/* Coluna em flex: os cards da pilha seguem em sequência. */}
-          <div className="flex gap-3 items-start min-w-0">
-            {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO) + faixa de
-                atalhos ao lado, sem roubar a largura dos cards. */}
-            <div className="flex flex-col gap-4 flex-1 min-w-0 xl:flex-none xl:w-[425px] self-stretch">
+          {/* Coluna da direita: pilha com largura única. */}
+          <div className="min-w-0">
+            {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO). */}
+            <div className="flex flex-col gap-4 min-w-0 xl:w-[425px]">
             <NeonCard
               title="APROVADO E DESCONTO"
               borderColor="emerald-500"
@@ -412,10 +415,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 onChange={(e) => setDescReparo(e.target.value)} 
               />
             </NeonCard>
-            </div>
-            <div className="w-[164px] shrink-0 pt-1">
-                {/* Atalhos para as sub-abas da aba Dados (fora das caixas). */}
-                <AtalhosDados onIr={onIrParaSubAba} onBuscar={onBuscarNosDados} />
             </div>
           </div>
         </div>
