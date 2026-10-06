@@ -8,7 +8,7 @@ import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import TituloEditavel from './TituloEditavel';
 import AtalhosDados from './AtalhosDados';
-import { adicionarAoHistorico, listarHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
+import { adicionarAoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import SistemaCard from '../sistema/SistemaCard';
 import type { CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
@@ -23,11 +23,11 @@ interface OrcamentosAppProps {
   onAbrirHistorico: () => void;
   onIrParaSubAba: (abaId: string) => void;
   onBuscarNosDados: (termo: string, passo: 1 | -1, repor: boolean) => void;
-  /** Vindo do clique no aviso de lembrete: abre o orçamento direto. */
-  abrirLembrete?: { id: string; vez: number } | null;
+  /** Vindo do clique no aviso: abre o histórico destacando o cartão. */
+  destaqueHistoricoId?: string | null;
 }
 
-const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados, abrirLembrete = null }) => {
+const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados, destaqueHistoricoId = null }) => {
   // Último orçamento em edição (localStorage local). Sem rascunho, cai no exemplo.
   const [rascunho] = useState(lerRascunho);
   const [descReparo, setDescReparo] = useState<string>(() => rascunho?.descReparo ?? EXEMPLO_DESC);
@@ -63,14 +63,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   useEffect(() => {
     if (summary) salvarUltimoOrcamento({ summary, selecionados: [...selecionados] });
   }, [summary, selecionados]);
-
-  // Clique no aviso de lembrete: abre o orçamento direto na tela.
-  useEffect(() => {
-    if (!abrirLembrete) return;
-    const rec = listarHistorico().find((r) => r.id === abrirLembrete.id);
-    if (rec) abrirDoHistorico(rec);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [abrirLembrete]);
 
   const handleGenerate = () => {
     // Vale o campo preenchido; se vazio, vale o que já foi extraído no card
@@ -445,6 +437,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         aberto={historicoAberto}
         onFechar={onFecharHistorico}
         onAbrir={abrirDoHistorico}
+        destaqueId={destaqueHistoricoId}
       />
     </>
   );

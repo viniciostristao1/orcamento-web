@@ -61,7 +61,8 @@ const AppInterno: React.FC = () => {
   // no canto inferior direito; o clique abre o orçamento e conclui o lembrete.
   const [lembretes, setLembretes] = useState<LembreteVencido[]>(() => listarLembretesVencidos());
   const [lembretesDisp, setLembretesDisp] = useState('');
-  const [irParaRegistro, setIrParaRegistro] = useState<{ origem: OrigemLembrete; id: string; vez: number } | null>(null);
+  // Clique no aviso: abre o histórico no cartão em questão (não gera na tela).
+  const [irParaHistorico, setIrParaHistorico] = useState<{ origem: OrigemLembrete; id: string; vez: number } | null>(null);
 
   useEffect(() => {
     const recarregar = () => {
@@ -84,20 +85,26 @@ const AppInterno: React.FC = () => {
   const chaveLembretes = lembretes.map((l) => `${l.origem}:${l.id}:${l.quando}`).join(',');
   const mostrarLembretes = lembretes.length > 0 && lembretesDisp !== chaveLembretes;
 
-  // Clique no aviso: troca para a aba certa, abre o orçamento e conclui o lembrete.
-  // Rápido não tem orçamento: só conclui.
+  // Clique no aviso: troca para a aba certa, abre o histórico no cartão e
+  // conclui o lembrete. Rápido não tem histórico: só conclui.
+  const [flyerHistVez, setFlyerHistVez] = useState(0);
   const irParaLembrete = (item: LembreteVencido) => {
     if (item.origem === 'rapido') {
       removerRapido(item.id);
     } else {
       setAba(item.origem === 'flyer' ? 'pneus' : 'orcamentos');
-      setIrParaRegistro((d) => ({
+      setIrParaHistorico((d) => ({
         origem: item.origem,
         id: item.id,
         vez: (d?.vez ?? 0) + 1,
       }));
-      if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, null);
-      else atualizarLembreteHistorico(item.id, null);
+      if (item.origem === 'flyer') {
+        setFlyerHistVez((v) => v + 1);
+        atualizarLembreteFlyer(item.id, null);
+      } else {
+        setHistoricoAberto(true);
+        atualizarLembreteHistorico(item.id, null);
+      }
     }
     setLembretes(listarLembretesVencidos());
   };
@@ -241,12 +248,13 @@ const AppInterno: React.FC = () => {
             onAbrirHistorico={() => setHistoricoAberto(true)}
             onIrParaSubAba={irParaSubAbaDados}
             onBuscarNosDados={buscarNosDados}
-            abrirLembrete={irParaRegistro?.origem === 'orcamento' ? irParaRegistro : null}
+            destaqueHistoricoId={irParaHistorico?.origem === 'orcamento' ? irParaHistorico.id : null}
           />
         </div>
         <div className={aba === 'pneus' ? '' : 'hidden'}>
           <TireFlyerApp
-            abrirLembrete={irParaRegistro?.origem === 'flyer' ? irParaRegistro : null}
+            abrirHistorico={flyerHistVez > 0 ? { vez: flyerHistVez } : null}
+            destaqueId={irParaHistorico?.origem === 'flyer' ? irParaHistorico.id : null}
           />
         </div>
         <div className={aba === 'whats' ? '' : 'hidden'}>

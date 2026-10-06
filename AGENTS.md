@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **185 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **186 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -614,6 +614,10 @@ npm run build        # gera dist/index.html (arquivo único)
   quantidade; cria **lembretes rápidos** (texto + data/hora, avulsos) e lista TODOS
   (rápidos + históricos, com excluir). Rápidos vencidos piscam no mesmo popup (o clique
   conclui); entram no backup com merge por id.
+- **Ajustes de lembrete + menu** (v0.97.0): selo do sino conta só vencidos; DESCRIÇÃO
+  da revisão com +1 linha (review de DADOS compensa, alinhamento mantido); clique no
+  aviso abre o **histórico** no cartão destacado (não gera na tela); mockups do
+  MENU DADOS em `ideias/menu-dados.md` (8 ideias, sem implementar).
 - **Nova ordem + borrachas** (v0.88.0; renumeração na v0.89.0): esquerda = 1. SISTEMA
   e 2. DADOS (largo); direita = APROVADO, 3. AJUSTES, 3. DESCRIÇÃO e RESUMO. O botão
   **Histórico** fica no card 1. SISTEMA, ao lado da borracha. Borracha do card 1 apaga

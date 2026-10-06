@@ -1755,7 +1755,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].lembreteEm).toBeNull();
   });
 
-  it('relógio: aviso vencido pisca, clica e abre o orçamento', () => {
+  it('relógio: aviso vencido pisca, clica e abre o histórico no cartão', () => {
     localStorage.setItem(
       'orcamentos_historico_v1',
       JSON.stringify([{ ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), lembreteEm: '2020-01-01T09:00' }]),
@@ -1765,8 +1765,10 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getAllByRole('button', { name: 'Ir para orçamento ABC1D23' })).toHaveLength(2);
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Ir para orçamento ABC1D23' })[1]);
-    // abriu o orçamento na tela (recalculou a partir do registro)
-    expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
+    // abriu o histórico com o cartão destacado (não gera na tela)
+    expect(screen.getByText('HISTÓRICO')).toBeTruthy();
+    expect(document.querySelector('[data-destaque="1"]')?.textContent).toContain('ABC1D23');
+    expect(document.querySelector('#printable-quote')).toBeNull();
     // ...e concluiu o lembrete (não pisca mais)
     expect(screen.queryByRole('button', { name: 'Ir para orçamento ABC1D23' })).toBeNull();
     expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].lembreteEm).toBeNull();
@@ -1786,6 +1788,27 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByRole('button', { name: 'Ir para orçamento MARIA' })).toBeNull();
     // dispensar esconde; o lembrete continua salvo
     expect(JSON.parse(localStorage.getItem('flyer_historico_v1') ?? '[]')[0].lembreteEm).toBe('2020-01-01T09:00');
+  });
+
+  it('relógio: aviso do flyer abre o histórico na aba Tire Flyer', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'flyer_historico_v1',
+      JSON.stringify([
+        { id: 'f1', criadoEm: '24/09/2026 12:30:00', contato: 'MARIA', medida: '205/55R16', inputText: 'a\nb', numMarcas: 1, lembreteEm: '2020-01-01T09:00' },
+      ]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getAllByRole('button', { name: 'Ir para orçamento MARIA' })[1]);
+      // trocou para a aba e abriu o histórico com o cartão destacado
+      expect(screen.getByText('HISTÓRICO — TIRE FLYER')).toBeTruthy();
+      expect(document.querySelector('[data-destaque="1"]')?.textContent).toContain('MARIA');
+      expect(screen.queryByRole('button', { name: 'Ir para orçamento MARIA' })).toBeNull();
+    } finally {
+      localStorage.removeItem('flyer_historico_v1');
+    }
   });
 
   it('sino: cria lembrete rápido e lista junto dos históricos', () => {

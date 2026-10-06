@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.97.0](#v09700) — 2026-10-05 — Selo de vencidos, lembrete no histórico, menu (v0.97.0)
 - [v0.96.0](#v09600) — 2026-10-05 — Sino: lembretes rápidos + lista geral (v0.96.0)
 - [v0.95.0](#v09500) — 2026-10-05 — Detalhes do flyer + colunas alinhadas (v0.95.0)
 - [v0.94.0](#v09400) — 2026-10-05 — Escopo das borrachas + RESUMO colado (v0.94.0)
@@ -155,6 +156,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v09700"></a>
+## 2026-10-05 — Selo de vencidos, lembrete no histórico, menu (v0.97.0)
+
+**Pedido:** (1) selo só com atrasados/na tela; (2) +1 linha na DESCRIÇÃO da revisão;
+(3) link com 8 menus MENU DADOS; (4) clique no lembrete leva ao histórico, sem gerar.
+
+**Feito:** selo = `vencido` (não total); DESCRIÇÃO `h-28`→`h-[138px]` com review-DADOS
+compensado (`277→251`, alinhamentos intactos); clique abre o modal no cartão com ring
+âmbar + scroll (`destaqueId`, `data-hist-id`; `abrirLembrete` removido das duas abas);
+`ideias/menu-dados.md` + 8 PNGs (link enviado, sem implementar).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**186/186 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.97.0`.
+
+---
 
 <a id="v09600"></a>
 ## 2026-10-05 — Sino: lembretes rápidos + lista geral (v0.96.0)

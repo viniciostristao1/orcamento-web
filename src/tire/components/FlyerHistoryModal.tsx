@@ -22,9 +22,11 @@ interface FlyerHistoryModalProps {
   aberto: boolean;
   onFechar: () => void;
   onAbrir: (registro: FlyerSalvo) => void;
+  /** Vindo do clique no aviso: destaca o cartão e rola até ele. */
+  destaqueId?: string | null;
 }
 
-const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar, onAbrir }) => {
+const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar, onAbrir, destaqueId = null }) => {
   const [lista, setLista] = useState<FlyerSalvo[]>([]);
   const [msg, setMsg] = useState('');
   const [buscaAberta, setBuscaAberta] = useState(false);
@@ -46,6 +48,17 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
       setDetalhesDe(null);
     }
   }, [aberto]);
+
+  // Destaque vindo do aviso: rola até o cartão e o acende em âmbar.
+  useEffect(() => {
+    if (!aberto || !destaqueId) return;
+    const t = window.setTimeout(() => {
+      document
+        .querySelector(`[data-hist-id="${destaqueId}"]`)
+        ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 80);
+    return () => window.clearTimeout(t);
+  }, [aberto, destaqueId]);
 
   // Marcas e preços do registro aberto em "Ver detalhes" (recalculado do texto salvo).
   const detalhesInfo: PromoInfo | null = useMemo(
@@ -120,7 +133,14 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
       {visiveis.map((r) => {
         const lembreteFmt = formatarLembrete(r.lembreteEm);
         return (
-        <div key={r.id} className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)}`}>
+        <div
+          key={r.id}
+          data-hist-id={r.id}
+          data-destaque={destaqueId === r.id ? '1' : undefined}
+          className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)} ${
+            destaqueId === r.id ? 'ring-2 ring-amber-400/70' : ''
+          }`}
+        >
           <div className="flex items-center justify-between gap-4 mb-2">
             <span className="text-base font-black uppercase tracking-widest text-slate-500">
               <SeloCor cor={r.cor} />

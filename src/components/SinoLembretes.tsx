@@ -82,6 +82,9 @@ const SinoLembretes: React.FC = () => {
     (o: LembreteAgendado['origem']): string =>
       o === 'rapido' ? 'Rápido' : o === 'flyer' ? 'Flyer' : 'Orçamento';
 
+  // O selo conta só vencidos (atrasados ou na tela) — não todos os agendados.
+  const nVencidos = itens.filter((i) => i.vencido).length;
+
   return (
     <div className="relative" ref={ref}>
       <button
@@ -99,9 +102,9 @@ const SinoLembretes: React.FC = () => {
         }`}
       >
         <Bell size={18} />
-        {itens.length > 0 && (
+        {nVencidos > 0 && (
           <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-amber-500 text-black text-[10px] font-black flex items-center justify-center">
-            {itens.length > 99 ? '99' : itens.length}
+            {nVencidos > 99 ? '99' : nVencidos}
           </span>
         )}
       </button>

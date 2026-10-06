@@ -27,9 +27,11 @@ interface HistoryModalProps {
   aberto: boolean;
   onFechar: () => void;
   onAbrir: (rec: OrcamentoSalvo) => void;
+  /** Vindo do clique no aviso: destaca o cartão e rola até ele. */
+  destaqueId?: string | null;
 }
 
-const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }) => {
+const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, destaqueId = null }) => {
   const [lista, setLista] = useState<OrcamentoSalvo[]>([]);
   const [msg, setMsg] = useState('');
   const [buscaAberta, setBuscaAberta] = useState(false);
@@ -54,6 +56,17 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
       setItensDe(null);
     }
   }, [aberto]);
+
+  // Destaque vindo do aviso: rola até o cartão e o acende em âmbar.
+  useEffect(() => {
+    if (!aberto || !destaqueId) return;
+    const t = window.setTimeout(() => {
+      document
+        .querySelector(`[data-hist-id="${destaqueId}"]`)
+        ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 80);
+    return () => window.clearTimeout(t);
+  }, [aberto, destaqueId]);
 
   // Valores do registro aberto em "Ver itens" + resumo de aprovação (o
   // orçamento é recalculado a partir dos textos salvos, como ao abrir).
@@ -211,7 +224,14 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir }
             const grifado = busca.trim() ? destacarTermo(descricao, busca) : null;
             const lembreteFmt = formatarLembrete(r.lembreteEm);
             return (
-            <div key={r.id} className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)}`}>
+            <div
+              key={r.id}
+              data-hist-id={r.id}
+              data-destaque={destaqueId === r.id ? '1' : undefined}
+              className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)} ${
+                destaqueId === r.id ? 'ring-2 ring-amber-400/70' : ''
+              }`}
+            >
               <div className="flex items-center justify-between gap-4 mb-2">
                 <span className="text-base font-black uppercase tracking-widest text-slate-500">
                   <SeloCor cor={r.cor} />
