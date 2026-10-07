@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.106.0](#v10600) — 2026-10-07 — Dinâmica de aprovação + relatório turbinado (v0.106.0)
 - [v0.105.0](#v10500) — 2026-10-07 — Aprovação V/X + relatório Excel (v0.105.0)
 - [v0.104.0](#v10400) — 2026-10-06 — Popup de lembretes com fonte menor (v0.104.0)
 - [v0.103.0](#v10300) — 2026-10-06 — Sem títulos internos nas abas (v0.103.0)
@@ -165,6 +166,29 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10600"></a>
+## 2026-10-07 — Dinâmica de aprovação + relatório turbinado (v0.106.0)
+
+**Pedido:** relatório largo; X risca tudo e salva em Não Aprovados (renomear);
+V com desmarcados = parcial (aba nova), V puro = Aprovados; lixeira por linha e
+limpar tudo no relatório; meses + % no topo; parcial = Sim no relatório.
+
+**Feito:** `votarAprovacao` salva sempre (X desmarca tudo e recalcula; toggle limpa
+salvando); abas Todos|Aprovados|Parcial|Não Aprovados (derivadas, sem migração);
+visível renomeado (ids/campos antigos intactos); relatório `max-w-5xl`, grupos por
+mês, % + total no topo, lixeiras com confirmação, copiar ícone-only sem meses;
+título RELATÓRIO.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**206/206 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.106.0`.
+
+**Gotchas / decisões:**
+- Regex de aba sem âncora casa "Não Aprovados" em "Aprovados": ancorar (`^…$`).
+- Parcial no relatório = Sim (pedido explícito); a distinção mora na aba.
+
+---
 
 <a id="v10500"></a>
 ## 2026-10-07 — Aprovação V/X + relatório Excel (v0.105.0)

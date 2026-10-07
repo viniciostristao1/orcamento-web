@@ -55,14 +55,34 @@ describe('histórico (localStorage)', () => {
     expect(filtrarHistorico(lista, 'inexistente')).toHaveLength(0);
   });
 
-  it('filtra por aba (Todos / Não Realizados)', () => {
-    adicionarAoHistorico({ ...base, naoRealizados: [1] });
-    adicionarAoHistorico({ ...base, desconto: 10 }); // comuns não entram na aba
+  it('filtra por aba (Todos / Aprovados / Parcial / Não Aprovados)', () => {
+    adicionarAoHistorico({ ...base, naoRealizados: [1] }); // sem marca: cai em Não Aprovados
+    adicionarAoHistorico({ ...base, desconto: 10 }); // comuns não entram nas abas
     const lista = listarHistorico();
     const comDesmarcados = lista[1];
     expect(temNaoRealizados(comDesmarcados)).toBe(true);
     expect(filtrarPorAba(lista, 'todos')).toHaveLength(2);
-    expect(filtrarPorAba(lista, 'naoRealizados')).toEqual([comDesmarcados]);
+    expect(filtrarPorAba(lista, 'aprovados')).toHaveLength(0);
+    expect(filtrarPorAba(lista, 'parcial')).toHaveLength(0);
+    expect(filtrarPorAba(lista, 'naoAprovados')).toEqual([comDesmarcados]);
+  });
+
+  it('abas de aprovação: aprovado, parcial e não aprovado', () => {
+    localStorage.clear();
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        { ...base, id: 'ra', criadoEm: 'x', aprovacao: 'aprovado' },
+        { ...base, id: 'rb', criadoEm: 'x', aprovacao: 'aprovado', naoRealizados: [1] },
+        { ...base, id: 'rc', criadoEm: 'x', aprovacao: 'naoAprovado', naoRealizados: [1, 2] },
+        { ...base, id: 'rd', criadoEm: 'x' },
+      ]),
+    );
+    const lista = listarHistorico();
+    expect(filtrarPorAba(lista, 'aprovados').map((r) => r.id)).toEqual(['ra']);
+    expect(filtrarPorAba(lista, 'parcial').map((r) => r.id)).toEqual(['rb']);
+    expect(filtrarPorAba(lista, 'naoAprovados').map((r) => r.id)).toEqual(['rc']);
+    expect(filtrarPorAba(lista, 'todos')).toHaveLength(4);
   });
 
   it('não duplica quando o mais recente tem os mesmos dados', () => {

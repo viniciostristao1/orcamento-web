@@ -240,14 +240,27 @@ export function destacarTermo(texto: string, termo: string): [string, string, st
   return [orig.slice(0, ini), orig.slice(ini, fim), orig.slice(fim)];
 }
 
-export type AbaHistorico = 'todos' | 'naoRealizados';
+export type AbaHistorico = 'todos' | 'aprovados' | 'parcial' | 'naoAprovados';
 
-/** Registro salvo pelo botão "salvar com itens não realizados". */
+/** Registro com algum item desmarcado (não aprovado). */
 export const temNaoRealizados = (r: OrcamentoSalvo): boolean => (r.naoRealizados?.length ?? 0) > 0;
 
-/** Filtra pela aba do histórico: "Todos" ou "Não Realizados". */
+/**
+ * Filtra pela aba do histórico: Todos | Aprovados (tudo feito) | Parcial
+ * (aprovado com item desmarcado) | Não Aprovados (marcado X, ou com item
+ * desmarcado ainda sem marca — compatível com registros antigos).
+ */
 export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): OrcamentoSalvo[] {
-  return aba === 'naoRealizados' ? lista.filter(temNaoRealizados) : lista;
+  switch (aba) {
+    case 'aprovados':
+      return lista.filter((r) => r.aprovacao === 'aprovado' && !temNaoRealizados(r));
+    case 'parcial':
+      return lista.filter((r) => r.aprovacao === 'aprovado' && temNaoRealizados(r));
+    case 'naoAprovados':
+      return lista.filter((r) => r.aprovacao === 'naoAprovado' || (!r.aprovacao && temNaoRealizados(r)));
+    default:
+      return lista;
+  }
 }
 
 /**

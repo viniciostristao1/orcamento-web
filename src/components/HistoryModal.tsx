@@ -94,7 +94,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const porCor = filtrarPorCor(filtrarHistorico(lista, busca), filtroCor);
   const porAba = {
     todos: porCor,
-    naoRealizados: filtrarPorAba(porCor, 'naoRealizados'),
+    aprovados: filtrarPorAba(porCor, 'aprovados'),
+    parcial: filtrarPorAba(porCor, 'parcial'),
+    naoAprovados: filtrarPorAba(porCor, 'naoAprovados'),
   };
   const visiveis = porAba[aba];
   // Contagem das cores segue a pesquisa (sem o filtro de cor, para dar para comparar).
@@ -200,7 +202,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
           <div className="flex items-center gap-2 px-6 py-3 border-b border-slate-800/60">
             {([
               { id: 'todos' as AbaHistorico, rotulo: `Todos (${porAba.todos.length})` },
-              { id: 'naoRealizados' as AbaHistorico, rotulo: `Não Realizados (${porAba.naoRealizados.length})` },
+              { id: 'aprovados' as AbaHistorico, rotulo: `Aprovados (${porAba.aprovados.length})` },
+              { id: 'parcial' as AbaHistorico, rotulo: `Parcial (${porAba.parcial.length})` },
+              { id: 'naoAprovados' as AbaHistorico, rotulo: `Não Aprovados (${porAba.naoAprovados.length})` },
             ]).map((t) => (
               <button
                 key={t.id}
@@ -228,9 +232,13 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
             ? 'Nenhum cliente verde.'
             : filtroCor === 'vermelho'
               ? 'Nenhum cliente vermelho.'
-              : aba === 'naoRealizados'
-                ? 'Nenhum orçamento com itens não realizados.'
-                : 'Nenhum orçamento encontrado.'
+              : aba === 'aprovados'
+                ? 'Nenhum orçamento aprovado.'
+                : aba === 'parcial'
+                  ? 'Nenhum orçamento parcialmente aprovado.'
+                  : aba === 'naoAprovados'
+                    ? 'Nenhum orçamento não aprovado.'
+                    : 'Nenhum orçamento encontrado.'
         }
       >
           {visiveis.map((r) => {
@@ -287,7 +295,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 {temNaoRealizados(r) ? (
                   <>
                     <span className="text-slate-600"> · </span>
-                    <span className="text-red-300">{r.naoRealizados!.length} não realizado(s)</span>
+                    <span className="text-red-300">{r.naoRealizados!.length} não aprovado(s)</span>
                   </>
                 ) : null}
               </span>
@@ -386,8 +394,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 <X size={18} />
               </button>
             </div>
-            {/* Aprovação só faz sentido no que foi salvo em "Não Realizados"
-                (o orçamento recém-gerado ainda não foi aprovado pelo cliente). */}
+              {/* Aprovação só faz sentido no que foi salvo com item desmarcado
+                  (o orçamento recém-gerado ainda não foi aprovado pelo cliente). */}
             {temSelecao && (
               <div className="flex items-center gap-4 px-5 pt-3 text-[11px] font-black uppercase tracking-widest">
                 <span className="flex items-center gap-1.5 text-green-500">
@@ -484,6 +492,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
         aberto={relatorioAberto}
         onFechar={() => setRelatorioAberto(false)}
         registros={lista}
+        onExcluir={handleExcluir}
+        onLimparTudo={handleLimpar}
       />
     </>
   );

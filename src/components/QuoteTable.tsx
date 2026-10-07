@@ -142,17 +142,17 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
           <ImageIcon size={24} className="group-hover:scale-110 transition-transform" />
         </button>
 
-        {/* Salva no histórico com a marcação atual (vai para a aba "Não Realizados").
+        {/* Salva no histórico com a marcação atual (vai para a aba "Não Aprovados").
             Só faz sentido quando há algum item desmarcado. */}
         <button
           type="button"
           onClick={handleSalvarNaoRealizados}
           disabled={naoRealizados.itens.length === 0 || !onSalvarNaoRealizados}
-          aria-label="Salvar com itens não realizados"
+          aria-label="Salvar com itens não aprovados"
           title={
             naoRealizados.itens.length === 0
-              ? 'Desmarque algum item para salvar na aba Não Realizados'
-              : 'Salvar com itens não realizados'
+              ? 'Desmarque algum item para salvar na aba Não Aprovados'
+              : 'Salvar com itens não aprovados'
           }
           className="flex items-center justify-center bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer"
         >
@@ -303,12 +303,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
             </div>
           </div>
 
-          {/* Itens Não Realizados — caixa separada, só quando há itens desmarcados */}
+          {/* Itens Não Aprovados — caixa separada, só quando há itens desmarcados */}
           {naoRealizados.itens.length > 0 && (
             <div className="mt-3 bg-red-50/70 border-2 border-red-200 rounded-[2rem] px-6 py-3 sm:px-10 sm:py-4">
               <div className="flex items-center justify-center gap-4 mb-2">
                 <div className="h-px w-10 bg-red-200"></div>
-                <h3 className="text-xl font-bold text-red-800 uppercase tracking-[0.3em]">Itens Não Realizados</h3>
+                <h3 className="text-xl font-bold text-red-800 uppercase tracking-[0.3em]">Itens Não Aprovados</h3>
                 <div className="h-px w-10 bg-red-200"></div>
               </div>
 
@@ -327,7 +327,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
                 <div className="h-px bg-red-300 my-2 opacity-60"></div>
 
                 <div className="flex justify-between items-center">
-                  <span className="font-bold uppercase tracking-widest text-2xl text-red-800 leading-none">Total Não Realizado:</span>
+                    <span className="font-bold uppercase tracking-widest text-2xl text-red-800 leading-none">Total Não Aprovado:</span>
                   <span className="text-2xl font-bold text-red-700">
                     {formatCurrency(naoRealizados.total)}
                   </span>

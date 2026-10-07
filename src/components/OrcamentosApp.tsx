@@ -54,7 +54,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
   const [selecionados, setSelecionados] = useState<Set<number>>(() => new Set(ultimo?.selecionados ?? []));
   // Registro do histórico referente ao documento em tela + aprovação (V/X).
-  const [histId, setHistId] = useState<string | null>(null);
   const [aprovacao, setAprovacao] = useState<AprovacaoVoto | null>(null);
 
   // Estados locais para os inputs de texto para permitir digitação livre (como vírgulas e pontos)
@@ -121,10 +120,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       nome: nome.trim(),
       ...retratoDoResumo(result),
     });
-    setHistId(salvos[0].id);
     // Reprocessou registro já marcado? Mostra a marca de volta.
-    setAprovacao(salvos[0].aprovacao ?? null);
-    
+    setAprovacao(salvos[0].aprovacao ?? null);    
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
   };
 
@@ -143,7 +140,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setNome(r.nome ?? '');
     setNumero(r.numeroOrcamento ?? '');
     setDataDoc(r.dataDoc ?? '');
-    setHistId(r.id);
     setAprovacao(r.aprovacao ?? null);
     setRevDesc('');
     setRevDados('');
@@ -163,10 +159,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   };
 
   // Salva o orçamento atual (com os itens desmarcados) — vai para a aba
-  // "Não Realizados" do histórico. Chamado pelo botão do QuoteTable.
+  // "Não Aprovados" do histórico. Chamado pelo botão do QuoteTable.
   const salvarComNaoRealizados = () => {
     if (!visivel) return;
-    const salvos = adicionarAoHistorico({
+    adicionarAoHistorico({
       descReparo,
       orcamentoRaw,
       ajustesManuais,
@@ -182,36 +178,40 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       naoRealizados: visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id),
       ...retratoDoResumo(visivel),
     });
-    setHistId(salvos[0].id);
   };
 
-  // V/X do documento: marca no registro do histórico referente à tela. Se a
-  // tela veio do "último documento" (sem registro ainda), salva primeiro.
-  const marcarAprovacao = (v: AprovacaoVoto | undefined) => {
+  // V/X do documento (sempre salvam): V aprova com a marcação atual (tudo feito
+  // = Aprovados; algum desmarcado = Parcial); X risca tudo, marca não aprovado
+  // e salva. Clicar no mesmo limpa a marca (salvando também).
+  const votarAprovacao = (v: AprovacaoVoto | undefined) => {
+    if (!visivel || !summary) return;
+    const desmarcados =
+      v === 'naoAprovado'
+        ? visivel.items.map((i) => i.id)
+        : visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id);
+    if (v === 'naoAprovado') setSelecionados(new Set());
     setAprovacao(v ?? null);
-    let id = histId;
-    if (!id && visivel) {
-      const salvos = adicionarAoHistorico({
-        descReparo,
-        orcamentoRaw,
-        ajustesManuais,
-        revAprovadaInput,
-        revPecasInput,
-        desconto,
-        parcelas,
-        placa: placa.trim(),
-        telefone: telefone.trim(),
-        numeroOrcamento: numero.trim(),
-        dataDoc: dataDoc.trim(),
-        nome: nome.trim(),
-        aprovacao: v,
-        naoRealizados: visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id),
-        ...retratoDoResumo(visivel),
-      });
-      id = salvos[0].id;
-      setHistId(id);
-    }
-    if (id) atualizarAprovacaoHistorico(id, v);
+    const base = recalcularComSelecao(
+      summary,
+      v === 'naoAprovado' ? new Set<number>() : selecionados,
+    );
+    const salvos = adicionarAoHistorico({
+      descReparo,
+      orcamentoRaw,
+      ajustesManuais,
+      revAprovadaInput,
+      revPecasInput,
+      desconto,
+      parcelas,
+      placa: placa.trim(),
+      telefone: telefone.trim(),
+      numeroOrcamento: numero.trim(),
+      dataDoc: dataDoc.trim(),
+      nome: nome.trim(),
+      naoRealizados: desmarcados,
+      ...retratoDoResumo(base),
+    });
+    atualizarAprovacaoHistorico(salvos[0].id, v);
   };
 
   // Marca/desmarca um item: os totais refletem só os marcados.
@@ -488,7 +488,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 onToggleItem={alternarItem}
                 onSalvarNaoRealizados={salvarComNaoRealizados}
                 aprovacao={aprovacao}
-                onMarcarAprovacao={marcarAprovacao}
+                onMarcarAprovacao={votarAprovacao}
               />
             </div>
           )}

@@ -96,7 +96,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     expect(screen.getAllByText(/2\.821,94/).length).toBeGreaterThan(0); // total peças cheio
     // todos marcados: NÃO existe a caixa de não realizados
-    expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
+    expect(screen.queryByText(/Itens Não Aprovados/i)).toBeNull();
 
     const checks = () => container.querySelectorAll<HTMLInputElement>('#printable-quote input[type="checkbox"]');
     expect(checks().length).toBe(3); // um por item
@@ -104,12 +104,12 @@ describe('App — smoke test (render + processar)', () => {
 
     expect(screen.getAllByText(/1\.383,70/).length).toBeGreaterThan(0); // 2.821,94 − 1.438,24
     // apareceu a caixa com a soma do item desmarcado (2.203,04)
-    expect(screen.getByText(/Itens Não Realizados/i)).toBeTruthy();
+    expect(screen.getByText(/Itens Não Aprovados/i)).toBeTruthy();
     expect(screen.getAllByText(/2\.203,04/).length).toBeGreaterThan(0);
 
     // remarca: a caixa some de novo
     fireEvent.click(checks()[0]);
-    expect(screen.queryByText(/Itens Não Realizados/i)).toBeNull();
+    expect(screen.queryByText(/Itens Não Aprovados/i)).toBeNull();
   });
 
   it('mantém o último documento gerado ao reabrir (sem processar de novo)', () => {
@@ -124,7 +124,7 @@ describe('App — smoke test (render + processar)', () => {
     // o documento aparece na tela sem clicar em Processar Tudo
     expect(document.querySelector('#printable-quote')).toBeTruthy();
     expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
-    expect(screen.getByText(/Itens Não Realizados/i)).toBeTruthy();
+    expect(screen.getByText(/Itens Não Aprovados/i)).toBeTruthy();
     expect(document.querySelectorAll('#printable-quote input[type="checkbox"]')[0]).toHaveProperty('checked', false);
   });
 
@@ -606,7 +606,7 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
-    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não realizados/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não aprovados/i }));
 
     const salvo = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
     expect(salvo).toHaveLength(1);
@@ -618,10 +618,10 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
-    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não realizados/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não aprovados/i }));
 
     fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
-    fireEvent.click(screen.getByRole('button', { name: /Não Realizados/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Não Aprovados/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Ver itens do orçamento' }));
 
     const janela = document.querySelector('[data-janela-itens="1"]') as HTMLElement;
@@ -1372,27 +1372,36 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].criadoEm).toBe('01/08/2026 09:00:00'); // não re-salvou com a data de agora
   });
 
-  it('histórico: abas Todos | Não Realizados', () => {
-    const comDesmarcados = { ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), naoRealizados: [1, 2] };
-    localStorage.setItem(
-      'orcamentos_historico_v1',
-      JSON.stringify([comDesmarcados, registro('2', 'XYZ9A87', '01/08/2026 09:00:00')]),
-    );
+  it('histórico: abas Todos | Aprovados | Parcial | Não Aprovados', () => {
+    const a = { ...registro('1', 'AAA1111', '24/09/2026 12:30:00'), aprovacao: 'aprovado' };
+    const b = { ...registro('2', 'BBB2222', '24/09/2026 12:31:00'), aprovacao: 'aprovado', naoRealizados: [1] };
+    const c = { ...registro('3', 'CCC3333', '24/09/2026 12:32:00'), aprovacao: 'naoAprovado', naoRealizados: [1] };
+    const d = registro('4', 'DDD4444', '24/09/2026 12:33:00');
+    localStorage.setItem('orcamentos_historico_v1', JSON.stringify([a, b, c, d]));
     render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
 
-    expect(screen.getByText('ABC1D23')).toBeTruthy();
-    expect(screen.getByText('XYZ9A87')).toBeTruthy();
-    expect(screen.getByText(/2 não realizado\(s\)/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Todos \(4\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Aprovados \(1\)$/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Parcial \(1\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Não Aprovados \(1\)/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /Não Realizados \(1\)/i }));
-    expect(screen.getByText('ABC1D23')).toBeTruthy();
-    expect(screen.queryByText('XYZ9A87')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /^Aprovados \(1\)$/i }));
+    expect(screen.getByText('AAA1111')).toBeTruthy();
+    expect(screen.queryByText('BBB2222')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: /Todos \(2\)/i }));
-    expect(screen.getByText('XYZ9A87')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Parcial \(1\)/i }));
+    expect(screen.getByText('BBB2222')).toBeTruthy();
+    expect(screen.queryByText('AAA1111')).toBeNull();
 
-    // janelinha "Ver itens" do registro salvo: item 1 está em naoRealizados
-    fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[0]);
+    fireEvent.click(screen.getByRole('button', { name: /Não Aprovados \(1\)/i }));
+    expect(screen.getByText('CCC3333')).toBeTruthy();
+    expect(screen.queryByText('DDD4444')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /Todos \(4\)/i }));
+    expect(screen.getByText('DDD4444')).toBeTruthy();
+
+    // janelinha "Ver itens" do registro com desmarcados
+    fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[1]);
     expect(screen.getByText('ITENS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.getAllByText('01 TESTE').length).toBeGreaterThan(1);
     expect(screen.getByText(/Aprovado pelo cliente/i)).toBeTruthy();
@@ -1402,7 +1411,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByText('ITENS DO ORÇAMENTO')).toBeNull();
 
     // registro comum (sem seleção salva): lista simples, sem aprovado/não aprovado
-    fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[1]);
+    fireEvent.click(screen.getAllByRole('button', { name: /Ver itens do orçamento/i })[0]);
     expect(screen.getByText('ITENS DO ORÇAMENTO')).toBeTruthy();
     expect(screen.queryByText(/Aprovado pelo cliente/i)).toBeNull();
     expect(document.querySelectorAll('[data-situacao="neutro"]')).toHaveLength(1);
@@ -1412,12 +1421,12 @@ describe('App — smoke test (render + processar)', () => {
     // contagens das abas acompanham a pesquisa
     fireEvent.click(screen.getByRole('button', { name: /Pesquisar/i }));
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: 'xyz' } });
-    expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Não Realizados \(0\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Todos \(0\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Não Aprovados \(0\)/i })).toBeTruthy();
 
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: 'abc' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: 'aaa' } });
     expect(screen.getByRole('button', { name: /Todos \(1\)/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Não Realizados \(1\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Aprovados \(1\)$/i })).toBeTruthy();
   });
 
   it('histórico: Pesquisar acha por item (ex.: "freio") e grifa', () => {
@@ -1460,7 +1469,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByText('ABC1D23')).toBeNull();
   });
 
-  it('histórico: excluir orçamento pede confirmação (Todos e Não Realizados)', () => {
+  it('histórico: excluir orçamento pede confirmação (Todos e Não Aprovados)', () => {
     const comDesmarcados = { ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), naoRealizados: [1] };
     localStorage.setItem(
       'orcamentos_historico_v1',
@@ -1482,11 +1491,11 @@ describe('App — smoke test (render + processar)', () => {
       expect(screen.queryByText('ABC1D23')).toBeNull();
       expect(screen.getByText('XYZ9A87')).toBeTruthy();
 
-      // …e some na aba Não Realizados quando é de lá
+      // …e some na aba Não Aprovados quando é de lá
       localStorage.setItem('orcamentos_historico_v1', JSON.stringify([comDesmarcados]));
       cleanup();
       render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
-      fireEvent.click(screen.getByRole('button', { name: /Não Realizados \(1\)/i }));
+      fireEvent.click(screen.getByRole('button', { name: /Não Aprovados \(1\)/i }));
       fireEvent.click(screen.getByRole('button', { name: 'Excluir orçamento' }));
       expect(screen.queryByText('ABC1D23')).toBeNull();
     } finally {
@@ -1953,7 +1962,8 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Copiar para Excel' }));
       const texto = String(escrever.mock.calls[0][0]);
       expect(texto).toContain('ELTON\tCSP\t19715\tSim\tVinícios');
-      expect(screen.getByText('Copiado')).toBeTruthy();
+      expect(texto.split('\n')).toHaveLength(1);
+      expect(screen.getByRole('button', { name: 'Copiar para Excel' })).toBeTruthy();
 
       // clicar de novo no V limpa a marca (fecha relatório e histórico antes)
       fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
@@ -1962,6 +1972,98 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
       expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].aprovacao).toBeUndefined();
     } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('X risca o orçamento todo e salva em Não Aprovados', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como não aprovado' }));
+
+      // tudo riscado na tela
+      expect(screen.getByText(/Itens Não Aprovados/i)).toBeTruthy();
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      expect(salvos[0].aprovacao).toBe('naoAprovado');
+      expect(salvos[0].naoRealizados).toEqual([1, 2, 3]);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      fireEvent.click(screen.getByRole('button', { name: /Não Aprovados \(1\)/i }));
+      expect(screen.getByText(/3 não aprovado\(s\)/)).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('V com item desmarcado salva em Parcial (e Sim no relatório)', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      fireEvent.click(screen.getByRole('button', { name: /Parcial \(1\)/i }));
+      expect(screen.getByText(/1 não aprovado\(s\)/)).toBeTruthy();
+
+      // no relatório, parcial também é Sim
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Copiar para Excel' }));
+      expect(String(escrever.mock.calls[0][0])).toContain('\tSim\t');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('relatório: largo, meses, % e lixeiras', () => {
+    const rec = (id: string, dataDoc: string, aprovacao?: 'aprovado' | 'naoAprovado', naoRealizados?: number[]) => ({
+      ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),
+      dataDoc,
+      numeroOrcamento: `N${id}`,
+      nome: `NOME${id}`,
+      ...(aprovacao ? { aprovacao } : {}),
+      ...(naoRealizados ? { naoRealizados } : {}),
+    });
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        rec('1', '25/08/2026', 'aprovado'),
+        rec('2', '05/09/2026', 'naoAprovado', [1]),
+      ]),
+    );
+    const confirmar = vi.spyOn(window, 'confirm');
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+
+      const janela = document.querySelector('[data-janela-relatorio="1"]') as HTMLElement;
+      expect(janela).toBeTruthy();
+      expect(janela.className).toContain('max-w-5xl');
+      expect(janela.textContent).toContain('AGOSTO/2026');
+      expect(janela.textContent).toContain('SETEMBRO/2026');
+      expect(janela.textContent).toContain('Aprovados 50%');
+      expect(janela.textContent).toContain('Não aprovados 50%');
+
+      // lixeira da linha exclui só ela (com confirmação)
+      confirmar.mockReturnValue(false);
+      fireEvent.click(screen.getAllByRole('button', { name: /Excluir orçamento/i })[0]);
+      expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')).toHaveLength(2);
+      confirmar.mockReturnValue(true);
+      fireEvent.click(screen.getAllByRole('button', { name: /Excluir orçamento/i })[0]);
+      expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')).toHaveLength(1);
+
+      // lixeira do topo limpa tudo (com confirmação)
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar todos os orçamentos' }));
+      expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')).toHaveLength(0);
+      expect(screen.getByText('Nenhum orçamento no histórico.')).toBeTruthy();
+    } finally {
+      confirmar.mockRestore();
       localStorage.removeItem('orcamentos_historico_v1');
     }
   });

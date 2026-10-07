@@ -6,7 +6,7 @@ import {
   listarHistorico,
   type OrcamentoSalvo,
 } from '../src/utils/historico';
-import { linhaRelatorio, relatorioParaExcel } from '../src/utils/relatorio';
+import { gruposPorMes, linhaRelatorio, mesDoRegistro, percentuaisAprovacao, relatorioParaExcel, rotuloMes } from '../src/utils/relatorio';
 
 const base = {
   descReparo: '1 X',
@@ -67,5 +67,30 @@ describe('relatório para Excel (aprovados)', () => {
     expect(listarHistorico()[0].aprovacao).toBe('aprovado');
     atualizarAprovacaoHistorico(rec.id, undefined);
     expect(listarHistorico()[0].aprovacao).toBeUndefined();
+  });
+
+  it('agrupa por mês (data do documento, cai para processamento)', () => {
+    const a = { ...base, id: '1', criadoEm: 'x', dataDoc: '25/08/2026' } as OrcamentoSalvo;
+    const b = { ...base, id: '2', criadoEm: '05/09/2026 10:00:00', dataDoc: '' } as OrcamentoSalvo;
+    expect(mesDoRegistro(a)).toBe('08/2026');
+    expect(mesDoRegistro(b)).toBe('09/2026');
+    expect(rotuloMes('08/2026')).toBe('AGOSTO/2026');
+    const grupos = gruposPorMes([a, b]);
+    expect(grupos.map((g) => g.mes)).toEqual(['08/2026', '09/2026']);
+  });
+
+  it('percentuais sobre o total (sem marca não entra em fatia)', () => {
+    const mk = (id: string, aprovacao?: 'aprovado' | 'naoAprovado', naoRealizados?: number[]) =>
+      ({ ...base, id, criadoEm: 'x', ...(aprovacao ? { aprovacao } : {}), ...(naoRealizados ? { naoRealizados } : {}) }) as OrcamentoSalvo;
+    const pct = percentuaisAprovacao([mk('a', 'aprovado'), mk('b', 'aprovado', [1]), mk('c', 'naoAprovado', [1]), mk('d')]);
+    expect(pct).toEqual({ aprovados: 25, parcial: 25, naoAprovados: 25, total: 4 });
+    expect(percentuaisAprovacao([])).toEqual({ aprovados: 0, parcial: 0, naoAprovados: 0, total: 0 });
+  });
+
+  it('copiar leva só linhas de dados (sem cabeçalho de mês)', () => {
+    const a = { ...base, id: '1', criadoEm: 'x', dataDoc: '25/08/2026' } as OrcamentoSalvo;
+    const texto = relatorioParaExcel([a]);
+    expect(texto).not.toContain('AGOSTO');
+    expect(texto.split('\n')).toHaveLength(1);
   });
 });
