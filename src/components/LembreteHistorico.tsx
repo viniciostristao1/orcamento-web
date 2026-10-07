@@ -61,7 +61,7 @@ const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, 
                 }}
                 aria-label={nomeAcao(item)}
                 title={item.origem === 'rapido' ? `Concluir "${item.rotulo}"` : `Abrir ${item.origem === 'flyer' ? 'flyer' : 'orçamento'} ${item.rotulo}`}
-                className="font-extrabold text-slate-100 text-lg tracking-tight truncate text-left hover:text-amber-300 transition-colors cursor-pointer"
+                className="font-extrabold text-slate-100 text-sm tracking-tight truncate text-left hover:text-amber-300 transition-colors cursor-pointer"
               >
                 {item.rotulo}
               </button>
