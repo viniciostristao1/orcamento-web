@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   type OrcamentoSalvo,
   adicionarAoHistorico,
+  atualizarAprovacaoHistorico,
   atualizarCorHistorico,
+  atualizarNaoRealizadosHistorico,
   contarItensDaDescricao,
   destacarTermo,
   filtrarHistorico,
@@ -225,5 +227,41 @@ describe('histórico (localStorage)', () => {
     ]);
     expect(destacarTermo('NADA AQUI', 'freio')).toBeNull();
     expect(destacarTermo('QUALQUER', '')).toBeNull();
+  });
+
+  it('V/X inline não muda a data (só troca a aprovação)', () => {
+    adicionarAoHistorico({ ...base, dataDoc: '25/08/2026' });
+    const [rec] = listarHistorico();
+    const criado = rec.criadoEm;
+    atualizarAprovacaoHistorico(rec.id, 'aprovado');
+    const depois = listarHistorico()[0];
+    expect(depois.aprovacao).toBe('aprovado');
+    expect(depois.criadoEm).toBe(criado);
+    expect(depois.dataDoc).toBe('25/08/2026');
+    expect(filtrarPorAba(listarHistorico(), 'aprovados')).toHaveLength(1);
+    atualizarAprovacaoHistorico(rec.id, undefined);
+    expect(listarHistorico()[0].aprovacao).toBeUndefined();
+    expect(listarHistorico()[0].criadoEm).toBe(criado);
+  });
+
+  it('parcial inline não muda a data (só troca os desmarcados + totais)', () => {
+    adicionarAoHistorico(base);
+    const [rec] = listarHistorico();
+    const criado = rec.criadoEm;
+    atualizarNaoRealizadosHistorico(rec.id, [1], {
+      totalPecasGeral: 10,
+      totalServicosGeral: 20,
+      valorDescontoTotal: 1,
+      valorLiquidoFinal: 29,
+      totalGeral: 30,
+      numItens: 2,
+    });
+    const depois = listarHistorico()[0];
+    expect(temNaoRealizados(depois)).toBe(true);
+    expect(depois.naoRealizados).toEqual([1]);
+    expect(depois.totalPecasGeral).toBe(10);
+    expect(depois.criadoEm).toBe(criado);
+    expect(depois.id).toBe(rec.id);
+    expect(filtrarPorAba(listarHistorico(), 'naoAprovados')).toHaveLength(1);
   });
 });

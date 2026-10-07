@@ -101,4 +101,17 @@ describe('relatório para Excel (aprovados)', () => {
     expect(texto).not.toContain('AGOSTO');
     expect(texto.split('\n')).toHaveLength(1);
   });
+
+  it('seletor de mês: copiar só o mês filtra linhas e percentuais', () => {
+    const a = { ...base, id: '1', criadoEm: 'x', dataDoc: '25/08/2026', nome: 'AGOSTO', aprovacao: 'aprovado' } as OrcamentoSalvo;
+    const b = { ...base, id: '2', criadoEm: 'x', dataDoc: '05/09/2026', nome: 'SETEMBRO', aprovacao: 'naoAprovado' } as OrcamentoSalvo;
+    const lista = [a, b];
+    const soSet = lista.filter((r) => mesDoRegistro(r) === '09/2026');
+    expect(soSet.map((r) => r.id)).toEqual(['2']);
+    const texto = relatorioParaExcel(soSet);
+    expect(texto).toContain('SETEMBRO');
+    expect(texto).not.toContain('AGOSTO');
+    expect(texto.split('\n')).toHaveLength(1);
+    expect(percentuaisAprovacao(soSet)).toEqual({ aprovados: 0, parcial: 0, naoAprovados: 100, total: 1 });
+  });
 });

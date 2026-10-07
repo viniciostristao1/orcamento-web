@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **207 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **213 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -403,6 +403,7 @@ orcamento_web/
     types.ts                 tipos (QuoteSummary, QuoteItem)
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
     utils/historico.ts       HISTÓRICO orçamentos (localStorage) + backup/restaurar JSON
+                             (+ `atualizarNaoRealizadosHistorico`: parcial inline sem mudar a data)
     utils/busca.ts           normalizarBusca (definição única, dois históricos)
     utils/telefone.ts        normalizar/validar telefone + wa.me (v0.78.0; também na aba Whats)
     utils/corCliente.ts      CorCliente/FiltroCor + filtrarPorCor + corDaBusca (v0.79.0)
@@ -410,6 +411,7 @@ orcamento_web/
     utils/tema.ts            tema da interface (6 temas; azul padrão) + persistência
                              (fontes/paleta em index.css; .titulo-tema = fonte do tema)
     utils/relatorio.ts       linhas DATA⇥NOME⇥CSP⇥NÚMERO⇥Sim/Não⇥Vinícios + TAB
+                             (+ seletor de mês no modal: tabela, % e copiar seguem o mês)
     utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
     utils/bloqueio.ts        senha do cadeado (criar/trocar/conferir; entra no backup)
     utils/lembretes.ts       vencidos + formatos + evento (dois históricos)
@@ -421,7 +423,9 @@ orcamento_web/
     assets/logo_toyota.png   logo do header (fundo transparente; único asset)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/HistoryModal.tsx  painel do histórico (abrir/excluir/limpar/backup/busca/
-                             abas Todos|Aprovados|Não Aprovados/filtro de cor/WhatsApp/relatório)
+                             abas Todos|Aprovados|Não Aprovados/filtro de cor/WhatsApp/relatório/
+                             V/X inline por cartão + caixinhas de parcial na janelinha de itens,
+                             tudo sem mudar a data)
     components/HistoricoBase.tsx casca dos dois históricos (overlay/cabeçalho/busca/cor/lista)
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
@@ -435,7 +439,7 @@ orcamento_web/
     components/Bloqueio.tsx  tela do cadeado (criar senha / desbloquear)
     components/LembreteRelogio.tsx BotaoRelogio + EditorLembrete (dois históricos)
     components/LembreteHistorico.tsx popup âmbar pulsante dos vencidos
-    components/RelatorioModal.tsx janela do relatório Excel (tabela + copiar)
+    components/RelatorioModal.tsx janela do relatório Excel (tabela + seletor de mês + copiar)
     components/SinoLembretes.tsx sino do header (rápidos + lista geral)
     components/LembreteContatos.tsx pop-up global de contatos para hoje
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
@@ -589,6 +593,11 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Refinos** (v0.108.0): saiu o botão âmbar (V/X salvam); relatório com coluna PARCIAL
   (após o nome); observação do lembrete persiste ao concluir/limpar; V/X com
   pressionado visível (volta ao normal em orçamento novo).
+- **Seletor de mês + aprovação sem abrir** (v0.110.0): relatório com seletor Todos|cada
+  mês (tabela, % e copiar seguem o filtro; limpar-tudo continua global); cada cartão do
+  histórico tem V/X inline e a janelinha de itens tem V/X + caixinhas por item (vira
+  parcial) — tudo via `atualizarAprovacaoHistorico`/`atualizarNaoRealizadosHistorico`,
+  sem tocar em `id`/`criadoEm`/`dataDoc` (não muda a data, diferente do "Abrir").
 - **Sem títulos internos** (v0.103.0): saiu o cabeçalho centralizado de cada aba
   (ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS) — a aba ativa já diz onde estamos.
   Saiu junto o `TituloEditavel` (+ renomear do contexto); renomear das abas no topo

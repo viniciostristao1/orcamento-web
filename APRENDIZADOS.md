@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.110.0](#v11000) — 2026-10-07 — Seletor de mês no relatório + V/X e parcial sem abrir (v0.110.0)
 - [v0.109.0](#v10900) — 2026-10-07 — Varredura docs + limpeza (v0.109.0)
 - [v0.108.0](#v10800) — 2026-10-07 — Refino aprovação/relatório/observação (v0.108.0)
 - [v0.107.0](#v10700) — 2026-10-07 — V com desmarque vai para Não Aprovados (v0.107.0)
@@ -169,6 +170,35 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11000"></a>
+## 2026-10-07 — Seletor de mês no relatório + V/X e parcial sem abrir (v0.110.0)
+
+**Pedido:** no RELATÓRIO (aba orçamento) os orçamentos vinham separados por mês mas o
+copiar levava tudo — faltava um seletor de mês para copiar só aquele mês; e mudar onde
+o orçamento cai (V/X, parcial) exigia "Abrir orçamento", o que muda a data/hora dele.
+
+**Feito:** `RelatorioModal` com `<select aria-label="Filtrar por mês">` (Todos + um por
+mês com contagem; padrão Todos): tabela, % do topo e "Copiar para Excel" seguem o mês
+(esvazia = "Nenhum orçamento neste mês"; limpar-tudo continua global).
+`HistoryModal` com V/X inline em cada cartão **e** no topo da janelinha "Itens do
+orçamento" (`atualizarAprovacaoHistorico`, clicar no mesmo limpa) + caixinhas por item
+na janelinha (`atualizarNaoRealizadosHistorico` novo em `historico.ts`: só troca
+`naoRealizados` + totais, `id`/`criadoEm`/`dataDoc` intactos) — desmarcar vira parcial
+e muda de aba sem reabrir e sem mudar a data.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos (só os warnings
+conhecidos de `set-state-in-effect`, inclusive o do seletor), `npm test`
+**213/213 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.110.0`.
+
+**Gotchas / decisões:**
+- O `<select>` carrega os rótulos dos meses nas `<option>`: teste de "sumiu da tabela"
+  tem que olhar o `tbody`, não a janela inteira (a opção continua listando o mês).
+- V/X inline só trocam `aprovacao` (X não risca tudo, diferente do V/X do documento —
+  parcial mora nas caixinhas); `naoRealizados: []` = sem parcial, igual ao votar.
+
+---
 
 <a id="v10900"></a>
 ## 2026-10-07 — Varredura docs + limpeza (v0.109.0)

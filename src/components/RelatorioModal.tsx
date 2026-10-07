@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, Copy, Trash2, X } from 'lucide-react';
 import type { OrcamentoSalvo } from '../utils/historico';
 import {
   gruposPorMes,
   linhaRelatorio,
+  mesDoRegistro,
   percentuaisAprovacao,
   relatorioParaExcel,
   rotuloMes,
@@ -23,20 +24,33 @@ const CABECALHO = ['DATA', 'NOME', 'TIPO', 'NÚMERO', 'APROVADO', 'RESPONSÁVEL'
 
 /**
  * Relatório para Excel: todos os orçamentos separados por mês, com o
- * percentual de aprovados/parcial/não aprovados no topo. O "Copiar" (ícone)
- * leva só as linhas de dados em TAB (cada valor cai na sua célula ao colar).
- * Lixeira por linha exclui; lixeira do topo limpa tudo.
+ * percentual de aprovados/parcial/não aprovados no topo. O seletor de mês
+ * filtra a tabela e o "Copiar" (ícone) leva só as linhas visíveis em TAB
+ * (cada valor cai na sua célula ao colar). Lixeira por linha exclui;
+ * lixeira do topo limpa tudo.
  */
 const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, registros, onExcluir, onLimparTudo }) => {
   const [copiado, setCopiado] = useState(false);
+  // Mês selecionado ("todos" = copia tudo; "MM/AAAA" = copia só aquele mês).
+  const [mesSel, setMesSel] = useState('todos');
+
+  useEffect(() => {
+    if (aberto) {
+      setMesSel('todos');
+      setCopiado(false);
+    }
+  }, [aberto]);
 
   if (!aberto) return null;
 
   const grupos = gruposPorMes(registros);
-  const pct = percentuaisAprovacao(registros);
+  const mesEfetivo = mesSel === 'todos' || grupos.some((g) => g.mes === mesSel) ? mesSel : 'todos';
+  const filtrados = mesEfetivo === 'todos' ? registros : registros.filter((r) => mesDoRegistro(r) === mesEfetivo);
+  const gruposVisiveis = gruposPorMes(filtrados);
+  const pct = percentuaisAprovacao(filtrados);
 
   const copiar = () => {
-    navigator.clipboard.writeText(relatorioParaExcel(registros));
+    navigator.clipboard.writeText(relatorioParaExcel(filtrados));
     setCopiado(true);
     window.setTimeout(() => setCopiado(false), 2000);
   };
@@ -62,9 +76,13 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
             <button
               type="button"
               onClick={copiar}
-              disabled={registros.length === 0}
+              disabled={filtrados.length === 0}
               aria-label="Copiar para Excel"
-              title="Copiar para Excel (colar no Excel separa por célula)"
+              title={
+                mesEfetivo === 'todos'
+                  ? 'Copiar para Excel (colar no Excel separa por célula)'
+                  : `Copiar só ${rotuloMes(mesEfetivo)} para Excel`
+              }
               className={`flex items-center justify-center p-2.5 rounded-xl transition-all border cursor-pointer active:scale-95 ${
                 copiado
                   ? 'bg-green-600 border-green-500 text-white'
@@ -96,21 +114,50 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
         </div>
 
         {registros.length > 0 && (
-          <div className="px-6 py-3 border-b border-slate-800/60 text-sm font-black uppercase tracking-widest">
-            <span className="text-green-400">Aprovados {pct.aprovados}%</span>
-            <span className="text-slate-600"> · </span>
-            <span className="text-amber-300">Parcial {pct.parcial}%</span>
-            <span className="text-slate-600"> · </span>
-            <span className="text-red-400">Não aprovados {pct.naoAprovados}%</span>
-            <span className="text-slate-600"> · </span>
-            <span className="text-slate-400">{pct.total} orçamento(s)</span>
-          </div>
+          <>
+            <div className="flex items-center gap-3 px-6 py-3 border-b border-slate-800/60">
+              <label
+                htmlFor="relatorio-mes"
+                className="text-[11px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap"
+              >
+                Mês
+              </label>
+              <select
+                id="relatorio-mes"
+                aria-label="Filtrar por mês"
+                value={mesEfetivo}
+                onChange={(e) => setMesSel(e.target.value)}
+                className="campo-tema border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none bg-slate-900"
+              >
+                <option value="todos">Todos os meses ({registros.length})</option>
+                {grupos.map((g) => (
+                  <option key={g.mes} value={g.mes}>
+                    {rotuloMes(g.mes)} ({g.registros.length})
+                  </option>
+                ))}
+              </select>
+              {mesEfetivo !== 'todos' && (
+                <span className="text-xs font-bold text-slate-500 whitespace-nowrap">
+                  copia só este mês
+                </span>
+              )}
+            </div>
+            <div className="px-6 py-3 border-b border-slate-800/60 text-sm font-black uppercase tracking-widest">
+              <span className="text-green-400">Aprovados {pct.aprovados}%</span>
+              <span className="text-slate-600"> · </span>
+              <span className="text-amber-300">Parcial {pct.parcial}%</span>
+              <span className="text-slate-600"> · </span>
+              <span className="text-red-400">Não aprovados {pct.naoAprovados}%</span>
+              <span className="text-slate-600"> · </span>
+              <span className="text-slate-400">{pct.total} orçamento(s)</span>
+            </div>
+          </>
         )}
 
         <div className="overflow-auto p-4">
-          {registros.length === 0 ? (
+          {filtrados.length === 0 ? (
             <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-base">
-              Nenhum orçamento no histórico.
+              {registros.length === 0 ? 'Nenhum orçamento no histórico.' : 'Nenhum orçamento neste mês.'}
             </p>
           ) : (
             <table className="w-full border-collapse text-sm">
@@ -128,7 +175,7 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
                 </tr>
               </thead>
               <tbody>
-                {grupos.map((g) => (
+                {gruposVisiveis.map((g) => (
                   <React.Fragment key={g.mes}>
                     <tr>
                       <td

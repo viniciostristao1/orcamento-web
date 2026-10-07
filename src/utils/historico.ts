@@ -147,6 +147,26 @@ export function atualizarAprovacaoHistorico(
   const out = listarHistorico().map((r) => (r.id === id ? { ...r, aprovacao } : r));
   gravar(out);
   return out;
+};
+
+/**
+ * Marca/desmarca os itens não aprovados (parcial) direto no histórico.
+ * Só troca `naoRealizados` (+ totais, quando informados) — `id`, `criadoEm` e
+ * `dataDoc` ficam intactos (não muda a data do orçamento).
+ */
+export function atualizarNaoRealizadosHistorico(
+  id: string,
+  naoRealizados: number[],
+  totais?: Pick<
+    OrcamentoSalvo,
+    'totalPecasGeral' | 'totalServicosGeral' | 'valorDescontoTotal' | 'valorLiquidoFinal' | 'totalGeral' | 'numItens'
+  >,
+): OrcamentoSalvo[] {
+  const out = listarHistorico().map((r) =>
+    r.id === id ? { ...r, naoRealizados, ...(totais ?? {}) } : r,
+  );
+  gravar(out);
+  return out;
 }
 
 /**

@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { CheckCircle2, Database, FileSpreadsheet, FolderOpen, List, Trash2, Upload, X, XCircle } from 'lucide-react';
+import { Check, CheckCircle2, Database, FileSpreadsheet, FolderOpen, List, Trash2, Upload, X, XCircle } from 'lucide-react';
 import {
   type AbaHistorico,
   type OrcamentoSalvo,
+  atualizarAprovacaoHistorico,
   atualizarCorHistorico,
   atualizarLembreteHistorico,
+  atualizarNaoRealizadosHistorico,
   baixarBackup,
   destacarTermo,
   filtrarHistorico,
@@ -13,13 +15,14 @@ import {
   limparHistorico,
   listarHistorico,
   removerDoHistorico,
+  retratoDoResumo,
   temNaoRealizados,
 } from '../utils/historico';
 import { dataDoRegistro, formatarLembrete } from '../utils/lembretes';
 import { filtrarPorCor, type CorCliente, type FiltroCor } from '../utils/corCliente';
 import { MarcadorCor, SeloCor, classeBordaCor } from './CorCliente';
 import { BotaoRelogio, EditorLembrete } from './LembreteRelogio';
-import { formatCurrency, parseBrazilianNumber, processQuote, resumoAprovacao } from '../utils/quoteLogic';
+import { formatCurrency, parseBrazilianNumber, processQuote, recalcularComSelecao, resumoAprovacao } from '../utils/quoteLogic';
 import BotaoWhats from './BotaoWhats';
 import HistoricoBase from './HistoricoBase';
 import RelatorioModal from './RelatorioModal';
@@ -144,6 +147,45 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const handleLembrete = (id: string, iso: string | null, observacao?: string) => {
     setLista(atualizarLembreteHistorico(id, iso, observacao));
     setLembreteDe(null);
+  };
+
+  // V/X direto no cartão (sem "Abrir orçamento"): só troca `aprovacao`,
+  // então `id`, `criadoEm` e `dataDoc` ficam intactos (não muda a data).
+  // Clicar no mesmo limpa. Muda onde o orçamento cai (Aprovados/Não Aprovados).
+  const handleVotarInline = (
+    id: string,
+    atual: OrcamentoSalvo['aprovacao'],
+    voto: 'aprovado' | 'naoAprovado',
+  ) => {
+    const proxima = atual === voto ? undefined : voto;
+    setLista(atualizarAprovacaoHistorico(id, proxima));
+    setItensDe((atualRec) => (atualRec && atualRec.id === id ? { ...atualRec, aprovacao: proxima } : atualRec));
+  };
+
+  // (Des)marca um item como não aprovado direto na janelinha de itens
+  // (vira parcial): salva `naoRealizados` + totais, sem mudar a data.
+  const handleToggleItemInline = (rec: OrcamentoSalvo, itemId: number) => {
+    const atuais = new Set(rec.naoRealizados ?? []);
+    if (atuais.has(itemId)) atuais.delete(itemId);
+    else atuais.add(itemId);
+    const novaLista = [...atuais];
+    try {
+      const summary = processQuote(
+        rec.descReparo,
+        rec.orcamentoRaw,
+        parseBrazilianNumber(rec.revAprovadaInput),
+        parseBrazilianNumber(rec.revPecasInput),
+        rec.desconto,
+        rec.parcelas,
+        rec.ajustesManuais,
+      );
+      const selecionados = new Set(summary.items.map((i) => i.id).filter((id) => !atuais.has(id)));
+      const base = recalcularComSelecao(summary, selecionados);
+      setLista(atualizarNaoRealizadosHistorico(rec.id, novaLista, retratoDoResumo(base)));
+    } catch {
+      setLista(atualizarNaoRealizadosHistorico(rec.id, novaLista));
+    }
+    setItensDe((atualRec) => (atualRec && atualRec.id === rec.id ? { ...atualRec, naoRealizados: novaLista } : atualRec));
   };
 
   return (
@@ -302,9 +344,37 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                   <BotaoWhats telefone={r.telefone} />
                 <button
                   type="button"
+                  onClick={() => handleVotarInline(r.id, r.aprovacao, 'aprovado')}
+                  aria-label="Marcar como aprovado"
+                  title="Marcar como aprovado (sem mudar a data; clicar de novo limpa)"
+                  aria-pressed={r.aprovacao === 'aprovado'}
+                  className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
+                    r.aprovacao === 'aprovado'
+                      ? 'bg-green-500 text-white ring-2 ring-green-300 border-green-400'
+                      : 'bg-slate-800 hover:bg-green-700 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <Check size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleVotarInline(r.id, r.aprovacao, 'naoAprovado')}
+                  aria-label="Marcar como não aprovado"
+                  title="Marcar como não aprovado (sem mudar a data; clicar de novo limpa)"
+                  aria-pressed={r.aprovacao === 'naoAprovado'}
+                  className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
+                    r.aprovacao === 'naoAprovado'
+                      ? 'bg-red-500 text-white ring-2 ring-red-300 border-red-400'
+                      : 'bg-slate-800 hover:bg-red-700 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <X size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
                   onClick={() => setItensDe(r)}
                   aria-label="Ver itens do orçamento"
-                  title="Ver itens do orçamento"
+                  title="Ver itens do orçamento (dá para desmarcar e virar parcial sem mudar a data)"
                   className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all cursor-pointer active:scale-95"
                 >
                   <List size={16} />
@@ -381,17 +451,48 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
               <h3 className="titulo-tema text-xl font-black text-slate-100 uppercase tracking-widest">
                 ITENS DO ORÇAMENTO
               </h3>
-              <button
-                type="button"
-                onClick={() => setItensDe(null)}
-                aria-label="Fechar"
-                title="Fechar"
-                className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 text-slate-200 border border-slate-700 rounded-xl transition-all cursor-pointer active:scale-95"
-              >
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleVotarInline(itensDe.id, itensDe.aprovacao, 'aprovado')}
+                  aria-label="Marcar como aprovado"
+                  title="Marcar como aprovado (sem mudar a data; clicar de novo limpa)"
+                  aria-pressed={itensDe.aprovacao === 'aprovado'}
+                  className={`flex items-center justify-center p-2.5 rounded-xl transition-all cursor-pointer active:scale-95 border ${
+                    itensDe.aprovacao === 'aprovado'
+                      ? 'bg-green-500 text-white ring-2 ring-green-300 border-green-400'
+                      : 'bg-slate-800 hover:bg-green-700 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <Check size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleVotarInline(itensDe.id, itensDe.aprovacao, 'naoAprovado')}
+                  aria-label="Marcar como não aprovado"
+                  title="Marcar como não aprovado (sem mudar a data; clicar de novo limpa)"
+                  aria-pressed={itensDe.aprovacao === 'naoAprovado'}
+                  className={`flex items-center justify-center p-2.5 rounded-xl transition-all cursor-pointer active:scale-95 border ${
+                    itensDe.aprovacao === 'naoAprovado'
+                      ? 'bg-red-500 text-white ring-2 ring-red-300 border-red-400'
+                      : 'bg-slate-800 hover:bg-red-700 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <X size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setItensDe(null)}
+                  aria-label="Fechar"
+                  title="Fechar"
+                  className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 text-slate-200 border border-slate-700 rounded-xl transition-all cursor-pointer active:scale-95"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
-              {/* Aprovação só faz sentido no que foi salvo com item desmarcado
+              {/* Desmarcar a caixinha vira parcial (salva sem mudar a data).
+                  A marcação V/X só aparece nos registros com item desmarcado
                   (o orçamento recém-gerado ainda não foi aprovado pelo cliente). */}
             {temSelecao && (
               <div className="flex items-center gap-4 px-5 pt-3 text-[11px] font-black uppercase tracking-widest">
@@ -409,15 +510,26 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 .filter((l) => l.trim())
                 .map((linha, i) => {
                   const id = parseInt(linha.trim().split(/\s+/)[0], 10);
-                  const naoAprovado =
-                    temSelecao && Number.isFinite(id) && (itensDe.naoRealizados ?? []).includes(id);
-                  const valor = resumoItens?.valoresPorId[id];
+                  const temId = Number.isFinite(id);
+                  const desmarcado = temId && (itensDe.naoRealizados ?? []).includes(id);
+                  const naoAprovado = temSelecao && desmarcado;
+                  const valor = temId ? resumoItens?.valoresPorId[id] : undefined;
                   return (
-                    <p
+                    <div
                       key={i}
                       data-situacao={temSelecao ? (naoAprovado ? 'naoAprovado' : 'aprovado') : 'neutro'}
                       className="text-base font-bold flex items-start gap-2"
                     >
+                      {temId && (
+                        <input
+                          type="checkbox"
+                          checked={!desmarcado}
+                          onChange={() => handleToggleItemInline(itensDe, id)}
+                          aria-label={`Alternar item ${id}`}
+                          title="Desmarcar vira parcial (sem mudar a data)"
+                          className="mt-1 h-4 w-4 shrink-0 accent-blue-600 cursor-pointer"
+                        />
+                      )}
                       {temSelecao &&
                         (naoAprovado ? (
                           <XCircle size={18} className="shrink-0 mt-0.5 text-red-400" />
@@ -436,7 +548,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                           R$ {formatCurrency(valor)}
                         </span>
                       )}
-                    </p>
+                    </div>
                   );
                 })}
             </div>

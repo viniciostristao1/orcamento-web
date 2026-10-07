@@ -2070,4 +2070,99 @@ describe('App — smoke test (render + processar)', () => {
       localStorage.removeItem('orcamentos_historico_v1');
     }
   });
+
+  it('relatório: seletor de mês filtra a tabela e copia só o mês', () => {
+    const rec = (id: string, dataDoc: string, nome: string, aprovacao?: 'aprovado' | 'naoAprovado') => ({
+      ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),
+      dataDoc,
+      numeroOrcamento: `N${id}`,
+      nome,
+      ...(aprovacao ? { aprovacao } : {}),
+    });
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([rec('1', '25/08/2026', 'AGOSTO', 'aprovado'), rec('2', '05/09/2026', 'SETEMBRO', 'naoAprovado')]),
+    );
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+
+      const seletor = screen.getByRole('combobox', { name: 'Filtrar por mês' }) as HTMLSelectElement;
+      expect(seletor.value).toBe('todos');
+      fireEvent.change(seletor, { target: { value: '09/2026' } });
+
+      const janela = document.querySelector('[data-janela-relatorio="1"]') as HTMLElement;
+      const corpo = janela.querySelector('tbody')?.textContent ?? '';
+      expect(corpo).toContain('SETEMBRO');
+      expect(corpo).not.toContain('AGOSTO');
+      expect(janela.textContent).toContain('Não aprovados 100%');
+      expect(janela.textContent).toContain('1 orçamento(s)');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Copiar para Excel' }));
+      const copiado = String(escrever.mock.calls[0][0]);
+      expect(copiado).toContain('SETEMBRO');
+      expect(copiado).not.toContain('AGOSTO');
+      expect(copiado.split('\n')).toHaveLength(1);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('histórico: V/X no cartão mudam a aba sem mudar a data', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([registro('1', 'ABC1D23', '24/09/2026 12:30:00')]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+
+      let salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].aprovacao).toBe('aprovado');
+      expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
+      expect(screen.getByRole('button', { name: /^Aprovados \(1\)$/i })).toBeTruthy();
+
+      // clicar de novo desmarca (limpa) sem mudar a data
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+      salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].aprovacao).toBeUndefined();
+      expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como não aprovado' }));
+      salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].aprovacao).toBe('naoAprovado');
+      expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
+      expect(screen.getByRole('button', { name: /Não Aprovados \(1\)/i })).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('histórico: desmarcar item na janelinha vira parcial sem mudar a data', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        {
+          ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
+          descReparo: '01 TESTE',
+          orcamentoRaw: '1 Peça X 1 10,00',
+        },
+      ]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: /Ver itens do orçamento/i }));
+      expect(screen.getByText('ITENS DO ORÇAMENTO')).toBeTruthy();
+
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Alternar item 1' }));
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].naoRealizados).toEqual([1]);
+      expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
+      expect(document.querySelectorAll('[data-situacao="naoAprovado"]')).toHaveLength(1);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
 });
