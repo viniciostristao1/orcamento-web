@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.107.0](#v10700) — 2026-10-07 — V com desmarque vai para Não Aprovados (v0.107.0)
 - [v0.106.0](#v10600) — 2026-10-07 — Dinâmica de aprovação + relatório turbinado (v0.106.0)
 - [v0.105.0](#v10500) — 2026-10-07 — Aprovação V/X + relatório Excel (v0.105.0)
 - [v0.104.0](#v10400) — 2026-10-06 — Popup de lembretes com fonte menor (v0.104.0)
@@ -166,6 +167,25 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10700"></a>
+## 2026-10-07 — V com desmarque vai para Não Aprovados (v0.107.0)
+
+**Pedido (refino):** V puro = Aprovados; V com desmarque = Não Aprovados no histórico
+(oportunidade de recuperação, vendo o desmarcado); relatório sempre Sim no V e Não
+só no X; sem aba Parcial.
+
+**Feito:** `naoAprovados` = desmarcados (qualquer marca) ou X; aba Parcial removida
+(% do relatório mantém a fatia parcial informativa); resto intacto.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**206/206 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.107.0`.
+
+**Gotchas / decisões:**
+- `npm test` agora com `--testTimeout=20000` (timeouts de 5s sob carga; doc já previa).
+
+---
 
 <a id="v10600"></a>
 ## 2026-10-07 — Dinâmica de aprovação + relatório turbinado (v0.106.0)

@@ -55,7 +55,7 @@ describe('histórico (localStorage)', () => {
     expect(filtrarHistorico(lista, 'inexistente')).toHaveLength(0);
   });
 
-  it('filtra por aba (Todos / Aprovados / Parcial / Não Aprovados)', () => {
+  it('filtra por aba (Todos / Aprovados / Não Aprovados)', () => {
     adicionarAoHistorico({ ...base, naoRealizados: [1] }); // sem marca: cai em Não Aprovados
     adicionarAoHistorico({ ...base, desconto: 10 }); // comuns não entram nas abas
     const lista = listarHistorico();
@@ -63,11 +63,10 @@ describe('histórico (localStorage)', () => {
     expect(temNaoRealizados(comDesmarcados)).toBe(true);
     expect(filtrarPorAba(lista, 'todos')).toHaveLength(2);
     expect(filtrarPorAba(lista, 'aprovados')).toHaveLength(0);
-    expect(filtrarPorAba(lista, 'parcial')).toHaveLength(0);
     expect(filtrarPorAba(lista, 'naoAprovados')).toEqual([comDesmarcados]);
   });
 
-  it('abas de aprovação: aprovado, parcial e não aprovado', () => {
+  it('abas de aprovação: V puro = Aprovados, V com desmarque = Não Aprovados', () => {
     localStorage.clear();
     localStorage.setItem(
       'orcamentos_historico_v1',
@@ -80,8 +79,7 @@ describe('histórico (localStorage)', () => {
     );
     const lista = listarHistorico();
     expect(filtrarPorAba(lista, 'aprovados').map((r) => r.id)).toEqual(['ra']);
-    expect(filtrarPorAba(lista, 'parcial').map((r) => r.id)).toEqual(['rb']);
-    expect(filtrarPorAba(lista, 'naoAprovados').map((r) => r.id)).toEqual(['rc']);
+    expect(filtrarPorAba(lista, 'naoAprovados').map((r) => r.id)).toEqual(['rb', 'rc']);
     expect(filtrarPorAba(lista, 'todos')).toHaveLength(4);
   });
 

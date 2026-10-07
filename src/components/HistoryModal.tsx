@@ -95,7 +95,6 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const porAba = {
     todos: porCor,
     aprovados: filtrarPorAba(porCor, 'aprovados'),
-    parcial: filtrarPorAba(porCor, 'parcial'),
     naoAprovados: filtrarPorAba(porCor, 'naoAprovados'),
   };
   const visiveis = porAba[aba];
@@ -203,7 +202,6 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
             {([
               { id: 'todos' as AbaHistorico, rotulo: `Todos (${porAba.todos.length})` },
               { id: 'aprovados' as AbaHistorico, rotulo: `Aprovados (${porAba.aprovados.length})` },
-              { id: 'parcial' as AbaHistorico, rotulo: `Parcial (${porAba.parcial.length})` },
               { id: 'naoAprovados' as AbaHistorico, rotulo: `Não Aprovados (${porAba.naoAprovados.length})` },
             ]).map((t) => (
               <button
@@ -234,11 +232,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
               ? 'Nenhum cliente vermelho.'
               : aba === 'aprovados'
                 ? 'Nenhum orçamento aprovado.'
-                : aba === 'parcial'
-                  ? 'Nenhum orçamento parcialmente aprovado.'
-                  : aba === 'naoAprovados'
-                    ? 'Nenhum orçamento não aprovado.'
-                    : 'Nenhum orçamento encontrado.'
+                : aba === 'naoAprovados'
+                  ? 'Nenhum orçamento não aprovado.'
+                  : 'Nenhum orçamento encontrado.'
         }
       >
           {visiveis.map((r) => {

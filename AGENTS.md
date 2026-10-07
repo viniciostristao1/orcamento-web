@@ -479,7 +479,7 @@ npm install          # dependências
 npm run dev          # servidor de desenvolvimento (testar no navegador)
 npm run typecheck    # tsc -b (cobre só `src/`; testes ficam de fora — ver gotcha)
 npm run lint         # oxlint (há warnings conhecidos: set-state-in-effect nos modais)
-npm test             # vitest run (toda a suíte)
+npm test             # vitest run --testTimeout=20000 (suíte grande; 5s estourava sob carga)
 npm run build        # gera dist/index.html (arquivo único)
 ```
 
@@ -585,10 +585,10 @@ npm run build        # gera dist/index.html (arquivo único)
   (`atualizarAprovacaoHistorico`, reprocessar preserva); janela Relatório no histórico
   com tabela + "Copiar para Excel" (`relatorio.ts`: DATA ⇥ NOME ⇥ CSP ⇥ NÚMERO ⇥
   Sim/Não ⇥ Vinícios; sem marca = vazio). Só orçamentos.
-- **Dinâmica de aprovação** (v0.106.0): V/X **salvam** (V com desmarcados = Parcial);
-  X risca tudo; abas Todos|Aprovados|Parcial|Não Aprovados ("realizados" virou
-  "aprovados" no visível; campos/ids antigos mantidos); relatório largo, com meses,
-  % no topo, lixeira por linha e limpar tudo; parcial também é Sim no relatório.
+- **Dinâmica de aprovação** (v0.106.0; refinada na v0.107.0): V/X **salvam**; X risca
+  tudo; abas Todos|Aprovados|Não Aprovados (V com desmarque cai em Não Aprovados —
+  recuperação de vendas; parcial só existe no % do relatório); relatório largo, com
+  meses, % no topo, lixeira por linha e limpar tudo; parcial também é Sim no relatório.
 - **Sem títulos internos** (v0.103.0): saiu o cabeçalho centralizado de cada aba
   (ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS) — a aba ativa já diz onde estamos.
   Saiu junto o `TituloEditavel` (+ renomear do contexto); renomear das abas no topo
