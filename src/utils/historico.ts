@@ -150,17 +150,23 @@ export function atualizarAprovacaoHistorico(
 }
 
 /**
- * Agenda/limpa o lembrete do registro (ISO "YYYY-MM-DDTHH:mm" + observação; `null`
- * limpa os dois). Salva na hora e avisa o popup global.
+ * Agenda o lembrete do registro (ISO "YYYY-MM-DDTHH:mm" + observação).
+ * `lembreteEm null` conclui (só a data sai — a observação fica visível).
+ * Sem `observacao`, mantém a atual. Salva na hora e avisa o popup global.
  */
 export function atualizarLembreteHistorico(
   id: string,
   lembreteEm: string | null,
-  observacao: string = '',
+  observacao?: string,
 ): OrcamentoSalvo[] {
-  const obs = lembreteEm ? observacao.trim().slice(0, 120) : '';
   const out = listarHistorico().map((r) =>
-    r.id === id ? { ...r, lembreteEm, observacao: obs } : r,
+    r.id === id
+      ? {
+          ...r,
+          lembreteEm,
+          observacao: observacao === undefined ? r.observacao : observacao.trim().slice(0, 120),
+        }
+      : r,
   );
   gravar(out);
   avisarLembretesMudaram();

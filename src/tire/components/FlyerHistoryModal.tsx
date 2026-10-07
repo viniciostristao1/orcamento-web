@@ -93,7 +93,8 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
   };
 
   // Agenda/limpa o lembrete do flyer (salva na hora; avisa o popup global).
-  const handleLembrete = (id: string, iso: string | null, observacao: string = '') => {
+  // Sem observação, mantém a atual (a nota sobrevive ao concluir/limpar).
+  const handleLembrete = (id: string, iso: string | null, observacao?: string) => {
     setLista(atualizarLembreteFlyer(id, iso, observacao));
     setLembreteDe(null);
   };

@@ -601,16 +601,17 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvos[0].internalNote).toBe('Cliente prefere manhã');
   });
 
-  it('salva com itens não realizados (vai para a aba do histórico)', () => {
+  it('V com desmarcados salva com a marcação (vai para Não Aprovados)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
-    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não aprovados/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
 
     const salvo = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
     expect(salvo).toHaveLength(1);
     expect(salvo[0].naoRealizados).toEqual([1]);
+    expect(salvo[0].aprovacao).toBe('aprovado');
   });
 
   it('histórico: itens mostram o valor por id e o resumo aprovado/não aprovado', () => {
@@ -618,7 +619,7 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
-    fireEvent.click(screen.getByRole('button', { name: /Salvar com itens não aprovados/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
 
     fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
     fireEvent.click(screen.getByRole('button', { name: /Não Aprovados/ }));
@@ -1778,16 +1779,18 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText(/1 de 1/)).toBeTruthy();
     fireEvent.change(screen.getByPlaceholderText(/Pesquisar por data, placa/i), { target: { value: '' } });
 
-    // limpar tira a data
+    // limpar tira a data mas mantém a observação visível
     fireEvent.click(screen.getByRole('button', { name: 'Lembrete' }));
     fireEvent.click(screen.getByRole('button', { name: 'Limpar lembrete' }));
     expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].lembreteEm).toBeNull();
+    expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].observacao).toBe('LIGAR DE MANHA');
+    expect(screen.getByText('LIGAR DE MANHA')).toBeTruthy();
   });
 
   it('relógio: aviso vencido pisca, clica e abre o histórico no cartão', () => {
     localStorage.setItem(
       'orcamentos_historico_v1',
-      JSON.stringify([{ ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), lembreteEm: '2020-01-01T09:00' }]),
+      JSON.stringify([{ ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), lembreteEm: '2020-01-01T09:00', observacao: 'VERMELHO' }]),
     );
     render(<App />);
     // área + botão do item têm o mesmo nome com 1 vencido (padrão do lembrete)
@@ -1798,9 +1801,10 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByText('HISTÓRICO')).toBeTruthy();
     expect(document.querySelector('[data-destaque="1"]')?.textContent).toContain('ABC1D23');
     expect(document.querySelector('#printable-quote')).toBeNull();
-    // ...e concluiu o lembrete (não pisca mais)
+    // ...e concluiu o lembrete (não pisca mais), mas a observação continua
     expect(screen.queryByRole('button', { name: 'Ir para orçamento ABC1D23' })).toBeNull();
     expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].lembreteEm).toBeNull();
+    expect(screen.getByText('VERMELHO')).toBeTruthy();
   });
 
   it('relógio: X dispensa o aviso do flyer sem apagar o lembrete', () => {    localStorage.setItem(
@@ -1949,8 +1953,9 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.change(screen.getByPlaceholderText('Ex.: 4471'), { target: { value: '19715' } });
       fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
 
-      // V no documento marca o registro
+      // V no documento marca o registro (e fica pressionado)
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+      expect(screen.getByRole('button', { name: 'Marcar como aprovado' }).getAttribute('aria-pressed')).toBe('true');
       expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].aprovacao).toBe('aprovado');
 
       // relatório lista com Sim e copia em TAB

@@ -102,17 +102,23 @@ export function atualizarCorFlyer(id: string, cor: CorCliente | undefined): Flye
 }
 
 /**
- * Agenda o lembrete do flyer (ISO "YYYY-MM-DDTHH:mm" + observação; `null`
- * limpa os dois). Salva na hora e avisa o popup global.
+ * Agenda o lembrete do flyer (ISO "YYYY-MM-DDTHH:mm" + observação).
+ * `lembreteEm null` conclui (só a data sai — a observação fica visível).
+ * Sem `observacao`, mantém a atual. Salva na hora e avisa o popup global.
  */
 export function atualizarLembreteFlyer(
   id: string,
   lembreteEm: string | null,
-  observacao: string = '',
+  observacao?: string,
 ): FlyerSalvo[] {
-  const obs = lembreteEm ? observacao.trim().slice(0, 120) : '';
   const out = listarFlyerHistorico().map((r) =>
-    r.id === id ? { ...r, lembreteEm, observacao: obs } : r,
+    r.id === id
+      ? {
+          ...r,
+          lembreteEm,
+          observacao: observacao === undefined ? r.observacao : observacao.trim().slice(0, 120),
+        }
+      : r,
   );
   gravar(out);
   avisarLembretesMudaram();

@@ -19,7 +19,7 @@ interface RelatorioModalProps {
   onLimparTudo: () => void;
 }
 
-const CABECALHO = ['DATA', 'NOME', 'TIPO', 'NÚMERO', 'APROVADO', 'RESPONSÁVEL'];
+const CABECALHO = ['DATA', 'NOME', 'TIPO', 'NÚMERO', 'APROVADO', 'RESPONSÁVEL', 'PARCIAL'];
 
 /**
  * Relatório para Excel: todos os orçamentos separados por mês, com o
@@ -152,7 +152,9 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
                                     : v === 'Não'
                                       ? 'text-red-400'
                                       : 'text-slate-600'
-                                  : 'text-slate-200'
+                                  : i === 6 && v
+                                    ? 'text-amber-300'
+                                    : 'text-slate-200'
                               }`}
                             >
                               {v || '—'}

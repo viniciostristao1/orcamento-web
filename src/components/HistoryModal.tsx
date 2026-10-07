@@ -140,7 +140,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   };
 
   // Agenda/limpa o lembrete do registro (salva na hora; avisa o popup global).
-  const handleLembrete = (id: string, iso: string | null, observacao: string = '') => {
+  // Sem observação, mantém a atual (a nota sobrevive ao concluir/limpar).
+  const handleLembrete = (id: string, iso: string | null, observacao?: string) => {
     setLista(atualizarLembreteHistorico(id, iso, observacao));
     setLembreteDe(null);
   };

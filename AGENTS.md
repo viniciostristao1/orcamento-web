@@ -86,7 +86,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **206 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **207 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -429,7 +429,7 @@ orcamento_web/
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
-                             + V/X de aprovação + salvar não aprovados
+                             + V/X de aprovação
     components/NeonCard.tsx  card com borda neon (prop `compact`)
     components/ClearButton.tsx botão "Limpar" (usado nas abas)
     components/ConfiguracoesTema.tsx engrenagem: tema + BACKUP DOS DADOS + troca da senha
@@ -589,6 +589,9 @@ npm run build        # gera dist/index.html (arquivo único)
   tudo; abas Todos|Aprovados|Não Aprovados (V com desmarque cai em Não Aprovados —
   recuperação de vendas; parcial só existe no % do relatório); relatório largo, com
   meses, % no topo, lixeira por linha e limpar tudo; parcial também é Sim no relatório.
+- **Refinos** (v0.108.0): saiu o botão âmbar (V/X salvam); relatório com coluna PARCIAL
+  (após o nome); observação do lembrete persiste ao concluir/limpar; V/X com
+  pressionado visível (volta ao normal em orçamento novo).
 - **Sem títulos internos** (v0.103.0): saiu o cabeçalho centralizado de cada aba
   (ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS) — a aba ativa já diz onde estamos.
   Saiu junto o `TituloEditavel` (+ renomear do contexto); renomear das abas no topo

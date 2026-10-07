@@ -29,7 +29,7 @@ const base = {
 };
 
 describe('relatório para Excel (aprovados)', () => {
-  it('linha no formato do modelo (TAB separa as 6 células)', () => {
+  it('linha no formato do modelo (TAB separa as 7 células)', () => {
     const r = { ...base, id: '1', criadoEm: 'x', aprovacao: 'aprovado' } as OrcamentoSalvo;
     expect(linhaRelatorio(r)).toEqual([
       '25/08/2026',
@@ -38,10 +38,18 @@ describe('relatório para Excel (aprovados)', () => {
       '19715',
       'Sim',
       'Vinícios',
+      '',
     ]);
     expect(relatorioParaExcel([r])).toBe(
-      '25/08/2026\tELTON JOSE LORENZI\tCSP\t19715\tSim\tVinícios',
+      '25/08/2026\tELTON JOSE LORENZI\tCSP\t19715\tSim\tVinícios\t',
     );
+  });
+
+  it('com desmarcados, a última coluna é Parcial', () => {
+    const r = { ...base, id: '1', criadoEm: 'x', aprovacao: 'aprovado', naoRealizados: [1] } as OrcamentoSalvo;
+    const cells = linhaRelatorio(r);
+    expect(cells[4]).toBe('Sim');
+    expect(cells[6]).toBe('Parcial');
   });
 
   it('não aprovado vira Não; sem marca, célula vazia', () => {

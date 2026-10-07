@@ -9,8 +9,8 @@ import { dataDoRegistro } from './lembretes';
 export const RELATORIO_TIPO = 'CSP';
 export const RELATORIO_RESPONSAVEL = 'Vinícios';
 
-/** Uma linha do relatório (6 células, nesta ordem). */
-export function linhaRelatorio(r: OrcamentoSalvo): [string, string, string, string, string, string] {
+/** Uma linha do relatório (7 células, nesta ordem). */
+export function linhaRelatorio(r: OrcamentoSalvo): [string, string, string, string, string, string, string] {
   return [
     (r.dataDoc ?? '').trim() || dataDoRegistro(r.criadoEm),
     (r.nome ?? '').trim(),
@@ -18,6 +18,7 @@ export function linhaRelatorio(r: OrcamentoSalvo): [string, string, string, stri
     (r.numeroOrcamento ?? '').trim(),
     r.aprovacao === 'aprovado' ? 'Sim' : r.aprovacao === 'naoAprovado' ? 'Não' : '',
     RELATORIO_RESPONSAVEL,
+    temNaoRealizados(r) ? 'Parcial' : '',
   ];
 }
 

@@ -158,31 +158,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
   };
 
-  // Salva o orçamento atual (com os itens desmarcados) — vai para a aba
-  // "Não Aprovados" do histórico. Chamado pelo botão do QuoteTable.
-  const salvarComNaoRealizados = () => {
-    if (!visivel) return;
-    adicionarAoHistorico({
-      descReparo,
-      orcamentoRaw,
-      ajustesManuais,
-      revAprovadaInput,
-      revPecasInput,
-      desconto,
-      parcelas,
-      placa: placa.trim(),
-      telefone: telefone.trim(),
-      numeroOrcamento: numero.trim(),
-      dataDoc: dataDoc.trim(),
-      nome: nome.trim(),
-      naoRealizados: visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id),
-      ...retratoDoResumo(visivel),
-    });
-  };
-
   // V/X do documento (sempre salvam): V aprova com a marcação atual (tudo feito
-  // = Aprovados; algum desmarcado = Parcial); X risca tudo, marca não aprovado
-  // e salva. Clicar no mesmo limpa a marca (salvando também).
+  // = Aprovados; algum desmarcado = Não Aprovados); X risca tudo, marca não
+  // aprovado e salva. Clicar no mesmo limpa a marca (salvando também).
   const votarAprovacao = (v: AprovacaoVoto | undefined) => {
     if (!visivel || !summary) return;
     const desmarcados =
@@ -486,7 +464,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 summary={visivel}
                 selecionados={selecionados}
                 onToggleItem={alternarItem}
-                onSalvarNaoRealizados={salvarComNaoRealizados}
                 aprovacao={aprovacao}
                 onMarcarAprovacao={votarAprovacao}
               />
