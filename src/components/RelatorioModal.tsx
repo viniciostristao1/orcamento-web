@@ -62,7 +62,7 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
     >
       <div
         data-janela-relatorio="1"
-        className="w-full max-w-5xl max-h-[85vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta"
+        className="w-full max-w-6xl max-h-[85vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-5 bg-slate-950/60 border-b border-slate-800/60">

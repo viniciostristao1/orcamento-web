@@ -15,6 +15,7 @@ import {
   listarHistorico,
   removerDoHistorico,
   temNaoRealizados,
+  temParcial,
 } from '../src/utils/historico';
 import { filtrarPorCor } from '../src/utils/corCliente';
 
@@ -263,5 +264,21 @@ describe('histórico (localStorage)', () => {
     expect(depois.criadoEm).toBe(criado);
     expect(depois.id).toBe(rec.id);
     expect(filtrarPorAba(listarHistorico(), 'naoAprovados')).toHaveLength(1);
+  });
+
+  it('parcial estrita: misto é parcial, tudo riscado não é', () => {
+    const rec = (naoRealizados?: number[], numItens?: number): OrcamentoSalvo => ({
+      ...base,
+      id: 'x',
+      criadoEm: '24/09/2026 12:30:00',
+      descReparo: '01 A\n02 B',
+      ...(naoRealizados ? { naoRealizados } : {}),
+      ...(numItens !== undefined ? { numItens } : {}),
+    });
+    expect(temParcial(rec())).toBe(false); // nada desmarcado
+    expect(temParcial(rec([1], 2))).toBe(true); // 1 de 2 = misto
+    expect(temParcial(rec([1, 2], 2))).toBe(false); // tudo riscado = Não puro
+    // sem numItens, o total cai para a descrição (2 itens): 1 de 2 = misto
+    expect(temParcial(rec([1]))).toBe(true);
   });
 });

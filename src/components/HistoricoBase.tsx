@@ -66,7 +66,7 @@ const HistoricoBase: React.FC<HistoricoBaseProps> = ({
   children,
 }) => (
   <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 print:hidden">
-    <div data-neon-box className="w-full max-w-4xl max-h-[93vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta">
+    <div data-neon-box className="w-full max-w-6xl max-h-[93vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden ui-compacta">
       {/* Cabeçalho */}
       <div className="flex items-center justify-between px-6 py-5 bg-slate-950/60 border-b border-slate-800/60">
         <div className="flex items-center gap-4">

@@ -26,6 +26,7 @@ const base = {
   valorDescontoTotal: 3,
   valorLiquidoFinal: 107,
   totalGeral: 110,
+  numItens: 2,
 };
 
 describe('relatório para Excel (aprovados)', () => {
@@ -50,6 +51,19 @@ describe('relatório para Excel (aprovados)', () => {
     const cells = linhaRelatorio(r);
     expect(cells[4]).toBe('Sim');
     expect(cells[6]).toBe('Parcial');
+  });
+
+  it('X com tudo riscado é "Não" puro, sem Parcial (parcial = misto)', () => {
+    const xCheio = { ...base, id: '1', criadoEm: 'x', aprovacao: 'naoAprovado', naoRealizados: [1, 2] } as OrcamentoSalvo;
+    const cells = linhaRelatorio(xCheio);
+    expect(cells[4]).toBe('Não');
+    expect(cells[6]).toBe('');
+    // sem marca e tudo desmarcado: também não é parcial (nada aprovado)
+    const semMarcaCheio = { ...base, id: '2', criadoEm: 'x', naoRealizados: [1, 2] } as OrcamentoSalvo;
+    expect(linhaRelatorio(semMarcaCheio)[6]).toBe('');
+    // misto sem marca continua parcial (comportamento antigo preservado)
+    const semMarcaMisto = { ...base, id: '3', criadoEm: 'x', naoRealizados: [1] } as OrcamentoSalvo;
+    expect(linhaRelatorio(semMarcaMisto)[6]).toBe('Parcial');
   });
 
   it('não aprovado vira Não; sem marca, célula vazia', () => {
@@ -93,6 +107,13 @@ describe('relatório para Excel (aprovados)', () => {
     const pct = percentuaisAprovacao([mk('a', 'aprovado'), mk('b', 'aprovado', [1]), mk('c', 'naoAprovado', [1]), mk('d')]);
     expect(pct).toEqual({ aprovados: 25, parcial: 25, naoAprovados: 25, total: 4 });
     expect(percentuaisAprovacao([])).toEqual({ aprovados: 0, parcial: 0, naoAprovados: 0, total: 0 });
+  });
+
+  it('percentuais: V com tudo desmarcado conta como não aprovado (não parcial)', () => {
+    const mk = (id: string, aprovacao?: 'aprovado' | 'naoAprovado', naoRealizados?: number[]) =>
+      ({ ...base, id, criadoEm: 'x', ...(aprovacao ? { aprovacao } : {}), ...(naoRealizados ? { naoRealizados } : {}) }) as OrcamentoSalvo;
+    const pct = percentuaisAprovacao([mk('a', 'aprovado', [1, 2])]);
+    expect(pct).toEqual({ aprovados: 0, parcial: 0, naoAprovados: 100, total: 1 });
   });
 
   it('copiar leva só linhas de dados (sem cabeçalho de mês)', () => {

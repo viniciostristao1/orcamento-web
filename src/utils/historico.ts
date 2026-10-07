@@ -272,6 +272,21 @@ export type AbaHistorico = 'todos' | 'aprovados' | 'naoAprovados';
 export const temNaoRealizados = (r: OrcamentoSalvo): boolean => (r.naoRealizados?.length ?? 0) > 0;
 
 /**
+ * Parcial de verdade: algum item aprovado E algum desmarcado
+ * (`0 < desmarcados < total`). X com tudo riscado (ou V puro) NÃO é parcial.
+ * Sem total confiável (`numItens` ausente e descrição sem itens), mantém o
+ * comportamento antigo (qualquer desmarcado = parcial) para não esconder os
+ * registros antigos.
+ */
+export const temParcial = (r: OrcamentoSalvo): boolean => {
+  const len = r.naoRealizados?.length ?? 0;
+  if (len === 0) return false;
+  const total = r.numItens ?? contarItensDaDescricao(r.descReparo ?? '');
+  if (!total || total <= 0) return true;
+  return len < total;
+};
+
+/**
  * Filtra pela aba do histórico: Todos | Aprovados (V sem desmarque) |
  * Não Aprovados (X, ou V com desmarque = oportunidade de recuperação, ou com
  * item desmarcado ainda sem marca — compatível com registros antigos).

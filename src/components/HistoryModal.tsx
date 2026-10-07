@@ -17,6 +17,7 @@ import {
   removerDoHistorico,
   retratoDoResumo,
   temNaoRealizados,
+  temParcial,
 } from '../utils/historico';
 import { dataDoRegistro, formatarLembrete } from '../utils/lembretes';
 import { filtrarPorCor, type CorCliente, type FiltroCor } from '../utils/corCliente';
@@ -149,17 +150,87 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
     setLembreteDe(null);
   };
 
-  // V/X direto no cartão (sem "Abrir orçamento"): só troca `aprovacao`,
-  // então `id`, `criadoEm` e `dataDoc` ficam intactos (não muda a data).
-  // Clicar no mesmo limpa. Muda onde o orçamento cai (Aprovados/Não Aprovados).
-  const handleVotarInline = (
-    id: string,
-    atual: OrcamentoSalvo['aprovacao'],
-    voto: 'aprovado' | 'naoAprovado',
-  ) => {
-    const proxima = atual === voto ? undefined : voto;
-    setLista(atualizarAprovacaoHistorico(id, proxima));
-    setItensDe((atualRec) => (atualRec && atualRec.id === id ? { ...atualRec, aprovacao: proxima } : atualRec));
+  // V/X direto no cartão (sem "Abrir orçamento"): V aprova TUDO (limpa os
+  // desmarcados e vai para Aprovados); X reprova TUDO (risca todos e vai para
+  // Não Aprovados). Clicar no ativo desmarca (V puro volta ao comum; X cheio
+  // volta ao comum; com parcial, limpa só a marca e preserva os itens).
+  // Só troca `aprovacao`/`naoRealizados` (+ totais) — `id`, `criadoEm` e
+  // `dataDoc` ficam intactos (não muda a data).
+  const handleVotarInline = (rec: OrcamentoSalvo, voto: 'aprovado' | 'naoAprovado') => {
+    const atual = rec.aprovacao;
+    const len = rec.naoRealizados?.length ?? 0;
+    // Tudo desmarcado (X cheio ou V degenerado): sem parcial estrita.
+    const cheio = len > 0 && !temParcial(rec);
+    const sincronizarItens = (patch: Partial<OrcamentoSalvo>) =>
+      setItensDe((atualRec) => (atualRec && atualRec.id === rec.id ? { ...atualRec, ...patch } : atualRec));
+    const resumoDoRec = () =>
+      processQuote(
+        rec.descReparo,
+        rec.orcamentoRaw,
+        parseBrazilianNumber(rec.revAprovadaInput),
+        parseBrazilianNumber(rec.revPecasInput),
+        rec.desconto,
+        rec.parcelas,
+        rec.ajustesManuais,
+      );
+
+    if (voto === 'aprovado') {
+      if (atual === 'aprovado' && !cheio) {
+        // Desmarca: limpa só a marca, preserva os itens.
+        setLista(atualizarAprovacaoHistorico(rec.id, undefined));
+        sincronizarItens({ aprovacao: undefined });
+        return;
+      }
+      // Aprova tudo (vale também para V+cheio degenerado): zero desmarcados.
+      try {
+        const summary = resumoDoRec();
+        const totais = retratoDoResumo(recalcularComSelecao(summary, new Set(summary.items.map((i) => i.id))));
+        atualizarAprovacaoHistorico(rec.id, 'aprovado');
+        setLista(atualizarNaoRealizadosHistorico(rec.id, [], totais));
+        sincronizarItens({ aprovacao: 'aprovado', naoRealizados: [] });
+      } catch {
+        atualizarAprovacaoHistorico(rec.id, 'aprovado');
+        setLista(atualizarNaoRealizadosHistorico(rec.id, []));
+        sincronizarItens({ aprovacao: 'aprovado', naoRealizados: [] });
+      }
+      return;
+    }
+
+    // voto === 'naoAprovado'
+    if (atual === 'naoAprovado' && cheio) {
+      // X cheio → desmarca tudo: volta ao comum (sem marca, sem desmarcados).
+      try {
+        const summary = resumoDoRec();
+        const totais = retratoDoResumo(recalcularComSelecao(summary, new Set(summary.items.map((i) => i.id))));
+        atualizarAprovacaoHistorico(rec.id, undefined);
+        setLista(atualizarNaoRealizadosHistorico(rec.id, [], totais));
+        sincronizarItens({ aprovacao: undefined, naoRealizados: [] });
+      } catch {
+        atualizarAprovacaoHistorico(rec.id, undefined);
+        setLista(atualizarNaoRealizadosHistorico(rec.id, []));
+        sincronizarItens({ aprovacao: undefined, naoRealizados: [] });
+      }
+      return;
+    }
+    if (atual === 'naoAprovado') {
+      // X ativo mas não cheio: limpa só a marca, preserva os itens.
+      setLista(atualizarAprovacaoHistorico(rec.id, undefined));
+      sincronizarItens({ aprovacao: undefined });
+      return;
+    }
+    // Reprova tudo: X + todos os itens desmarcados.
+    try {
+      const summary = resumoDoRec();
+      const todosIds = summary.items.map((i) => i.id);
+      const totais = retratoDoResumo(recalcularComSelecao(summary, new Set<number>()));
+      atualizarAprovacaoHistorico(rec.id, 'naoAprovado');
+      setLista(atualizarNaoRealizadosHistorico(rec.id, todosIds, totais));
+      sincronizarItens({ aprovacao: 'naoAprovado', naoRealizados: todosIds });
+    } catch {
+      // Sem recalcular: marca o X preservando a lista (não muda a data).
+      setLista(atualizarAprovacaoHistorico(rec.id, 'naoAprovado'));
+      sincronizarItens({ aprovacao: 'naoAprovado' });
+    }
   };
 
   // (Des)marca um item como não aprovado direto na janelinha de itens
@@ -344,9 +415,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                   <BotaoWhats telefone={r.telefone} />
                 <button
                   type="button"
-                  onClick={() => handleVotarInline(r.id, r.aprovacao, 'aprovado')}
+                  onClick={() => handleVotarInline(r, 'aprovado')}
                   aria-label="Marcar como aprovado"
-                  title="Marcar como aprovado (sem mudar a data; clicar de novo limpa)"
+                  title="Aprovar tudo (limpa os desmarcados, sem mudar a data; clicar de novo desmarca)"
                   aria-pressed={r.aprovacao === 'aprovado'}
                   className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
                     r.aprovacao === 'aprovado'
@@ -358,9 +429,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleVotarInline(r.id, r.aprovacao, 'naoAprovado')}
+                  onClick={() => handleVotarInline(r, 'naoAprovado')}
                   aria-label="Marcar como não aprovado"
-                  title="Marcar como não aprovado (sem mudar a data; clicar de novo limpa)"
+                  title="Reprovar tudo (risca todos, sem mudar a data; clicar de novo desmarca)"
                   aria-pressed={r.aprovacao === 'naoAprovado'}
                   className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
                     r.aprovacao === 'naoAprovado'
@@ -454,9 +525,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleVotarInline(itensDe.id, itensDe.aprovacao, 'aprovado')}
+                  onClick={() => handleVotarInline(itensDe, 'aprovado')}
                   aria-label="Marcar como aprovado"
-                  title="Marcar como aprovado (sem mudar a data; clicar de novo limpa)"
+                  title="Aprovar tudo (limpa os desmarcados, sem mudar a data; clicar de novo desmarca)"
                   aria-pressed={itensDe.aprovacao === 'aprovado'}
                   className={`flex items-center justify-center p-2.5 rounded-xl transition-all cursor-pointer active:scale-95 border ${
                     itensDe.aprovacao === 'aprovado'
@@ -468,9 +539,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleVotarInline(itensDe.id, itensDe.aprovacao, 'naoAprovado')}
+                  onClick={() => handleVotarInline(itensDe, 'naoAprovado')}
                   aria-label="Marcar como não aprovado"
-                  title="Marcar como não aprovado (sem mudar a data; clicar de novo limpa)"
+                  title="Reprovar tudo (risca todos, sem mudar a data; clicar de novo desmarca)"
                   aria-pressed={itensDe.aprovacao === 'naoAprovado'}
                   className={`flex items-center justify-center p-2.5 rounded-xl transition-all cursor-pointer active:scale-95 border ${
                     itensDe.aprovacao === 'naoAprovado'

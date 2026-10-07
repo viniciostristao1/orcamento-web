@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.111.0](#v11100) — 2026-10-07 — Parcial só no misto + V/X aprovam tudo + janelas largas (v0.111.0)
 - [v0.110.0](#v11000) — 2026-10-07 — Seletor de mês no relatório + V/X e parcial sem abrir (v0.110.0)
 - [v0.109.0](#v10900) — 2026-10-07 — Varredura docs + limpeza (v0.109.0)
 - [v0.108.0](#v10800) — 2026-10-07 — Refino aprovação/relatório/observação (v0.108.0)
@@ -170,6 +171,43 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11100"></a>
+## 2026-10-07 — Parcial só no misto + V/X aprovam tudo + janelas largas (v0.111.0)
+
+**Pedido:** 3 ajustes — (1) 2 orçamentos com X apareciam como "Parcial" no relatório
+(parcial devia ser só misto: algum aprovado + algum desmarcado); (2) V no histórico
+não limpava os desmarcados nem levava para Aprovados; (3) janelas do histórico e do
+relatório estreitas para tantos botões.
+
+**Causa (1):** `linhaRelatorio` marcava PARCIAL com `temNaoRealizados` (qualquer
+desmarcado) e o X do documento risca tudo (`naoRealizados` = todos) — X cheio virava
+"Não + Parcial". **Feito:** `temParcial` estrito em `historico.ts`
+(`0 < desmarcados < total`, com `numItens` caindo para a descrição; sem total confiável
+mantém o antigo); coluna PARCIAL e fatia % usam a estrita; % de não aprovados passa a
+incluir o degenerado V com tudo desmarcado.
+
+**Feito (2):** V/X inline viraram "aprova/reprova tudo": V = marca + lista zerada
+(vai para Aprovados); X = marca + todos desmarcados (risca tudo, igual ao documento);
+clicar no ativo desmarca (V puro e X cheio voltam ao comum; com parcial, limpa só a
+marca e preserva os itens). Recalcula os totais junto; `id`/`criadoEm`/`dataDoc`
+intactos. O V/X do documento segue igual (V preserva a seleção = parcial de
+recuperação).
+
+**Feito (3):** `HistoricoBase` (`max-w-4xl` → `max-w-6xl`, vale nos dois históricos) e
+`RelatorioModal` (`max-w-5xl` → `max-w-6xl`).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**219/219 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.111.0`.
+
+**Gotchas / decisões:**
+- Base sintética dos testes ganhou `numItens: 2` (sem total, `[1]` de "1 X" parecia
+  cheio na regra estrita); teste de "sumiu da tabela" olha o `tbody` (as `<option>` do
+  seletor listam todos os meses).
+- Orçamento de 1 item com o item desmarcado é "Não" puro (nada aprovado), não parcial.
+
+---
 
 <a id="v11000"></a>
 ## 2026-10-07 — Seletor de mês no relatório + V/X e parcial sem abrir (v0.110.0)

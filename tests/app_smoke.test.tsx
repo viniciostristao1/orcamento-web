@@ -2047,7 +2047,7 @@ describe('App — smoke test (render + processar)', () => {
 
       const janela = document.querySelector('[data-janela-relatorio="1"]') as HTMLElement;
       expect(janela).toBeTruthy();
-      expect(janela.className).toContain('max-w-5xl');
+      expect(janela.className).toContain('max-w-6xl');
       expect(janela.textContent).toContain('AGOSTO/2026');
       expect(janela.textContent).toContain('SETEMBRO/2026');
       expect(janela.textContent).toContain('Aprovados 50%');
@@ -2146,8 +2146,9 @@ describe('App — smoke test (render + processar)', () => {
       JSON.stringify([
         {
           ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
-          descReparo: '01 TESTE',
-          orcamentoRaw: '1 Peça X 1 10,00',
+          descReparo: '01 TESTE\n02 TESTE2',
+          orcamentoRaw: '1 Peça X 1 10,00\n2 Peça Y 1 20,00',
+          numItens: 2,
         },
       ]),
     );
@@ -2161,6 +2162,89 @@ describe('App — smoke test (render + processar)', () => {
       expect(salvos[0].naoRealizados).toEqual([1]);
       expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
       expect(document.querySelectorAll('[data-situacao="naoAprovado"]')).toHaveLength(1);
+      expect(document.querySelectorAll('[data-situacao="aprovado"]')).toHaveLength(1);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('relatório: X com tudo riscado mostra "Não" sem "Parcial"', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        {
+          ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
+          dataDoc: '24/09/2026',
+          nome: 'CLIENTE X',
+          numeroOrcamento: '4471',
+          aprovacao: 'naoAprovado',
+          naoRealizados: [1, 2],
+          numItens: 2,
+        },
+      ]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      const janela = document.querySelector('[data-janela-relatorio="1"]') as HTMLElement;
+      const corpo = janela.querySelector('tbody')?.textContent ?? '';
+      expect(corpo).toContain('Não');
+      expect(corpo).not.toContain('Parcial');
+      expect(janela.textContent).toContain('Não aprovados 100%');
+      expect(janela.textContent).toContain('Parcial 0%');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('histórico: V no X cheio aprova tudo e vai para Aprovados (sem mudar a data)', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        {
+          ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
+          descReparo: '01 TESTE\n02 TESTE2',
+          orcamentoRaw: '1 Peça X 1 10,00\n2 Peça Y 1 20,00',
+          numItens: 2,
+          aprovacao: 'naoAprovado',
+          naoRealizados: [1, 2],
+        },
+      ]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].aprovacao).toBe('aprovado');
+      expect(salvos[0].naoRealizados).toEqual([]);
+      expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
+      expect(screen.getByRole('button', { name: /^Aprovados \(1\)$/i })).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('histórico: X no V puro risca tudo (sem mudar a data)', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        {
+          ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
+          descReparo: '01 TESTE\n02 TESTE2',
+          orcamentoRaw: '1 Peça X 1 10,00\n2 Peça Y 1 20,00',
+          numItens: 2,
+          aprovacao: 'aprovado',
+        },
+      ]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como não aprovado' }));
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].aprovacao).toBe('naoAprovado');
+      expect(salvos[0].naoRealizados).toHaveLength(2);
+      expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
+      expect(screen.getByRole('button', { name: /Não Aprovados \(1\)/i })).toBeTruthy();
     } finally {
       localStorage.removeItem('orcamentos_historico_v1');
     }

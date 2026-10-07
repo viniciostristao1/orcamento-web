@@ -1,4 +1,4 @@
-import { temNaoRealizados, type OrcamentoSalvo } from './historico';
+import { temNaoRealizados, temParcial, type OrcamentoSalvo } from './historico';
 import { dataDoRegistro } from './lembretes';
 
 /**
@@ -18,7 +18,9 @@ export function linhaRelatorio(r: OrcamentoSalvo): [string, string, string, stri
     (r.numeroOrcamento ?? '').trim(),
     r.aprovacao === 'aprovado' ? 'Sim' : r.aprovacao === 'naoAprovado' ? 'Não' : '',
     RELATORIO_RESPONSAVEL,
-    temNaoRealizados(r) ? 'Parcial' : '',
+    // Parcial = misto (algum aprovado e algum desmarcado). X com tudo
+    // riscado é "Não" puro, sem Parcial.
+    temParcial(r) ? 'Parcial' : '',
   ];
 }
 
@@ -77,9 +79,12 @@ export function percentuaisAprovacao(lista: OrcamentoSalvo[]): PercentuaisAprova
   const total = lista.length;
   const pct = (n: number): number => (total === 0 ? 0 : Math.round((n / total) * 100));
   const aprovados = lista.filter((r) => r.aprovacao === 'aprovado' && !temNaoRealizados(r)).length;
-  const parcial = lista.filter((r) => r.aprovacao === 'aprovado' && temNaoRealizados(r)).length;
+  // Parcial = V com misto (algum aprovado e algum desmarcado).
+  const parcial = lista.filter((r) => r.aprovacao === 'aprovado' && temParcial(r)).length;
+  // Não aprovados = X (qualquer lista) ou com desmarcados que não seja o
+  // parcial acima (ex.: V com tudo desmarcado = degenerado, conta aqui).
   const naoAprovados = lista.filter(
-    (r) => r.aprovacao === 'naoAprovado' || (!r.aprovacao && temNaoRealizados(r)),
+    (r) => r.aprovacao === 'naoAprovado' || (temNaoRealizados(r) && !(r.aprovacao === 'aprovado' && temParcial(r))),
   ).length;
   return { aprovados: pct(aprovados), parcial: pct(parcial), naoAprovados: pct(naoAprovados), total };
 }
