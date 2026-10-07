@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.105.0](#v10500) — 2026-10-07 — Aprovação V/X + relatório Excel (v0.105.0)
 - [v0.104.0](#v10400) — 2026-10-06 — Popup de lembretes com fonte menor (v0.104.0)
 - [v0.103.0](#v10300) — 2026-10-06 — Sem títulos internos nas abas (v0.103.0)
 - [v0.102.0](#v10200) — 2026-10-06 — Abas em sublinhado (v0.102.0)
@@ -164,6 +165,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10500"></a>
+## 2026-10-07 — Aprovação V/X + relatório Excel (v0.105.0)
+
+**Pedido (planejado antes):** marcar aprovado/não aprovado com V/X ícone-only e gerar
+relatório `DATA ⇥ NOME ⇥ CSP ⇥ NÚMERO ⇥ Sim/Não ⇥ Vinícios` para colar no Excel.
+
+**Feito:** `aprovacao` no registro + `atualizarAprovacaoHistorico` (preserva ao
+reprocessar); V/X no `QuoteTable` (clicar no mesmo limpa) gravando no registro da tela
+(`histId`; tela restaurada salva antes se preciso); `relatorio.ts` puro + janela no
+histórico com tabela e "Copiar para Excel". Só orçamentos; sem marca = vazio.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**199/199 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.105.0`.
+
+---
 
 <a id="v10400"></a>
 ## 2026-10-06 — Popup de lembretes com fonte menor (v0.104.0)

@@ -1931,4 +1931,38 @@ describe('App — smoke test (render + processar)', () => {
       localStorage.removeItem('orcamentos_historico_v1');
     }
   });
+
+  it('aprovado: V marca no documento, relatório mostra Sim e copia', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    const escrever = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
+    try {
+      render(<App />);
+      fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'ELTON' } });
+      fireEvent.change(screen.getByPlaceholderText('Ex.: 4471'), { target: { value: '19715' } });
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+
+      // V no documento marca o registro
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+      expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].aprovacao).toBe('aprovado');
+
+      // relatório lista com Sim e copia em TAB
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      expect(document.querySelector('[data-janela-relatorio="1"]')).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Copiar para Excel' }));
+      const texto = String(escrever.mock.calls[0][0]);
+      expect(texto).toContain('ELTON\tCSP\t19715\tSim\tVinícios');
+      expect(screen.getByText('Copiado')).toBeTruthy();
+
+      // clicar de novo no V limpa a marca (fecha relatório e histórico antes)
+      fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' }).at(-1)!);
+      expect(document.querySelector('[data-janela-relatorio="1"]')).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+      expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].aprovacao).toBeUndefined();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
 });

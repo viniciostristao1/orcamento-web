@@ -86,12 +86,12 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **194 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **199 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
   flyer (`tests/flyer_historico.test.ts`), dados (`tests/dados.test.ts`), backup
-  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`, `tests/lembretesRapidos.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
+  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`, `tests/lembretesRapidos.test.ts`), relatório (`tests/relatorio.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
   persistência) e a troca de layout do Tire Flyer.
 - **Aba Whats** (v0.7.0; agenda removida na v0.7.4; backup global na v0.9.0; scripts divididos
@@ -412,6 +412,7 @@ orcamento_web/
     utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
     utils/tema.ts            tema da interface (6 temas; azul padrão) + persistência
                              (fontes/paleta em index.css; .titulo-tema = fonte do tema)
+    utils/relatorio.ts       linhas DATA⇥NOME⇥CSP⇥NÚMERO⇥Sim/Não⇥Vinícios + TAB
     utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
     utils/bloqueio.ts        senha do cadeado (criar/trocar/conferir; entra no backup)
     utils/lembretes.ts       vencidos + formatos + evento (dois históricos)
@@ -423,11 +424,12 @@ orcamento_web/
     assets/logo_toyota.png   logo do header (fundo transparente; único asset)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/HistoryModal.tsx  painel do histórico (abrir/excluir/limpar/backup/busca/
-                             abas Todos|Não Realizados/filtro de cor/WhatsApp)
+                             abas Todos|Não Realizados/filtro de cor/WhatsApp/relatório)
     components/HistoricoBase.tsx casca dos dois históricos (overlay/cabeçalho/busca/cor/lista)
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
+                             + V/X de aprovação + salvar não realizados
     components/NeonCard.tsx  card com borda neon (prop `compact`)
     components/ClearButton.tsx botão "Limpar" (usado nas abas)
     components/ConfiguracoesTema.tsx engrenagem: tema + BACKUP DOS DADOS + troca da senha
@@ -437,7 +439,7 @@ orcamento_web/
     components/Bloqueio.tsx  tela do cadeado (criar senha / desbloquear)
     components/LembreteRelogio.tsx BotaoRelogio + EditorLembrete (dois históricos)
     components/LembreteHistorico.tsx popup âmbar pulsante dos vencidos
-    components/SinoLembretes.tsx sino do header (rápidos + lista geral)
+    components/RelatorioModal.tsx janela do relatório Excel (tabela + copiar)    components/SinoLembretes.tsx sino do header (rápidos + lista geral)
     components/LembreteContatos.tsx pop-up global de contatos para hoje
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
@@ -578,6 +580,11 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Abas em sublinhado** (v0.102.0, ideia 01 de `ideias/abas-estilos.md`): só texto,
   ativa com traço âmbar embaixo (branca nos temas escuros, escura no papel);
   substitui as pílulas (inclusive o âmbar do grafite).
+- **Aprovação + relatório Excel** (v0.105.0): botões V/X ícone-only no documento
+  (`QuoteTable`: verde/vermelho, clicar no mesmo limpa); grava no registro da tela
+  (`atualizarAprovacaoHistorico`, reprocessar preserva); janela Relatório no histórico
+  com tabela + "Copiar para Excel" (`relatorio.ts`: DATA ⇥ NOME ⇥ CSP ⇥ NÚMERO ⇥
+  Sim/Não ⇥ Vinícios; sem marca = vazio). Só orçamentos.
 - **Sem títulos internos** (v0.103.0): saiu o cabeçalho centralizado de cada aba
   (ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS) — a aba ativa já diz onde estamos.
   Saiu junto o `TituloEditavel` (+ renomear do contexto); renomear das abas no topo

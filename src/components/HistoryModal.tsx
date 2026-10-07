@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { CheckCircle2, Database, FolderOpen, List, Trash2, Upload, X, XCircle } from 'lucide-react';
+import { CheckCircle2, Database, FileSpreadsheet, FolderOpen, List, Trash2, Upload, X, XCircle } from 'lucide-react';
 import {
   type AbaHistorico,
   type OrcamentoSalvo,
@@ -22,6 +22,7 @@ import { BotaoRelogio, EditorLembrete } from './LembreteRelogio';
 import { formatCurrency, parseBrazilianNumber, processQuote, resumoAprovacao } from '../utils/quoteLogic';
 import BotaoWhats from './BotaoWhats';
 import HistoricoBase from './HistoricoBase';
+import RelatorioModal from './RelatorioModal';
 
 interface HistoryModalProps {
   aberto: boolean;
@@ -40,6 +41,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const [filtroCor, setFiltroCor] = useState<FiltroCor>('todas');
   // Registro com o editor de lembrete aberto (data/hora).
   const [lembreteDe, setLembreteDe] = useState<string | null>(null);
+  // Janela do relatório para Excel.
+  const [relatorioAberto, setRelatorioAberto] = useState(false);
   // Registro com a janelinha de itens aberta (descrição do reparo, linha a linha).
   const [itensDe, setItensDe] = useState<OrcamentoSalvo | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -53,6 +56,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
       setAba('todos');
       setFiltroCor('todas');
       setLembreteDe(null);
+      setRelatorioAberto(false);
       setItensDe(null);
     }
   }, [aberto]);
@@ -167,6 +171,16 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
               <Upload size={18} />
             </button>
             <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={handleRestaurar} />
+            <button
+              type="button"
+              onClick={() => setRelatorioAberto(true)}
+              disabled={lista.length === 0}
+              aria-label="Relatório para Excel"
+              title="Relatório para Excel (aprovados e não aprovados)"
+              className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
+            >
+              <FileSpreadsheet size={18} />
+            </button>
           </>
         }
         onLimpar={handleLimpar}
@@ -464,6 +478,13 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
           </div>
         </div>
       )}
+
+      {/* Relatório para Excel (todos os orçamentos, aprovados ou não). */}
+      <RelatorioModal
+        aberto={relatorioAberto}
+        onFechar={() => setRelatorioAberto(false)}
+        registros={lista}
+      />
     </>
   );
 };

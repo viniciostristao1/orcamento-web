@@ -34,6 +34,9 @@ export interface OrcamentoSalvo {
   lembreteEm?: string | null;
   // Observação do lembrete (mesma linha da data; entra na busca).
   observacao?: string;
+  // Aprovação do cliente (botões V/X do documento; vai para o relatório Excel).
+  // Marcação posterior: não entra no anti-duplicado e o reprocessar preserva.
+  aprovacao?: 'aprovado' | 'naoAprovado';
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -93,13 +96,14 @@ export function adicionarAoHistorico(
 ): OrcamentoSalvo[] {
   const lista = listarHistorico();
   if (lista.length > 0 && mesmosDados(lista[0], novo)) {
-    // Cor e lembrete são marcações posteriores (não entram no anti-duplicado):
-    // reprocessar o mesmo orçamento não pode apagá-las.
+    // Cor, lembrete e aprovação são marcações posteriores (não entram no
+    // anti-duplicado): reprocessar o mesmo orçamento não pode apagá-las.
     lista[0] = {
       ...lista[0],
       ...novo,
       cor: novo.cor ?? lista[0].cor,
       lembreteEm: novo.lembreteEm ?? lista[0].lembreteEm,
+      aprovacao: novo.aprovacao ?? lista[0].aprovacao,
       id: lista[0].id,
       criadoEm: lista[0].criadoEm,
     };
@@ -133,7 +137,20 @@ export function atualizarCorHistorico(id: string, cor: CorCliente | undefined): 
 }
 
 /**
- * Agenda o lembrete do registro (ISO "YYYY-MM-DDTHH:mm" + observação; `null`
+ * Marca/desmarca a aprovação do cliente (botões V/X do documento).
+ * Salva na hora.
+ */
+export function atualizarAprovacaoHistorico(
+  id: string,
+  aprovacao: 'aprovado' | 'naoAprovado' | undefined,
+): OrcamentoSalvo[] {
+  const out = listarHistorico().map((r) => (r.id === id ? { ...r, aprovacao } : r));
+  gravar(out);
+  return out;
+}
+
+/**
+ * Agenda/limpa o lembrete do registro (ISO "YYYY-MM-DDTHH:mm" + observação; `null`
  * limpa os dois). Salva na hora e avisa o popup global.
  */
 export function atualizarLembreteHistorico(

@@ -1,17 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QuoteSummary } from '../types';
 import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
-import { Printer, Image as ImageIcon, Save, Check } from 'lucide-react';
+import { Printer, Image as ImageIcon, Save, Check, X } from 'lucide-react';
 import { exportarPng } from '../utils/exportImage';
+
+export type AprovacaoVoto = 'aprovado' | 'naoAprovado';
 
 interface QuoteTableProps {
   summary: QuoteSummary;
   selecionados: Set<number>;
   onToggleItem: (id: number) => void;
   onSalvarNaoRealizados?: () => void;
+  /** Aprovação atual do orçamento em tela (V/X). */
+  aprovacao?: AprovacaoVoto | null;
+  /** Marca/desmarca (clicar no mesmo limpa). */
+  onMarcarAprovacao?: (v: AprovacaoVoto | undefined) => void;
 }
 
-const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem, onSalvarNaoRealizados }) => {
+const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem, onSalvarNaoRealizados, aprovacao = null, onMarcarAprovacao }) => {
   const printableRef = useRef<HTMLDivElement>(null);
   const [alturaDocumento, setAlturaDocumento] = useState(0);
   const [salvoRecente, setSalvoRecente] = useState(false);
@@ -151,6 +157,38 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
           className="flex items-center justify-center bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer"
         >
           {salvoRecente ? <Check size={24} strokeWidth={3} /> : <Save size={24} />}
+        </button>
+
+        {/* Aprovação do cliente (vai para o relatório Excel). Clicar no mesmo limpa. */}
+        <button
+          type="button"
+          onClick={() => onMarcarAprovacao?.(aprovacao === 'aprovado' ? undefined : 'aprovado')}
+          disabled={!onMarcarAprovacao}
+          aria-label="Marcar como aprovado"
+          title="Marcar como aprovado"
+          aria-pressed={aprovacao === 'aprovado'}
+          className={`flex items-center justify-center p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer disabled:opacity-40 ${
+            aprovacao === 'aprovado'
+              ? 'bg-green-500 text-white ring-4 ring-green-300'
+              : 'bg-green-700 hover:bg-green-600 text-white'
+          }`}
+        >
+          <Check size={24} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onMarcarAprovacao?.(aprovacao === 'naoAprovado' ? undefined : 'naoAprovado')}
+          disabled={!onMarcarAprovacao}
+          aria-label="Marcar como não aprovado"
+          title="Marcar como não aprovado"
+          aria-pressed={aprovacao === 'naoAprovado'}
+          className={`flex items-center justify-center p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer disabled:opacity-40 ${
+            aprovacao === 'naoAprovado'
+              ? 'bg-red-500 text-white ring-4 ring-red-300'
+              : 'bg-red-700 hover:bg-red-600 text-white'
+          }`}
+        >
+          <X size={24} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
         </button>
       </div>
 
