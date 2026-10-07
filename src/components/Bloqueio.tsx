@@ -12,7 +12,7 @@ interface BloqueioProps {
  * criada, o primeiro bloqueio vira o cadastro da senha.
  */
 const Bloqueio: React.FC<BloqueioProps> = ({ onDesbloquear }) => {
-  const [modoCriar, setModoCriar] = useState(() => !temSenha());
+  const [modoCriar] = useState(() => !temSenha());
   const [senha, setSenha] = useState('');
   const [nova, setNova] = useState('');
   const [confirmar, setConfirmar] = useState('');

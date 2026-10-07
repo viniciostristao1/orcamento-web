@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.109.0](#v10900) — 2026-10-07 — Varredura docs + limpeza (v0.109.0)
 - [v0.108.0](#v10800) — 2026-10-07 — Refino aprovação/relatório/observação (v0.108.0)
 - [v0.107.0](#v10700) — 2026-10-07 — V com desmarque vai para Não Aprovados (v0.107.0)
 - [v0.106.0](#v10600) — 2026-10-07 — Dinâmica de aprovação + relatório turbinado (v0.106.0)
@@ -168,6 +169,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v10900"></a>
+## 2026-10-07 — Varredura docs + limpeza (v0.109.0)
+
+**Pedido:** varredura geral antes de limpar a sessão (documentado? organizado?).
+
+**Achado e feito:** `setModoCriar` sem uso no `Bloqueio.tsx` (removido); `AGENTS.md`
+tinha 8 pontos defasados — árvore com `TituloEditavel`/`AtalhosDados` já apagados ou
+renomeados, `main 1050px` (é 1400px em tudo), bullets de títulos internos, rótulos,
+SUB ATALHOS, "Não Realizados" no visível e contagem de testes. Sem mudança funcional.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos (só os warnings
+conhecidos de sempre), `npm test` **207/207**, `npm run build` OK (`dist/index.html`
+~16 MB, 0 refs externas). Selo `v0.109.0`.
+
+---
 
 <a id="v10800"></a>
 ## 2026-10-07 — Refino aprovação/relatório/observação (v0.108.0)

@@ -66,22 +66,20 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   cards em **maiúsculas no texto-fonte**. Desde a v0.35.0 o conteúdo de **DESCRIÇÃO DO REPARO**
   usa `text-lg` — o mesmo tamanho de **DADOS DO ORÇAMENTO** (era `text-xl`; são campos “parentes”).
 - **Histórico com fontes maiores** (v0.7.7): data 16px, descrição 18px, valores 16px.
-- **Títulos das abas** (v0.8.3): centralizados, sem a linha embaixo e sem subtítulo
-  (`mb-4 text-center`) — o conteúdo vem logo abaixo, como nos cards. Desde a v0.39.0 são
-  **`text-xl tracking-widest`** (20px, igual ao `h3` do `NeonCard` "DESCRIÇÃO DO REPARO";
-  eram `text-2xl` na v0.38.0) em todas as abas (ORÇAMENTOS, TIRE FLYER, PAINEL
-  WHATSAPP e DADOS). As **sub-abas da aba Dados** são `text-lg` sem tracking com
+- **Títulos internos removidos** (v0.103.0; antes "Títulos das abas", v0.8.3): as telas
+  não têm mais cabeçalho próprio — a aba ativa (sublinhado âmbar) já diz onde estamos.
+  As **sub-abas da aba Dados** são `text-lg` sem tracking com
   `font-family: var(--tema-fonte-conteudo)` — igual aos títulos das colunas (`thead th input`).
   Desde a v0.71.0 a sub-aba minimizada é **fantasma azul** (`bg-blue-500/10 text-blue-200`,
-  era cinza) e a aberta é azul forte preenchido; desde a v0.74.0 os **botões das abas
-  superiores** usam o mesmo layout/tamanhos (`px-4 py-1 text-lg`, sem tracking).
+  era cinza) e a aberta é azul forte preenchido. Desde a v0.102.0 os **botões das abas
+  superiores** são só texto com traço âmbar na ativa (ideia 01; antes pílulas `px-4 py-1`).
 - **Botões são ícone-only** (v0.8.0): sempre com `aria-label` + `title` com o texto da ação —
   é o que os testes e o Playwright usam (`getByRole('button', { name: … })`). Abas e opções de
   tema continuam com texto.
 - **Totais do documento** (v0.8.5): no Resumo Financeiro o rótulo é **"TOTAL"** =
   itens **marcados** + revisão aprovada (o Parcelamento usa essa mesma base); a caixa
   **"TOTAL GERAL"** (todos os itens + revisão) só aparece **quando há item desmarcado**, logo
-  abaixo de "Itens Não Realizados".
+  abaixo de "Itens Não Aprovados".
 - **Impressão = imagem do PNG** (v0.8.2): o botão IMPRIMIR/PDF gera o PNG e imprime a **imagem a
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
@@ -124,7 +122,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `data-contato-id`/`data-destaque`, some após ~4s); X dispensa até a lista de hoje mudar.
   Desde a v0.43.0 a janelinha é **menor e inteiramente clicável** (a área leva ao 1º da lista;
   cada nome leva ao seu) e a coluna direita de Orçamentos tem **SUB ATALHOS** (v0.43.0):
-  titulozinho + um botão por sub-aba de Dados (`components/AtalhosDados.tsx`, acompanha
+  titulozinho + um botão por sub-aba de Dados (`components/MenuDados.tsx`, acompanha
   criar/excluir/renomear via evento `dados:atualizados` em `tabelas.ts`) que abre a aba Dados
   já na sub-aba (`App` → `DadosApp subAba`). Desde a v0.44.0 ficam numa **faixa estreita
   à direita** (botões compactos `text-xs`); desde a v0.46.0 a faixa fica **fora da largura dos
@@ -144,7 +142,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   (`refBusca`, pois o do atalho some na troca de aba — sem isso as teclas/Enter iam para o vazio).
   Desde a v0.64.0 os dois campos **limpam sozinhos após 1 min sem digitar**
   (`BUSCA_AUTO_LIMPA_MS`, timer por inatividade; o X de Dados avisa o atalho via
-  `dados:busca-limpa`).
+  `dados:busca-limpa`). Desde a v0.98.0 é o **MENU DADOS** na lateral esquerda
+  (ideia 03) e a página de orçamentos é `main 1400px`.
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
@@ -186,8 +185,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `utils/parser.ts`, `components/Flyer.tsx` + Tailwind/build 1:1 do AI Studio). O flyer exporta
   com o `exportarPng` local (mesma correção de fontes) em `pixelRatio: 2` → **1500px**; o
   `zoom: .75` do wrapper não afeta a captura (medido). "Histórico" só aparece na aba de
-  orçamentos. O `main` é condicional (v0.4.1, ajustado na v0.4.2): orçamentos
-  `max-w-[1050px]`, Tire Flyer/Whats `max-w-[1400px]`; o `pt-3` do `main` vale para as três
+  orçamentos. O `main` é único (`max-w-[1400px]` desde a v0.98.0); o `pt-3` do `main` vale para as três
   (v0.8.1) — o campo "Dados da Tabela"
   fica largo (~882px em 1366, ~927px em 1600+) **sem rolagem lateral**. O campo do flyer tem
   `h-[250px]` e o **preview** aparece na metade (`w-[375px]` + `transform: scale(.5)` com altura
@@ -227,10 +225,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   tudo" → campo que filtra por **data ou placa** (`filtrarHistorico`, ignora `/ - . : e espaços`;
   ex.: `24/09`, `2026`, `abc-1d23`), com contador `N de M`. O resumo de cada cartão mostra
   **valores brutos** (v0.9.1): Revisão, Peças, Serviços e **Bruto** (`totalGeral`, sem desconto).
-- **Histórico — abas, salvar e ver itens** (v0.11.0; destaque na v0.13.0): abas **Todos** /
-  **Não Realizados** (`filtrarPorAba`); o botão âmbar do `QuoteTable` ("Salvar com itens não
-  realizados") grava o registro com `naoRealizados: number[]` (e o "Abrir" restaura a
-  marcação); o botão "Ver itens do orçamento" abre uma janelinha (`data-janela-itens`) com as
+- **Histórico — abas, salvar e ver itens** (v0.11.0; destaque na v0.13.0; abas atuais
+  Todos|Aprovados|Não Aprovados desde a v0.107.0): abas filtradas por `filtrarPorAba`;
+  o "Abrir" restaura a marcação salva em `naoRealizados: number[]`; o botão "Ver itens do orçamento" abre uma janelinha (`data-janela-itens`) com as
   linhas de `descReparo` e, desde a v0.32.0, o **valor de cada id no canto direito** (mesmo
   `item.value` da tabela do documento) e um **resumo embaixo** com **Aprovado · Não aprovado ·
   % aprovado · Total** (`resumoAprovacao` em `quoteLogic`, recalculando o registro com
@@ -243,18 +240,18 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   container da aba (padrão do `HistoryModal`).
 - **Interface 25% menor** (v0.3.0): classe **`.ui-compacta { zoom: 0.75 }`** aplicada em
   header, grade de entrada, cartão de resumo, botões da tabela e painel do histórico
-  (equivale a usar o Chrome a 75%). `main` = `max-w-[1050px] px-[30px]` para casar as
+  (equivale a usar o Chrome a 75%). `main` = `max-w-[1400px] px-[30px]` para casar as
   larguras. **O documento de saída (`#printable-quote`) NÃO é escalado** — o PNG do cliente
   continua igual.
 - **Seleção de itens** (v0.3.0; ajustado na v0.3.1): caixinhas na coluna "Item" da tabela; só
   as marcadas entram nos totais. Totais/desconto/líquido recalculados por
   `recalcularComSelecao`; as **desmarcadas continuam aparecendo no PNG/impressão**, em fonte
   clara (`text-slate-400`) e riscadas — **sem `opacity` na linha** (dava diferença de altura na
-  captura). Quando há desmarcados, o documento ganha a caixa **"Itens Não Realizados"** (fora
+  captura). Quando há desmarcados, o documento ganha a caixa **"Itens Não Aprovados"** (fora
   do Resumo Financeiro) com os itens e a soma (`itensNaoRealizados`); some quando todos estão
   marcados. Só a **caixinha** é escondida no PNG/print (`data-ui` + `filter` do `html-to-image`
   + CSS `@media print`). Ao processar/abrir do histórico, todas começam marcadas.
-- **PNG sem vão no "Total Não Realizado"** (v0.3.2): o html-to-image reduz todo `font-size` em
+- **PNG sem vão no "Total Não Aprovado"** (v0.3.2): o html-to-image reduz todo `font-size` em
   0.1px no clone (`clone-node.js`), então uma descrição no limite da quebra ficava com uma
   linha a menos no PNG e a altura fixa deixava um vão antes do divisor. `src/utils/exportImage.ts`
   (`exportarPng`) chama `toSvg`, **restaura os tamanhos reais de fonte** e desenha no canvas —
@@ -336,12 +333,12 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `linhas` e `marcados` juntos (a caixinha acompanha a linha); aceita `asc`/`desc`. As
   células do corpo têm **autocompletar** (v0.65.0): `<datalist>` por coluna com os valores
   distintos já digitados (ex.: "PED" sugere "PEDRO"), nativo do navegador.
-- **Rótulos editáveis** (v0.17.0): `utils/rotulos.ts` (`rotulos_v1`) + `RotulosProvider` +
-  `TituloEditavel` — **duplo clique** renomeia os botões das abas do topo e os títulos internos
-  das telas (visual preservado: azul / duas cores / simples). No backup geral.
+- **Rótulos editáveis** (v0.17.0): `utils/rotulos.ts` (`rotulos_v1`) + `RotulosProvider` —
+  **duplo clique** renomeia os botões das abas do topo. Os títulos internos das telas
+  saíram na v0.103.0 (junto com o `TituloEditavel`). No backup geral.
 - **Busca do histórico também por ITEM** (v0.18.1): a lupa procura em **data, placa (nome/
   contato) e descrição dos itens** — ex.: buscar "freio" acha os orçamentos com pastilhas
-  (útil na aba **Não Realizados**); o termo encontrado fica **grifado** na descrição do cartão
+  (útil na aba **Não Aprovados**); o termo encontrado fica **grifado** na descrição do cartão
   (`destacarTermo`, NFD/case-insensitive, sem quebrar acentos).
 - **Telefone + botão WhatsApp nos históricos** (v0.78.0): campo **TELEFONE (DDD + número)**
   nos orçamentos (abaixo de PLACA/NOME/CONTATO) e no Tire Flyer (card CONTATO);
@@ -424,7 +421,7 @@ orcamento_web/
     assets/logo_toyota.png   logo do header (fundo transparente; único asset)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/HistoryModal.tsx  painel do histórico (abrir/excluir/limpar/backup/busca/
-                             abas Todos|Não Realizados/filtro de cor/WhatsApp/relatório)
+                             abas Todos|Aprovados|Não Aprovados/filtro de cor/WhatsApp/relatório)
     components/HistoricoBase.tsx casca dos dois históricos (overlay/cabeçalho/busca/cor/lista)
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
@@ -433,13 +430,13 @@ orcamento_web/
     components/NeonCard.tsx  card com borda neon (prop `compact`)
     components/ClearButton.tsx botão "Limpar" (usado nas abas)
     components/ConfiguracoesTema.tsx engrenagem: tema + BACKUP DOS DADOS + troca da senha
-    components/TituloEditavel.tsx título editável com duplo clique
-    components/RotulosContext.tsx provider dos rótulos (abas + títulos)
-    components/AtalhosDados.tsx faixa SUB ATALHOS (lupa + sub-abas de Dados)
+    components/RotulosContext.tsx provider dos rótulos (renomear abas no topo)
+    components/MenuDados.tsx MENU DADOS lateral (ideia 03; lupa + sub-abas de Dados)
     components/Bloqueio.tsx  tela do cadeado (criar senha / desbloquear)
     components/LembreteRelogio.tsx BotaoRelogio + EditorLembrete (dois históricos)
     components/LembreteHistorico.tsx popup âmbar pulsante dos vencidos
-    components/RelatorioModal.tsx janela do relatório Excel (tabela + copiar)    components/SinoLembretes.tsx sino do header (rápidos + lista geral)
+    components/RelatorioModal.tsx janela do relatório Excel (tabela + copiar)
+    components/SinoLembretes.tsx sino do header (rápidos + lista geral)
     components/LembreteContatos.tsx pop-up global de contatos para hoje
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
@@ -526,7 +523,7 @@ npm run build        # gera dist/index.html (arquivo único)
   token novo que as saídas usem, adicionar o mesmo token no bloco de reset do `index.css`.
 - **Item desmarcado APARECE no cliente** em fonte clara + riscado (mesma altura das demais
   linhas — **nunca usar `opacity` na `<tr>`**, distorce a captura) e entra na caixa "Itens Não
-  Realizados" (com a soma). Só a **caixinha de seleção** é escondida: `data-ui` + CSS
+  Aprovados" (com a soma). Só a **caixinha** de seleção é escondida: `data-ui` + CSS
   `@media print` **e** `filter` no `toPng` (o `print:hidden` sozinho NÃO vale para a captura
   do PNG, que é de tela).
 - **Histórico**: `localStorage` + **backup/restaurar JSON** (o usuário pode limpar o navegador
