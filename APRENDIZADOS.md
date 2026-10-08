@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.123.0](#v12300) — 2026-10-08 — Versão/cadeado/sino/engrenagem mais à direita (v0.123.0)
 - [v0.122.0](#v12200) — 2026-10-08 — VIN fragmentado + bloqueio na seta + logo no menu (v0.122.0)
 - [v0.121.0](#v12100) — 2026-10-08 — Letra escura nos campos e resumo no Claro (v0.121.0)
 - [v0.120.0](#v12000) — 2026-10-08 — Tema Claro + visibilidade no claro + backup na seta (v0.120.0)
@@ -182,6 +183,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12300"></a>
+## 2026-10-08 — Versão/cadeado/sino/engrenagem mais à direita (v0.123.0)
+
+**Pedido:** o conjunto da direita do header mais para a direita.
+
+**Feito:** header `px-[30px]` → `pl-[30px] pr-4` (só CSS; o logo continua alinhado
+ao MENU DADOS). Sem testes novos.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**234/234 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.123.0`.
+
+---
 
 <a id="v12200"></a>
 ## 2026-10-08 — VIN fragmentado + bloqueio na seta + logo no menu (v0.122.0)
