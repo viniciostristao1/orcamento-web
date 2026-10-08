@@ -134,8 +134,9 @@ const AppInterno: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 pb-24">
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden ui-compacta">
-        <div className="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between gap-5">
-          <div className="flex items-center gap-4">
+        <div className="max-w-[1400px] mx-auto px-[30px] h-20 flex items-center justify-between gap-5">
+          {/* Logo centralizado na largura do MENU DADOS (210px). */}
+          <div className="flex items-center justify-center w-[210px] shrink-0">
             <img src={logoToyota} alt="Toyota" className="logo-toyota h-11 w-auto" />
           </div>
 

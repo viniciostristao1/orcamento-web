@@ -34,6 +34,8 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
   const [temasAbertos, setTemasAbertos] = useState(false);
   // Opções de backup escondidas atrás da seta (abre só quando precisa).
   const [backupAberto, setBackupAberto] = useState(false);
+  // Troca de senha escondida atrás da seta (abre só quando precisa).
+  const [bloqueioAberto, setBloqueioAberto] = useState(false);
 
   const handleTrocarSenha = () => {
     const r = trocarSenha(senhaAtual, senhaNova, senhaConfirma);
@@ -252,9 +254,24 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
 
           <div className="h-px bg-slate-800 my-3"></div>
 
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pb-2">
-            Bloqueio por senha
-          </p>
+          <button
+            type="button"
+            onClick={() => setBloqueioAberto((v) => !v)}
+            aria-label={bloqueioAberto ? 'Ocultar bloqueio' : 'Mostrar bloqueio'}
+            aria-expanded={bloqueioAberto}
+            title={bloqueioAberto ? 'Ocultar bloqueio' : 'Mostrar bloqueio'}
+            className="w-full flex items-center justify-between px-3 pt-2 pb-3 cursor-pointer"
+          >
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+              Bloqueio por senha
+            </span>
+            <ChevronDown
+              size={16}
+              className={`text-slate-500 transition-transform ${bloqueioAberto ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {bloqueioAberto && (
+          <>
           {temSenha() ? (
             <div className="space-y-2 px-3">
               <input
@@ -299,6 +316,7 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
               Nenhuma senha definida. Clique em Sair (cadeado no topo) para criar.
             </p>
           )}
+          </>)}
         </div>
       )}
     </div>

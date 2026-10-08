@@ -81,6 +81,14 @@ describe('extração do orçamento do sistema (puro)', () => {
     expect(extrairCabecalho('CHASSI: RESPONSABILIZAMOS').chassi).toBe('');
   });
 
+  it('acha o VIN fragmentado com um espaço no meio (corte do PDF/OCR)', () => {
+    expect(extrairCabecalho('KM: 135396 Hr: 0\n8AJYY59G4 F6528539').chassi).toBe('8AJYY59G4F6528539');
+    // pedaço curto + resto não vale ("0 8AJYY59G4F65285" não é VIN)
+    expect(extrairCabecalho('Hr: 0 8AJYY59G4F65285').chassi).toBe('');
+    // com o VIN inteiro na linha, vale ele (não a junção com a palavra ao lado)
+    expect(extrairCabecalho('0 8AJYY59G4F6528539 PRETO').chassi).toBe('8AJYY59G4F6528539');
+  });
+
   it('acha placa e data avulsas sem rótulo', () => {
     const cab = extrairCabecalho('REVISÃO HILUX\nABC1D23\n24/09/2026\n1 Peça X 1 10,00');
     expect(cab.placa).toBe('ABC1D23');

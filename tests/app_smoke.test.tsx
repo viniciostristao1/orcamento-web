@@ -1520,6 +1520,7 @@ describe('App — smoke test (render + processar)', () => {
     try {
       render(<App />);
       fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Mostrar bloqueio' }));
       fireEvent.change(screen.getByLabelText('Senha atual'), { target: { value: 'errada' } });
       fireEvent.change(screen.getByLabelText('Nova senha'), { target: { value: '5678' } });
       fireEvent.change(screen.getByLabelText('Confirmar nova senha'), { target: { value: '5678' } });

@@ -238,7 +238,22 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
   } else {
     const avulsos = texto.toUpperCase().match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
     const vin = avulsos.find(ehVin);
-    if (vin) out.chassi = vin;
+    if (vin) {
+      out.chassi = vin;
+    } else {
+      // VIN fragmentado (corte do pdf.js ou espaço do OCR, ex.: "8AJYY59G4 F6528539"):
+      // duas partes de 4+ caracteres com UM espaço, somando 17. Partes curtas
+      // demais não valem (senão "0 8AJYY59G4F65285" viraria falso positivo).
+      const linhas = texto.toUpperCase().split('\n');
+      for (const linha of linhas) {
+        const cortes = linha.match(/(?<![A-Z0-9])([A-Z0-9]{4,}) ([A-Z0-9]{4,})(?![A-Z0-9])/g) ?? [];
+        const inteiro = cortes.map((c) => c.replace(' ', '')).find((t) => t.length === 17 && ehVin(t));
+        if (inteiro) {
+          out.chassi = inteiro;
+          break;
+        }
+      }
+    }
   }
   return out;
 }

@@ -85,7 +85,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **233 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **234 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -612,6 +612,8 @@ npm run build        # gera dist/index.html (arquivo único)
   papel; backup colapsável igual aos temas.
 - **Letra escura no Claro** (v0.121.0): `.campo-tema` com letra escura no papel (vale para
   todos os preenchimentos) + resumo em tokens (`slate-100`/`blue-400`).
+- **VIN fragmentado + header** (v0.122.0): 3ª passada no chassi (corte/espaço no meio);
+  bloqueio atrás de seta; logo centralizado na coluna do MENU DADOS.
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

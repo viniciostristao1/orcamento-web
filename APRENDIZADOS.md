@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.122.0](#v12200) — 2026-10-08 — VIN fragmentado + bloqueio na seta + logo no menu (v0.122.0)
 - [v0.121.0](#v12100) — 2026-10-08 — Letra escura nos campos e resumo no Claro (v0.121.0)
 - [v0.120.0](#v12000) — 2026-10-08 — Tema Claro + visibilidade no claro + backup na seta (v0.120.0)
 - [v0.119.0](#v11900) — 2026-10-08 — Header só logo + resumo menor + temas na seta + fim do suave (v0.119.0)
@@ -181,6 +182,30 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12200"></a>
+## 2026-10-08 — VIN fragmentado + bloqueio na seta + logo no menu (v0.122.0)
+
+**Pedido (3 itens):** bloqueio atrás de seta; logo centralizado no MENU DADOS; chassi
+ainda em branco ao anexar (com o texto exato onde o VIN aparece).
+
+**Causa do chassi:** o texto colado extrai certo — no PDF real o VIN vem fragmentado
+(corte do pdf.js ou espaço do OCR, ex.: "8AJYY59G4 F6528539"), então o token de 17
+nunca se forma.
+
+**Feito:** 3ª passada na extração (duas partes de 4+ com UM espaço, somando 17);
+bloqueio colapsável igual a temas/backup; header em `px-[30px]` com o logo num bloco
+`w-[210px]` centralizado (mesma largura/posição da coluna do menu).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**234/234 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.122.0`.
+
+**Gotchas / decisões:**
+- Partes curtas não valem (`{4,}` + soma exata 17): senão "0 8AJYY59G4F65285"
+  viraria falso positivo; e com o VIN inteiro na linha vale ele (não a junção).
+
+---
 
 <a id="v12100"></a>
 ## 2026-10-08 — Letra escura nos campos e resumo no Claro (v0.121.0)
