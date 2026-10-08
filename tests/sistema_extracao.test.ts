@@ -87,6 +87,9 @@ describe('extração do orçamento do sistema (puro)', () => {
     expect(extrairCabecalho('Hr: 0 8AJYY59G4F65285').chassi).toBe('');
     // com o VIN inteiro na linha, vale ele (não a junção com a palavra ao lado)
     expect(extrairCabecalho('0 8AJYY59G4F6528539 PRETO').chassi).toBe('8AJYY59G4F6528539');
+    // dois espaços (OCR) e palavra colada depois também valem
+    expect(extrairCabecalho('VIN 8AJY Y59G4 F6528539').chassi).toBe('8AJYY59G4F6528539');
+    expect(extrairCabecalho('0 8AJYY59G4 F6528539 PRETO').chassi).toBe('8AJYY59G4F6528539');
   });
 
   it('acha placa e data avulsas sem rótulo', () => {

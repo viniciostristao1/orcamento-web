@@ -614,6 +614,8 @@ npm run build        # gera dist/index.html (arquivo único)
   todos os preenchimentos) + resumo em tokens (`slate-100`/`blue-400`).
 - **VIN fragmentado + header** (v0.122.0): 3ª passada no chassi (corte/espaço no meio);
   bloqueio atrás de seta; logo centralizado na coluna do MENU DADOS.
+- **VIN em 2–3 partes** (v0.124.0): 3ª passada por índices ("Nr.Fab + espaços" e OCR
+  com 2 espaços; regex consumia o texto e pulava sobreposições).
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

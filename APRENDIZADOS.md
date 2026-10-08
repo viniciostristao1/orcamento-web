@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.124.0](#v12400) — 2026-10-08 — Chassi "Nr.Fab + espaços" e VIN em 3 partes (v0.124.0)
 - [v0.123.0](#v12300) — 2026-10-08 — Versão/cadeado/sino/engrenagem mais à direita (v0.123.0)
 - [v0.122.0](#v12200) — 2026-10-08 — VIN fragmentado + bloqueio na seta + logo no menu (v0.122.0)
 - [v0.121.0](#v12100) — 2026-10-08 — Letra escura nos campos e resumo no Claro (v0.121.0)
@@ -183,6 +184,25 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12400"></a>
+## 2026-10-08 — Chassi "Nr.Fab + espaços" e VIN em 3 partes (v0.124.0)
+
+**Pedido:** chassi ainda em branco ("Nr.Fab      9BRKYAAG5P0654336", com espaços).
+
+**Causa:** o padrão exato passa no teste — no PDF real o VIN vem quebrado (2–3
+partes). A 1ª tentativa com regex consumia o texto e pulava combinações
+sobrepostas (ex.: o "VIN" antes do VIN triplo escondia o válido).
+
+**Feito:** 3ª passada por índices (tokens vizinhos separados só por espaço, 2–3
+partes de 3+ somando 17 + `ehVin`); 4ª passada (duas linhas). (Bloqueio na seta e
+logo no menu já tinham saído na v0.122.0.)
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**234/234 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.124.0`.
+
+---
 
 <a id="v12300"></a>
 ## 2026-10-08 — Versão/cadeado/sino/engrenagem mais à direita (v0.123.0)

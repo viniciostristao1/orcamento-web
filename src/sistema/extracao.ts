@@ -236,22 +236,67 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
   if (rotulado) {
     out.chassi = rotulado;
   } else {
-    const avulsos = texto.toUpperCase().match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
+    const cima = texto.toUpperCase();
+    const avulsos = cima.match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
     const vin = avulsos.find(ehVin);
     if (vin) {
       out.chassi = vin;
     } else {
-      // VIN fragmentado (corte do pdf.js ou espaço do OCR, ex.: "8AJYY59G4 F6528539"):
-      // duas partes de 4+ caracteres com UM espaço, somando 17. Partes curtas
-      // demais não valem (senão "0 8AJYY59G4F65285" viraria falso positivo).
-      const linhas = texto.toUpperCase().split('\n');
+      // VIN quebrado (corte do pdf.js ou espaços do OCR, ex.: "8AJYY59G4 F6528539"
+      // ou "8AJY Y59G4 F6528539"): junta 2–3 tokens vizinhos separados só por
+      // espaço (1–2), partes de 3+ somando 17. Parte curta não vale (senão
+      // "0 8AJYY59G4F65285" vira falso). Por índice (regex consumiria o texto e
+      // pularia combinações sobrepostas, ex.: o "VIN" antes do VIN triplo).
+      const linhas = cima.split('\n');
+      let achou: string | undefined;
+      const vale = (t: string): boolean => t.length === 17 && ehVin(t);
+      const espaco = (fim: number, ini: number, linha: string): boolean => /^[ \t]{1,2}$/.test(linha.slice(fim, ini));
       for (const linha of linhas) {
-        const cortes = linha.match(/(?<![A-Z0-9])([A-Z0-9]{4,}) ([A-Z0-9]{4,})(?![A-Z0-9])/g) ?? [];
-        const inteiro = cortes.map((c) => c.replace(' ', '')).find((t) => t.length === 17 && ehVin(t));
-        if (inteiro) {
-          out.chassi = inteiro;
-          break;
+        const toks = [...linha.matchAll(/[A-Z0-9]+/g)];
+        for (let i = 0; i < toks.length && !achou; i++) {
+          const t1 = toks[i][0];
+          if (t1.length >= 3 && i + 1 < toks.length) {
+            const t2 = toks[i + 1][0];
+            const fim1 = (toks[i].index ?? 0) + t1.length;
+            if (t2.length >= 3 && espaco(fim1, toks[i + 1].index ?? 0, linha) && vale(t1 + t2)) {
+              achou = t1 + t2;
+            }
+          }
+          if (!achou && t1.length >= 3 && i + 2 < toks.length) {
+            const t2 = toks[i + 1][0];
+            const t3 = toks[i + 2][0];
+            const fim1 = (toks[i].index ?? 0) + t1.length;
+            const fim2 = (toks[i + 1].index ?? 0) + t2.length;
+            if (
+              t2.length >= 3 &&
+              t3.length >= 3 &&
+              espaco(fim1, toks[i + 1].index ?? 0, linha) &&
+              espaco(fim2, toks[i + 2].index ?? 0, linha) &&
+              vale(t1 + t2 + t3)
+            ) {
+              achou = t1 + t2 + t3;
+            }
+          }
         }
+        if (achou) break;
+      }
+      if (achou) {
+        out.chassi = achou;
+      } else {
+        // VIN partido em DUAS LINHAS (ex.: "...8AJYY59G4" + "F6528539 ..."):
+        // fim alfanumérico de uma + começo da próxima, somando 17.
+        for (let i = 0; i + 1 < linhas.length && !achou; i++) {
+          const fim = (linhas[i].match(/[A-Z0-9]{1,16}$/) ?? [''])[0];
+          const comeco = (linhas[i + 1].match(/^[A-Z0-9]{1,16}/) ?? [''])[0];
+          for (let k = Math.max(1, 17 - comeco.length); k <= Math.min(16, fim.length); k++) {
+            const junto = fim.slice(-k) + comeco.slice(0, 17 - k);
+            if (ehVin(junto)) {
+              achou = junto;
+              break;
+            }
+          }
+        }
+        if (achou) out.chassi = achou;
       }
     }
   }
