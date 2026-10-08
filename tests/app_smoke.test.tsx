@@ -1580,7 +1580,7 @@ describe('App — smoke test (render + processar)', () => {
     const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
     const hDados = screen.getByText('DADOS DO ORÇAMENTO');
     const hDesc = screen.getByText('DESCRIÇÃO DO REPARO');
-    const hAjustes = screen.getByText(/AJUSTES MANUAIS/);
+    const hAjustes = screen.getByText(/AJUSTE \(ID/);
     const hResumo = screen.getByText('RESUMO LÍQUIDO');
     expect(hSistema.compareDocumentPosition(hDados) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(hAjustes.compareDocumentPosition(hResumo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

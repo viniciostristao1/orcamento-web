@@ -463,7 +463,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
             {/* Ajustes Manuais abaixo do APROVADO (mesma largura);
                 o campo mostra só 3 linhas (rows=3). */}
-            <NeonCard title="AJUSTES MANUAIS (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
+            <NeonCard title="AJUSTE (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
               <textarea 
                 rows={2}
                 className="w-full campo-tema border border-slate-800 rounded-2xl p-4 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 

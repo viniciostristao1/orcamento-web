@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.127.0](#v12700) — 2026-10-08 — AJUSTE curta + logo à esquerda + cantinho direito (v0.127.0)
 - [v0.126.0](#v12600) — 2026-10-08 — Chassi colado com dígito vizinho (v0.126.0)
 - [v0.125.0](#v12500) — 2026-10-08 — Chassi ignora linha de item (v0.125.0)
 - [v0.124.0](#v12400) — 2026-10-08 — Chassi "Nr.Fab + espaços" e VIN em 3 partes (v0.124.0)
@@ -186,6 +187,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12700"></a>
+## 2026-10-08 — AJUSTE curta + logo à esquerda + cantinho direito (v0.127.0)
+
+**Pedido:** "AJUSTES MANUAIS (ID VALOR)" vira "AJUSTE (ID VALOR)"; logo mais no canto
+esquerdo, alinhado à esquerda do MENU DADOS; cadeado/sino/config no canto direito.
+
+**Feito:** título trocado (só texto); logo em bloco `w-[210px]` alinhado à esquerda
+(mesma origem da coluna do menu); header `pr-4` → `pr-0`. Sem testes novos.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**237/237 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.127.0`.
+
+---
 
 <a id="v12600"></a>
 ## 2026-10-08 — Chassi colado com dígito vizinho (v0.126.0)
