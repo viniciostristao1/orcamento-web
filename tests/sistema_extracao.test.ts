@@ -81,8 +81,7 @@ describe('extração do orçamento do sistema (puro)', () => {
     expect(extrairCabecalho('CHASSI: RESPONSABILIZAMOS').chassi).toBe('');
   });
 
-  it('acha o VIN fragmentado com um espaço no meio (corte do PDF/OCR)', () => {
-    expect(extrairCabecalho('KM: 135396 Hr: 0\n8AJYY59G4 F6528539').chassi).toBe('8AJYY59G4F6528539');
+  it('acha o VIN fragmentado com um espaço no meio (corte do PDF/OCR)', () => {    expect(extrairCabecalho('KM: 135396 Hr: 0\n8AJYY59G4 F6528539').chassi).toBe('8AJYY59G4F6528539');
     // pedaço curto + resto não vale ("0 8AJYY59G4F65285" não é VIN)
     expect(extrairCabecalho('Hr: 0 8AJYY59G4F65285').chassi).toBe('');
     // com o VIN inteiro na linha, vale ele (não a junção com a palavra ao lado)
@@ -90,6 +89,12 @@ describe('extração do orçamento do sistema (puro)', () => {
     // dois espaços (OCR) e palavra colada depois também valem
     expect(extrairCabecalho('VIN 8AJY Y59G4 F6528539').chassi).toBe('8AJYY59G4F6528539');
     expect(extrairCabecalho('0 8AJYY59G4 F6528539 PRETO').chassi).toBe('8AJYY59G4F6528539');
+  });
+
+  it('linha de item não vira chassi (código + palavras somam 17 à toa)', () => {
+    expect(
+      extrairCabecalho('2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60').chassi,
+    ).toBe('');
   });
 
   it('acha placa e data avulsas sem rótulo', () => {

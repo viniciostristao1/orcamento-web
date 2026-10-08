@@ -221,12 +221,14 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
     if (temTelefoneValido(normalizado)) out.telefone = normalizado;
   }
 
-  // Chassi/VIN: 17 caracteres. Vale rotulado (CHASSI, Nr.Fab etc.) ou avulso
-  // (no layout Toyota os rótulos ficam numa linha e os valores noutra). Todo
-  // VIN real tem letra E dígito — palavra comum de 17 letras (ex. o
+  // Chassi/VIN: 17 caracteres. Vale rotulado (CHASSI, Nr.Fab etc., no texto todo)
+  // ou avulso no CABEÇALHO (primeiras linhas, fora das linhas de item — código de
+  // peça + palavras ("CARE040703 AUTO AIR") também somam 17 e não são chassi).
+  // Todo VIN real tem letra E dígito — palavra comum de 17 letras (ex. o
   // "RESPONSABILIZAMOS" do termo de garantia) não vale; 17 só-dígitos também não.
   const ehVin = (t: string): boolean =>
     /^[A-Z0-9]{17}$/.test(t) && /[A-Z]/.test(t) && /\d/.test(t);
+  const ehItem = (l: string): boolean => LINHA_ITEM.test(l.trim());
   const rotulados = [
     ...texto.matchAll(
       /(?:CHASSI[SU]?|NR\.?\s*FAB|N[UÚ]MERO\s*(?:DO\s*)?CHASSI|VIN)\b[\s:.]*([A-Z0-9]{17})(?![A-Z0-9])/gi,
@@ -237,7 +239,11 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
     out.chassi = rotulado;
   } else {
     const cima = texto.toUpperCase();
-    const avulsos = cima.match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
+    const topo = cima
+      .split('\n')
+      .slice(0, 40)
+      .filter((l) => !ehItem(l));
+    const avulsos = topo.join(' ').match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
     const vin = avulsos.find(ehVin);
     if (vin) {
       out.chassi = vin;
@@ -247,7 +253,7 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
       // espaço (1–2), partes de 3+ somando 17. Parte curta não vale (senão
       // "0 8AJYY59G4F65285" vira falso). Por índice (regex consumiria o texto e
       // pularia combinações sobrepostas, ex.: o "VIN" antes do VIN triplo).
-      const linhas = cima.split('\n');
+      const linhas = topo;
       let achou: string | undefined;
       const vale = (t: string): boolean => t.length === 17 && ehVin(t);
       const espaco = (fim: number, ini: number, linha: string): boolean => /^[ \t]{1,2}$/.test(linha.slice(fim, ini));

@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.125.0](#v12500) — 2026-10-08 — Chassi ignora linha de item (v0.125.0)
 - [v0.124.0](#v12400) — 2026-10-08 — Chassi "Nr.Fab + espaços" e VIN em 3 partes (v0.124.0)
 - [v0.123.0](#v12300) — 2026-10-08 — Versão/cadeado/sino/engrenagem mais à direita (v0.123.0)
 - [v0.122.0](#v12200) — 2026-10-08 — VIN fragmentado + bloqueio na seta + logo no menu (v0.122.0)
@@ -184,6 +185,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12500"></a>
+## 2026-10-08 — Chassi ignora linha de item (v0.125.0)
+
+**Bug:** puxou "CARE040703AUTOAIR" (código da peça + "AUTO AIR" = 17 com letra e
+dígito) em vez do VIN.
+
+**Causa:** a busca de 3 partes juntava quaisquer tokens vizinhos, inclusive em
+linha de item — onde código + palavras somam 17 à toa.
+
+**Feito:** avulso/quebrado/partido só valem no cabeçalho (primeiras 40 linhas, fora
+de linha de item); rotulado continua valendo no texto todo.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**235/235 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.125.0`.
+
+---
 
 <a id="v12400"></a>
 ## 2026-10-08 — Chassi "Nr.Fab + espaços" e VIN em 3 partes (v0.124.0)
