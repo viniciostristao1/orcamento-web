@@ -222,16 +222,22 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
   }
 
   // Chassi/VIN: 17 caracteres. Vale rotulado (CHASSI, Nr.Fab etc.) ou avulso
-  // (no layout Toyota os rótulos ficam numa linha e os valores noutra). Avulso
-  // exige ao menos uma letra (só-dígitos de 17 seria outro número qualquer).
-  const rotulado = texto.match(
-    /(?:CHASSI[SU]?|NR\.?\s*FAB|N[UÚ]MERO\s*(?:DO\s*)?CHASSI|VIN)\b[\s:.]*([A-Z0-9]{17})(?![A-Z0-9])/i,
-  );
+  // (no layout Toyota os rótulos ficam numa linha e os valores noutra). Todo
+  // VIN real tem letra E dígito — palavra comum de 17 letras (ex. o
+  // "RESPONSABILIZAMOS" do termo de garantia) não vale; 17 só-dígitos também não.
+  const ehVin = (t: string): boolean =>
+    /^[A-Z0-9]{17}$/.test(t) && /[A-Z]/.test(t) && /\d/.test(t);
+  const rotulados = [
+    ...texto.matchAll(
+      /(?:CHASSI[SU]?|NR\.?\s*FAB|N[UÚ]MERO\s*(?:DO\s*)?CHASSI|VIN)\b[\s:.]*([A-Z0-9]{17})(?![A-Z0-9])/gi,
+    ),
+  ];
+  const rotulado = rotulados.map((m) => m[1].toUpperCase()).find(ehVin);
   if (rotulado) {
-    out.chassi = rotulado[1].toUpperCase();
+    out.chassi = rotulado;
   } else {
     const avulsos = texto.toUpperCase().match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
-    const vin = avulsos.find((t) => /[A-Z]/.test(t));
+    const vin = avulsos.find(ehVin);
     if (vin) out.chassi = vin;
   }
   return out;

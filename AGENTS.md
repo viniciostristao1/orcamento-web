@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **234 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **235 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -618,6 +618,9 @@ npm run build        # gera dist/index.html (arquivo único)
   busca do histórico por faixa de valor (`>`/`<` sempre valor; `1000-3000` só quando o
   texto não acha — telefone/placa têm prioridade); comparativo mensal no relatório
   (foco x anterior, quantidade + %).
+- **Chassi ignora palavra de 17 letras** (v0.115.0): candidato a VIN precisa ter
+  letra E dígito nos dois caminhos (o "RESPONSABILIZAMOS" da garantia vinha antes
+  do VIN no texto e era pego pela busca avulsa).
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

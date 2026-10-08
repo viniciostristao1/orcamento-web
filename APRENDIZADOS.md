@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.115.0](#v11500) — 2026-10-08 — Chassi ignora palavra de 17 letras (v0.115.0)
 - [v0.114.0](#v11400) — 2026-10-08 — Campos Placa|Nome|Chassi nas larguras de Nº|Data|Telefone (v0.114.0)
 - [v0.113.0](#v11300) — 2026-10-08 — Chassi do PDF + regerar antigo sem mudar a data (v0.113.0)
 - [v0.112.0](#v11200) — 2026-10-07 — WhatsApp no resultado + aviso de backup + busca por valor + comparativo mensal (v0.112.0)
@@ -174,6 +175,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11500"></a>
+## 2026-10-08 — Chassi ignora palavra de 17 letras (v0.115.0)
+
+**Bug:** chassi puxava "RESPONSABILIZAMOS" em vez do VIN após Nr.Fab. Causa: a
+palavra tem exatamente 17 letras e a busca avulsa pegava o primeiro token de 17
+do texto (o termo de garantia vem antes dos dados do veículo).
+
+**Feito:** candidato a VIN precisa ter letra E dígito (`ehVin`, nos dois caminhos
+— rotulado passa por `matchAll` e o primeiro válido vence). Palavra comum (só
+letras) e número longo (só dígitos) não valem.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**235/235 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.115.0`.
+
+---
 
 <a id="v11400"></a>
 ## 2026-10-08 — Campos Placa|Nome|Chassi nas larguras de Nº|Data|Telefone (v0.114.0)

@@ -69,6 +69,18 @@ describe('extração do orçamento do sistema (puro)', () => {
     expect(extrairCabecalho('1 Peça 044650K401 JOGO PASTILHAS 1.245,00').chassi).toBe('');
   });
 
+  it('ignora palavra de 17 letras (ex.: RESPONSABILIZAMOS) e pega o VIN depois', () => {
+    const cab = extrairCabecalho(
+      [
+        'NOS RESPONSABILIZAMOS PELA QUALIDADE',
+        'Nr.Fab Cor Externa: Linha: Placa: Ano/Modelo: KM:',
+        '23/24 JCH7I07 29872 0 8AJYY59G4F6528539',
+      ].join('\n'),
+    );
+    expect(cab.chassi).toBe('8AJYY59G4F6528539');
+    expect(extrairCabecalho('CHASSI: RESPONSABILIZAMOS').chassi).toBe('');
+  });
+
   it('acha placa e data avulsas sem rótulo', () => {
     const cab = extrairCabecalho('REVISÃO HILUX\nABC1D23\n24/09/2026\n1 Peça X 1 10,00');
     expect(cab.placa).toBe('ABC1D23');
