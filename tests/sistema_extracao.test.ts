@@ -6,6 +6,7 @@ import {
   extrairCabecalho,
   extrairSistemaToyota,
   normalizarTextoExtraido,
+  vinDigitoOk,
 } from '../src/sistema/extracao';
 
 describe('extração do orçamento do sistema (puro)', () => {
@@ -95,6 +96,34 @@ describe('extração do orçamento do sistema (puro)', () => {
     expect(
       extrairCabecalho('2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60').chassi,
     ).toBe('');
+  });
+
+  it('dígito verificador do VIN (ISO 3779, posição 9)', () => {
+    expect(vinDigitoOk('9BRBY3BE1T4079731')).toBe(true);
+    expect(vinDigitoOk('8AJYY59G4F6528539')).toBe(true);
+    expect(vinDigitoOk('9BRKC3F33R8269071')).toBe(true);
+    // colado com dígito vizinho não valida (nem como está)
+    expect(vinDigitoOk('09BRBY3BE1T407973')).toBe(false);
+    expect(vinDigitoOk('09BRBY3BE1T4079731')).toBe(false);
+    expect(vinDigitoOk('RESPONSABILIZAMOS')).toBe(false);
+    expect(vinDigitoOk('ABC123')).toBe(false);
+  });
+
+  it('VIN colado com dígito do campo vizinho: vale o que tem dígito válido', () => {
+    // Hr "0" grudado no VIN (extração real do Print-5.pdf); o RG+MOINHOS das
+    // linhas de cima não pode vencer
+    const cab = extrairCabecalho(
+      [
+        'RG: 4027856436',
+        'MOINHOS',
+        '25/26',
+        'TRD0I70',
+        '9677',
+        '09BRBY3BE1T4079731',
+        '2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 99,73',
+      ].join('\n'),
+    );
+    expect(cab.chassi).toBe('9BRBY3BE1T4079731');
   });
 
   it('acha placa e data avulsas sem rótulo', () => {

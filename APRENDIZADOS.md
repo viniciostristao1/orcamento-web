@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.126.0](#v12600) — 2026-10-08 — Chassi colado com dígito vizinho (v0.126.0)
 - [v0.125.0](#v12500) — 2026-10-08 — Chassi ignora linha de item (v0.125.0)
 - [v0.124.0](#v12400) — 2026-10-08 — Chassi "Nr.Fab + espaços" e VIN em 3 partes (v0.124.0)
 - [v0.123.0](#v12300) — 2026-10-08 — Versão/cadeado/sino/engrenagem mais à direita (v0.123.0)
@@ -185,6 +186,27 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12600"></a>
+## 2026-10-08 — Chassi colado com dígito vizinho (v0.126.0)
+
+**Bug:** com o Print-5.pdf real, puxava "4027856436MOINHOS" (RG + bairro grudados
+entre linhas) em vez do VIN.
+
+**Causa (PDF real):** o VIN vem grudado com o "0" do campo anterior
+("09BRBY3BE1T4079731", 18 chars) — o token exato de 17 nunca se forma; e o
+falso RG+bairro vencia por vir antes no texto.
+
+**Feito:** `vinDigitoOk` (ISO 3779, posição 9) + `escolherVin` (um candidato vence;
+vários, só com dígito único válido; senão em branco): janelas de 17 em trechos de
+17–24, e nas demais passadas (quebrado/partido) a escolha também é única-ou-dígito.
+Validado contra a extração real do Print-5 (`09BRBY3BE1T4079731` → `9BRBY3BE1T4079731`).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**237/237 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.126.0`.
+
+---
 
 <a id="v12500"></a>
 ## 2026-10-08 — Chassi ignora linha de item (v0.125.0)

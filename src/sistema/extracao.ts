@@ -175,6 +175,46 @@ export interface CabecalhoOrcamento {
 const VAZIO: CabecalhoOrcamento = { numero: '', placa: '', nome: '', data: '', telefone: '', chassi: '' };
 
 /**
+ * Dígito verificador do VIN (ISO 3779, posição 9): transliterar, ponderar e
+ * mod 11 (10 = 'X'). Desempata VIN colado com dígito vizinho (ex.: Hr "0" +
+ * VIN) — só o verdadeiro valida. I/O/Q nunca existem em VIN real.
+ */
+const VIN_PESO = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
+const VIN_VALOR: Record<string, number> = {
+  A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, J: 1, K: 2, L: 3, M: 4,
+  N: 5, P: 7, R: 9, S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9,
+};
+
+export function vinDigitoOk(vin: string): boolean {
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return false;
+  let soma = 0;
+  for (let i = 0; i < 17; i++) {
+    const c = vin[i];
+    const v = /\d/.test(c) ? parseInt(c, 10) : VIN_VALOR[c];
+    if (v === undefined) return false;
+    soma += v * VIN_PESO[i];
+  }
+  const resto = soma % 11;
+  return vin[8] === (resto === 10 ? 'X' : String(resto));
+}
+
+// Chassi/VIN: 17 caracteres. Vale rotulado (CHASSI, Nr.Fab etc., no texto todo)
+// ou avulso no CABEÇALHO (primeiras linhas, fora das linhas de item — código de
+// peça + palavras ("CARE040703 AUTO AIR") também somam 17 e não são chassi).
+// Todo VIN real tem letra E dígito — palavra comum de 17 letras (ex. o
+// "RESPONSABILIZAMOS" do termo de garantia) não vale; 17 só-dígitos também não.
+const ehVin = (t: string): boolean =>
+  /^[A-Z0-9]{17}$/.test(t) && /[A-Z]/.test(t) && /\d/.test(t);
+
+/** Um candidato só vence; vários, só com dígito único válido (senão em branco). */
+const escolherVin = (candidatos: string[]): string | undefined => {
+  const unicos = [...new Set(candidatos)];
+  if (unicos.length === 1) return unicos[0];
+  const validos = unicos.filter(vinDigitoOk);
+  return validos.length === 1 ? validos[0] : undefined;
+};
+
+/**
  * Procura número, placa, nome/cliente e data nas linhas (rótulos comuns de
  * orçamento: ORÇAMENTO/Nº, PLACA, CLIENTE/NOME, DATA/EMISSÃO). Sem rótulo,
  * tenta placa Mercosul/antiga e data avulsas na 1ª metade do texto.
@@ -221,13 +261,6 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
     if (temTelefoneValido(normalizado)) out.telefone = normalizado;
   }
 
-  // Chassi/VIN: 17 caracteres. Vale rotulado (CHASSI, Nr.Fab etc., no texto todo)
-  // ou avulso no CABEÇALHO (primeiras linhas, fora das linhas de item — código de
-  // peça + palavras ("CARE040703 AUTO AIR") também somam 17 e não são chassi).
-  // Todo VIN real tem letra E dígito — palavra comum de 17 letras (ex. o
-  // "RESPONSABILIZAMOS" do termo de garantia) não vale; 17 só-dígitos também não.
-  const ehVin = (t: string): boolean =>
-    /^[A-Z0-9]{17}$/.test(t) && /[A-Z]/.test(t) && /\d/.test(t);
   const ehItem = (l: string): boolean => LINHA_ITEM.test(l.trim());
   const rotulados = [
     ...texto.matchAll(
@@ -243,8 +276,17 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
       .split('\n')
       .slice(0, 40)
       .filter((l) => !ehItem(l));
-    const avulsos = topo.join(' ').match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
-    const vin = avulsos.find(ehVin);
+    // Janelas de 17 em trechos de 17–24 (cobre o VIN colado com 1–2 dígitos do
+    // campo vizinho, ex.: Hr "0" + VIN): uma só vence; várias, só com dígito
+    // único válido (melhor em branco que errado).
+    const janelas: string[] = [];
+    for (const m of topo.join(' ').match(/(?<![A-Z0-9])[A-Z0-9]{17,24}(?![A-Z0-9])/g) ?? []) {
+      for (let k = 0; k + 17 <= m.length; k++) {
+        const w = m.slice(k, k + 17);
+        if (ehVin(w)) janelas.push(w);
+      }
+    }
+    const vin = escolherVin(janelas);
     if (vin) {
       out.chassi = vin;
     } else {
@@ -254,21 +296,21 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
       // "0 8AJYY59G4F65285" vira falso). Por índice (regex consumiria o texto e
       // pularia combinações sobrepostas, ex.: o "VIN" antes do VIN triplo).
       const linhas = topo;
-      let achou: string | undefined;
+      const quebrados: string[] = [];
       const vale = (t: string): boolean => t.length === 17 && ehVin(t);
       const espaco = (fim: number, ini: number, linha: string): boolean => /^[ \t]{1,2}$/.test(linha.slice(fim, ini));
       for (const linha of linhas) {
         const toks = [...linha.matchAll(/[A-Z0-9]+/g)];
-        for (let i = 0; i < toks.length && !achou; i++) {
+        for (let i = 0; i < toks.length; i++) {
           const t1 = toks[i][0];
           if (t1.length >= 3 && i + 1 < toks.length) {
             const t2 = toks[i + 1][0];
             const fim1 = (toks[i].index ?? 0) + t1.length;
             if (t2.length >= 3 && espaco(fim1, toks[i + 1].index ?? 0, linha) && vale(t1 + t2)) {
-              achou = t1 + t2;
+              quebrados.push(t1 + t2);
             }
           }
-          if (!achou && t1.length >= 3 && i + 2 < toks.length) {
+          if (t1.length >= 3 && i + 2 < toks.length) {
             const t2 = toks[i + 1][0];
             const t3 = toks[i + 2][0];
             const fim1 = (toks[i].index ?? 0) + t1.length;
@@ -280,29 +322,28 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
               espaco(fim2, toks[i + 2].index ?? 0, linha) &&
               vale(t1 + t2 + t3)
             ) {
-              achou = t1 + t2 + t3;
+              quebrados.push(t1 + t2 + t3);
             }
           }
         }
-        if (achou) break;
       }
+      const achou = escolherVin(quebrados);
       if (achou) {
         out.chassi = achou;
       } else {
         // VIN partido em DUAS LINHAS (ex.: "...8AJYY59G4" + "F6528539 ..."):
         // fim alfanumérico de uma + começo da próxima, somando 17.
-        for (let i = 0; i + 1 < linhas.length && !achou; i++) {
+        const partidos: string[] = [];
+        for (let i = 0; i + 1 < linhas.length; i++) {
           const fim = (linhas[i].match(/[A-Z0-9]{1,16}$/) ?? [''])[0];
           const comeco = (linhas[i + 1].match(/^[A-Z0-9]{1,16}/) ?? [''])[0];
           for (let k = Math.max(1, 17 - comeco.length); k <= Math.min(16, fim.length); k++) {
             const junto = fim.slice(-k) + comeco.slice(0, 17 - k);
-            if (ehVin(junto)) {
-              achou = junto;
-              break;
-            }
+            if (ehVin(junto)) partidos.push(junto);
           }
         }
-        if (achou) out.chassi = achou;
+        const inteiro = escolherVin(partidos);
+        if (inteiro) out.chassi = inteiro;
       }
     }
   }
