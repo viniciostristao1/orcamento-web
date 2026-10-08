@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.117.0](#v11700) — 2026-10-08 — Aba Whats removida (v0.117.0)
 - [v0.116.0](#v11600) — 2026-10-08 — Alça de 6 pontinhos muda a tabela de lugar (v0.116.0)
 - [v0.115.0](#v11500) — 2026-10-08 — Chassi ignora palavra de 17 letras (v0.115.0)
 - [v0.114.0](#v11400) — 2026-10-08 — Campos Placa|Nome|Chassi nas larguras de Nº|Data|Telefone (v0.114.0)
@@ -176,6 +177,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11700"></a>
+## 2026-10-08 — Aba Whats removida (v0.117.0)
+
+**Pedido:** excluir a aba WHATS (sem utilidade: lembretes já existem em orçamentos,
+flyer e rápidos).
+
+**Feito:** saíram a aba (`src/whats/` inteiro), o pop-up global de contatos para hoje
+(`LembreteContatos` + estado/eventos no `App`), `rotulos` da aba, `whats_scripts.test.ts`
+e 4 testes de tela. Mantidos: `wa.me` dos históricos/documento (`telefone.ts`,
+`BotaoWhats`) e as chaves `zap_*` no backup (só para restaurar arquivos antigos —
+constantes migradas para `backup.ts`).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**230/230 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.117.0`.
+
+---
 
 <a id="v11600"></a>
 ## 2026-10-08 — Alça de 6 pontinhos muda a tabela de lugar (v0.116.0)

@@ -43,9 +43,9 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
     }
   };
 
-  // Backup de TUDO (histórico de orçamentos, rascunho, tema, contatos e
-  // template do Whats) num único JSON — rede de segurança contra limpar o
-  // navegador, já que os dados são locais.
+  // Backup de TUDO (histórico de orçamentos, rascunho, tema, lembretes) num
+  // único JSON — rede de segurança contra limpar o navegador, já que os dados
+  // são locais (chaves antigas da aba Whats entram só na restauração).
   const exportarBackup = () => {
     try {
       const blob = new Blob([montarBackup()], { type: 'application/json' });
@@ -200,8 +200,8 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
             </button>
           </div>
           <p className="text-[10px] leading-relaxed text-slate-500 px-3 pt-2">
-            Salva histórico de orçamentos, rascunho, tema, contatos e mensagem do Whats num
-            arquivo JSON. A importação recarrega o app.
+            Salva os dados do app (histórico de orçamentos, rascunho, tema e
+            lembretes) num arquivo JSON. A importação recarrega o app.
           </p>
           <p className={`text-[11px] font-bold px-3 pt-1 ${avisoBackup ? 'text-amber-300' : 'text-slate-500'}`}>
             {textoBackup === 'nunca fez backup' && avisoBackup

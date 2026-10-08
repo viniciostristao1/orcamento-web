@@ -1,4 +1,4 @@
-/** Telefone do cliente: normalização para o WhatsApp (históricos + aba Whats). */
+/** Telefone do cliente: normalização para o WhatsApp (históricos). */
 
 /** Só os dígitos do que foi digitado (tira espaços, traços, parênteses, +). */
 export function somenteDigitos(valor: string | undefined | null): string {

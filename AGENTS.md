@@ -14,11 +14,11 @@ dados do orçamento copiados do PDF do sistema) e o app **interpreta, agrupa por
 peças/serviços, aplica **desconto em peças (%)**, divide em **parcelas** e monta o resumo +
 tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pelo **WhatsApp**.
 
-O app tem **quatro abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
-pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG), **Whats** (v0.7.0 —
-contatos, template de mensagem e backup JSON para disparos mensais no WhatsApp) e
-**Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.). As quatro abas
-compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
+O app tem **três abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
+pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e
+**Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.). A aba **Whats**
+saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
+As três abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **6 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium):
 **Azul** (padrão, era "Original"), **Claro Papel** (modo claro), **Verde WhatsApp**,
 **Monocromático Técnico** (cinza + laranja), **Suave Arredondado** (coral) e **Grafite**
@@ -84,44 +84,18 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **237 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **230 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
   flyer (`tests/flyer_historico.test.ts`), dados (`tests/dados.test.ts`), backup
-  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`, `tests/lembretesRapidos.test.ts`), relatório (`tests/relatorio.test.ts`), scripts do Whats (`tests/whats_scripts.test.ts`) e smoke de tela
-  (`tests/app_smoke.test.tsx`, jsdom), incluindo a aba Whats (cadastro de contato/tarefa com
-  persistência) e a troca de layout do Tire Flyer.
-- **Aba Whats** (v0.7.0; agenda removida na v0.7.4; backup global na v0.9.0; scripts divididos
-  na v0.14.0): `src/whats/` (contatos + **dois scripts** — pneus e revisão; o de revisão é o
-  usado no copiar/NOTIFICAR do contato). `localStorage`: `zap_contacts`,
-  `zap_script_pneus_v1`, `zap_script_revisao_v1` (o antigo `zap_template` é migrado para
-  revisão).   Layout da tela (v0.14.6): grid `lg:grid-cols-2` (v0.77.0: `1fr 1.25fr` em
-  `max-w-[1300px]`; esquerda ~567px, relatório ~709px) — esquerda **NOVO CONTATO + SCRIPT PNEUS +
-  SCRIPT REVISÃO** (empilhados, mesma largura); direita **RELATÓRIO DE ENVIOS** em **uma coluna**
-  de contatos. Formulário com os 4 campos em 2x2 (`sm:grid-cols-2`; era `xl:grid-cols-4` numa
-  linha até a v0.75.0, que estreitou a tela para `max-w-[1200px]`); o rótulo do 5º campo é
-  só   **"Mensagem"** (v0.28.0; era "Mensagem Especial"). Os títulos **Novo Contato** e
-  **Relatório de Envios** usam **`text-xl`** desde a v0.31.0 — o mesmo tamanho do título
-  “1. DESCRIÇÃO DO REPARO” (NeonCard `text-xl`); antes eram `text-2xl` e `text-3xl`. No cartão,
-  a **data vem antes do nome** desde a v0.34.0 (a badge de data é a primeira coisa da linha). Cartão do relatório (v0.28.0; janelinhas
-  na v0.30.0): linha 1 = **nome + situação (Agendado/Hoje/Atrasado/Concluído) + ícone de
-  observação + ícone de mensagem + ícone de lista + notificar + excluir + data**; os ícones de
-  observação (`StickyNote`) e mensagem (`MessageSquare`) ficam **entre o status e o
-  telefone/chassi** e abrem uma **janelinha** (`w-80`, alinhada à direita) com o conteúdo —
-  **lápis** edita, **v** confirma, **copiar** copia (na mensagem vazia, copia o script de
-  revisão) e **x** fecha (tudo `size 12`). Os campos inline de observação/mensagem e o botão
-  **copiar mensagem** saíram; **telefone/chassi** só aparecem no painel do **ícone de lista**
-  (`List`, cada um com copiar); os ícones ficam coloridos quando o campo tem conteúdo. O cartão
-  fechado fica baixinho (2 linhas). "NOTIFICAR" abre `wa.me` e marca como concluído; status verde
-  em `green-*`. **Lembrete global** (v0.42.0; substitui o lembrete mensal da v0.41.0, removido):
-  pop-up no `App` visível em **todas as abas** com os contatos do Relatório de Envios cuja data é
-  **hoje** e ainda não concluídos (`whats/utils/contatosHoje.ts` — `lerContatos` +
-  `contatosParaHoje` + evento `zap:contatos` para atualizar na hora); cada nome é um botão que
-  troca para a aba Whats e **rola até o cartão, destacando em azul** (`destaque` → `ContactList`,
-  `data-contato-id`/`data-destaque`, some após ~4s); X dispensa até a lista de hoje mudar.
-  Desde a v0.43.0 a janelinha é **menor e inteiramente clicável** (a área leva ao 1º da lista;
-  cada nome leva ao seu) e a coluna direita de Orçamentos tem **SUB ATALHOS** (v0.43.0):
+  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`, `tests/lembretesRapidos.test.ts`), relatório (`tests/relatorio.test.ts`) e smoke de tela
+  (`tests/app_smoke.test.tsx`, jsdom), incluindo a troca de layout do Tire Flyer.
+- **Aba Whats removida** (v0.117.0; existiu da v0.7.0 à v0.116.0): contatos/relatório de
+  envios + lembrete global de "contatos para hoje" saíram (os lembretes de orçamentos,
+  flyer e rápidos cobrem o uso). `wa.me` dos históricos continua (`utils/telefone.ts` +
+  `BotaoWhats`). As chaves `zap_*` continuam no backup **só para restaurar arquivos
+  antigos**. A coluna direita de Orçamentos tem **SUB ATALHOS** (v0.43.0):
   titulozinho + um botão por sub-aba de Dados (`components/MenuDados.tsx`, acompanha
   criar/excluir/renomear via evento `dados:atualizados` em `tabelas.ts`) que abre a aba Dados
   já na sub-aba (`App` → `DadosApp subAba`). Desde a v0.44.0 ficam numa **faixa estreita
@@ -147,9 +121,9 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   `@google/genai` do template original **não** entrou.
 - **Backup geral** (v0.9.0): `utils/backup.ts` exporta/restaura **todas** as chaves
   (`orcamentos_historico_v1`, `orcamento_ultimo_v1`, `orcamento_rascunho_v1`,
-  `orcamentos_tema_v1`, `zap_contacts`, `zap_script_pneus_v1`, `zap_script_revisao_v1`,
-  `zap_template` legado, `flyer_historico_v1`, `flyer_layout_v1`, `dados_tabelas_v1`,
-  `rotulos_v1`) num JSON; UI na engrenagem
+  `orcamentos_tema_v1`, `flyer_historico_v1`, `flyer_layout_v1`, `dados_tabelas_v1`,
+  `rotulos_v1`, + `zap_*` legados só para restaurar backups da época da aba Whats)
+  num JSON; UI na engrenagem
   **Configurações** ("BACKUP DOS DADOS"). A importação recarrega o app. Aceita também o backup
   antigo (só histórico). Atenção: tema e template são string pura no localStorage (não JSON).
 - **Temas + logo** (v0.5.0; tipografia na v0.6.0): `data-tema` no `<html>` (`utils/tema.ts`,
@@ -370,8 +344,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
 - **Históricos mais altos** (v0.82.0): modais em `max-h-[93vh]` (era 85vh) — mais cartões
   visíveis sem rolar.
 - **Unificações** (v0.81.0, sem mudança funcional): `utils/busca.ts` (`normalizarBusca` única
-  para os dois históricos); telefone normalizado num lugar só (`ContactList` usa
-  `normalizarTelefoneParaWhats`); `restaurarBackup` **mescla listas por id** (orçamentos,
+  para os dois históricos); telefone normalizado num lugar só
+  (`normalizarTelefoneParaWhats`); `restaurarBackup` **mescla listas por id** (orçamentos,
   flyers, contatos — conflito: vale o atual; resumo ganhou `flyers`); shell único dos
   históricos (`components/HistoricoBase.tsx` — cada modal entra com título/botões/cartões);
   `tsconfig` cobre `tests/` (`resolveJsonModule` para o teste de versão); índice de versões
@@ -451,7 +425,6 @@ orcamento_web/
     components/LembreteHistorico.tsx popup âmbar pulsante dos vencidos
     components/RelatorioModal.tsx janela do relatório Excel (tabela + seletor de mês + copiar)
     components/SinoLembretes.tsx sino do header (rápidos + lista geral)
-    components/LembreteContatos.tsx pop-up global de contatos para hoje
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
     tire/components/FlyerTabela.tsx / FlyerEtiqueta.tsx / FlyerLaranja.tsx /
@@ -473,14 +446,10 @@ orcamento_web/
     dados/DadosApp.tsx       tela da aba Dados (sub-abas + busca + grifo)
     dados/components/OrdenarTabela.tsx janelinha "Ordenar por coluna"
     dados/utils/tabelas.ts   modelo { abas, ordem } + seleção em grade + ordenar + notas
-    whats/WhatsApp.tsx       tela da aba Whats (contatos + scripts + relatório)
-    whats/components/ContactForm.tsx / ContactList.tsx / MessageEditor.tsx
-    whats/utils/contatosHoje.ts lerContatos + contatosParaHoje + evento zap:contatos
-    whats/utils/scripts.ts   scripts pneus/revisão (chaves + migração do legado)
-    whats/types.ts           Contact (só; agenda/Task saiu na v0.7.4)
   tests/                     vitest run: quote_logic, historico, telefone, versao,
-                             export_image, tire_flyer, flyer_layout, flyer_historico,
-                             dados, backup, whats_scripts, app_smoke (jsdom)
+                             sistema_extracao, export_image, tire_flyer, flyer_layout,
+                             flyer_historico, dados, backup, bloqueio, lembretes,
+                             lembretesRapidos, relatorio, app_smoke (jsdom)
   dist/index.html            BUILD = arquivo único entregue ao usuário (ignorado no git)
 ```
 
@@ -626,6 +595,9 @@ npm run build        # gera dist/index.html (arquivo único)
   do VIN no texto e era pego pela busca avulsa).
 - **Alça muda a tabela de lugar** (v0.116.0): 6 pontinhos na barra de baixo do cartão
   (arrasta a tabela para cima/entre blocos, igual às notas); subir/descer continuam.
+- **Aba Whats removida** (v0.117.0): contatos + relatório de envios + pop-up "para hoje"
+  saíram (`src/whats/`, `LembreteContatos`, `whats_scripts.test.ts` e 4 testes de tela);
+  `wa.me` dos históricos continua; `zap_*` seguem no backup só para restaurar antigo.
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Lock } from 'lucide-react';
 import OrcamentosApp from './components/OrcamentosApp';
 import TireFlyerApp from './tire/TireFlyerApp';
-import WhatsApp from './whats/WhatsApp';
 import DadosApp from './dados/DadosApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
 import Bloqueio from './components/Bloqueio';
 import SinoLembretes from './components/SinoLembretes';
-import LembreteContatos from './components/LembreteContatos';
 import LembreteHistorico from './components/LembreteHistorico';
 import { atualizarLembreteHistorico } from './utils/historico';
 import { atualizarLembreteFlyer } from './tire/utils/historicoFlyer';
@@ -21,21 +19,13 @@ import {
 import { RotulosProvider, useRotulos } from './components/RotulosContext';
 import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
 import { VERSAO } from './utils/versao';
-import {
-  CONTATOS_EVENTO,
-  CONTATOS_KEY,
-  contatosParaHoje,
-  lerContatos,
-} from './whats/utils/contatosHoje';
-import type { Contact } from './whats/types';
 import logoToyota from './assets/logo_toyota.png';
 
-type Aba = 'orcamentos' | 'pneus' | 'whats' | 'dados';
+type Aba = 'orcamentos' | 'pneus' | 'dados';
 
 const ABAS: { id: Aba; label: string }[] = [
   { id: 'orcamentos', label: 'Orçamentos' },
   { id: 'pneus', label: 'Tire Flyer' },
-  { id: 'whats', label: 'Whats' },
   { id: 'dados', label: 'Dados' },
 ];
 
@@ -46,17 +36,6 @@ const AppInterno: React.FC = () => {
   const { rotulos, renomearAba } = useRotulos();
   const [abaEditando, setAbaEditando] = useState<string | null>(null);
   const [nomeAba, setNomeAba] = useState('');
-
-  // Lembrete global: contatos do Relatório de Envios com data para hoje (ainda
-  // não concluídos). Vale para todas as abas — lê do localStorage e se atualiza
-  // a cada salvamento da aba Whats (evento próprio + `storage` entre janelas).
-  const [contatosHoje, setContatosHoje] = useState<Contact[]>(() =>
-    contatosParaHoje(lerContatos()),
-  );
-  // Contato para onde o clique no lembrete deve levar (aba Whats rola até ele).
-  const [destaque, setDestaque] = useState<{ id: string; vez: number } | null>(null);
-  // X do lembrete: esconde até a lista de hoje mudar.
-  const [dispensado, setDispensado] = useState('');
   // Lembretes vencidos dos históricos (orçamentos + tire flyer): aviso que pisca
   // no canto inferior direito; o clique abre o orçamento e conclui o lembrete.
   const [lembretes, setLembretes] = useState<LembreteVencido[]>(() => listarLembretesVencidos());
@@ -110,29 +89,6 @@ const AppInterno: React.FC = () => {
   };
   // Cadeado: cobre a tela com a senha, sem desmontar o app.
   const [bloqueado, setBloqueado] = useState(false);
-
-  useEffect(() => {
-    const atualizar = (e?: Event) => {
-      if (e instanceof StorageEvent && e.key && e.key !== CONTATOS_KEY) return;
-      setContatosHoje(contatosParaHoje(lerContatos()));
-    };
-    window.addEventListener(CONTATOS_EVENTO, atualizar);
-    window.addEventListener('storage', atualizar);
-    return () => {
-      window.removeEventListener(CONTATOS_EVENTO, atualizar);
-      window.removeEventListener('storage', atualizar);
-    };
-  }, []);
-
-  const chaveHoje = contatosHoje.map((c) => c.id).sort().join(',');
-  const mostrarLembrete = contatosHoje.length > 0 && dispensado !== chaveHoje;
-
-  // Clique no lembrete: vai para a aba Whats e destaca o contato (`vez` faz o
-  // clique no mesmo contato duas vezes funcionar).
-  const irParaContato = (id: string) => {
-    setAba('whats');
-    setDestaque((d) => ({ id, vez: (d?.vez ?? 0) + 1 }));
-  };
 
   // Atalho MENU DADOS: vai para a aba Dados com a sub-aba aberta.
   const [subAbaDados, setSubAbaDados] = useState<{ id: string; vez: number } | null>(null);
@@ -258,31 +214,19 @@ const AppInterno: React.FC = () => {
             destaqueId={irParaHistorico?.origem === 'flyer' ? irParaHistorico.id : null}
           />
         </div>
-        <div className={aba === 'whats' ? '' : 'hidden'}>
-          <WhatsApp destaque={destaque} />
-        </div>
         <div className={aba === 'dados' ? '' : 'hidden'}>
           <DadosApp subAba={subAbaDados} buscaDados={buscaDados} />
         </div>
       </main>
 
-      {/* Avisos globais (todas as abas), empilhados no canto inferior direito. */}
-      {(mostrarLembrete || mostrarLembretes) && (
+      {/* Aviso global (todas as abas) no canto inferior direito. */}
+      {mostrarLembretes && (
         <div className="fixed bottom-8 right-8 z-[300] flex flex-col items-end gap-3 print:hidden">
-          {mostrarLembrete && (
-            <LembreteContatos
-              contatos={contatosHoje}
-              onIrParaContato={irParaContato}
-              onDispensar={() => setDispensado(chaveHoje)}
-            />
-          )}
-          {mostrarLembretes && (
-            <LembreteHistorico
-              itens={lembretes}
-              onIrPara={irParaLembrete}
-              onDispensar={() => setLembretesDisp(chaveLembretes)}
-            />
-          )}
+          <LembreteHistorico
+            itens={lembretes}
+            onIrPara={irParaLembrete}
+            onDispensar={() => setLembretesDisp(chaveLembretes)}
+          />
         </div>
       )}
 

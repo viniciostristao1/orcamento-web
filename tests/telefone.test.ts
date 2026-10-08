@@ -8,7 +8,7 @@ import {
   urlWhats,
 } from '../src/utils/telefone';
 
-describe('telefone (WhatsApp do histórico)', () => {
+describe('telefone (WhatsApp dos históricos)', () => {
   it('tira máscara (espaços, traços, parênteses, +)', () => {
     expect(somenteDigitos('51 99999-9999')).toBe('51999999999');
     expect(somenteDigitos('(51) 99999-9999')).toBe('51999999999');
@@ -16,7 +16,7 @@ describe('telefone (WhatsApp do histórico)', () => {
     expect(somenteDigitos(undefined)).toBe('');
   });
 
-  it('normaliza DDD+numero com 55 (mesma regra da aba Whats)', () => {
+    it('normaliza DDD+numero com 55 (mesma regra do wa.me)', () => {
     expect(normalizarTelefoneParaWhats('51 99999-9999')).toBe('5551999999999');
     expect(normalizarTelefoneParaWhats('5133334444')).toBe('555133334444');
     expect(normalizarTelefoneParaWhats('5551999999999')).toBe('5551999999999');

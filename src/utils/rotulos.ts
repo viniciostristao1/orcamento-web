@@ -11,13 +11,11 @@ export const ROTULOS_PADRAO: Rotulos = {
   abas: {
     orcamentos: 'Orçamentos',
     pneus: 'Tire Flyer',
-    whats: 'Whats',
     dados: 'Dados',
   },
   titulos: {
     orcamentos: 'ORÇAMENTOS',
     pneus: 'TIRE FLYER',
-    whats: 'PAINEL WHATSAPP',
     dados: 'DADOS',
   },
 };

@@ -1,10 +1,13 @@
 import { TEMA_KEY } from './tema';
 import { RASCUNHO_KEY } from './rascunho';
 import { ULTIMO_KEY } from './ultimoOrcamento';
-import { SCRIPT_PNEUS_KEY, SCRIPT_REVISAO_KEY } from '../whats/utils/scripts';
-import { CONTATOS_KEY } from '../whats/utils/contatosHoje';
 import { SENHA_KEY } from './bloqueio';
 import { RAPIDOS_KEY } from './lembretesRapidos';
+
+/** Chaves legadas da aba Whats (removida na v0.117.0): só para restaurar backups antigos. */
+export const SCRIPT_PNEUS_KEY = 'zap_script_pneus_v1';
+export const SCRIPT_REVISAO_KEY = 'zap_script_revisao_v1';
+export const CONTATOS_KEY = 'zap_contacts';
 
 /** Chave do histórico de orçamentos (a mesma usada em utils/historico.ts). */
 export const HISTORICO_KEY = 'orcamentos_historico_v1';

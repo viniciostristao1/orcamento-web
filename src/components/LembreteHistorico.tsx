@@ -11,9 +11,8 @@ interface LembreteHistoricoProps {
 }
 
 /**
- * Lembretes vencidos dos históricos (orçamentos + tire flyer): pisca no canto
- * inferior direito; cada linha leva ao orçamento em questão. Mesmo padrão do
- * lembrete de contatos do Whats (área clicável + um botão por item + X).
+ * Lembretes vencidos dos históricos (orçamentos + tire flyer) e rápidos: pisca
+ * no canto inferior direito; cada linha leva ao orçamento em questão.
  */
 const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, onDispensar }) => {
   if (itens.length === 0) return null;
