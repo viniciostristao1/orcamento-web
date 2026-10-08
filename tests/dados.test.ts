@@ -29,6 +29,8 @@ import {
   limparBloco,
   limitarNotaAltura,
   limitarNotaLargura,
+  moverBloco,
+  moverBlocoPara,
   moverNota,
   NOTA_ALTURA_PADRAO,
   NOTA_LARGURA_PADRAO,
@@ -180,6 +182,29 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
 
     // destino inexistente não muda nada
     expect(moverNota(d, ABA_PECAS, n1, 'x').abas[0].ordem).toEqual([t1, t2, n1]);
+  });
+
+  it('alça da tabela muda a ordem dos blocos (tabela sobre tabela ou nota)', () => {
+    let d = criarTabela(estadoInicial(), ABA_PECAS, 1);
+    const t1 = d.abas[0].tabelas[0].id;
+    d = criarTabela(d, ABA_PECAS, 1);
+    const t2 = d.abas[0].tabelas[1].id;
+    d = criarNota(d, ABA_PECAS);
+    const n1 = d.abas[0].notas[0].id;
+    expect(d.abas[0].ordem).toEqual([t1, t2, n1]);
+
+    // 2ª tabela sobre a 1ª → troca de lugar
+    d = moverBlocoPara(d, ABA_PECAS, t2, t1);
+    expect(d.abas[0].ordem).toEqual([t2, t1, n1]);
+
+    // tabela sobre a nota → vai para o fim
+    d = moverBlocoPara(d, ABA_PECAS, t1, n1);
+    expect(d.abas[0].ordem).toEqual([t2, n1, t1]);
+
+    // origem/destino iguais ou inexistentes não mudam nada
+    expect(moverBlocoPara(d, ABA_PECAS, t1, t1).abas[0].ordem).toEqual([t2, n1, t1]);
+    expect(moverBlocoPara(d, ABA_PECAS, t1, 'x').abas[0].ordem).toEqual([t2, n1, t1]);
+    expect(moverBlocoPara(d, ABA_PECAS, 'x', t1).abas[0].ordem).toEqual([t2, n1, t1]);
   });
 
   it('adiciona coluna no fim (e respeita o limite de 12)', () => {

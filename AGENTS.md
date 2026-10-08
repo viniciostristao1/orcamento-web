@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **235 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **237 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -271,7 +271,10 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   **subir/descer** (`ChevronUp`/`ChevronDown`, `moverBloco` troca com o vizinho na `ordem`,
   travados nas bordas) na barra de baixo, ao lado do excluir;
   permitindo nota **acima/entre tabelas**; notas seguidas ficam na mesma linha (`flex-wrap`) e o
-  texto entra na **busca** via `listarOcorrencias` tipo `nota` (acende `data-atual`). O botão
+   texto entra na **busca** via `listarOcorrencias` tipo `nota` (acende `data-atual`). Desde a
+   v0.116.0 a **tabela também tem alça de 6 pontinhos** (`data-alca-tabela` na barra de
+   baixo; `moverBlocoPara` puro — qualquer bloco para a posição de qualquer bloco;
+   o estado de arrasto virou `blocoArrastando/blocoSobre`). O botão
   **Criar tabela** é **ícone-only** (v0.34.0; era “Criar tabela” com texto) ao lado do **Criar
   nota** (`StickyNote` âmbar). Sub-abas =
   **PEÇAS** e **O.S's** + criadas pelo botão “+”, cada uma com **X próprio** para excluir;
@@ -621,6 +624,8 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Chassi ignora palavra de 17 letras** (v0.115.0): candidato a VIN precisa ter
   letra E dígito nos dois caminhos (o "RESPONSABILIZAMOS" da garantia vinha antes
   do VIN no texto e era pego pela busca avulsa).
+- **Alça muda a tabela de lugar** (v0.116.0): 6 pontinhos na barra de baixo do cartão
+  (arrasta a tabela para cima/entre blocos, igual às notas); subir/descer continuam.
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

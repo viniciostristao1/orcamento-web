@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.116.0](#v11600) — 2026-10-08 — Alça de 6 pontinhos muda a tabela de lugar (v0.116.0)
 - [v0.115.0](#v11500) — 2026-10-08 — Chassi ignora palavra de 17 letras (v0.115.0)
 - [v0.114.0](#v11400) — 2026-10-08 — Campos Placa|Nome|Chassi nas larguras de Nº|Data|Telefone (v0.114.0)
 - [v0.113.0](#v11300) — 2026-10-08 — Chassi do PDF + regerar antigo sem mudar a data (v0.113.0)
@@ -175,6 +176,25 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11600"></a>
+## 2026-10-08 — Alça de 6 pontinhos muda a tabela de lugar (v0.116.0)
+
+**Pedido:** o mesmo botão de 6 pontinhos das notas para mudar a tabela de lugar
+(antes só os botões subir/descer, um clique por posição).
+
+**Feito:** `moverBlocoPara` pura em `tabelas.ts` (qualquer bloco para a posição de
+qualquer bloco); alça `data-alca-tabela` na barra de baixo do cartão (com
+`data-tabela` + esmaecido ao arrastar, igual às notas); estado de arrasto
+renomeado `notaArrastando/notaSobre` → `blocoArrastando/blocoSobre` (agora carrega
+tabela também); soltar decide `moverNota` x `moverBlocoPara` pelo tipo da origem.
+Subir/descer continuam.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**237/237 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.116.0`.
+
+---
 
 <a id="v11500"></a>
 ## 2026-10-08 — Chassi ignora palavra de 17 letras (v0.115.0)

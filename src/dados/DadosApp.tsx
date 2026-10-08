@@ -44,6 +44,7 @@ import {
   listarOcorrencias,
   alternarMarcada,
   moverBloco,
+  moverBlocoPara,
   moverNota,
   normalizarBusca,
   ordenarPorColuna,
@@ -103,8 +104,8 @@ const DadosApp: React.FC<{
   const [editandoNota, setEditandoNota] = useState<string | null>(null);
   const [listaNota, setListaNota] = useState<string | null>(null);
   const [copiadoNota, setCopiadoNota] = useState<string | null>(null);
-  const [notaArrastando, setNotaArrastando] = useState<string | null>(null);
-  const [notaSobre, setNotaSobre] = useState<string | null>(null);
+  const [blocoArrastando, setBlocoArrastando] = useState<string | null>(null);
+  const [blocoSobre, setBlocoSobre] = useState<string | null>(null);
   const refsNotas = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   // Seleção de várias células (arrastar / Shift+clique) para copiar o bloco.
   const [selecao, setSelecao] = useState<{ tabelaId: string; r1: number; c1: number; r2: number; c2: number } | null>(null);
@@ -515,22 +516,26 @@ const DadosApp: React.FC<{
     setDados((d) => colarBloco(d, abaId, tabelaId, r, c, bloco));
   };
 
-  // Arrastar-e-soltar das notas: qualquer bloco (nota ou tabela) aceita a nota.
+  // Arrastar-e-soltar dos blocos (alça de 6 pontinhos das notas e das
+  // tabelas): qualquer bloco (nota ou tabela) aceita outro bloco.
   const sobreBloco = (destinoId: string, e: React.DragEvent) => {
-    if (!notaArrastando || notaArrastando === destinoId) return;
+    if (!blocoArrastando || blocoArrastando === destinoId) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    if (notaSobre !== destinoId) setNotaSobre(destinoId);
+    if (blocoSobre !== destinoId) setBlocoSobre(destinoId);
   };
 
   const soltarNoBloco = (destinoId: string, e: React.DragEvent) => {
     e.preventDefault();
-    const origem = e.dataTransfer.getData('text/plain') || notaArrastando;
+    const origem = e.dataTransfer.getData('text/plain') || blocoArrastando;
     if (origem && origem !== destinoId && aba) {
-      setDados((d) => moverNota(d, aba.id, origem, destinoId));
+      setDados((d) => {
+        const ehNota = d.abas.find((a) => a.id === aba.id)?.notas.some((n) => n.id === origem) ?? false;
+        return ehNota ? moverNota(d, aba.id, origem, destinoId) : moverBlocoPara(d, aba.id, origem, destinoId);
+      });
     }
-    setNotaArrastando(null);
-    setNotaSobre(null);
+    setBlocoArrastando(null);
+    setBlocoSobre(null);
   };
 
   // Blocos na ordem da sub-aba: notas seguidas ficam na mesma linha (flex) e
@@ -781,14 +786,14 @@ const DadosApp: React.FC<{
                     const marcado = buscaAtiva && celulaContem(nota.texto, busca);
                     const atualAqui = ocorrencia?.tipo === 'nota' && ocorrencia.notaId === nota.id;
                     const editando = editandoNota === nota.id;
-                    const sobre = notaSobre === nota.id && notaArrastando !== nota.id;
+                    const sobre = blocoSobre === nota.id && blocoArrastando !== nota.id;
                     return (
                       <div
                         key={nota.id}
                         data-nota={nota.id}
                         data-atual={atualAqui ? '1' : undefined}
                         onDragOver={(e) => sobreBloco(nota.id, e)}
-                        onDragLeave={() => setNotaSobre((s) => (s === nota.id ? null : s))}
+                        onDragLeave={() => setBlocoSobre((s) => (s === nota.id ? null : s))}
                         onDrop={(e) => soltarNoBloco(nota.id, e)}
                         className={`relative flex flex-col bg-slate-900/70 border rounded-2xl overflow-hidden transition-colors ${
                           sobre
@@ -798,7 +803,7 @@ const DadosApp: React.FC<{
                               : marcado
                                 ? 'border-amber-500/60 bg-amber-500/10'
                                 : 'border-slate-800'
-                        } ${notaArrastando === nota.id ? 'opacity-50' : ''}`}
+                        } ${blocoArrastando === nota.id ? 'opacity-50' : ''}`}
                         style={{ width: nota.largura, height: nota.altura }}
                       >
                         <div className="flex items-center justify-between gap-2 px-2.5 py-2 bg-slate-950/60 border-b border-slate-800/60">
@@ -811,11 +816,11 @@ const DadosApp: React.FC<{
                                 e.dataTransfer.effectAllowed = 'move';
                                 const alvo = e.currentTarget.closest('[data-nota]');
                                 if (alvo) e.dataTransfer.setDragImage?.(alvo, 20, 20);
-                                setNotaArrastando(nota.id);
+                                setBlocoArrastando(nota.id);
                               }}
                               onDragEnd={() => {
-                                setNotaArrastando(null);
-                                setNotaSobre(null);
+                                setBlocoArrastando(null);
+                                setBlocoSobre(null);
                               }}
                               aria-label="Arrastar nota"
                               title="Arraste para mudar a nota de lugar (acima/entre tabelas)"
@@ -997,16 +1002,17 @@ const DadosApp: React.FC<{
             });
             const idListaSugestoes = (coluna: number) => `sug-${tabela.id}-${coluna}`;
 
-            const sobreTabela = notaSobre === tabela.id && notaArrastando !== tabela.id;
+            const sobreTabela = blocoSobre === tabela.id && blocoArrastando !== tabela.id;
             return (
               <div
                 key={tabela.id}
+                data-tabela={tabela.id}
                 onDragOver={(e) => sobreBloco(tabela.id, e)}
-                onDragLeave={() => setNotaSobre((s) => (s === tabela.id ? null : s))}
+                onDragLeave={() => setBlocoSobre((s) => (s === tabela.id ? null : s))}
                 onDrop={(e) => soltarNoBloco(tabela.id, e)}
                 className={`bg-slate-900/60 border rounded-2xl overflow-hidden mb-6 ${
                   sobreTabela ? 'border-blue-400 ring-2 ring-blue-400/60' : 'border-slate-800'
-                }`}
+                } ${blocoArrastando === tabela.id ? 'opacity-50' : ''}`}
               >
                 <div className="overflow-x-auto">
                   {/* A tabela preenche o cartão (sem vão à direita quando há poucas
@@ -1232,15 +1238,37 @@ const DadosApp: React.FC<{
                     style={{ width: '100%', minWidth: larguraTotal }}
                     className="p-3 border-x border-b border-slate-800 bg-slate-950/30 flex items-center justify-between"
                   >
-                    <button
-                      type="button"
-                      onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
-                      aria-label="Adicionar linha"
-                      title="Adicionar linha"
-                      className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
-                    >
-                      <Plus size={18} strokeWidth={2.5} />
-                    </button>
+                    <span className="flex items-center gap-2">
+                      <span
+                        data-alca-tabela
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('text/plain', tabela.id);
+                          e.dataTransfer.effectAllowed = 'move';
+                          const alvo = e.currentTarget.closest('[data-tabela]');
+                          if (alvo) e.dataTransfer.setDragImage?.(alvo, 20, 20);
+                          setBlocoArrastando(tabela.id);
+                        }}
+                        onDragEnd={() => {
+                          setBlocoArrastando(null);
+                          setBlocoSobre(null);
+                        }}
+                        aria-label="Arrastar tabela"
+                        title="Arraste para mudar a tabela de lugar (acima/entre blocos)"
+                        className="flex items-center justify-center w-9 h-9 text-slate-600 hover:text-slate-300 cursor-grab active:cursor-grabbing"
+                      >
+                        <GripVertical size={16} />
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setDados((d) => adicionarLinha(d, aba.id, tabela.id))}
+                        aria-label="Adicionar linha"
+                        title="Adicionar linha"
+                        className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all active:scale-95 cursor-pointer"
+                      >
+                        <Plus size={18} strokeWidth={2.5} />
+                      </button>
+                    </span>
                     <span className="flex items-center gap-2">
                       <button
                         type="button"

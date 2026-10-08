@@ -358,6 +358,34 @@ export const moverNota = (
 };
 
 /**
+ * Move QUALQUER bloco (tabela ou nota) para a posição de outro bloco
+ * (`destinoId` pode ser nota ou tabela) na ordem da tela — a alça de
+ * 6 pontinhos das tabelas usa esta (a das notas usa `moverNota`, mesma lógica).
+ * Sem mexer nos demais blocos.
+ */
+export const moverBlocoPara = (
+  dados: DadosTabelas,
+  abaId: string,
+  origemId: string,
+  destinoId: string,
+): DadosTabelas => {
+  if (origemId === destinoId) return dados;
+  return {
+    ...dados,
+    abas: dados.abas.map((a) => {
+      if (a.id !== abaId) return a;
+      const de = a.ordem.indexOf(origemId);
+      const para = a.ordem.indexOf(destinoId);
+      if (de < 0 || para < 0) return a;
+      const ordem = [...a.ordem];
+      const [movido] = ordem.splice(de, 1);
+      ordem.splice(para, 0, movido);
+      return { ...a, ordem };
+    }),
+  };
+};
+
+/**
  * Move um bloco (tabela ou nota) uma posição para cima (-1) ou para baixo (+1)
  * na ordem da tela, trocando de lugar com o vizinho. Nas bordas não faz nada.
  */

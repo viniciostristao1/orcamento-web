@@ -1175,6 +1175,34 @@ describe('App — smoke test (render + processar)', () => {
     expect(container.querySelectorAll('[data-nota]')).toHaveLength(1);
   });
 
+  it('aba Dados: alça de 6 pontinhos muda a tabela de lugar', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    const { container } = render(<App />);
+    fireEvent.click(screen.getByText('Dados'));
+    fireEvent.change(screen.getByLabelText('Número de colunas'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Criar tabela/i }));
+
+    const cartoes = () => Array.from(container.querySelectorAll('[data-tabela]')) as HTMLElement[];
+    expect(cartoes()).toHaveLength(2);
+    const idA = cartoes()[0].dataset.tabela!;
+    const idB = cartoes()[1].dataset.tabela!;
+
+    // arrasta a 2ª tabela para cima da 1ª → troca de lugar
+    const dt = {
+      setData: vi.fn(),
+      setDragImage: vi.fn(),
+      getData: () => idB,
+      dropEffect: '',
+      effectAllowed: '',
+    };
+    fireEvent.dragStart(cartoes()[1].querySelector('[data-alca-tabela]')!, { dataTransfer: dt });
+    fireEvent.dragOver(cartoes()[0], { dataTransfer: dt });
+    fireEvent.drop(cartoes()[0], { dataTransfer: dt });
+    expect(cartoes()[0].dataset.tabela).toBe(idB);
+    expect(cartoes()[1].dataset.tabela).toBe(idA);
+  });
+
   it('aba Dados: botão ao lado de ordenar/excluir adiciona uma coluna', () => {
     localStorage.removeItem('dados_tabelas_v1');
     const { container } = render(<App />);
