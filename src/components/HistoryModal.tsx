@@ -387,11 +387,89 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 <span className="text-base font-black uppercase tracking-widest text-slate-500">
                   <SeloCor cor={r.cor} />
                   {dataDoRegistro(r.criadoEm)}
-                  <span className="text-slate-600"> · </span>
-                  <span className={lembreteFmt ? 'text-amber-300' : 'text-slate-600'} title={lembreteFmt ? `Lembrete em ${lembreteFmt}` : 'Sem lembrete'}>
-                    {lembreteFmt ?? '—'}
-                  </span>
-                {r.placa ? (
+                  {r.nome ? (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-sky-300">{r.nome}</span>
+                    </>
+                  ) : r.placa ? (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-amber-300">{r.placa}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-slate-600">(sem nome)</span>
+                    </>
+                  )}
+                </span>
+                <div className="flex items-center gap-2">
+                  <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
+                  <BotaoRelogio lembreteEm={r.lembreteEm} onAbrir={() => setLembreteDe((d) => (d === r.id ? null : r.id))} />
+                  <BotaoWhats telefone={r.telefone} />
+                <button
+                  type="button"
+                  onClick={() => handleVotarInline(r, 'aprovado')}
+                  aria-label="Marcar como aprovado"
+                  title="Aprovar tudo (limpa os desmarcados, sem mudar a data; clicar de novo desmarca)"
+                  aria-pressed={r.aprovacao === 'aprovado'}
+                  className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
+                    r.aprovacao === 'aprovado'
+                      ? 'bg-green-500 text-white ring-2 ring-green-300 border-green-400'
+                      : 'bg-slate-800 hover:bg-green-700 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <Check size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleVotarInline(r, 'naoAprovado')}
+                  aria-label="Marcar como não aprovado"
+                  title="Reprovar tudo (risca todos, sem mudar a data; clicar de novo desmarca)"
+                  aria-pressed={r.aprovacao === 'naoAprovado'}
+                  className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
+                    r.aprovacao === 'naoAprovado'
+                      ? 'bg-red-500 text-white ring-2 ring-red-300 border-red-400'
+                      : 'bg-slate-800 hover:bg-red-700 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <X size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setItensDe(r)}
+                  aria-label="Ver itens do orçamento"
+                  title="Ver itens do orçamento (dá para desmarcar e virar parcial sem mudar a data)"
+                  className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all cursor-pointer active:scale-95"
+                >
+                  <List size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAbrir(r)}
+                  aria-label="Abrir orçamento"
+                  title="Abrir orçamento"
+                  className="flex items-center justify-center p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all cursor-pointer active:scale-95"
+                >
+                  <FolderOpen size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExcluir(r.id)}
+                  aria-label="Excluir orçamento"
+                  className="p-2 bg-slate-800 hover:bg-red-600 text-slate-300 rounded-lg transition-all cursor-pointer active:scale-95"
+                  title="Excluir este orçamento"
+                >
+                  <Trash2 size={15} />
+                </button>
+                </div>
+              </div>
+              <div className="text-base font-black uppercase tracking-widest text-slate-500 mb-2">
+                <span className={lembreteFmt ? 'text-amber-300' : 'text-slate-600'} title={lembreteFmt ? `Lembrete em ${lembreteFmt}` : 'Sem lembrete'}>
+                  {lembreteFmt ?? '—'}
+                </span>
+                {r.nome && r.placa ? (
                   <>
                     <span className="text-slate-600"> · </span>
                     <span className="text-amber-300">{r.placa}</span>
@@ -459,12 +537,6 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                     </button>
                   </>
                 )}
-                {r.nome ? (
-                  <>
-                    <span className="text-slate-600"> · </span>
-                    <span className="text-sky-300">{r.nome}</span>
-                  </>
-                ) : null}
                 {r.telefone ? (
                   <>
                     <span className="text-slate-600"> · </span>
@@ -489,67 +561,6 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                     <span className="text-red-300">{r.naoRealizados!.length} não aprovado(s)</span>
                   </>
                 ) : null}
-              </span>
-                <div className="flex items-center gap-2">
-                  <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
-                  <BotaoRelogio lembreteEm={r.lembreteEm} onAbrir={() => setLembreteDe((d) => (d === r.id ? null : r.id))} />
-                  <BotaoWhats telefone={r.telefone} />
-                <button
-                  type="button"
-                  onClick={() => handleVotarInline(r, 'aprovado')}
-                  aria-label="Marcar como aprovado"
-                  title="Aprovar tudo (limpa os desmarcados, sem mudar a data; clicar de novo desmarca)"
-                  aria-pressed={r.aprovacao === 'aprovado'}
-                  className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
-                    r.aprovacao === 'aprovado'
-                      ? 'bg-green-500 text-white ring-2 ring-green-300 border-green-400'
-                      : 'bg-slate-800 hover:bg-green-700 text-slate-200 border-slate-700'
-                  }`}
-                >
-                  <Check size={16} strokeWidth={3} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleVotarInline(r, 'naoAprovado')}
-                  aria-label="Marcar como não aprovado"
-                  title="Reprovar tudo (risca todos, sem mudar a data; clicar de novo desmarca)"
-                  aria-pressed={r.aprovacao === 'naoAprovado'}
-                  className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
-                    r.aprovacao === 'naoAprovado'
-                      ? 'bg-red-500 text-white ring-2 ring-red-300 border-red-400'
-                      : 'bg-slate-800 hover:bg-red-700 text-slate-200 border-slate-700'
-                  }`}
-                >
-                  <X size={16} strokeWidth={3} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setItensDe(r)}
-                  aria-label="Ver itens do orçamento"
-                  title="Ver itens do orçamento (dá para desmarcar e virar parcial sem mudar a data)"
-                  className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition-all cursor-pointer active:scale-95"
-                >
-                  <List size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onAbrir(r)}
-                  aria-label="Abrir orçamento"
-                  title="Abrir orçamento"
-                  className="flex items-center justify-center p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all cursor-pointer active:scale-95"
-                >
-                  <FolderOpen size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleExcluir(r.id)}
-                  aria-label="Excluir orçamento"
-                  className="p-2 bg-slate-800 hover:bg-red-600 text-slate-300 rounded-lg transition-all cursor-pointer active:scale-95"
-                  title="Excluir este orçamento"
-                >
-                  <Trash2 size={15} />
-                </button>
-                </div>
               </div>
               {lembreteDe === r.id && (
                 <EditorLembrete

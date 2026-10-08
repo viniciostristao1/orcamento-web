@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.128.0](#v12800) — 2026-10-08 — Cartões do histórico em 2 linhas (v0.128.0)
 - [v0.127.0](#v12700) — 2026-10-08 — AJUSTE curta + logo à esquerda + cantinho direito (v0.127.0)
 - [v0.126.0](#v12600) — 2026-10-08 — Chassi colado com dígito vizinho (v0.126.0)
 - [v0.125.0](#v12500) — 2026-10-08 — Chassi ignora linha de item (v0.125.0)
@@ -187,6 +188,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12800"></a>
+## 2026-10-08 — Cartões do histórico em 2 linhas (v0.128.0)
+
+**Pedido:** nos dois históricos, 1ª linha com data + nome do cliente + botões e 2ª
+linha com o resto (Nº, chassi, telefone etc.).
+
+**Feito:** orçamentos (nome com placa como reserva e "(sem nome)" vazio; placa e
+medida só na 2ª quando o nome já está na 1ª) e flyer (contato na 1ª, resto na 2ª).
+Só JSX, sem lógica.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**237/237 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.128.0`.
+
+---
 
 <a id="v12700"></a>
 ## 2026-10-08 — AJUSTE curta + logo à esquerda + cantinho direito (v0.127.0)

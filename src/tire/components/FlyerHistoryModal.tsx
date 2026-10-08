@@ -146,24 +146,17 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
             <span className="text-base font-black uppercase tracking-widest text-slate-500">
               <SeloCor cor={r.cor} />
               {dataDoRegistro(r.criadoEm)}
-              <span className="text-slate-600"> · </span>
-              <span className={lembreteFmt ? 'text-amber-300' : 'text-slate-600'} title={lembreteFmt ? `Lembrete em ${lembreteFmt}` : 'Sem lembrete'}>
-                {lembreteFmt ?? '—'}
-              </span>
               {r.contato ? (
                 <>
                   <span className="text-slate-600"> · </span>
                   <span className="text-blue-300">{r.contato}</span>
                 </>
-              ) : null}
-              {r.telefone ? (
+              ) : (
                 <>
                   <span className="text-slate-600"> · </span>
-                  <span className="text-green-300">{r.telefone}</span>
+                  <span className="text-amber-300">{r.medida}</span>
                 </>
-              ) : null}
-              <span className="text-slate-600"> · </span>
-              <span className="text-amber-300">{r.medida}</span>
+              )}
             </span>
             <div className="flex items-center gap-2">
               <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
@@ -197,6 +190,23 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
                 <Trash2 size={16} />
               </button>
             </div>
+          </div>
+          <div className="text-base font-black uppercase tracking-widest text-slate-500 mb-2">
+            <span className={lembreteFmt ? 'text-amber-300' : 'text-slate-600'} title={lembreteFmt ? `Lembrete em ${lembreteFmt}` : 'Sem lembrete'}>
+              {lembreteFmt ?? '—'}
+            </span>
+            {r.contato ? (
+              <>
+                <span className="text-slate-600"> · </span>
+                <span className="text-amber-300">{r.medida}</span>
+              </>
+            ) : null}
+            {r.telefone ? (
+              <>
+                <span className="text-slate-600"> · </span>
+                <span className="text-green-300">{r.telefone}</span>
+              </>
+            ) : null}
           </div>
           {lembreteDe === r.id && (
             <EditorLembrete
