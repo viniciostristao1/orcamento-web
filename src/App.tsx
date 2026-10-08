@@ -136,7 +136,6 @@ const AppInterno: React.FC = () => {
         <div className="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <img src={logoToyota} alt="Toyota" className="logo-toyota h-11 w-auto" />
-            <h1 className="titulo-tema text-2xl font-black tracking-tighter uppercase whitespace-nowrap">Toyota Weiand <span className="text-blue-500 font-black">Lajeado</span></h1>
           </div>
 
           <nav className="flex items-center gap-2">
@@ -180,7 +179,6 @@ const AppInterno: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 border-l border-slate-800 pl-4 h-8 flex items-center whitespace-nowrap">Gestão de Vendas</span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600 whitespace-nowrap" title="Versão do arquivo">v{VERSAO}</span>
             <button
               type="button"

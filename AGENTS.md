@@ -19,9 +19,10 @@ pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e
 **Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.). A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As três abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
-da interface. São **6 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium):
+da interface. São **5 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
+a v0.119.0 removeu o Suave Arredondado):
 **Azul** (padrão, era "Original"), **Claro Papel** (modo claro), **Verde WhatsApp**,
-**Monocromático Técnico** (cinza + laranja), **Suave Arredondado** (coral) e **Grafite**
+**Monocromático Técnico** (cinza + laranja) e **Grafite**
 (v0.19.0 — estilo das tabelas do Claude.ai: quase-preto, cabeçalho mais claro, grade sutil,
 fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do cliente não muda.
 
@@ -132,13 +133,14 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   (`components/ConfiguracoesTema.tsx`). Logo Toyota transparente no header
   (`src/assets/logo_toyota.png`). **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
-  - **6 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`):**
+  - **5 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`;
+    v0.119.0 removeu `suave`):**
     `claude`/`original` antigos caem em `azul` (`lerTemaSalvo` **migra**/descarta os nomes antigos,
-    inclusive quem tinha `terracota`/`executivo` salvo). Temas = `azul`, `papel` (modo **claro**),
-    `whatsapp` (verde), `tecnico` (cinza+laranja), `suave` (coral, cantos macios) e **`grafite`**
+    inclusive quem tinha `terracota`/`executivo`/`suave` salvo). Temas = `azul`, `papel` (modo **claro**),
+    `whatsapp` (verde), `tecnico` (cinza+laranja) e **`grafite`**
     (estilo tabela do Claude.ai: `#0c0c0c`, cabeçalho `#161616`, grade `#242424`, Plus Jakarta
     Sans, acento azul) — cada um é um bloco `[data-tema='x']` com os ~26 tokens `--tema-*` +
-    fontes `@fontsource` (space-grotesk, manrope, poppins, chivo, **plus-jakarta-sans**).
+    fontes `@fontsource` (space-grotesk, poppins, chivo, **plus-jakarta-sans**).
     ⚠️ Ao mexer em modo claro: literais **não** remapeados pelo `@theme inline` (ex.:
     `text-emerald-100`) não seguem o tema e podem sumir no fundo branco — usar tokens (600/500/400/900).
     ⚠️ Estilo de tabela por tema: as células da aba Dados usam `border-slate-800`
@@ -147,7 +149,8 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
     digitado nas células também fica **sem negrito** (`[data-tema='tecnico'] tbody td input[type='text']`,
     v0.29.0). NÃO usar `[data-tema='x'] textarea{font}` (quebra o mono dos dados).
     "Adicionar linha" = só um "+".
-    O seletor tem mini-amostra de cor + rolagem. Validado por screenshot headless do `dist`.
+    O seletor tem mini-amostra de cor + rolagem e fica escondido atrás de uma seta
+    (abre só no clique). Validado por screenshot headless do `dist`.
 - **Histórico do Tire Flyer + CONTATO** (v0.12.0): `tire/utils/historicoFlyer.ts`
   (`flyer_historico_v1`) salva a cada "Processar" (`data/hora · contato · medida · N marcas`;
   era "N pneus" até a v0.29.0 — registros antigos migram `numPneus` → `numMarcas` ao ler);
@@ -388,7 +391,7 @@ orcamento_web/
     utils/telefone.ts        normalizar/validar telefone + wa.me (v0.78.0; também na aba Whats)
     utils/corCliente.ts      CorCliente/FiltroCor + filtrarPorCor + corDaBusca (v0.79.0)
     utils/exportImage.ts     exportarPng (toSvg + fontes reais + canvas) — v0.3.2
-    utils/tema.ts            tema da interface (6 temas; azul padrão) + persistência
+    utils/tema.ts            tema da interface (5 temas; azul padrão) + persistência
                              (fontes/paleta em index.css; .titulo-tema = fonte do tema)
     utils/relatorio.ts       linhas DATA⇥NOME⇥CSP⇥NÚMERO⇥Sim/Não⇥Vinícios + TAB
                              (+ seletor de mês no modal: tabela, % e copiar seguem o mês;
@@ -544,10 +547,11 @@ npm run build        # gera dist/index.html (arquivo único)
   entra no PNG do cliente.
 - **Segunda aba "Tire Flyer"** (v0.4.0), no header ao lado da marca, para o gerador de promoção
   de pneus; as duas abas ficam montadas para não perder o que foi digitado.
-- **Temas** (v0.5.0): escolhidos em **Configurações**; o tema vale só para a interface (PNGs
-  iguais). Hoje são 6 (Azul padrão, Papel, WhatsApp, Técnico, Suave e Grafite) — Terracota e
-  Executivo foram removidos na v0.29.0. As duas abas no mesmo estilo (a de pneus foi igualada à
-  de orçamentos) e o logo Toyota no header.
+- **Temas** (v0.5.0): escolhidos em **Configurações** (lista escondida atrás de seta
+  desde a v0.119.0); o tema vale só para a interface (PNGs iguais). Hoje são 5 (Azul padrão,
+  Papel, WhatsApp, Técnico e Grafite) — Terracota e Executivo saíram na v0.29.0, Suave na
+  v0.119.0. As abas no mesmo estilo e só o logo Toyota no header (título e "Gestão de
+  Vendas" saíram na v0.119.0).
 - **Layout do flyer de pneus** (v0.20.0; cores na v0.21.0): além do **clássico** (mantido como
   padrão), o "Tabela de ofertas" e o "Etiqueta de preço" (ideias 4 e 7 de
   `ideias/tire-flyer-valores.md`) + "Laranja Queima-Estoque", "Vermelho Racing" e "Amarelo
@@ -601,6 +605,8 @@ npm run build        # gera dist/index.html (arquivo único)
   `wa.me` dos históricos continua; `zap_*` seguem no backup só para restaurar antigo.
 - **Ordem de data + sino largo** (v0.118.0): botão no relatório alterna recentes/antigos
   (vale para tabela e copiar); sino `w-[26rem]` com texto em 2 linhas.
+- **Header enxuto + fim do suave** (v0.119.0): header só com logo (+ selo de versão);
+  RESUMO LÍQUIDO em `text-xl`; temas atrás de seta; Suave removido (quem tinha cai no azul).
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

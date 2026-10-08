@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.119.0](#v11900) — 2026-10-08 — Header só logo + resumo menor + temas na seta + fim do suave (v0.119.0)
 - [v0.118.0](#v11800) — 2026-10-08 — Ordem de data no relatório + sino mais largo (v0.118.0)
 - [v0.117.0](#v11700) — 2026-10-08 — Aba Whats removida (v0.117.0)
 - [v0.116.0](#v11600) — 2026-10-08 — Alça de 6 pontinhos muda a tabela de lugar (v0.116.0)
@@ -178,6 +179,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11900"></a>
+## 2026-10-08 — Header só logo + resumo menor + temas na seta + fim do suave (v0.119.0)
+
+**Pedido (5 itens):** tirar "TOYOTA WEIAND LAJEADO" e "Gestão de Vendas" (símbolo fica);
+números do RESUMO LÍQUIDO menores (caixinha encolhe junto); temas escondidos atrás de
+seta; remover o Suave Arredondado.
+
+**Feito:** header só com o logo (+ selo de versão, que continua); valores do resumo
+`text-2xl` → `text-xl`; menu de temas colapsável (`temasAbertos`, seta gira,
+`aria-expanded`); suave removido de tudo (`tema.ts`, opções, CSS e fontes Manrope —
+Poppins fica, o WhatsApp usa; quem tinha suave salvo cai no azul pela validação).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**233/233 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.119.0`.
+
+---
 
 <a id="v11800"></a>
 ## 2026-10-08 — Ordem de data no relatório + sino mais largo (v0.118.0)

@@ -51,7 +51,10 @@ afterEach(() => {
 describe('App — smoke test (render + processar)', () => {
   it('renderiza a tela com os textos principais', () => {
     const { container } = render(<App />);
-    expect(screen.getByText(/Toyota Weiand/i)).toBeTruthy();
+    // header só com o símbolo (título e "Gestão de Vendas" saíram)
+    expect(screen.getByAltText('Toyota')).toBeTruthy();
+    expect(screen.queryByText(/Toyota Weiand/i)).toBeNull();
+    expect(screen.queryByText(/Gestão de Vendas/i)).toBeNull();
     // sem título interno: a aba ativa (só texto + traço) já diz onde estamos
     expect(screen.queryByRole('heading', { name: 'ORÇAMENTOS' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Orçamentos' }).className).toContain('text-white');
@@ -153,9 +156,15 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByRole('button', { name: /Exportar backup/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Importar backup/i })).toBeTruthy();
 
-    // temas removidos na v0.29.0 não aparecem mais
+    // temas removidos não aparecem mais (v0.29.0 + suave na v0.119.0)
     expect(screen.queryByText('Terracota')).toBeNull();
     expect(screen.queryByText('Executivo Premium')).toBeNull();
+    expect(screen.queryByText('Suave Arredondado')).toBeNull();
+
+    // temas escondidos atrás da seta: abre só no clique
+    expect(screen.queryByText('Claro Papel')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
+    expect(screen.getByText('Claro Papel')).toBeTruthy();
 
     fireEvent.click(screen.getByText('Claro Papel'));
     expect(document.documentElement.dataset.tema).toBe('papel');
@@ -200,6 +209,7 @@ describe('App — smoke test (render + processar)', () => {
 
     // tema claro: ativa escura (branco sumiria no fundo papel)
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
     fireEvent.click(screen.getByText('Claro Papel'));
     expect(abaDados().className).toContain('text-slate-900');
     expect(sublinhados()).toHaveLength(1);
@@ -211,8 +221,8 @@ describe('App — smoke test (render + processar)', () => {
     expect(logo.className).toContain('logo-toyota');
   });
 
-  it('migra nomes antigos e descarta os temas removidos (claude/terracota/executivo → azul)', () => {
-    for (const antigo of ['claude', 'terracota', 'executivo']) {
+  it('migra nomes antigos e descarta os temas removidos (claude/terracota/executivo/suave → azul)', () => {
+    for (const antigo of ['claude', 'terracota', 'executivo', 'suave']) {
       localStorage.setItem('orcamentos_tema_v1', antigo);
       const { unmount } = render(<App />);
       expect(document.documentElement.dataset.tema).toBe('azul');

@@ -8,12 +8,10 @@
 @import "@fontsource/inter/latin-900.css";
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-700.css";
-/* Fontes dos temas (Papel, WhatsApp, Técnico, Suave, Grafite).
+/* Fontes dos temas (Papel, WhatsApp, Técnico, Grafite).
    Todas @fontsource → embutidas em base64 no build (abrem offline). */
 @import "@fontsource/space-grotesk/latin-500.css";
 @import "@fontsource/space-grotesk/latin-700.css";
-@import "@fontsource/manrope/latin-400.css";
-@import "@fontsource/manrope/latin-700.css";
 @import "@fontsource/poppins/latin-500.css";
 @import "@fontsource/poppins/latin-700.css";
 @import "@fontsource/chivo/latin-400.css";
@@ -204,37 +202,6 @@
   --tema-fonte-conteudo: 'Chivo', sans-serif;
 }
 
-/* Suave Arredondado = carvão quente, coral/teal, cantos macios. Poppins + Manrope. */
-[data-tema='suave'] {
-  --tema-fundo: #1a1720;
-  --tema-campo: #1a1720;
-  --tema-painel: #241f2c;
-  --tema-borda-forte: #3a3145;
-  --tema-borda-media: #473c54;
-  --tema-texto-fraco: #877d90;
-  --tema-texto-suave: #a99fb0;
-  --tema-texto-medio: #c4bcca;
-  --tema-texto-medio2: #ddd6e2;
-  --tema-texto: #f5eef0;
-  --tema-titulo: #ffffff;
-  --tema-acento: #ff7a66;
-  --tema-acento-2: #ff8f7d;
-  --tema-acento-claro: #ffa593;
-  --tema-acento-clarissimo: #ffc4b8;
-  --tema-acento-escuro: #e5604c;
-  --tema-acento-texto: #3a120c;
-  --tema-sucesso: #34d3c0;
-  --tema-sucesso-2: #4bddcc;
-  --tema-sucesso-claro: #6fe6d8;
-  --tema-sucesso-escuro: #123a36;
-  --tema-ambar: #ffb25c;
-  --tema-ambar-claro: #ffc98c;
-  --tema-sombra-sucesso: #123a36;
-  --tema-tracking-widest: 0.06em;
-  --tema-fonte-titulo: 'Poppins', sans-serif;
-  --tema-fonte-conteudo: 'Manrope', sans-serif;
-}
-
 /* Grafite = estilo das TABELAS do Claude.ai: quase-preto, cabeçalho um tom mais
    claro, linhas de grade sutis, texto claro, fonte Plus Jakarta Sans. Acento azul
    suave (a referência é grayscale; azul p/ os botões terem contraste com texto branco). */
@@ -308,27 +275,23 @@
 /* Interface chapada nos temas (sem brilho neon, sem sombra nos botões). */
 [data-tema='papel'] button,
 [data-tema='whatsapp'] button,
-[data-tema='tecnico'] button,
-[data-tema='suave'] button {
+[data-tema='tecnico'] button {
   box-shadow: none;
 }
 [data-tema='papel'] [data-neon-glow],
 [data-tema='whatsapp'] [data-neon-glow],
-[data-tema='tecnico'] [data-neon-glow],
-[data-tema='suave'] [data-neon-glow] {
+[data-tema='tecnico'] [data-neon-glow] {
   display: none !important;
 }
 [data-tema='papel'] [data-neon-dot],
 [data-tema='whatsapp'] [data-neon-dot],
-[data-tema='tecnico'] [data-neon-dot],
-[data-tema='suave'] [data-neon-dot] {
+[data-tema='tecnico'] [data-neon-dot] {
   background-color: var(--tema-acento) !important;
   box-shadow: none !important;
 }
 [data-tema='papel'] [data-neon-box],
 [data-tema='whatsapp'] [data-neon-box],
-[data-tema='tecnico'] [data-neon-box],
-[data-tema='suave'] [data-neon-box] {
+[data-tema='tecnico'] [data-neon-box] {
   box-shadow: none !important;
 }
 
@@ -339,11 +302,7 @@
   font-weight: 400;
 }
 
-/* Suave = cantos bem arredondados; Técnico = cantos retos. */
-[data-tema='suave'] [data-neon-card],
-[data-tema='suave'] [data-neon-box] {
-  border-radius: 1.5rem !important;
-}
+/* Técnico = cantos retos. */
 [data-tema='tecnico'] [data-neon-card],
 [data-tema='tecnico'] [data-neon-box] {
   border-radius: 0.375rem !important;

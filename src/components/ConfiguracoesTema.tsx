@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Settings, Download, Upload } from 'lucide-react';
+import { Settings, Download, Upload, ChevronDown } from 'lucide-react';
 import type { Tema } from '../utils/tema';
 import { diasDesdeBackup, montarBackup, nomeArquivoBackup, precisaLembreteBackup, registrarBackup, restaurarBackup } from '../utils/backup';
 import { temSenha, trocarSenha } from '../utils/bloqueio';
@@ -15,7 +15,6 @@ const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento
   { id: 'papel', nome: 'Claro Papel', descricao: 'Modo claro, fundo papel', fundo: '#eef0f3', acento: '#2563eb' },
   { id: 'whatsapp', nome: 'Verde WhatsApp', descricao: 'Escuro com o verde do Zap', fundo: '#0b141a', acento: '#25d366' },
   { id: 'tecnico', nome: 'Monocromático Técnico', descricao: 'Cinza com laranja, bem sóbrio', fundo: '#101012', acento: '#ff6a00' },
-  { id: 'suave', nome: 'Suave Arredondado', descricao: 'Escuro quente, coral e cantos macios', fundo: '#1a1720', acento: '#ff7a66' },
   { id: 'grafite', nome: 'Grafite', descricao: 'Tabelas estilo Claude — quase-preto, grade sutil', fundo: '#0c0c0c', acento: '#4c7ef3' },
 ];
 
@@ -31,6 +30,8 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
   const [senhaOk, setSenhaOk] = useState(false);
   // Data do último backup (para o lembrete da engrenagem).
   const [backupVez, setBackupVez] = useState(0);
+  // Lista de temas escondida atrás da seta (abre só quando precisa).
+  const [temasAbertos, setTemasAbertos] = useState(false);
 
   const handleTrocarSenha = () => {
     const r = trocarSenha(senhaAtual, senhaNova, senhaConfirma);
@@ -137,9 +138,23 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
 
       {aberto && (
         <div className="absolute right-0 top-full mt-3 w-72 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-3 z-[120]">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pt-2 pb-3">
-            Tema da interface
-          </p>
+          <button
+            type="button"
+            onClick={() => setTemasAbertos((v) => !v)}
+            aria-label={temasAbertos ? 'Ocultar temas' : 'Mostrar temas'}
+            aria-expanded={temasAbertos}
+            title={temasAbertos ? 'Ocultar temas' : 'Mostrar temas'}
+            className="w-full flex items-center justify-between px-3 pt-2 pb-3 cursor-pointer"
+          >
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+              Tema da interface
+            </span>
+            <ChevronDown
+              size={16}
+              className={`text-slate-500 transition-transform ${temasAbertos ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {temasAbertos && (
           <div className="max-h-[46vh] overflow-y-auto pr-1 -mr-1">
             {OPCOES.map((opcao) => {
               const ativo = tema === opcao.id;
@@ -173,6 +188,7 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
               );
             })}
           </div>
+          )}
 
           <div className="h-px bg-slate-800 my-3"></div>
 
