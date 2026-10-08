@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **230 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **233 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -423,8 +423,9 @@ orcamento_web/
     components/Bloqueio.tsx  tela do cadeado (criar senha / desbloquear)
     components/LembreteRelogio.tsx BotaoRelogio + EditorLembrete (dois históricos)
     components/LembreteHistorico.tsx popup âmbar pulsante dos vencidos
-    components/RelatorioModal.tsx janela do relatório Excel (tabela + seletor de mês + copiar)
-    components/SinoLembretes.tsx sino do header (rápidos + lista geral)
+    components/RelatorioModal.tsx janela do relatório Excel (tabela + seletor de mês +
+                             ordem de data + copiar; comparativo mês x anterior)
+    components/SinoLembretes.tsx sino do header (rápidos + lista geral, janela larga)
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
     tire/components/FlyerTabela.tsx / FlyerEtiqueta.tsx / FlyerLaranja.tsx /
@@ -598,6 +599,8 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Aba Whats removida** (v0.117.0): contatos + relatório de envios + pop-up "para hoje"
   saíram (`src/whats/`, `LembreteContatos`, `whats_scripts.test.ts` e 4 testes de tela);
   `wa.me` dos históricos continua; `zap_*` seguem no backup só para restaurar antigo.
+- **Ordem de data + sino largo** (v0.118.0): botão no relatório alterna recentes/antigos
+  (vale para tabela e copiar); sino `w-[26rem]` com texto em 2 linhas.
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

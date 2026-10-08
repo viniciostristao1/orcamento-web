@@ -2164,7 +2164,7 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('relatório: comparativo do mês com o anterior', () => {    const rec = (id: string, dataDoc: string, aprovacao?: 'aprovado' | 'naoAprovado') => ({
+    it('relatório: comparativo do mês com o anterior', () => {    const rec = (id: string, dataDoc: string, aprovacao?: 'aprovado' | 'naoAprovado') => ({
       ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),
       dataDoc,
       numeroOrcamento: `N${id}`,
@@ -2226,6 +2226,50 @@ describe('App — smoke test (render + processar)', () => {
       expect(salvos[0].criadoEm).toBe(criado); // data intacta
     } finally {
       localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('relatório: botão alterna a ordem da data (recentes x antigos)', () => {
+    const rec = (id: string, dataDoc: string) => ({
+      ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),
+      dataDoc,
+      numeroOrcamento: `N${id}`,
+      nome: `NOME${id}`,
+    });
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([rec('2', '05/09/2026'), rec('1', '25/08/2026')]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      const meses = () =>
+        Array.from(document.querySelectorAll('[data-janela-relatorio="1"] tbody td[colspan]')).map(
+          (td) => td.textContent,
+        );
+      expect(meses()[0]).toContain('SETEMBRO');
+      fireEvent.click(screen.getByRole('button', { name: 'Alternar ordem da data' }));
+      expect(meses()[0]).toContain('AGOSTO');
+      fireEvent.click(screen.getByRole('button', { name: 'Alternar ordem da data' }));
+      expect(meses()[0]).toContain('SETEMBRO');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('sino: janela larga mostra o texto em até 2 linhas', () => {
+    localStorage.removeItem('lembretes_rapidos_v1');
+    localStorage.setItem(
+      'lembretes_rapidos_v1',
+      JSON.stringify([{ id: 'q1', texto: 'Ligar para o cliente sobre o orçamento', quando: '2999-01-01T09:00', criadoEm: 'x' }]),
+    );
+    try {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      expect(container.querySelector('.w-\\[26rem\\]')).toBeTruthy();
+      expect(screen.getByText('Ligar para o cliente sobre o orçamento')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
     }
   });
 });

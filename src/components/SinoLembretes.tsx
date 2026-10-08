@@ -122,7 +122,7 @@ const SinoLembretes: React.FC = () => {
       </button>
 
       {aberto && (
-        <div className="absolute right-0 top-full mt-3 w-80 max-h-[70vh] overflow-y-auto bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-3 z-[120]">
+        <div className="absolute right-0 top-full mt-3 w-[26rem] max-w-[90vw] max-h-[70vh] overflow-y-auto bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-3 z-[120]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pt-2 pb-2">
             Lembrete rápido
           </p>
@@ -176,7 +176,7 @@ const SinoLembretes: React.FC = () => {
                     {nomeOrigem(item.origem)}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold text-slate-100 truncate">{item.rotulo}</span>
+                    <span className="block text-sm font-bold text-slate-100 break-words line-clamp-2" title={item.rotulo}>{item.rotulo}</span>
                     <span className={`block text-[11px] font-bold ${item.vencido ? 'text-amber-300' : 'text-slate-500'}`}>
                       {formatarLembrete(item.quando) ?? item.quando}
                     </span>

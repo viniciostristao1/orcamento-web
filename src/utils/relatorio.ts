@@ -42,6 +42,33 @@ export function mesDoRegistro(r: OrcamentoSalvo): string {
   return m ? `${m[1]}/${m[2]}` : 'SEM DATA';
 }
 
+/** "25/08/2026" (ou "25/08/2026 09:00:00") → ms (data do documento, cai para
+ *  a do processamento). 0 quando não dá para ler (vai para o fim da ordem). */
+export function tempoDoRegistro(r: OrcamentoSalvo): number {
+  const data = (r.dataDoc ?? '').trim() || dataDoRegistro(r.criadoEm);
+  const m = data.match(/(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!m) return 0;
+  return new Date(
+    parseInt(m[3], 10),
+    parseInt(m[2], 10) - 1,
+    parseInt(m[1], 10),
+    parseInt(m[4] ?? '0', 10),
+    parseInt(m[5] ?? '0', 10),
+    parseInt(m[6] ?? '0', 10),
+  ).getTime();
+}
+
+export type OrdemDataRelatorio = 'recentes' | 'antigos';
+
+/** Ordena por data: recentes = maior primeiro; antigos = menor primeiro. */
+export function ordenarPorData(lista: OrcamentoSalvo[], ordem: OrdemDataRelatorio): OrcamentoSalvo[] {
+  const copia = [...lista];
+  copia.sort((a, b) =>
+    ordem === 'antigos' ? tempoDoRegistro(a) - tempoDoRegistro(b) : tempoDoRegistro(b) - tempoDoRegistro(a),
+  );
+  return copia;
+}
+
 /** "08/2026" → "AGOSTO/2026" (rótulo do grupo no relatório). */
 export function rotuloMes(mes: string): string {
   const m = mes.match(/(\d{2})\/(\d{4})/);

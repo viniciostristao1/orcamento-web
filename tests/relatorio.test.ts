@@ -6,7 +6,7 @@ import {
   listarHistorico,
   type OrcamentoSalvo,
 } from '../src/utils/historico';
-import { gruposPorMes, linhaRelatorio, mesAnterior, mesDoRegistro, percentuaisAprovacao, relatorioParaExcel, rotuloMes } from '../src/utils/relatorio';
+import { gruposPorMes, linhaRelatorio, mesAnterior, mesDoRegistro, ordenarPorData, percentuaisAprovacao, relatorioParaExcel, rotuloMes, tempoDoRegistro } from '../src/utils/relatorio';
 
 const base = {
   descReparo: '1 X',
@@ -143,5 +143,18 @@ describe('relatório para Excel (aprovados)', () => {
     expect(mesAnterior('13/2026')).toBeNull();
     expect(mesAnterior('todos')).toBeNull();
     expect(mesAnterior('')).toBeNull();
+  });
+
+  it('ordem da data: recentes primeiro ou antigos primeiro', () => {
+    const a = { ...base, id: 'ago', criadoEm: 'x', dataDoc: '25/08/2026' } as OrcamentoSalvo;
+    const b = { ...base, id: 'set', criadoEm: 'x', dataDoc: '05/09/2026' } as OrcamentoSalvo;
+    expect(tempoDoRegistro(a)).toBeLessThan(tempoDoRegistro(b));
+    expect(ordenarPorData([a, b], 'recentes').map((r) => r.id)).toEqual(['set', 'ago']);
+    expect(ordenarPorData([a, b], 'antigos').map((r) => r.id)).toEqual(['ago', 'set']);
+    // sem data do documento, cai para a do processamento (com hora)
+    const c = { ...base, id: 'c', criadoEm: '01/08/2026 09:00:00', dataDoc: '' } as OrcamentoSalvo;
+    const d = { ...base, id: 'd', criadoEm: '01/08/2026 18:00:00', dataDoc: '' } as OrcamentoSalvo;
+    expect(ordenarPorData([c, d], 'antigos').map((r) => r.id)).toEqual(['c', 'd']);
+    expect(tempoDoRegistro({ ...base, id: 'x', dataDoc: '', criadoEm: 'sem-data' } as OrcamentoSalvo)).toBe(0);
   });
 });

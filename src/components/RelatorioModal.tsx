@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Copy, Trash2, X } from 'lucide-react';
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, Check, Copy, Trash2, X } from 'lucide-react';
 import type { OrcamentoSalvo } from '../utils/historico';
 import {
   gruposPorMes,
   linhaRelatorio,
   mesAnterior,
   mesDoRegistro,
+  ordenarPorData,
+  type OrdemDataRelatorio,
   percentuaisAprovacao,
   relatorioParaExcel,
   rotuloMes,
@@ -27,17 +29,21 @@ const CABECALHO = ['DATA', 'NOME', 'TIPO', 'NÚMERO', 'APROVADO', 'RESPONSÁVEL'
  * Relatório para Excel: todos os orçamentos separados por mês, com o
  * percentual de aprovados/parcial/não aprovados no topo. O seletor de mês
  * filtra a tabela e o "Copiar" (ícone) leva só as linhas visíveis em TAB
- * (cada valor cai na sua célula ao colar). Lixeira por linha exclui;
- * lixeira do topo limpa tudo.
+ * (cada valor cai na sua célula ao colar). O botão de ordem alterna a data
+ * entre recentes e antigos (vale para a tabela E para o copiar). Lixeira por
+ * linha exclui; lixeira do topo limpa tudo.
  */
 const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, registros, onExcluir, onLimparTudo }) => {
   const [copiado, setCopiado] = useState(false);
   // Mês selecionado ("todos" = copia tudo; "MM/AAAA" = copia só aquele mês).
   const [mesSel, setMesSel] = useState('todos');
+  // Ordem da data: recentes (maior primeiro) ou antigos (menor primeiro).
+  const [ordemData, setOrdemData] = useState<OrdemDataRelatorio>('recentes');
 
   useEffect(() => {
     if (aberto) {
       setMesSel('todos');
+      setOrdemData('recentes');
       setCopiado(false);
     }
   }, [aberto]);
@@ -47,7 +53,9 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
   const grupos = gruposPorMes(registros);
   const mesEfetivo = mesSel === 'todos' || grupos.some((g) => g.mes === mesSel) ? mesSel : 'todos';
   const filtrados = mesEfetivo === 'todos' ? registros : registros.filter((r) => mesDoRegistro(r) === mesEfetivo);
-  const gruposVisiveis = gruposPorMes(filtrados);
+  // A ordem vale para a tabela E para o copiar (o % não depende de ordem).
+  const ordenados = ordenarPorData(filtrados, ordemData);
+  const gruposVisiveis = gruposPorMes(ordenados);
   const pct = percentuaisAprovacao(filtrados);
 
   // Comparativo: mês em foco (o selecionado, ou o mais recente) x mês anterior.
@@ -59,7 +67,7 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
   const pctAnt = mesAnt ? percentuaisAprovacao(registros.filter((r) => mesDoRegistro(r) === mesAnt)) : null;
 
   const copiar = () => {
-    navigator.clipboard.writeText(relatorioParaExcel(filtrados));
+    navigator.clipboard.writeText(relatorioParaExcel(ordenados));
     setCopiado(true);
     window.setTimeout(() => setCopiado(false), 2000);
   };
@@ -82,6 +90,20 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
             </h3>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setOrdemData((o) => (o === 'recentes' ? 'antigos' : 'recentes'))}
+              disabled={filtrados.length === 0}
+              aria-label="Alternar ordem da data"
+              title={
+                ordemData === 'recentes'
+                  ? 'Mais recentes primeiro — clique para ver os mais antigos'
+                  : 'Mais antigos primeiro — clique para ver os mais recentes'
+              }
+              className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
+            >
+              {ordemData === 'recentes' ? <ArrowDownWideNarrow size={18} /> : <ArrowUpNarrowWide size={18} />}
+            </button>
             <button
               type="button"
               onClick={copiar}

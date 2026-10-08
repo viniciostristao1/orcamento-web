@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.118.0](#v11800) — 2026-10-08 — Ordem de data no relatório + sino mais largo (v0.118.0)
 - [v0.117.0](#v11700) — 2026-10-08 — Aba Whats removida (v0.117.0)
 - [v0.116.0](#v11600) — 2026-10-08 — Alça de 6 pontinhos muda a tabela de lugar (v0.116.0)
 - [v0.115.0](#v11500) — 2026-10-08 — Chassi ignora palavra de 17 letras (v0.115.0)
@@ -177,6 +178,28 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11800"></a>
+## 2026-10-08 — Ordem de data no relatório + sino mais largo (v0.118.0)
+
+**Pedido:** botão no relatório para alternar a exibição da data (menor→maior e
+vice-versa) + janela dos lembretes rápidos (sino) mais larga.
+
+**Feito:** `tempoDoRegistro`/`ordenarPorData` em `relatorio.ts` (data do documento,
+cai para a do processamento com hora; ilegível vai para o fim); botão de ordem no
+cabeçalho do relatório (recentes↔antigos, vale para a tabela E para o copiar — o %
+não depende de ordem); sino de `w-80` para `w-[26rem]` com o texto em até 2 linhas
+(`line-clamp-2` + `title` com o texto cheio).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**233/233 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.118.0`.
+
+**Gotchas / decisões:**
+- Teste do `tempoDoRegistro` sem data precisa `dataDoc: ''` (a base sintética tem
+  `dataDoc` preenchido e ele tem prioridade na leitura).
+
+---
 
 <a id="v11700"></a>
 ## 2026-10-08 — Aba Whats removida (v0.117.0)
