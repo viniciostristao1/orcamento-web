@@ -30,6 +30,9 @@ export interface OrcamentoSalvo {
   // Nome do cliente (campo próprio no card do sistema).
   // Entra na busca e no anti-duplicado, como os demais contatos.
   nome?: string;
+  // Chassi do veículo (17 caracteres; extraído do PDF/print no card do sistema).
+  // Entra na busca e no anti-duplicado, como placa/telefone.
+  chassi?: string;
   // Lembrete com data/hora (botão relógio do cartão; ISO "YYYY-MM-DDTHH:mm").
   // Marcação posterior: não entra no anti-duplicado e o reprocessar preserva.
   lembreteEm?: string | null;
@@ -86,7 +89,8 @@ const mesmosDados = (a: OrcamentoSalvo, b: Omit<OrcamentoSalvo, 'id' | 'criadoEm
   somenteDigitos(a.telefone) === somenteDigitos(b.telefone) && // telefone diferente = outro orçamento
   (a.numeroOrcamento ?? '') === (b.numeroOrcamento ?? '') &&
   (a.dataDoc ?? '') === (b.dataDoc ?? '') &&
-  (a.nome ?? '').toUpperCase() === (b.nome ?? '').toUpperCase();
+  (a.nome ?? '').toUpperCase() === (b.nome ?? '').toUpperCase() &&
+  (a.chassi ?? '').toUpperCase() === (b.chassi ?? '').toUpperCase();
 
 /**
  * Salva um orçamento. Se o mais recente tiver os MESMOS dados, substitui
@@ -146,6 +150,19 @@ export function atualizarAprovacaoHistorico(
   aprovacao: 'aprovado' | 'naoAprovado' | undefined,
 ): OrcamentoSalvo[] {
   const out = listarHistorico().map((r) => (r.id === id ? { ...r, aprovacao } : r));
+  gravar(out);
+  return out;
+}
+
+/**
+ * Grava o chassi do registro (edição inline no histórico ou regeração).
+ * Só troca o `chassi` — `id`, `criadoEm` e o resto ficam intactos.
+ */
+export function atualizarChassiHistorico(id: string, chassi: string): OrcamentoSalvo[] {
+  const valor = (chassi ?? '').trim().toUpperCase().slice(0, 25);
+  const out = listarHistorico().map((r) =>
+    r.id === id ? { ...r, chassi: valor ? valor : undefined } : r,
+  );
   gravar(out);
   return out;
 };
@@ -305,7 +322,7 @@ export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): Orcam
 }
 
 /**
- * Filtra o histórico por **data, placa, nome, telefone, nº, cor ou item** —
+ * Filtra o histórico por **data, placa, chassi, nome, telefone, nº, cor ou item** —
  * busca "contém", sem acentos e ignorando separadores (ex.: buscar "freio" acha os
  * orçamentos com pastilhas de freio; útil na aba "Não Realizados"). Buscar "verde"
  * ou "vermelho" lista os registros marcados com essa cor. Termo vazio = tudo.
@@ -366,6 +383,7 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
   const texto = lista.filter(
     (r) =>
       normalizarBusca(r.placa ?? '').includes(t) ||
+      normalizarBusca(r.chassi ?? '').includes(t) ||
       normalizarBusca(r.nome ?? '').includes(t) ||
       normalizarBusca(r.observacao ?? '').includes(t) ||
       normalizarBusca(r.telefone ?? '').includes(t) ||

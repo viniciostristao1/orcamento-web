@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **227 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **234 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -405,7 +405,8 @@ orcamento_web/
     utils/historico.ts       HISTÓRICO orçamentos (localStorage) + backup/restaurar JSON
                              (+ `atualizarNaoRealizadosHistorico`: parcial inline sem mudar a data;
                              `temParcial` estrito: misto, não tudo riscado;
-                             busca por faixa de valor: `>2000`, `1000-3000`, pelo bruto)
+                             busca por faixa de valor: `>2000`, `1000-3000`, pelo bruto;
+                             `chassi`: busca + anti-duplicado + `atualizarChassiHistorico`)
     utils/busca.ts           normalizarBusca (definição única, dois históricos)
     utils/telefone.ts        normalizar/validar telefone + wa.me (v0.78.0; também na aba Whats)
     utils/corCliente.ts      CorCliente/FiltroCor + filtrarPorCor + corDaBusca (v0.79.0)
@@ -430,7 +431,8 @@ orcamento_web/
     components/HistoryModal.tsx  painel do histórico (abrir/excluir/limpar/backup/busca/
                              abas Todos|Aprovados|Não Aprovados/filtro de cor/WhatsApp/relatório/
                              V aprova tudo / X reprova tudo inline + caixinhas de parcial
-                             na janelinha de itens, tudo sem mudar a data)
+                             na janelinha de itens + chassi (+ CHASSI/edição) no cartão,
+                             tudo sem mudar a data)
     components/HistoricoBase.tsx casca dos dois históricos (overlay/cabeçalho/busca/cor/lista)
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
@@ -459,7 +461,8 @@ orcamento_web/
     tire/utils/marcas.ts     getBrandStyle (cores por marca)
     tire/utils/descricaoWhats.ts texto COPIAR PNEUS (medida + marcas)
     tire/types.ts            TireData / PromoInfo
-    sistema/SistemaCard.tsx  card 3 (PDF/print → revisão → DADOS; nº/data)
+    sistema/SistemaCard.tsx  card 3 (PDF/print → revisão → DADOS; nº/data;
+                             contato em Placa|Nome|Chassi, telefone acima do chassi)
     sistema/extracao.ts      puro: linhas do PDF + normalizar + cabeçalho
     sistema/pdf.ts           pdf.js via Blob (offline) + texto por página
     sistema/ocr.ts           tesseract via Blob + fetch do idioma interceptado
@@ -539,9 +542,10 @@ npm run build        # gera dist/index.html (arquivo único)
   ou trocar de PC). Salvar a cada "Processar Tudo". O `localStorage` no `file://` é por origem
   do navegador — para não depender disso, o Release publica também o `Orcamento.html` de nome
   estável (abrir sempre do mesmo caminho) e há o backup JSON.
-- **Placa, Nome, Contato + Telefone** (v0.13.0; telefone na v0.78.0) são dados **só do
-  histórico** (não aparecem no PNG enviado ao cliente). Placa é campo livre (`maxLength 60`),
-  telefone é DDD + número (`maxLength 20`, normalizado para `wa.me`); **ambos entram na
+- **Placa, Nome, Chassi + Telefone** (v0.13.0; telefone na v0.78.0; chassi na v0.113.0)
+  são dados **só do histórico** (não aparecem no PNG enviado ao cliente). Placa é
+  campo livre (`maxLength 60`), chassi é VIN de 17 (`maxLength 17`, só letras/números),
+  telefone é DDD + número (`maxLength 20`, normalizado para `wa.me`); **todos entram na
   comparação de duplicidade**: mesmo conteúdo substitui o último; diferente = novo registro.
   A busca do histórico ignora acentos (`normalizarBusca` com `normalize('NFD')`) e máscaras.
   Telefone é lido **na hora do clique**: processar/salvar depois de digitar inclui o número;
@@ -614,6 +618,11 @@ npm run build        # gera dist/index.html (arquivo único)
   busca do histórico por faixa de valor (`>`/`<` sempre valor; `1000-3000` só quando o
   texto não acha — telefone/placa têm prioridade); comparativo mensal no relatório
   (foco x anterior, quantidade + %).
+- **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
+  com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
+  altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no
+  cartão (sem data); regerar o registro aberto mudando só o chassi atualiza no lugar
+  (`registroAbertoRef` — mantém data e itens marcados).
 - **Sem títulos internos** (v0.103.0): saiu o cabeçalho centralizado de cada aba
   (ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS) — a aba ativa já diz onde estamos.
   Saiu junto o `TituloEditavel` (+ renomear do contexto); renomear das abas no topo

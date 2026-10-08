@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.113.0](#v11300) — 2026-10-08 — Chassi do PDF + regerar antigo sem mudar a data (v0.113.0)
 - [v0.112.0](#v11200) — 2026-10-07 — WhatsApp no resultado + aviso de backup + busca por valor + comparativo mensal (v0.112.0)
 - [v0.111.0](#v11100) — 2026-10-07 — Parcial só no misto + V/X aprovam tudo + janelas largas (v0.111.0)
 - [v0.110.0](#v11000) — 2026-10-07 — Seletor de mês no relatório + V/X e parcial sem abrir (v0.110.0)
@@ -172,6 +173,34 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11300"></a>
+## 2026-10-08 — Chassi do PDF + regerar antigo sem mudar a data (v0.113.0)
+
+**Pedido:** importar o nº do chassi do PDF (cabeçalho Toyota: rótulos numa linha,
+valores noutra — ex.: `Nr.Fab …` / `… 9BRKC3F33R8269071`) e conseguir regerar os
+antigos com chassi sem alterar a data. Campo no card à direita do nome, abaixo do
+telefone (3 colunas).
+
+**Feito:** `extrairCabecalho` acha VIN de 17 (rotulado CHASSI/Nr.Fab/VIN ou avulso
+com ao menos uma letra — 17 só-dígitos não vale); `OrcamentoSalvo.chassi` entra na
+busca e no anti-duplicado (como placa); card do sistema em `Placa|Nome|Chassi`
+(`110px_1fr_230px`, sem mudar a altura); rascunho guarda junto; cartão do histórico
+mostra em teal com `+ CHASSI`/edição inline (`atualizarChassiHistorico`, sem data);
+`registroAbertoRef` no app: regerar o aberto mudando SÓ o chassi atualiza no lugar
+(mantém data e marcação de itens); resto segue o fluxo normal.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**234/234 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.113.0`.
+
+**Gotchas / decisões:**
+- `toEqual` do cabeçalho quebrou (objeto ganhou `chassi`) — atualizado.
+- `novo.chassi` é `string|undefined` no tipo (campo opcional): `?? ''` no in-place.
+- Append no fim do `historico.test.ts` casou o `});` errado e fechou o describe
+  cedo — conferir o fim do arquivo após edits por âncora.
+
+---
 
 <a id="v11200"></a>
 ## 2026-10-07 — WhatsApp no resultado + aviso de backup + busca por valor + comparativo mensal (v0.112.0)

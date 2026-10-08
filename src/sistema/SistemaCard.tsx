@@ -17,14 +17,16 @@ interface SistemaCardProps {
   telefone: string;
   nome: string;
   placa: string;
+  chassi: string;
   onNumero: (v: string) => void;
   onDataDoc: (v: string) => void;
   onTelefone: (v: string) => void;
   onNome: (v: string) => void;
   onPlaca: (v: string) => void;
+  onChassi: (v: string) => void;
   /** Preenche placa (se vazia) com placa/nome extraídos. */
   onCabecalho: (c: CabecalhoOrcamento) => void;
-  /** Limpa PLACA, NOME e TELEFONE (borracha do card). */
+  /** Limpa PLACA, NOME, CHASSI e TELEFONE (borracha do card). */
   onLimparContato: () => void;
   /** Limpa revisão, ajustes, DADOS e DESCRIÇÃO (borracha do card). */
   onLimparValores: () => void;
@@ -57,11 +59,13 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   telefone,
   nome,
   placa,
+  chassi,
   onNumero,
   onDataDoc,
   onTelefone,
   onNome,
   onPlaca,
+  onChassi,
   onCabecalho,
   onLimparContato,
   onLimparValores,
@@ -106,7 +110,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     const numeroDoc = sis.numero || cab.numero;
     onNumero(numeroDoc.trim());
     onDataDoc(sis.data.trim());
-    onCabecalho({ numero: numeroDoc, placa: cab.placa, nome: sis.cliente || cab.nome, data: sis.data, telefone: cab.telefone });
+    onCabecalho({ numero: numeroDoc, placa: cab.placa, nome: sis.cliente || cab.nome, data: sis.data, telefone: cab.telefone, chassi: cab.chassi });
     onExtraido();
   };
 
@@ -233,7 +237,9 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        {/* Placa | Nome | Chassi: 3 colunas (chassi à direita do nome,
+            embaixo do telefone da fileira de cima). */}
+        <div className="grid grid-cols-[110px_minmax(0,1fr)_230px] gap-2">
           <div className="space-y-1">
             <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Placa</label>
             <input
@@ -245,7 +251,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
               className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
             />
           </div>
-          <div className="space-y-1 col-span-2">
+          <div className="space-y-1 min-w-0">
             <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Nome</label>
             <input
               type="text"
@@ -253,6 +259,17 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
               onChange={(e) => onNome(e.target.value.toUpperCase())}
               placeholder="Ex.: JOÃO DA SILVA"
               maxLength={60}
+              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+            />
+          </div>
+          <div className="space-y-1 min-w-0">
+            <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Chassi</label>
+            <input
+              type="text"
+              value={chassi}
+              onChange={(e) => onChassi(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+              placeholder="Ex.: 9BRKC3F33R8269071"
+              maxLength={17}
               className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
             />
           </div>

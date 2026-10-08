@@ -4,6 +4,7 @@ import {
   type AbaHistorico,
   type OrcamentoSalvo,
   atualizarAprovacaoHistorico,
+  atualizarChassiHistorico,
   atualizarCorHistorico,
   atualizarLembreteHistorico,
   atualizarNaoRealizadosHistorico,
@@ -49,6 +50,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const [relatorioAberto, setRelatorioAberto] = useState(false);
   // Registro com a janelinha de itens aberta (descrição do reparo, linha a linha).
   const [itensDe, setItensDe] = useState<OrcamentoSalvo | null>(null);
+  // Registro com o editor de chassi aberto (digita e confirma sem mudar a data).
+  const [chassiEditando, setChassiEditando] = useState<string | null>(null);
+  const [chassiTexto, setChassiTexto] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -62,6 +66,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
       setLembreteDe(null);
       setRelatorioAberto(false);
       setItensDe(null);
+      setChassiEditando(null);
+      setChassiTexto('');
     }
   }, [aberto]);
 
@@ -148,6 +154,19 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const handleLembrete = (id: string, iso: string | null, observacao?: string) => {
     setLista(atualizarLembreteHistorico(id, iso, observacao));
     setLembreteDe(null);
+  };
+
+  // Grava o chassi do registro (adiciona ou corrige): só troca o chassi,
+  // então `id`, `criadoEm` e o resto ficam intactos (não muda a data).
+  const handleChassi = (id: string, valor: string) => {
+    setLista(atualizarChassiHistorico(id, valor));
+    setItensDe((atualRec) => {
+      if (!atualRec || atualRec.id !== id) return atualRec;
+      const v = valor.trim().toUpperCase().slice(0, 25);
+      return { ...atualRec, chassi: v ? v : undefined };
+    });
+    setChassiEditando(null);
+    setChassiTexto('');
   };
 
   // V/X direto no cartão (sem "Abrir orçamento"): V aprova TUDO (limpa os
@@ -308,7 +327,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
         tituloBusca="Pesquisar"
         busca={busca}
         onBusca={setBusca}
-        placeholderBusca="Pesquisar por data, placa, telefone, nº, cor, item ou valor… (ex.: 24/09, ABC1D23, 4471, freio, >2000, 1000-3000)"
+        placeholderBusca="Pesquisar por data, placa, chassi, telefone, nº, cor, item ou valor… (ex.: 24/09, ABC1D23, 9BRK, 4471, freio, >2000, 1000-3000)"
         totalVisiveis={visiveis.length}
         totalLista={lista.length}
         faixaExtras={
@@ -378,6 +397,68 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                     <span className="text-amber-300">{r.placa}</span>
                   </>
                 ) : null}
+                {chassiEditando === r.id ? (
+                  <>
+                    <span className="text-slate-600"> · </span>
+                    <input
+                      autoFocus
+                      type="text"
+                      value={chassiTexto}
+                      onChange={(e) => setChassiTexto(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleChassi(r.id, chassiTexto);
+                        if (e.key === 'Escape') { setChassiEditando(null); setChassiTexto(''); }
+                      }}
+                      placeholder="CHASSI (17)"
+                      maxLength={17}
+                      aria-label="Chassi do veículo"
+                      className="w-44 campo-tema border border-teal-600 rounded-lg px-2 py-0.5 text-sm font-bold text-white uppercase outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleChassi(r.id, chassiTexto)}
+                      aria-label="Salvar chassi"
+                      title="Salvar chassi (sem mudar a data)"
+                      className="p-1 text-green-400 hover:text-green-300 cursor-pointer"
+                    >
+                      <Check size={14} strokeWidth={3} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setChassiEditando(null); setChassiTexto(''); }}
+                      aria-label="Cancelar edição do chassi"
+                      title="Cancelar"
+                      className="p-1 text-slate-500 hover:text-slate-300 cursor-pointer"
+                    >
+                      <X size={14} strokeWidth={3} />
+                    </button>
+                  </>
+                ) : r.chassi ? (
+                  <>
+                    <span className="text-slate-600"> · </span>
+                    <button
+                      type="button"
+                      onClick={() => { setChassiEditando(r.id); setChassiTexto(r.chassi ?? ''); }}
+                      title="Editar chassi (sem mudar a data)"
+                      className="text-teal-300 hover:text-teal-100 cursor-pointer"
+                    >
+                      {r.chassi}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-slate-600"> · </span>
+                    <button
+                      type="button"
+                      onClick={() => { setChassiEditando(r.id); setChassiTexto(''); }}
+                      aria-label="Adicionar chassi"
+                      title="Adicionar chassi (sem mudar a data)"
+                      className="text-slate-600 hover:text-teal-300 cursor-pointer"
+                    >
+                      + CHASSI
+                    </button>
+                  </>
+                )}
                 {r.nome ? (
                   <>
                     <span className="text-slate-600"> · </span>

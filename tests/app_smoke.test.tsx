@@ -2278,8 +2278,7 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('relatório: comparativo do mês com o anterior', () => {
-    const rec = (id: string, dataDoc: string, aprovacao?: 'aprovado' | 'naoAprovado') => ({
+  it('relatório: comparativo do mês com o anterior', () => {    const rec = (id: string, dataDoc: string, aprovacao?: 'aprovado' | 'naoAprovado') => ({
       ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),
       dataDoc,
       numeroOrcamento: `N${id}`,
@@ -2297,6 +2296,48 @@ describe('App — smoke test (render + processar)', () => {
       expect(janela.textContent).toContain('SETEMBRO/2026');
       expect(janela.textContent).toContain('AGOSTO/2026');
       expect(janela.textContent).toContain('1 orçamento(s)');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('histórico: adicionar chassi no cartão não muda a data', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([registro('1', 'ABC1D23', '24/09/2026 12:30:00')]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Adicionar chassi' }));
+      fireEvent.change(screen.getByLabelText('Chassi do veículo'), { target: { value: '9brkc3f33r8269071' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar chassi' }));
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].chassi).toBe('9BRKC3F33R8269071');
+      expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
+      expect(screen.getByText('9BRKC3F33R8269071')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('regerar antigo só com chassi não muda a data nem duplica', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const criado = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].criadoEm;
+
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir orçamento' }));
+      fireEvent.change(screen.getByPlaceholderText('Ex.: 9BRKC3F33R8269071'), {
+        target: { value: '9brkc3f33r8269071' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1); // não duplicou
+      expect(salvos[0].chassi).toBe('9BRKC3F33R8269071');
+      expect(salvos[0].criadoEm).toBe(criado); // data intacta
     } finally {
       localStorage.removeItem('orcamentos_historico_v1');
     }

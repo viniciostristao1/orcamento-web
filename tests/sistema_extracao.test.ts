@@ -43,7 +43,30 @@ describe('extração do orçamento do sistema (puro)', () => {
         '1 Peça X 1 10,00',
       ].join('\n'),
     );
-    expect(cab).toEqual({ numero: '4471', placa: 'ABC1D23', nome: 'JOÃO DA SILVA', data: '24/09/2026', telefone: '' });
+    expect(cab).toEqual({ numero: '4471', placa: 'ABC1D23', nome: 'JOÃO DA SILVA', data: '24/09/2026', telefone: '', chassi: '' });
+  });
+
+  it('acha o chassi rotulado (CHASSI / Nr.Fab / VIN)', () => {
+    expect(extrairCabecalho('CHASSI: 9BRKC3F33R8269071').chassi).toBe('9BRKC3F33R8269071');
+    expect(extrairCabecalho('Nr.Fab 9BRKC3F33R8269071').chassi).toBe('9BRKC3F33R8269071');
+    expect(extrairCabecalho('VIN: 9BRKC3F33R8269071').chassi).toBe('9BRKC3F33R8269071');
+  });
+
+  it('acha o chassi avulso no layout Toyota (rótulos numa linha, valores noutra)', () => {
+    const cab = extrairCabecalho(
+      [
+        'Veículo Produto/Modelo: TOY YARIS HATCH / YARIS HB XLS AT TSS Nr.Fab Cor Externa: Linha: Placa: Ano/Modelo: KM: Hr: Combustivel:',
+        '23/24 JCH7I07 29872 0 9BRKC3F33R8269071',
+        '1 Peça X 1 10,00',
+      ].join('\n'),
+    );
+    expect(cab.chassi).toBe('9BRKC3F33R8269071');
+    expect(cab.placa).toBe('JCH7I07');
+  });
+
+  it('não inventa chassi (curto demais ou só dígitos longos não valem)', () => {
+    expect(extrairCabecalho('CHASSI: ABC123').chassi).toBe('');
+    expect(extrairCabecalho('1 Peça 044650K401 JOGO PASTILHAS 1.245,00').chassi).toBe('');
   });
 
   it('acha placa e data avulsas sem rótulo', () => {

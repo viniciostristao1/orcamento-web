@@ -168,9 +168,11 @@ export interface CabecalhoOrcamento {
   data: string;
   /** Telefone normalizado (55 + DDD + número) ou '' quando inválido. */
   telefone: string;
+  /** Chassi/VIN (17 caracteres) ou '' quando não achou. */
+  chassi: string;
 }
 
-const VAZIO: CabecalhoOrcamento = { numero: '', placa: '', nome: '', data: '', telefone: '' };
+const VAZIO: CabecalhoOrcamento = { numero: '', placa: '', nome: '', data: '', telefone: '', chassi: '' };
 
 /**
  * Procura número, placa, nome/cliente e data nas linhas (rótulos comuns de
@@ -217,6 +219,20 @@ export function extrairCabecalho(texto: string): CabecalhoOrcamento {
   if (mCel) {
     const normalizado = normalizarTelefoneParaWhats(mCel[1]);
     if (temTelefoneValido(normalizado)) out.telefone = normalizado;
+  }
+
+  // Chassi/VIN: 17 caracteres. Vale rotulado (CHASSI, Nr.Fab etc.) ou avulso
+  // (no layout Toyota os rótulos ficam numa linha e os valores noutra). Avulso
+  // exige ao menos uma letra (só-dígitos de 17 seria outro número qualquer).
+  const rotulado = texto.match(
+    /(?:CHASSI[SU]?|NR\.?\s*FAB|N[UÚ]MERO\s*(?:DO\s*)?CHASSI|VIN)\b[\s:.]*([A-Z0-9]{17})(?![A-Z0-9])/i,
+  );
+  if (rotulado) {
+    out.chassi = rotulado[1].toUpperCase();
+  } else {
+    const avulsos = texto.toUpperCase().match(/(?<![A-Z0-9])[A-Z0-9]{17}(?![A-Z0-9])/g) ?? [];
+    const vin = avulsos.find((t) => /[A-Z]/.test(t));
+    if (vin) out.chassi = vin;
   }
   return out;
 }

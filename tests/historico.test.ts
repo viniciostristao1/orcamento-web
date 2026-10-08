@@ -5,6 +5,7 @@ import {
   adicionarAoHistorico,
   atualizarAprovacaoHistorico,
   atualizarCorHistorico,
+  atualizarChassiHistorico,
   atualizarNaoRealizadosHistorico,
   contarItensDaDescricao,
   destacarTermo,
@@ -267,8 +268,7 @@ describe('histórico (localStorage)', () => {
     expect(filtrarPorAba(listarHistorico(), 'naoAprovados')).toHaveLength(1);
   });
 
-  it('parcial estrita: misto é parcial, tudo riscado não é', () => {
-    const rec = (naoRealizados?: number[], numItens?: number): OrcamentoSalvo => ({
+  it('parcial estrita: misto é parcial, tudo riscado não é', () => {    const rec = (naoRealizados?: number[], numItens?: number): OrcamentoSalvo => ({
       ...base,
       id: 'x',
       criadoEm: '24/09/2026 12:30:00',
@@ -281,6 +281,31 @@ describe('histórico (localStorage)', () => {
     expect(temParcial(rec([1, 2], 2))).toBe(false); // tudo riscado = Não puro
     // sem numItens, o total cai para a descrição (2 itens): 1 de 2 = misto
     expect(temParcial(rec([1]))).toBe(true);
+  });
+
+  it('chassi: entra na busca e no anti-duplicado', () => {
+    adicionarAoHistorico({ ...base, chassi: '9BRKC3F33R8269071' });
+    adicionarAoHistorico({ ...base, chassi: '9brkc3f33r8269071' });
+    expect(listarHistorico()).toHaveLength(1); // mesmo chassi substitui
+    adicionarAoHistorico({ ...base, chassi: '9BRK9999999999999' });
+    expect(listarHistorico()).toHaveLength(2); // chassi diferente = outro registro
+    const lista = listarHistorico();
+    expect(filtrarHistorico(lista, '9brkc3')).toHaveLength(1);
+    expect(filtrarHistorico(lista, '9BRK999')).toHaveLength(1);
+  });
+
+  it('chassi inline não muda a data (só troca o chassi)', () => {
+    adicionarAoHistorico(base);
+    const [rec] = listarHistorico();
+    const criado = rec.criadoEm;
+    atualizarChassiHistorico(rec.id, ' 9brkc3f33r8269071 ');
+    const depois = listarHistorico()[0];
+    expect(depois.chassi).toBe('9BRKC3F33R8269071');
+    expect(depois.criadoEm).toBe(criado);
+    expect(depois.id).toBe(rec.id);
+    atualizarChassiHistorico(rec.id, '   ');
+    expect(listarHistorico()[0].chassi).toBeUndefined();
+    expect(listarHistorico()[0].criadoEm).toBe(criado);
   });
 
   it('faixa de valor: operadores e intervalo (número sozinho é texto)', () => {

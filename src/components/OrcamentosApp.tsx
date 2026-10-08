@@ -7,7 +7,7 @@ import { Play, Percent, Eraser } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import MenuDados from './MenuDados';
-import { adicionarAoHistorico, atualizarAprovacaoHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
+import { adicionarAoHistorico, atualizarAprovacaoHistorico, atualizarChassiHistorico, listarHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import SistemaCard from '../sistema/SistemaCard';
 import { decidirFontePlay, type CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
@@ -37,6 +37,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [placa, setPlaca] = useState<string>(() => rascunho?.placa ?? "");
   const [telefone, setTelefone] = useState<string>(() => rascunho?.telefone ?? "");
   const [nome, setNome] = useState<string>(() => rascunho?.nome ?? "");
+  // Chassi do veículo (card do sistema; extraído do PDF/print, editável).
+  const [chassi, setChassi] = useState<string>(() => rascunho?.chassi ?? "");
   // Cabeçalho do orçamento do sistema (card 3): nº e data do documento.
   const [numero, setNumero] = useState<string>(() => rascunho?.numero ?? "");
   const [dataDoc, setDataDoc] = useState<string>(() => rascunho?.dataDoc ?? "");
@@ -53,6 +55,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [ultimo] = useState(lerUltimoOrcamento);
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
   const [selecionados, setSelecionados] = useState<Set<number>>(() => new Set(ultimo?.selecionados ?? []));
+  // Registro aberto do histórico (id + data + retrato do conteúdo): regerar
+  // mudando SÓ o chassi atualiza o registro no lugar (sem mudar a data);
+  // qualquer outra mudança segue o fluxo normal (novo registro).
+  const registroAbertoRef = useRef<{ id: string; criadoEm: string; base: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> } | null>(null);
   // Registro do histórico referente ao documento em tela + aprovação (V/X).
   const [aprovacao, setAprovacao] = useState<AprovacaoVoto | null>(null);
 
@@ -62,8 +68,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   // Salva o rascunho enquanto o usuário edita (reabre com o que estava fazendo).
   useEffect(() => {
-    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome });
-  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome]);
+    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi });
+  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi]);
 
   // Mantém o último documento gerado salvo (inclusive a marcação dos itens).
   useEffect(() => {
@@ -101,11 +107,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     const finalRevPecas = parseBrazilianNumber(revPecasInput);
     
     const result = processQuote(fonte.desc, fonte.dados, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
-    setSummary(result);
-    setSelecionados(new Set(result.items.map((i) => i.id))); // começa com todos marcados
 
     // Histórico local (localStorage): salva a cada "Processar Tudo".
-    const salvos = adicionarAoHistorico({
+    const novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> = {
       descReparo: fonte.desc,
       orcamentoRaw: fonte.dados,
       ajustesManuais,
@@ -118,8 +122,37 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       numeroOrcamento: numero.trim(),
       dataDoc: dataDoc.trim(),
       nome: nome.trim(),
+      chassi: chassi.trim().toUpperCase(),
       ...retratoDoResumo(result),
-    });
+    };
+
+    // Regerou o registro aberto mudando SÓ o chassi (ex.: lançou o chassi num
+    // orçamento antigo)? Atualiza no lugar, sem mudar a data e sem duplicar.
+    const aberto = registroAbertoRef.current;
+    const soChassi =
+      aberto !== null &&
+      (Object.keys(novo) as (keyof typeof novo)[]).every((k) => k === 'chassi' || novo[k] === aberto.base[k]);
+    if (soChassi) {
+      if ((novo.chassi ?? '') !== (aberto.base.chassi ?? '')) {
+        const atualizados = atualizarChassiHistorico(aberto.id, novo.chassi ?? '');
+        setAprovacao(atualizados.find((r) => r.id === aberto.id)?.aprovacao ?? null);
+        registroAbertoRef.current = { ...aberto, base: { ...novo } };
+      } else {
+        // Nada mudou: só mostra de novo (sem duplicar, sem tocar na data).
+        setAprovacao(listarHistorico().find((r) => r.id === aberto.id)?.aprovacao ?? null);
+      }
+      // O documento mostra a data/hora do registro (não a de agora) e mantém
+      // a marcação de itens atual (não zera os desmarcados).
+      setSummary({ ...result, currentTime: aberto.criadoEm });
+      setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
+      return;
+    }
+
+    setSummary(result);
+    setSelecionados(new Set(result.items.map((i) => i.id))); // começa com todos marcados
+
+    const salvos = adicionarAoHistorico(novo);
+    registroAbertoRef.current = { id: salvos[0].id, criadoEm: salvos[0].criadoEm, base: { ...novo } };
     // Reprocessou registro já marcado? Mostra a marca de volta.
     setAprovacao(salvos[0].aprovacao ?? null);    
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
@@ -138,6 +171,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setPlaca(r.placa ?? '');
     setTelefone(r.telefone ?? '');
     setNome(r.nome ?? '');
+    setChassi(r.chassi ?? '');
     setNumero(r.numeroOrcamento ?? '');
     setDataDoc(r.dataDoc ?? '');
     setAprovacao(r.aprovacao ?? null);
@@ -149,6 +183,27 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
     const result = processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais);
+    // Foto do conteúdo (para a regeração só-com-chassi não mudar a data).
+    registroAbertoRef.current = {
+      id: r.id,
+      criadoEm: r.criadoEm,
+      base: {
+        descReparo: r.descReparo,
+        orcamentoRaw: r.orcamentoRaw,
+        ajustesManuais: r.ajustesManuais,
+        revAprovadaInput: r.revAprovadaInput,
+        revPecasInput: r.revPecasInput,
+        desconto: r.desconto,
+        parcelas: r.parcelas,
+        placa: (r.placa ?? '').trim(),
+        telefone: (r.telefone ?? '').trim(),
+        numeroOrcamento: (r.numeroOrcamento ?? '').trim(),
+        dataDoc: (r.dataDoc ?? '').trim(),
+        nome: (r.nome ?? '').trim(),
+        chassi: (r.chassi ?? '').trim().toUpperCase(),
+        ...retratoDoResumo(result),
+      },
+    };
     // O documento mostra a data/hora de quando o orçamento foi criado
     // (a do histórico), não a de agora.
     setSummary({ ...result, currentTime: r.criadoEm });
@@ -186,6 +241,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       numeroOrcamento: numero.trim(),
       dataDoc: dataDoc.trim(),
       nome: nome.trim(),
+      chassi: chassi.trim().toUpperCase(),
       naoRealizados: desmarcados,
       ...retratoDoResumo(base),
     });
@@ -208,12 +264,13 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const visivel = summary ? recalcularComSelecao(summary, selecionados) : null;
 
   // Cabeçalho extraído do PDF/print: nº e data preenchem os próprios campos;
-  // PLACA, NOME e TELEFONE são escritos/sobrescritos (só quando veio conteúdo).
+  // PLACA, NOME, CHASSI e TELEFONE são escritos/sobrescritos (só quando veio conteúdo).
   const aplicarCabecalho = (c: CabecalhoOrcamento) => {
     if (c.numero.trim()) setNumero(c.numero.trim());
     if (c.data.trim()) setDataDoc(c.data.trim());
     if (c.placa.trim()) setPlaca(c.placa.trim());
     if (c.nome.trim()) setNome(c.nome.trim());
+    if (c.chassi.trim()) setChassi(c.chassi.trim().toUpperCase());
     if (c.telefone.trim()) setTelefone(c.telefone.trim());
   };
 
@@ -237,10 +294,13 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               onTelefone={setTelefone}
               onNome={setNome}
               onPlaca={setPlaca}
+              chassi={chassi}
+              onChassi={setChassi}
               onLimparContato={() => {
                 setPlaca('');
                 setTelefone('');
                 setNome('');
+                setChassi('');
               }}
               onLimparValores={() => {
                 setRevAprovadaInput('');
