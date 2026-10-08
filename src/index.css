@@ -133,9 +133,12 @@
   --tema-fonte-conteudo: 'Inter', sans-serif;
 }
 
-/* Papel: campos um tom abaixo do branco (o card é branco, senão somem). */
+/* Papel: campos um tom abaixo do branco (o card é branco, senão somem) e com
+   letra escura (os preenchimentos usam branco, que some no claro). Saídas
+   (`#printable-quote`, flyer) não usam `.campo-tema`, então o PNG não muda. */
 [data-tema='papel'] .campo-tema {
   border-color: #c3ccd6;
+  color: #0f172a;
 }
 
 /* Papel: sub-aba fechada em azul escuro (o azul-claro some no fundo claro). */

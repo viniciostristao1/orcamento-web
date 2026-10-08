@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.121.0](#v12100) — 2026-10-08 — Letra escura nos campos e resumo no Claro (v0.121.0)
 - [v0.120.0](#v12000) — 2026-10-08 — Tema Claro + visibilidade no claro + backup na seta (v0.120.0)
 - [v0.119.0](#v11900) — 2026-10-08 — Header só logo + resumo menor + temas na seta + fim do suave (v0.119.0)
 - [v0.118.0](#v11800) — 2026-10-08 — Ordem de data no relatório + sino mais largo (v0.118.0)
@@ -180,6 +181,28 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12100"></a>
+## 2026-10-08 — Letra escura nos campos e resumo no Claro (v0.121.0)
+
+**Pedido:** no Claro, títulos e preenchimentos de ORÇAMENTO DO SISTEMA, APROVADO E
+DESCONTO, RESUMO LÍQUIDO e DADOS DA TABELA (flyer) com letra escura como em DADOS
+DO ORÇAMENTO/DESCRIÇÃO.
+
+**Causa:** os bons herdam a cor (escura no papel); os demais usam `text-white` e
+`text-blue-300` literais (brancos no claro). Títulos NeonCard já eram escuros
+(`text-slate-100` remapeia para o título do tema).
+
+**Feito:** `[data-tema='papel'] .campo-tema { color: #0f172a }` (cobre todos os
+preenchimentos de uma vez — botões não usam a classe; saídas não usam, PNG intacto)
++ resumo em tokens (`text-slate-100`, `text-blue-400`: escuros no papel, iguais nos
+escuros).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**233/233 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.121.0`.
+
+---
 
 <a id="v12000"></a>
 ## 2026-10-08 — Tema Claro + visibilidade no claro + backup na seta (v0.120.0)

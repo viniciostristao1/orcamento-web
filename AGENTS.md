@@ -610,6 +610,8 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Claro legível + backup na seta** (v0.120.0): "Claro Papel" vira "Claro"; campo com fundo
   próprio, aba ativa preta (hex literal, sem remapear) e sub-aba fechada azul-escura no
   papel; backup colapsável igual aos temas.
+- **Letra escura no Claro** (v0.121.0): `.campo-tema` com letra escura no papel (vale para
+  todos os preenchimentos) + resumo em tokens (`slate-100`/`blue-400`).
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

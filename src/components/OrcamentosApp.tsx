@@ -480,11 +480,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   <div className="grid grid-cols-2 gap-2">
                     <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                       <span className="text-[10px] font-black text-slate-500 uppercase block mb-0.5">Total Peças</span>
-                      <span className="titulo-tema text-xl font-black text-white">{formatCurrency(visivel.totalPecasGeral)}</span>
+                      <span className="titulo-tema text-xl font-black text-slate-100">{formatCurrency(visivel.totalPecasGeral)}</span>
                     </div>
                     <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                       <span className="text-[10px] font-black text-slate-500 uppercase block mb-0.5">Total Serviços</span>
-                      <span className="titulo-tema text-xl font-black text-white">{formatCurrency(visivel.totalServicosGeral)}</span>
+                      <span className="titulo-tema text-xl font-black text-slate-100">{formatCurrency(visivel.totalServicosGeral)}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -494,7 +494,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                     </div>
                     <div className="px-3 py-2 bg-blue-600/10 rounded-2xl border border-blue-500/30 text-center">
                       <span className="text-[10px] font-black text-blue-400 uppercase block mb-0.5 underline">Valor Líquido</span>
-                      <span className="titulo-tema text-xl font-black text-blue-300">{formatCurrency(visivel.valorLiquidoFinal)}</span>
+                      <span className="titulo-tema text-xl font-black text-blue-400">{formatCurrency(visivel.valorLiquidoFinal)}</span>
                     </div>
                   </div>
                 </div>
