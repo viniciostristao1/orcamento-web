@@ -102,10 +102,10 @@
    continuam resetadas mais abaixo, então o PNG do cliente não muda).
    ========================================================================== */
 
-/* Claro Papel = modo claro, fundo papel, azul. Space Grotesk + Inter. */
+/* Claro = modo claro, fundo papel, azul. Space Grotesk + Inter. */
 [data-tema='papel'] {
   --tema-fundo: #eef0f3;
-  --tema-campo: #ffffff;
+  --tema-campo: #e4e9ef;
   --tema-painel: #ffffff;
   --tema-borda-forte: #cfd6de;
   --tema-borda-media: #cbd5e1;
@@ -133,6 +133,19 @@
   --tema-fonte-conteudo: 'Inter', sans-serif;
 }
 
+/* Papel: campos um tom abaixo do branco (o card é branco, senão somem). */
+[data-tema='papel'] .campo-tema {
+  border-color: #c3ccd6;
+}
+
+/* Papel: sub-aba fechada em azul escuro (o azul-claro some no fundo claro). */
+[data-tema='papel'] .subaba-fechada {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+[data-tema='papel'] .subaba-fechada:hover {
+  background-color: #bfdbfe;
+}
 /* Papel: o logo Toyota é branco puro (some no fundo papel) — tinge de azul
    (o acento #2563eb) só neste tema. O filtro parte do branco: brightness(0)
    vira preto e o resto mapeia preto → #2563eb (exato, calculado). */

@@ -696,7 +696,7 @@ const DadosApp: React.FC<{
                   className={`px-4 py-1 text-lg font-black uppercase transition-all cursor-pointer ${
                     aba?.id === a.id
                       ? 'bg-blue-600 text-white'
-                      : 'bg-blue-500/10 text-blue-200 hover:bg-blue-500/20'
+                      : 'subaba-fechada bg-blue-500/10 text-blue-200 hover:bg-blue-500/20'
                   }`}
                   style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
                 >

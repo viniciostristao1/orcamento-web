@@ -12,7 +12,7 @@ interface ConfiguracoesTemaProps {
 // `fundo`/`acento` alimentam a mini-amostra de cor ao lado de cada tema.
 const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento: string }[] = [
   { id: 'azul', nome: 'Azul', descricao: 'Visual clássico (azul e cinza-escuro)', fundo: '#0f172a', acento: '#3b82f6' },
-  { id: 'papel', nome: 'Claro Papel', descricao: 'Modo claro, fundo papel', fundo: '#eef0f3', acento: '#2563eb' },
+  { id: 'papel', nome: 'Claro', descricao: 'Modo claro, fundo papel', fundo: '#eef0f3', acento: '#2563eb' },
   { id: 'whatsapp', nome: 'Verde WhatsApp', descricao: 'Escuro com o verde do Zap', fundo: '#0b141a', acento: '#25d366' },
   { id: 'tecnico', nome: 'Monocromático Técnico', descricao: 'Cinza com laranja, bem sóbrio', fundo: '#101012', acento: '#ff6a00' },
   { id: 'grafite', nome: 'Grafite', descricao: 'Tabelas estilo Claude — quase-preto, grade sutil', fundo: '#0c0c0c', acento: '#4c7ef3' },
@@ -32,6 +32,8 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
   const [backupVez, setBackupVez] = useState(0);
   // Lista de temas escondida atrás da seta (abre só quando precisa).
   const [temasAbertos, setTemasAbertos] = useState(false);
+  // Opções de backup escondidas atrás da seta (abre só quando precisa).
+  const [backupAberto, setBackupAberto] = useState(false);
 
   const handleTrocarSenha = () => {
     const r = trocarSenha(senhaAtual, senhaNova, senhaConfirma);
@@ -192,9 +194,24 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
 
           <div className="h-px bg-slate-800 my-3"></div>
 
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pb-2">
-            Backup dos dados
-          </p>
+          <button
+            type="button"
+            onClick={() => setBackupAberto((v) => !v)}
+            aria-label={backupAberto ? 'Ocultar backup' : 'Mostrar backup'}
+            aria-expanded={backupAberto}
+            title={backupAberto ? 'Ocultar backup' : 'Mostrar backup'}
+            className="w-full flex items-center justify-between px-3 pt-2 pb-3 cursor-pointer"
+          >
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+              Backup dos dados
+            </span>
+            <ChevronDown
+              size={16}
+              className={`text-slate-500 transition-transform ${backupAberto ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {backupAberto && (
+          <>
           <div className="grid grid-cols-2 gap-2 px-3">
             <button
               type="button"
@@ -231,6 +248,7 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
             className="hidden"
             onChange={importarBackup}
           />
+          </>)}
 
           <div className="h-px bg-slate-800 my-3"></div>
 

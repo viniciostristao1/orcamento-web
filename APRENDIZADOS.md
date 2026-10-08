@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.120.0](#v12000) — 2026-10-08 — Tema Claro + visibilidade no claro + backup na seta (v0.120.0)
 - [v0.119.0](#v11900) — 2026-10-08 — Header só logo + resumo menor + temas na seta + fim do suave (v0.119.0)
 - [v0.118.0](#v11800) — 2026-10-08 — Ordem de data no relatório + sino mais largo (v0.118.0)
 - [v0.117.0](#v11700) — 2026-10-08 — Aba Whats removida (v0.117.0)
@@ -179,6 +180,26 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12000"></a>
+## 2026-10-08 — Tema Claro + visibilidade no claro + backup na seta (v0.120.0)
+
+**Pedido:** "Claro Papel" vira só "Claro"; no Claro os campos Nº/Data/Telefone/
+Placa/Nome/Chassi sumiam no fundo; aba superior ativa branca (invisível);
+sub-abas fechadas claras (invisíveis); backup escondido atrás de seta.
+
+**Causa:** campo e painel ambos `#ffffff` no papel; `text-slate-900`/`text-blue-200`
+são remapeados pelo `@theme inline` (viravam branco/azul-claro).
+
+**Feito:** renomeado; `--tema-campo` `#e4e9ef` + borda `#c3ccd6`; abas com hex
+literal (`text-[#0f172a]`, que não remapeia); sub-aba fechada com classe própria
+(`subaba-fechada`: `#dbeafe`/`#1d4ed8` no papel); backup colapsável igual aos temas.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**233/233 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.120.0`.
+
+---
 
 <a id="v11900"></a>
 ## 2026-10-08 — Header só logo + resumo menor + temas na seta + fim do suave (v0.119.0)

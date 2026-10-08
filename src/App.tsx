@@ -122,11 +122,12 @@ const AppInterno: React.FC = () => {
   };
 
   // Ideia 01 (sublinhado): só texto, ativa com traço âmbar embaixo.
-  // Vale em todos os temas; no claro (papel) o texto é escuro.
+  // No claro (papel) o texto é preto: os tons slate são remapeados pelo tema
+  // (`@theme inline`), então aqui vão hex literais (não remapeiam e não somem).
   const claro = tema === 'papel';
-  const abaAtiva = claro ? 'text-slate-900' : 'text-white';
+  const abaAtiva = claro ? 'text-[#0f172a]' : 'text-white';
   const abaNormal = claro
-    ? 'text-slate-500 hover:text-slate-800'
+    ? 'text-[#64748b] hover:text-[#0f172a]'
     : 'text-slate-400 hover:text-slate-200';
   const abaEditandoBorda = tema === 'grafite' ? 'border-amber-500' : 'border-blue-500';
 

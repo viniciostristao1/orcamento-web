@@ -21,7 +21,7 @@ saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As três abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **5 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
 a v0.119.0 removeu o Suave Arredondado):
-**Azul** (padrão, era "Original"), **Claro Papel** (modo claro), **Verde WhatsApp**,
+**Azul** (padrão, era "Original"), **Claro** (modo claro, era "Claro Papel"), **Verde WhatsApp**,
 **Monocromático Técnico** (cinza + laranja) e **Grafite**
 (v0.19.0 — estilo das tabelas do Claude.ai: quase-preto, cabeçalho mais claro, grade sutil,
 fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do cliente não muda.
@@ -607,6 +607,9 @@ npm run build        # gera dist/index.html (arquivo único)
   (vale para tabela e copiar); sino `w-[26rem]` com texto em 2 linhas.
 - **Header enxuto + fim do suave** (v0.119.0): header só com logo (+ selo de versão);
   RESUMO LÍQUIDO em `text-xl`; temas atrás de seta; Suave removido (quem tinha cai no azul).
+- **Claro legível + backup na seta** (v0.120.0): "Claro Papel" vira "Claro"; campo com fundo
+  próprio, aba ativa preta (hex literal, sem remapear) e sub-aba fechada azul-escura no
+  papel; backup colapsável igual aos temas.
 - **Chassi + regeração sem data** (v0.113.0): VIN de 17 do PDF (rotulado ou avulso
   com letra) preenche o campo `Placa|Nome|Chassi` do card (3 colunas, sem mudar a
   altura); chassi entra na busca/anti-duplicado e tem `+ CHASSI`/edição inline no

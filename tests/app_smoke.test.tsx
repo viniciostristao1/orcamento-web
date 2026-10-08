@@ -152,7 +152,9 @@ describe('App — smoke test (render + processar)', () => {
     expect(document.documentElement.dataset.tema).toBe('azul');
 
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-    // backup fica no mesmo menu, depois do tema
+    // backup fica no mesmo menu, atrás da seta
+    expect(screen.queryByRole('button', { name: /Exportar backup/i })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar backup' }));
     expect(screen.getByRole('button', { name: /Exportar backup/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Importar backup/i })).toBeTruthy();
 
@@ -162,11 +164,11 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.queryByText('Suave Arredondado')).toBeNull();
 
     // temas escondidos atrás da seta: abre só no clique
-    expect(screen.queryByText('Claro Papel')).toBeNull();
+    expect(screen.queryByText('Claro')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
-    expect(screen.getByText('Claro Papel')).toBeTruthy();
+    expect(screen.getByText('Claro')).toBeTruthy();
 
-    fireEvent.click(screen.getByText('Claro Papel'));
+    fireEvent.click(screen.getByText('Claro'));
     expect(document.documentElement.dataset.tema).toBe('papel');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('papel');
 
@@ -207,11 +209,11 @@ describe('App — smoke test (render + processar)', () => {
     expect(abaOrc().className).toContain('text-slate-400');
     expect(sublinhados()).toHaveLength(1);
 
-    // tema claro: ativa escura (branco sumiria no fundo papel)
+    // tema claro: ativa preta (branco sumiria no fundo papel)
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
-    fireEvent.click(screen.getByText('Claro Papel'));
-    expect(abaDados().className).toContain('text-slate-900');
+    fireEvent.click(screen.getByText('Claro'));
+    expect(abaDados().className).toContain('text-[#0f172a]');
     expect(sublinhados()).toHaveLength(1);
   });
 
