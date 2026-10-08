@@ -462,7 +462,7 @@ orcamento_web/
     tire/utils/descricaoWhats.ts texto COPIAR PNEUS (medida + marcas)
     tire/types.ts            TireData / PromoInfo
     sistema/SistemaCard.tsx  card 3 (PDF/print → revisão → DADOS; nº/data;
-                             contato em Placa|Nome|Chassi, telefone acima do chassi)
+                             contato em Placa|Nome|Chassi nas larguras de Nº|Data|Telefone)
     sistema/extracao.ts      puro: linhas do PDF + normalizar + cabeçalho
     sistema/pdf.ts           pdf.js via Blob (offline) + texto por página
     sistema/ocr.ts           tesseract via Blob + fetch do idioma interceptado

@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.114.0](#v11400) — 2026-10-08 — Campos Placa|Nome|Chassi nas larguras de Nº|Data|Telefone (v0.114.0)
 - [v0.113.0](#v11300) — 2026-10-08 — Chassi do PDF + regerar antigo sem mudar a data (v0.113.0)
 - [v0.112.0](#v11200) — 2026-10-07 — WhatsApp no resultado + aviso de backup + busca por valor + comparativo mensal (v0.112.0)
 - [v0.111.0](#v11100) — 2026-10-07 — Parcial só no misto + V/X aprovam tudo + janelas largas (v0.111.0)
@@ -173,6 +174,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11400"></a>
+## 2026-10-08 — Campos Placa|Nome|Chassi nas larguras de Nº|Data|Telefone (v0.114.0)
+
+**Pedido:** Placa com a largura do Nº, Nome com a da Data, Chassi com a do Telefone.
+
+**Feito:** fileira `Placa|Nome|Chassi` voltou a `grid-cols-3` (igual à de cima) —
+só CSS, sem lógica. Sem testes novos.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**234/234 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.114.0`.
+
+---
 
 <a id="v11300"></a>
 ## 2026-10-08 — Chassi do PDF + regerar antigo sem mudar a data (v0.113.0)

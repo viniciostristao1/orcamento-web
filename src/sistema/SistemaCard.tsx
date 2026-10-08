@@ -237,9 +237,9 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           </div>
         </div>
 
-        {/* Placa | Nome | Chassi: 3 colunas (chassi à direita do nome,
-            embaixo do telefone da fileira de cima). */}
-        <div className="grid grid-cols-[110px_minmax(0,1fr)_230px] gap-2">
+        {/* Placa | Nome | Chassi nas MESMAS larguras da fileira de cima
+            (Placa = Nº, Nome = Data, Chassi = Telefone). */}
+        <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1">
             <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Placa</label>
             <input
