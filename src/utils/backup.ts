@@ -11,6 +11,11 @@ export const HISTORICO_KEY = 'orcamentos_historico_v1';
 /** Chave do histórico do Tire Flyer (a mesma usada em tire/utils/historicoFlyer.ts). */
 export const FLYER_KEY = 'flyer_historico_v1';
 
+/** Quando foi feito o último backup (ISO; atualizado a cada download). */
+export const BACKUP_DATA_KEY = 'backup_ultimo_v1';
+/** Dias sem backup até a engrenagem acender o aviso. */
+export const DIAS_AVISO_BACKUP = 30;
+
 /**
  * Tudo o que o app guarda no navegador entra no backup. São dados locais
  * (localStorage) — nada vai para nuvem/servidor; o backup é a rede de segurança
@@ -31,7 +36,55 @@ export const CHAVES_BACKUP = [
   'rotulos_v1',
   SENHA_KEY, // a senha do cadeado acompanha o backup (restaurar mantém a senha)
   RAPIDOS_KEY, // lembretes rápidos do sino
+  BACKUP_DATA_KEY, // data do último backup (restaurar não reacende o aviso à toa)
 ] as const;
+
+/** Marca agora como data do último backup (chamar após cada download). */
+export function registrarBackup(agora: Date = new Date()): void {
+  try {
+    localStorage.setItem(BACKUP_DATA_KEY, agora.toISOString());
+  } catch {
+    /* ignora */
+  }
+}
+
+/** ISO do último backup, ou null se nunca fez. */
+export function lerUltimoBackup(): string | null {
+  try {
+    return localStorage.getItem(BACKUP_DATA_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/** Dias (cheios) desde o último backup; null se nunca fez. */
+export function diasDesdeBackup(agora: Date = new Date()): number | null {
+  const ultimo = lerUltimoBackup();
+  if (!ultimo) return null;
+  const t = new Date(ultimo).getTime();
+  if (Number.isNaN(t)) return null;
+  return Math.floor((agora.getTime() - t) / 86400000);
+}
+
+/** Há dados que valem backup? (sem histórico/contatos, o aviso não faz sentido). */
+function temDadosParaBackup(): boolean {
+  try {
+    for (const chave of [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY]) {
+      const bruto = localStorage.getItem(chave);
+      if (bruto && bruto !== '[]') return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/** Acende o aviso: tem dados e nunca fez backup, ou o último tem 30+ dias. */
+export function precisaLembreteBackup(agora: Date = new Date()): boolean {
+  if (!temDadosParaBackup()) return false;
+  const dias = diasDesdeBackup(agora);
+  return dias === null || dias >= DIAS_AVISO_BACKUP;
+}
 
 /**
  * Chaves que guardam LISTAS de itens com `id` (históricos + contatos): ao

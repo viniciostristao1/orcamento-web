@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.112.0](#v11200) — 2026-10-07 — WhatsApp no resultado + aviso de backup + busca por valor + comparativo mensal (v0.112.0)
 - [v0.111.0](#v11100) — 2026-10-07 — Parcial só no misto + V/X aprovam tudo + janelas largas (v0.111.0)
 - [v0.110.0](#v11000) — 2026-10-07 — Seletor de mês no relatório + V/X e parcial sem abrir (v0.110.0)
 - [v0.109.0](#v10900) — 2026-10-07 — Varredura docs + limpeza (v0.109.0)
@@ -171,6 +172,34 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v11200"></a>
+## 2026-10-07 — WhatsApp no resultado + aviso de backup + busca por valor + comparativo mensal (v0.112.0)
+
+**Pedido (só ideias S1/S2/S4 do papo de agilidade):** botão WhatsApp sem texto pronto,
+lembrete de backup, faixa de valor pesquisável e comparativo entre meses.
+
+**Feito:** botão WhatsApp verde na fileira do documento (`QuoteTable`, com o telefone
+da tela; apagado sem número válido — abre só a conversa); `backup_ultimo_v1`
+(carimbado nos dois downloads + viaja no backup geral): bolinha âmbar na engrenagem +
+linha "Último backup: …" quando há dados e nunca fez backup ou tem 30+ dias;
+busca do histórico aceita `>2000`, `<500`, `1000-3000` (pelo bruto; número sozinho
+continua achando o Nº); comparativo no relatório (mês em foco x anterior, com
+quantidade e %; "sem orçamentos" quando vazio; `mesAnterior` atravessa o ano).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros novos, `npm test`
+**227/227 (17 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.112.0`.
+
+**Gotchas / decisões:**
+- `>`/`<` são sempre valor (não existem em telefone/placa/data); `1000-3000` é
+  ambíguo com telefone (`99999-9999`) e placa — o texto tem prioridade e a faixa só
+  vale quando o texto não acha ninguém (regressão pega pelo teste de telefone).
+- `CHAVES_BACKUP` com a data nova: `BACKUP_DATA_KEY` declarado antes (TDZ) e
+  `historico.ts` importa `backup.ts` (sem ciclo: `backup.ts` não importa histórico).
+- Base sintética do `relatorio.test.ts` segue com `numItens: 2` (regra estrita).
+
+---
 
 <a id="v11100"></a>
 ## 2026-10-07 — Parcial só no misto + V/X aprovam tudo + janelas largas (v0.111.0)

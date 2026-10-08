@@ -466,6 +466,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 onToggleItem={alternarItem}
                 aprovacao={aprovacao}
                 onMarcarAprovacao={votarAprovacao}
+                telefone={telefone}
               />
             </div>
           )}

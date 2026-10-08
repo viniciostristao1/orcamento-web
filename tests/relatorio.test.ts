@@ -6,7 +6,7 @@ import {
   listarHistorico,
   type OrcamentoSalvo,
 } from '../src/utils/historico';
-import { gruposPorMes, linhaRelatorio, mesDoRegistro, percentuaisAprovacao, relatorioParaExcel, rotuloMes } from '../src/utils/relatorio';
+import { gruposPorMes, linhaRelatorio, mesAnterior, mesDoRegistro, percentuaisAprovacao, relatorioParaExcel, rotuloMes } from '../src/utils/relatorio';
 
 const base = {
   descReparo: '1 X',
@@ -134,5 +134,14 @@ describe('relatório para Excel (aprovados)', () => {
     expect(texto).not.toContain('AGOSTO');
     expect(texto.split('\n')).toHaveLength(1);
     expect(percentuaisAprovacao(soSet)).toEqual({ aprovados: 0, parcial: 0, naoAprovados: 100, total: 1 });
+  });
+
+  it('mês anterior atravessa o ano (para o comparativo)', () => {
+    expect(mesAnterior('09/2026')).toBe('08/2026');
+    expect(mesAnterior('01/2026')).toBe('12/2025');
+    expect(mesAnterior('12/2025')).toBe('11/2025');
+    expect(mesAnterior('13/2026')).toBeNull();
+    expect(mesAnterior('todos')).toBeNull();
+    expect(mesAnterior('')).toBeNull();
   });
 });

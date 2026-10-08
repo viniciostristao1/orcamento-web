@@ -1,9 +1,13 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  BACKUP_DATA_KEY,
+  diasDesdeBackup,
   HISTORICO_KEY,
   montarBackup,
   nomeArquivoBackup,
+  precisaLembreteBackup,
+  registrarBackup,
   restaurarBackup,
 } from '../src/utils/backup';
 
@@ -86,5 +90,22 @@ describe('backup de tudo (Configurações)', () => {
 
   it('nome do arquivo leva a data', () => {
     expect(nomeArquivoBackup(new Date(2026, 8, 24, 12))).toBe('backup-toyota-24-09-2026.json');
+  });
+
+  it('lembrete de backup: sem dados não avisa; com dados e sem backup avisa', () => {
+    expect(precisaLembreteBackup()).toBe(false); // nada salvo: nada a proteger
+    localStorage.setItem(HISTORICO_KEY, JSON.stringify([{ id: '1' }]));
+    expect(precisaLembreteBackup()).toBe(true); // tem dados e nunca fez
+  });
+
+  it('lembrete de backup: feito hoje não avisa; há 30+ dias avisa', () => {
+    localStorage.setItem(HISTORICO_KEY, JSON.stringify([{ id: '1' }]));
+    registrarBackup(new Date(2026, 9, 7, 12));
+    expect(localStorage.getItem(BACKUP_DATA_KEY)).toBeTruthy();
+    expect(diasDesdeBackup(new Date(2026, 9, 7, 18))).toBe(0);
+    expect(precisaLembreteBackup(new Date(2026, 9, 7, 18))).toBe(false);
+    expect(diasDesdeBackup(new Date(2026, 9, 20))).toBe(12);
+    expect(precisaLembreteBackup(new Date(2026, 9, 20))).toBe(false);
+    expect(precisaLembreteBackup(new Date(2026, 10, 7))).toBe(true); // 31 dias
   });
 });

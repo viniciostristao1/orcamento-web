@@ -8,6 +8,7 @@ import {
   atualizarNaoRealizadosHistorico,
   contarItensDaDescricao,
   destacarTermo,
+  faixaDeValor,
   filtrarHistorico,
   filtrarPorAba,
   importarBackup,
@@ -280,5 +281,35 @@ describe('histórico (localStorage)', () => {
     expect(temParcial(rec([1, 2], 2))).toBe(false); // tudo riscado = Não puro
     // sem numItens, o total cai para a descrição (2 itens): 1 de 2 = misto
     expect(temParcial(rec([1]))).toBe(true);
+  });
+
+  it('faixa de valor: operadores e intervalo (número sozinho é texto)', () => {
+    expect(faixaDeValor('')).toBeNull();
+    expect(faixaDeValor('freio')).toBeNull();
+    expect(faixaDeValor('4471')).toBeNull(); // número sozinho acha o Nº, não o valor
+    expect(faixaDeValor('ABC-1D23')).toBeNull(); // placa com hífen não é faixa
+    expect(faixaDeValor('24/09')).toBeNull();
+    expect(faixaDeValor('>2000')).toEqual({ min: 2000, max: Number.POSITIVE_INFINITY });
+    expect(faixaDeValor('>=2.000,50')).toEqual({ min: 2000.5, max: Number.POSITIVE_INFINITY });
+    expect(faixaDeValor('<500')).toEqual({ min: Number.NEGATIVE_INFINITY, max: 500 });
+    expect(faixaDeValor('1000-3000')).toEqual({ min: 1000, max: 3000 });
+    expect(faixaDeValor('3000-1000')).toEqual({ min: 1000, max: 3000 }); // invertida vale
+    expect(faixaDeValor('>abc')).toBeNull();
+  });
+
+  it('filtrarHistorico por valor usa o bruto (totalGeral)', () => {
+    const rec = (id: string, totalGeral: number): OrcamentoSalvo => ({
+      ...base,
+      id,
+      criadoEm: '24/09/2026 12:30:00',
+      totalGeral,
+    });
+    const lista = [rec('a', 500), rec('b', 2500), rec('c', 8000)];
+    expect(filtrarHistorico(lista, '>2000').map((r) => r.id)).toEqual(['b', 'c']);
+    expect(filtrarHistorico(lista, '<1000').map((r) => r.id)).toEqual(['a']);
+    expect(filtrarHistorico(lista, '1000-3000').map((r) => r.id)).toEqual(['b']);
+    expect(filtrarHistorico(lista, '>=8.000').map((r) => r.id)).toEqual(['c']);
+    // texto continua funcionando (Nº do orçamento, não valor)
+    expect(filtrarHistorico([{ ...base, id: 'd', criadoEm: 'x', numeroOrcamento: '4471', totalGeral: 100 }], '4471')).toHaveLength(1);
   });
 });

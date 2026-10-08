@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Settings, Download, Upload } from 'lucide-react';
 import type { Tema } from '../utils/tema';
-import { montarBackup, nomeArquivoBackup, restaurarBackup } from '../utils/backup';
+import { diasDesdeBackup, montarBackup, nomeArquivoBackup, precisaLembreteBackup, registrarBackup, restaurarBackup } from '../utils/backup';
 import { temSenha, trocarSenha } from '../utils/bloqueio';
 
 interface ConfiguracoesTemaProps {
@@ -29,6 +29,8 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
   const [senhaConfirma, setSenhaConfirma] = useState('');
   const [senhaMsg, setSenhaMsg] = useState('');
   const [senhaOk, setSenhaOk] = useState(false);
+  // Data do último backup (para o lembrete da engrenagem).
+  const [backupVez, setBackupVez] = useState(0);
 
   const handleTrocarSenha = () => {
     const r = trocarSenha(senhaAtual, senhaNova, senhaConfirma);
@@ -55,6 +57,8 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      registrarBackup();
+      setBackupVez((v) => v + 1);
     } catch {
       alert('Não foi possível gerar o backup.');
     }
@@ -95,20 +99,40 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
     };
   }, [aberto]);
 
+  // Lembrete de backup: bolinha âmbar na engrenagem quando há dados e o
+  // último backup tem 30+ dias (ou nunca fez). Recarrega ao abrir o menu e
+  // após cada exportação (`backupVez`).
+  const [backupDias, setBackupDias] = useState<number | null>(null);
+  const [backupAviso, setBackupAviso] = useState(false);
+  useEffect(() => {
+    setBackupDias(diasDesdeBackup());
+    setBackupAviso(precisaLembreteBackup());
+  }, [aberto, backupVez]);
+  const avisoBackup = backupAviso;
+  const textoBackup =
+    backupDias === null ? 'nunca fez backup' : backupDias === 0 ? 'backup feito hoje' : `último backup há ${backupDias} dias`;
+
   return (
     <div className="relative" ref={ref}>
       <button
         type="button"
-        onClick={() => setAberto((a) => !a)}
+        onClick={() => { setBackupVez((v) => v + 1); setAberto((a) => !a); }}
         aria-label="Configurações"
-        title="Configurações"
-        className={`flex items-center justify-center p-3 rounded-xl transition-all border cursor-pointer active:scale-95 ${
+        title={avisoBackup ? `Configurações — ${textoBackup} (faça um backup!)` : 'Configurações'}
+        className={`relative flex items-center justify-center p-3 rounded-xl transition-all border cursor-pointer active:scale-95 ${
           aberto
             ? 'bg-blue-600 text-white border-blue-500'
             : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
         }`}
       >
         <Settings size={18} />
+        {avisoBackup && (
+          <span
+            aria-hidden="true"
+            className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-amber-400"
+            style={{ boxShadow: '0 0 8px #fbbf24' }}
+          />
+        )}
       </button>
 
       {aberto && (
@@ -178,6 +202,11 @@ const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange })
           <p className="text-[10px] leading-relaxed text-slate-500 px-3 pt-2">
             Salva histórico de orçamentos, rascunho, tema, contatos e mensagem do Whats num
             arquivo JSON. A importação recarrega o app.
+          </p>
+          <p className={`text-[11px] font-bold px-3 pt-1 ${avisoBackup ? 'text-amber-300' : 'text-slate-500'}`}>
+            {textoBackup === 'nunca fez backup' && avisoBackup
+              ? '⚠ Nunca fez backup — faça agora!'
+              : `Último backup: ${textoBackup}.`}
           </p>
           <input
             ref={arquivoRef}

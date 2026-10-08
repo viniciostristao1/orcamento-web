@@ -4,6 +4,7 @@ import type { OrcamentoSalvo } from '../utils/historico';
 import {
   gruposPorMes,
   linhaRelatorio,
+  mesAnterior,
   mesDoRegistro,
   percentuaisAprovacao,
   relatorioParaExcel,
@@ -48,6 +49,14 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
   const filtrados = mesEfetivo === 'todos' ? registros : registros.filter((r) => mesDoRegistro(r) === mesEfetivo);
   const gruposVisiveis = gruposPorMes(filtrados);
   const pct = percentuaisAprovacao(filtrados);
+
+  // Comparativo: mês em foco (o selecionado, ou o mais recente) x mês anterior.
+  const mesBase = mesEfetivo === 'todos' ? (grupos[0]?.mes ?? null) : mesEfetivo;
+  const mesAnt = mesBase ? mesAnterior(mesBase) : null;
+  const pctBase = mesBase
+    ? percentuaisAprovacao(registros.filter((r) => mesDoRegistro(r) === mesBase))
+    : null;
+  const pctAnt = mesAnt ? percentuaisAprovacao(registros.filter((r) => mesDoRegistro(r) === mesAnt)) : null;
 
   const copiar = () => {
     navigator.clipboard.writeText(relatorioParaExcel(filtrados));
@@ -151,6 +160,34 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
               <span className="text-slate-600"> · </span>
               <span className="text-slate-400">{pct.total} orçamento(s)</span>
             </div>
+            {mesBase && pctBase && mesAnt && pctAnt && (
+              <div className="px-6 py-3 border-b border-slate-800/60 text-xs font-bold uppercase tracking-widest space-y-1">
+                <p>
+                  <span className="text-blue-300">{rotuloMes(mesBase)}</span>
+                  <span className="text-slate-600"> · </span>
+                  <span className="text-slate-300">{pctBase.total} orçamento(s)</span>
+                  <span className="text-slate-600"> · </span>
+                  <span className="text-green-400">Aprovados {pctBase.aprovados}%</span>
+                  <span className="text-slate-600"> · </span>
+                  <span className="text-red-400">Não aprovados {pctBase.naoAprovados}%</span>
+                </p>
+                <p>
+                  <span className="text-blue-300">{rotuloMes(mesAnt)}</span>
+                  <span className="text-slate-600"> · </span>
+                  {pctAnt.total === 0 ? (
+                    <span className="text-slate-600">sem orçamentos</span>
+                  ) : (
+                    <>
+                      <span className="text-slate-300">{pctAnt.total} orçamento(s)</span>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-green-400">Aprovados {pctAnt.aprovados}%</span>
+                      <span className="text-slate-600"> · </span>
+                      <span className="text-red-400">Não aprovados {pctAnt.naoAprovados}%</span>
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
           </>
         )}
 

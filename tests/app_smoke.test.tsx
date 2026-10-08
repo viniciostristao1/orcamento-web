@@ -2224,8 +2224,7 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('histórico: X no V puro risca tudo (sem mudar a data)', () => {
-    localStorage.setItem(
+  it('histórico: X no V puro risca tudo (sem mudar a data)', () => {    localStorage.setItem(
       'orcamentos_historico_v1',
       JSON.stringify([
         {
@@ -2245,6 +2244,59 @@ describe('App — smoke test (render + processar)', () => {
       expect(salvos[0].naoRealizados).toHaveLength(2);
       expect(salvos[0].criadoEm).toBe('24/09/2026 12:30:00');
       expect(screen.getByRole('button', { name: /Não Aprovados \(1\)/i })).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('resultado: botão WhatsApp abre a conversa (apagado sem telefone)', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+
+      // sem telefone: apagado
+      const whats = screen.getByRole('button', { name: 'Conversar no WhatsApp' }) as HTMLButtonElement;
+      expect(whats.disabled).toBe(true);
+
+      // com telefone válido: acende (abre só a conversa, sem texto)
+      fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51 99999-9999' } });
+      expect((screen.getByRole('button', { name: 'Conversar no WhatsApp' }) as HTMLButtonElement).disabled).toBe(false);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('engrenagem avisa quando o backup está vencido (30+ dias ou nunca)', () => {
+    localStorage.setItem('orcamentos_historico_v1', JSON.stringify([registro('1', 'ABC1D23', '24/09/2026 12:30:00')]));
+    try {
+      render(<App />);
+      expect(screen.getByRole('button', { name: 'Configurações' }).getAttribute('title')).toContain('faça um backup');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+      localStorage.removeItem('backup_ultimo_v1');
+    }
+  });
+
+  it('relatório: comparativo do mês com o anterior', () => {
+    const rec = (id: string, dataDoc: string, aprovacao?: 'aprovado' | 'naoAprovado') => ({
+      ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),
+      dataDoc,
+      numeroOrcamento: `N${id}`,
+      nome: `NOME${id}`,
+      ...(aprovacao ? { aprovacao } : {}),
+    });
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([rec('2', '05/09/2026', 'naoAprovado'), rec('1', '25/08/2026', 'aprovado')]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      const janela = document.querySelector('[data-janela-relatorio="1"]') as HTMLElement;
+      expect(janela.textContent).toContain('SETEMBRO/2026');
+      expect(janela.textContent).toContain('AGOSTO/2026');
+      expect(janela.textContent).toContain('1 orçamento(s)');
     } finally {
       localStorage.removeItem('orcamentos_historico_v1');
     }

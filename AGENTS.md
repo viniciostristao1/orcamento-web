@@ -84,7 +84,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **219 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **227 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -404,7 +404,8 @@ orcamento_web/
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
     utils/historico.ts       HISTÓRICO orçamentos (localStorage) + backup/restaurar JSON
                              (+ `atualizarNaoRealizadosHistorico`: parcial inline sem mudar a data;
-                             `temParcial` estrito: misto, não tudo riscado)
+                             `temParcial` estrito: misto, não tudo riscado;
+                             busca por faixa de valor: `>2000`, `1000-3000`, pelo bruto)
     utils/busca.ts           normalizarBusca (definição única, dois históricos)
     utils/telefone.ts        normalizar/validar telefone + wa.me (v0.78.0; também na aba Whats)
     utils/corCliente.ts      CorCliente/FiltroCor + filtrarPorCor + corDaBusca (v0.79.0)
@@ -413,7 +414,8 @@ orcamento_web/
                              (fontes/paleta em index.css; .titulo-tema = fonte do tema)
     utils/relatorio.ts       linhas DATA⇥NOME⇥CSP⇥NÚMERO⇥Sim/Não⇥Vinícios + TAB
                              (+ seletor de mês no modal: tabela, % e copiar seguem o mês;
-                             PARCIAL só no misto, X cheio é Não puro)
+                             PARCIAL só no misto, X cheio é Não puro;
+                             comparativo mês em foco x anterior via `mesAnterior`)
     utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
     utils/bloqueio.ts        senha do cadeado (criar/trocar/conferir; entra no backup)
     utils/lembretes.ts       vencidos + formatos + evento (dois históricos)
@@ -421,6 +423,7 @@ orcamento_web/
     utils/rascunho.ts        rascunho em edição (orcamento_rascunho_v1)
     utils/ultimoOrcamento.ts último documento gerado (orcamento_ultimo_v1)
     utils/backup.ts          backup geral (todas as chaves) + restaurar
+                             (+ `backup_ultimo_v1`: data do último download; aviso com 30+ dias)
     utils/rotulos.ts         rótulos editáveis (rotulos_v1)
     assets/logo_toyota.png   logo do header (fundo transparente; único asset)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
@@ -432,7 +435,7 @@ orcamento_web/
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
-                             + V/X de aprovação
+                             + V/X de aprovação + WhatsApp do cliente (só a conversa)
     components/NeonCard.tsx  card com borda neon (prop `compact`)
     components/ClearButton.tsx botão "Limpar" (usado nas abas)
     components/ConfiguracoesTema.tsx engrenagem: tema + BACKUP DOS DADOS + troca da senha
@@ -605,6 +608,12 @@ npm run build        # gera dist/index.html (arquivo único)
   aprova tudo (zera desmarcados → Aprovados), X inline reprova tudo (risca todos);
   ativo desmarca (puro/cheio voltam ao comum; com parcial limpa só a marca); janelas
   do histórico (`max-w-6xl`, vale nos dois) e do relatório (`max-w-6xl`) mais largas.
+- **Agilidade: WhatsApp, backup, valor e meses** (v0.112.0): botão WhatsApp verde no
+  documento (telefone da tela, sem texto, apagado sem número); aviso de backup
+  (bolinha âmbar na engrenagem + linha no menu com 30+ dias/sem backup, só com dados);
+  busca do histórico por faixa de valor (`>`/`<` sempre valor; `1000-3000` só quando o
+  texto não acha — telefone/placa têm prioridade); comparativo mensal no relatório
+  (foco x anterior, quantidade + %).
 - **Sem títulos internos** (v0.103.0): saiu o cabeçalho centralizado de cada aba
   (ORÇAMENTOS, TIRE FLYER, PAINEL WHATSAPP, DADOS) — a aba ativa já diz onde estamos.
   Saiu junto o `TituloEditavel` (+ renomear do contexto); renomear das abas no topo

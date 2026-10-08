@@ -50,6 +50,21 @@ export function rotuloMes(mes: string): string {
   return `${nome}/${m[2]}`;
 }
 
+/** "09/2026" → "08/2026" (atravessa o ano: "01/2026" → "12/2025"). Null se inválido. */
+export function mesAnterior(mes: string): string | null {
+  const m = mes.match(/^(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  let mm = parseInt(m[1], 10);
+  let aa = parseInt(m[2], 10);
+  if (mm < 1 || mm > 12) return null;
+  mm -= 1;
+  if (mm < 1) {
+    mm = 12;
+    aa -= 1;
+  }
+  return `${String(mm).padStart(2, '0')}/${aa}`;
+}
+
 export interface GrupoMes {
   mes: string;
   registros: OrcamentoSalvo[];

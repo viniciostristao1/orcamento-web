@@ -3,6 +3,7 @@ import { somenteDigitos } from './telefone';
 import { normalizarBusca } from './busca';
 import { avisarLembretesMudaram } from './lembretes';
 import { corDaBusca, type CorCliente } from './corCliente';
+import { registrarBackup } from './backup';
 
 /** Um orçamento salvo no histórico local do navegador. */
 export interface OrcamentoSalvo {
@@ -212,6 +213,7 @@ export function baixarBackup(): void {
   a.download = `orcamentos_backup_${data}.json`;
   a.click();
   URL.revokeObjectURL(url);
+  registrarBackup();
 }
 
 /** Restaura um backup JSON, mesclando pelos ids (não duplica). Retorna o total. */
@@ -307,12 +309,61 @@ export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): Orcam
  * busca "contém", sem acentos e ignorando separadores (ex.: buscar "freio" acha os
  * orçamentos com pastilhas de freio; útil na aba "Não Realizados"). Buscar "verde"
  * ou "vermelho" lista os registros marcados com essa cor. Termo vazio = tudo.
+ *
+ * Faixa de valor (pelo bruto): `>2000`, `>=2000`, `<500`, `<=500` ou `1000-3000`
+ * (milhar com ponto, centavos com vírgula). Número sozinho continua buscando texto
+ * (ex.: `4471` acha o Nº do orçamento, não o valor).
  */
+/** "1.500,00" → 1500 (milhar com ponto, centavos com vírgula). Null se não é número. */
+function numeroBusca(s: string): number | null {
+  const t = (s ?? '').trim();
+  if (!/^(\d{1,3}(\.\d{3})*|\d+)(,\d{1,2})?$/.test(t)) return null;
+  const n = parseFloat(t.replace(/\./g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Termo de faixa de valor (pelo bruto): `>2000`, `>=2000`, `<500`, `<=500` ou
+ * `1000-3000` (ordem invertida vale: `3000-1000` = `1000-3000`). Null quando o
+ * termo é busca textual (inclusive número sozinho, que continua achando o Nº —
+ * e placa com hífen, ex.: `ABC-1D23`, que não é número dos dois lados).
+ */
+export function faixaDeValor(termo: string): { min: number; max: number } | null {
+  const t = (termo ?? '').trim().replace(/\s+/g, '');
+  if (!t) return null;
+  let m = t.match(/^>=?(.+)$/);
+  if (m) {
+    const n = numeroBusca(m[1]);
+    return n === null ? null : { min: n, max: Number.POSITIVE_INFINITY };
+  }
+  m = t.match(/^<=?(.+)$/);
+  if (m) {
+    const n = numeroBusca(m[1]);
+    return n === null ? null : { min: Number.NEGATIVE_INFINITY, max: n };
+  }
+  m = t.match(/^(.+)-(.+)$/);
+  if (m) {
+    const a = numeroBusca(m[1]);
+    const b = numeroBusca(m[2]);
+    if (a === null || b === null) return null;
+    return a <= b ? { min: a, max: b } : { min: b, max: a };
+  }
+  return null;
+}
+
 export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): OrcamentoSalvo[] {
+  const cru = (termo ?? '').trim().replace(/\s+/g, '');
+  const porValor = (faixa: { min: number; max: number }): OrcamentoSalvo[] =>
+    lista.filter((r) => (r.totalGeral ?? 0) >= faixa.min && (r.totalGeral ?? 0) <= faixa.max);
+  // `>`/`<` não existem em telefone/placa/data: são sempre faixa de valor.
+  if (/^[<>]/.test(cru)) {
+    const faixa = faixaDeValor(termo);
+    if (faixa) return porValor(faixa);
+  }
   const t = normalizarBusca(termo);
   if (!t) return lista;
   const corBuscada = corDaBusca(t);
-  return lista.filter(
+  const texto = lista.filter(
     (r) =>
       normalizarBusca(r.placa ?? '').includes(t) ||
       normalizarBusca(r.nome ?? '').includes(t) ||
@@ -324,6 +375,12 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
       normalizarBusca(r.descReparo).includes(t) ||
       (corBuscada !== null && r.cor === corBuscada),
   );
+  // `1000-3000` é ambíguo com telefone/placa (ex.: `99999-9999`): o texto tem
+  // prioridade; a faixa de valor só vale quando o texto não acha ninguém.
+  if (texto.length > 0) return texto;
+  const faixa = faixaDeValor(termo);
+  if (faixa) return porValor(faixa);
+  return texto;
 }
 
 /** Resumo do resultado para a lista do histórico (sem recalcular). */

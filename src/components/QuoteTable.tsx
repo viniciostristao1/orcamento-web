@@ -3,6 +3,8 @@ import { QuoteSummary } from '../types';
 import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
 import { Printer, Image as ImageIcon, Check, X } from 'lucide-react';
 import { exportarPng } from '../utils/exportImage';
+import { abrirWhats, temTelefoneValido } from '../utils/telefone';
+import { IconeWhatsApp } from './BotaoWhats';
 
 export type AprovacaoVoto = 'aprovado' | 'naoAprovado';
 
@@ -14,9 +16,11 @@ interface QuoteTableProps {
   aprovacao?: AprovacaoVoto | null;
   /** Marca/desmarca (clicar no mesmo limpa; sempre salva no histórico). */
   onMarcarAprovacao?: (v: AprovacaoVoto | undefined) => void;
+  /** Telefone do cliente (só abre a conversa, sem texto pronto). */
+  telefone?: string;
 }
 
-const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem, aprovacao = null, onMarcarAprovacao }) => {
+const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem, aprovacao = null, onMarcarAprovacao, telefone = '' }) => {
   const printableRef = useRef<HTMLDivElement>(null);
   const [alturaDocumento, setAlturaDocumento] = useState(0);
 
@@ -131,6 +135,20 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
           className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
         >
           <ImageIcon size={24} className="group-hover:scale-110 transition-transform" />
+        </button>
+
+        {/* WhatsApp do cliente: abre só a conversa (sem texto). Apagado sem telefone. */}
+        <button
+          type="button"
+          onClick={() => abrirWhats(telefone)}
+          disabled={!temTelefoneValido(telefone)}
+          aria-label="Conversar no WhatsApp"
+          title={temTelefoneValido(telefone) ? `Conversar no WhatsApp (${telefone})` : 'Conversar no WhatsApp (digite o telefone no card do sistema)'}
+          className="flex items-center justify-center bg-green-600 hover:bg-green-500 disabled:opacity-40 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer disabled:cursor-not-allowed"
+        >
+          <span className="group-hover:scale-110 transition-transform inline-flex">
+            <IconeWhatsApp size={24} />
+          </span>
         </button>
 
         {/* Aprovação do cliente (vai para o relatório Excel). Clicar no mesmo limpa. */}
