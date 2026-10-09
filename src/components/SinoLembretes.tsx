@@ -141,7 +141,7 @@ const SinoLembretes: React.FC = () => {
               value={quando}
               onChange={(e) => setQuando(e.target.value)}
               aria-label="Data e hora do lembrete rápido"
-              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none [color-scheme:dark]"
+              className="w-full campo-tema border border-slate-800 rounded-xl px-3 py-2.5 text-lg font-bold text-white focus:border-blue-500 outline-none [color-scheme:dark]"
             />
             {erro && <p className="text-xs font-bold text-red-400">{erro}</p>}
             <button

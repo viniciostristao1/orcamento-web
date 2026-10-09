@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.129.0](#v12900) — 2026-10-08 — Data/hora do sino em fonte maior (v0.129.0)
 - [v0.128.0](#v12800) — 2026-10-08 — Cartões do histórico em 2 linhas (v0.128.0)
 - [v0.127.0](#v12700) — 2026-10-08 — AJUSTE curta + logo à esquerda + cantinho direito (v0.127.0)
 - [v0.126.0](#v12600) — 2026-10-08 — Chassi colado com dígito vizinho (v0.126.0)
@@ -188,6 +189,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v12900"></a>
+## 2026-10-08 — Data/hora do sino em fonte maior (v0.129.0)
+
+**Pedido:** fonte maior ao preencher data/hora do lembrete (rápido, histórico, flyer).
+
+**Feito:** `datetime-local` do sino `text-sm` → `text-lg` (o editor dos históricos já
+era `text-lg` desde a v0.99.0 — sem mudança lá). Só CSS, sem testes novos.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**237/237 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.129.0`.
+
+---
 
 <a id="v12800"></a>
 ## 2026-10-08 — Cartões do histórico em 2 linhas (v0.128.0)
