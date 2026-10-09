@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.130.0](#v13000) — 2026-10-09 — PEÇAS/DESCRIÇÃO MANUAL colapsados + logo no canto (v0.130.0)
 - [v0.129.0](#v12900) — 2026-10-08 — Data/hora do sino em fonte maior (v0.129.0)
 - [v0.128.0](#v12800) — 2026-10-08 — Cartões do histórico em 2 linhas (v0.128.0)
 - [v0.127.0](#v12700) — 2026-10-08 — AJUSTE curta + logo à esquerda + cantinho direito (v0.127.0)
@@ -189,6 +190,26 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13000"></a>
+## 2026-10-09 — PEÇAS/DESCRIÇÃO MANUAL colapsados + logo no canto (v0.130.0)
+
+**Pedido:** DADOS/ DESCRIÇÃO viram PEÇAS MANUAL e DESCRIÇÃO MANUAL, com o campo
+escondido atrás de seta; logo no canto superior esquerdo, acima do MENU DADOS.
+
+**Feito:** `NeonCard` com `collapsible`/`defaultOpen` (seta com `aria-expanded`;
+outros cards intactos); os dois cards começam fechados; logo em bloco de 210px
+encostado na esquerda (header `pl-2`).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**238/238 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.130.0`.
+
+**Gotchas / decisões:**
+- Fechado = desmontado: testes que achavam os textareas pelo DOM ganharam o clique
+  na seta antes (o fluxo de processar usa state, não quebrou).
+
+---
 
 <a id="v12900"></a>
 ## 2026-10-08 — Data/hora do sino em fonte maior (v0.129.0)

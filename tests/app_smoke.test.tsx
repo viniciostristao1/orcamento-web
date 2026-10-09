@@ -60,9 +60,9 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByRole('button', { name: 'Orçamentos' }).className).toContain('text-white');
     // selo de versão do header acompanha o package.json (trava contra selo defasado)
     expect(screen.getByTitle('Versão do arquivo').textContent).toBe(`v${VERSAO}`);
-    expect(screen.getByText('DESCRIÇÃO DO REPARO')).toBeTruthy();
-    expect(screen.getByText('DADOS DO ORÇAMENTO')).toBeTruthy();
-    // DESCRIÇÃO DO REPARO e DADOS DO ORÇAMENTO com a mesma fonte (text-lg)
+    expect(screen.getByText('DESCRIÇÃO MANUAL')).toBeTruthy();
+    expect(screen.getByText('PEÇAS MANUAL')).toBeTruthy();
+    // DESCRIÇÃO MANUAL e PEÇAS MANUAL com a mesma fonte (text-lg)
     const grandes = container.querySelectorAll('textarea.text-lg');
     expect(grandes.length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
@@ -133,6 +133,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('lembra o último orçamento digitado (rascunho no localStorage)', () => {
     const { unmount, container } = render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const primeiroTextarea = Array.from(container.querySelectorAll('textarea')).find((t) =>
       (t as HTMLTextAreaElement).value.includes('PASTILHAS'),
     ) as HTMLTextAreaElement;
@@ -140,6 +141,7 @@ describe('App — smoke test (render + processar)', () => {
     unmount();
 
     const { container: novo } = render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const textareaDepois = Array.from(novo.querySelectorAll('textarea')).find((t) =>
       (t as HTMLTextAreaElement).value.includes('TESTE PERSISTIDO'),
     ) as HTMLTextAreaElement;
@@ -789,9 +791,20 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('orçamentos: DESCRIÇÃO DO REPARO sem barra de rolagem (só mouse)', () => {
+  it('orçamentos: DESCRIÇÃO MANUAL sem barra de rolagem (só mouse)', () => {
     const { container } = render(<App />);
     expect(container.querySelectorAll('textarea')[0].className).toContain('scrollbar-hide');
+  });
+
+  it('orçamentos: PEÇAS MANUAL e DESCRIÇÃO MANUAL começam fechados e abrem na seta', () => {
+    const { container } = render(<App />);
+    const n0 = container.querySelectorAll('textarea').length;
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
+    expect(container.querySelectorAll('textarea').length).toBe(n0 + 1);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
+    expect(container.querySelectorAll('textarea').length).toBe(n0 + 2);
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar PEÇAS MANUAL' }));
+    expect(container.querySelectorAll('textarea').length).toBe(n0 + 1);
   });
 
   it('aba Dados: colar planilha distribui nas células e arrastar seleciona várias para copiar', () => {
@@ -920,7 +933,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/i }));
     const celulas = () => container.querySelectorAll<HTMLInputElement>('tbody input[type="text"]');
-    // fonte um pouco menor que a do campo "DADOS DO ORÇAMENTO" (text-base) e célula compacta
+    // fonte um pouco menor que a do campo "PEÇAS MANUAL" (text-base) e célula compacta
     expect(celulas()[0].className).toContain('text-base');
     expect(celulas()[0].className).toContain('py-1');
     fireEvent.change(celulas()[0], { target: { value: 'PASTILHA FREIO' } });
@@ -1568,6 +1581,8 @@ describe('App — smoke test (render + processar)', () => {
     // revisão, ajustes e textos principais também zeram
     expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
     expect((screen.getByPlaceholderText('Ex: 1 50,00') as HTMLInputElement).value).toBe('');
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const livres = Array.from(container.querySelectorAll('textarea')).filter(
       (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
     );
@@ -1578,8 +1593,8 @@ describe('App — smoke test (render + processar)', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i })); // mostra o RESUMO
     const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
-    const hDados = screen.getByText('DADOS DO ORÇAMENTO');
-    const hDesc = screen.getByText('DESCRIÇÃO DO REPARO');
+    const hDados = screen.getByText('PEÇAS MANUAL');
+    const hDesc = screen.getByText('DESCRIÇÃO MANUAL');
     const hAjustes = screen.getByText(/AJUSTE \(ID/);
     const hResumo = screen.getByText('RESUMO LÍQUIDO');
     expect(hSistema.compareDocumentPosition(hDados) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -1606,6 +1621,8 @@ describe('App — smoke test (render + processar)', () => {
 
   it('play com campo vazio avisa em vez de sair em silêncio (sem scroll/imagem)', () => {
     const { container } = render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const livres = Array.from(container.querySelectorAll('textarea')).filter(
       (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
     );
@@ -1624,6 +1641,8 @@ describe('App — smoke test (render + processar)', () => {
 
   it('play usa o texto em revisão quando os campos estão vazios', () => {
     const { container } = render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const livres = Array.from(container.querySelectorAll('textarea')).filter(
       (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
     );

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 interface NeonCardProps {
   children: React.ReactNode;
@@ -8,9 +9,13 @@ interface NeonCardProps {
   actions?: React.ReactNode;
   /** Menos espaço em volta do conteúdo (cabeçalho e área interna menores). */
   compact?: boolean;
+  /** Conteúdo escondido atrás de seta (só o título aparece). */
+  collapsible?: boolean;
+  /** Começa aberto (padrão) ou fechado. */
+  defaultOpen?: boolean;
 }
 
-const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", borderColor = "#3b82f6", actions, compact = false }) => {
+const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", borderColor = "#3b82f6", actions, compact = false, collapsible = false, defaultOpen = true }) => {
   const getGlowColor = (color: string) => {
     if (color.includes('blue-500')) return '#3b82f6';
     if (color.includes('blue-600')) return '#2563eb';
@@ -19,6 +24,7 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
   };
 
   const glowColor = getGlowColor(borderColor);
+  const [aberto, setAberto] = useState(defaultOpen);
 
   return (
     <div className={`relative ${className}`}>
@@ -43,14 +49,30 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
                 {title}
               </h3>
             </div>
-            {actions && <div className="flex items-center">{actions}</div>}
+            <div className="flex items-center gap-2">
+              {collapsible && (
+                <button
+                  type="button"
+                  onClick={() => setAberto((v) => !v)}
+                  aria-label={aberto ? `Ocultar ${title}` : `Mostrar ${title}`}
+                  aria-expanded={aberto}
+                  title={aberto ? `Ocultar ${title}` : `Mostrar ${title}`}
+                  className="flex items-center justify-center p-1.5 text-slate-400 hover:text-slate-100 transition-all cursor-pointer active:scale-95"
+                >
+                  <ChevronDown size={18} className={`transition-transform ${aberto ? 'rotate-180' : ''}`} />
+                </button>
+              )}
+              {actions && <div className="flex items-center">{actions}</div>}
+            </div>
           </div>
         )}
 
         {/* Área de Conteúdo Ampliada */}
+        {(!collapsible || aberto) && (
         <div className={`relative z-20 ${compact ? 'px-6 pt-2 pb-4' : 'p-8'} flex-grow`}>
           {children}
         </div>
+        )}
       </div>
     </div>
   );

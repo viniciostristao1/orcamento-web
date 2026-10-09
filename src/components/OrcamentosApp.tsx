@@ -328,9 +328,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             />
 
             <NeonCard
-              title="DADOS DO ORÇAMENTO"
+              title="PEÇAS MANUAL"
               borderColor="blue-600"
               compact
+              collapsible
+              defaultOpen={false}
               actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}
             >
               {/* Altura medida para terminar junto da DESCRIÇÃO (ver SistemaCard). */}
@@ -502,9 +504,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             )}
 
             <NeonCard
-              title="DESCRIÇÃO DO REPARO"
+              title="DESCRIÇÃO MANUAL"
               borderColor="blue-500"
               compact
+              collapsible
+              defaultOpen={false}
               actions={<ClearButton onClick={() => setDescReparo('')} />}
             >
               <textarea 
