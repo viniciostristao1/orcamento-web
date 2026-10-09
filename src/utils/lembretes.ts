@@ -51,6 +51,13 @@ export function paraInputDatetime(iso: string | null | undefined): string {
   return m ? m[1] : '';
 }
 
+/** Hoje com a hora atual, no formato do `<input type="datetime-local">` local
+ *  (montado na mão: `toISOString` é UTC e mudaria o dia/hora). */
+export function hojeHoraInput(agora: Date = new Date()): string {
+  const p = (n: number): string => String(n).padStart(2, '0');
+  return `${agora.getFullYear()}-${p(agora.getMonth() + 1)}-${p(agora.getDate())}T${p(agora.getHours())}:${p(agora.getMinutes())}`;
+}
+
 interface RegistroComLembrete {
   id: string;
   criadoEm: string;

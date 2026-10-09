@@ -1808,7 +1808,10 @@ describe('App — smoke test (render + processar)', () => {
       expect(screen.queryByText('Todos os lembretes (0)')).toBeNull();
       fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
       expect((screen.getByLabelText('Texto do lembrete') as HTMLInputElement).value).toBe('');
-      expect((screen.getByLabelText('Data e hora do lembrete rápido') as HTMLInputElement).value).toBe('');
+      // a data volta para hoje (só o texto é limpo de verdade)
+      const hoje = new Date();
+      const esperado = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+      expect((screen.getByLabelText('Data e hora do lembrete rápido') as HTMLInputElement).value.startsWith(esperado)).toBe(true);
       expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')).toHaveLength(0);
     } finally {
       localStorage.removeItem('lembretes_rapidos_v1');
@@ -2298,7 +2301,7 @@ describe('App — smoke test (render + processar)', () => {
     try {
       const { container } = render(<App />);
       fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
-      expect(container.querySelector('.w-\\[26rem\\]')).toBeTruthy();
+      expect(container.querySelector('.w-\\[32rem\\]')).toBeTruthy();
       expect(screen.getByText('Ligar para o cliente sobre o orçamento')).toBeTruthy();
     } finally {
       localStorage.removeItem('lembretes_rapidos_v1');

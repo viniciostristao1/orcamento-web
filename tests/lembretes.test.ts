@@ -11,6 +11,7 @@ import {
 import {
   dataDoRegistro,
   formatarLembrete,
+  hojeHoraInput,
   listarLembretesVencidos,
   paraInputDatetime,
 } from '../src/utils/lembretes';
@@ -93,5 +94,11 @@ describe('lembretes com data/hora (botão relógio)', () => {
     expect(listarHistorico()).toHaveLength(1);
     expect(listarHistorico()[0].lembreteEm).toBe(PASSADO);
     expect(listarLembretesVencidos()).toHaveLength(1);
+  });
+
+  it('hojeHoraInput devolve hoje com a hora local (formato do datetime-local)', () => {
+    // 5 de outubro de 2026, 09:07 locais (mês zero-based do Date)
+    expect(hojeHoraInput(new Date(2026, 9, 5, 9, 7))).toBe('2026-10-05T09:07');
+    expect(hojeHoraInput(new Date(2026, 0, 1, 0, 0))).toBe('2026-01-01T00:00');
   });
 });

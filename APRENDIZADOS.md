@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.131.0](#v13100) — 2026-10-09 — Logo alinhado + sino com hoje + mais largo (v0.131.0)
 - [v0.130.0](#v13000) — 2026-10-09 — PEÇAS/DESCRIÇÃO MANUAL colapsados + logo no canto (v0.130.0)
 - [v0.129.0](#v12900) — 2026-10-08 — Data/hora do sino em fonte maior (v0.129.0)
 - [v0.128.0](#v12800) — 2026-10-08 — Cartões do histórico em 2 linhas (v0.128.0)
@@ -190,6 +191,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13100"></a>
+## 2026-10-09 — Logo alinhado + sino com hoje + mais largo (v0.131.0)
+
+**Pedido:** logo alinhado à esquerda acima do MENU DADOS; sino abrindo com a data de
+hoje; janela do sino mais larga.
+
+**Feito:** header `pl-2` → `pl-[30px]` (mesma origem da coluna do menu);
+`hojeHoraInput` (local, sem o deslocamento UTC do `toISOString`) preenche o sino ao
+abrir (trocar o dia/hora segue normal); sino `w-[26rem]` → `w-[32rem]`.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**239/239 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.131.0`.
+
+---
 
 <a id="v13000"></a>
 ## 2026-10-09 — PEÇAS/DESCRIÇÃO MANUAL colapsados + logo no canto (v0.130.0)

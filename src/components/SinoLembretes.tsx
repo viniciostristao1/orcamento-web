@@ -4,6 +4,7 @@ import {
   LEMBRETES_EVENTO,
   avisarLembretesMudaram,
   formatarLembrete,
+  hojeHoraInput,
   listarTodosLembretes,
   type LembreteAgendado,
 } from '../utils/lembretes';
@@ -102,6 +103,8 @@ const SinoLembretes: React.FC = () => {
           if (aberto) fechar();
           else {
             recarregar();
+            // Data de hoje já preenchida (só ajustar a hora ou trocar o dia).
+            setQuando((q) => q || hojeHoraInput());
             setAberto(true);
           }
         }}
@@ -122,7 +125,7 @@ const SinoLembretes: React.FC = () => {
       </button>
 
       {aberto && (
-        <div className="absolute right-0 top-full mt-3 w-[26rem] max-w-[90vw] max-h-[70vh] overflow-y-auto bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-3 z-[120]">
+        <div className="absolute right-0 top-full mt-3 w-[32rem] max-w-[90vw] max-h-[70vh] overflow-y-auto bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-3 z-[120]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pt-2 pb-2">
             Lembrete rápido
           </p>
