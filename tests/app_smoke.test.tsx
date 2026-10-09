@@ -2115,6 +2115,33 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('relatório: X com algo aprovado mostra Sim + Parcial (X é cobrança)', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        {
+          ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'),
+          dataDoc: '24/09/2026',
+          nome: 'CLIENTE X',
+          numeroOrcamento: '4471',
+          aprovacao: 'naoAprovado',
+          naoRealizados: [2],
+          numItens: 2,
+        },
+      ]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      const corpo = document.querySelector('[data-janela-relatorio="1"] tbody')?.textContent ?? '';
+      expect(corpo).toContain('Sim');
+      expect(corpo).toContain('Parcial');
+      expect(corpo).not.toContain('Não');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
   it('relatório: X com tudo riscado mostra "Não" sem "Parcial"', () => {
     localStorage.setItem(
       'orcamentos_historico_v1',

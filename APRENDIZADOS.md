@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.133.0](#v13300) — 2026-10-09 — X parcial é Sim + Parcial no relatório (v0.133.0)
 - [v0.132.0](#v13200) — 2026-10-09 — V sem nada marcado aprova tudo (v0.132.0)
 - [v0.131.0](#v13100) — 2026-10-09 — Logo alinhado + sino com hoje + mais largo (v0.131.0)
 - [v0.130.0](#v13000) — 2026-10-09 — PEÇAS/DESCRIÇÃO MANUAL colapsados + logo no canto (v0.130.0)
@@ -192,6 +193,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13300"></a>
+## 2026-10-09 — X parcial é Sim + Parcial no relatório (v0.133.0)
+
+**Pedido:** o X é gancho de cobrança ("não fechou tudo"); no relatório do gerente,
+se algum item foi aprovado, APROVADO é Sim e a última coluna é Parcial.
+
+**Feito:** coluna APROVADO espelha os itens (V = Sim; X com misto = Sim; X sem nada
+aprovado = Não); % parcial conta V e X mistos. Abas inalteradas (X continua em Não
+Aprovados para cobrar).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**241/241 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.133.0`.
+
+---
 
 <a id="v13200"></a>
 ## 2026-10-09 — V sem nada marcado aprova tudo (v0.132.0)

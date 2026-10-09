@@ -11,12 +11,21 @@ export const RELATORIO_RESPONSAVEL = 'Vinícios';
 
 /** Uma linha do relatório (7 células, nesta ordem). */
 export function linhaRelatorio(r: OrcamentoSalvo): [string, string, string, string, string, string, string] {
+  // APROVADO espelha os ITENS (é o que o gerente quer ver): V aprova; X com
+  // algo aprovado também é Sim (o X é gancho de cobrança — "não fechou tudo");
+  // X sem nada aprovado é Não; sem marca, vazio.
+  const aprovado =
+    r.aprovacao === 'aprovado' || (r.aprovacao === 'naoAprovado' && temParcial(r))
+      ? 'Sim'
+      : r.aprovacao === 'naoAprovado'
+        ? 'Não'
+        : '';
   return [
     (r.dataDoc ?? '').trim() || dataDoRegistro(r.criadoEm),
     (r.nome ?? '').trim(),
     RELATORIO_TIPO,
     (r.numeroOrcamento ?? '').trim(),
-    r.aprovacao === 'aprovado' ? 'Sim' : r.aprovacao === 'naoAprovado' ? 'Não' : '',
+    aprovado,
     RELATORIO_RESPONSAVEL,
     // Parcial = misto (algum aprovado e algum desmarcado). X com tudo
     // riscado é "Não" puro, sem Parcial.
@@ -121,12 +130,17 @@ export function percentuaisAprovacao(lista: OrcamentoSalvo[]): PercentuaisAprova
   const total = lista.length;
   const pct = (n: number): number => (total === 0 ? 0 : Math.round((n / total) * 100));
   const aprovados = lista.filter((r) => r.aprovacao === 'aprovado' && !temNaoRealizados(r)).length;
-  // Parcial = V com misto (algum aprovado e algum desmarcado).
-  const parcial = lista.filter((r) => r.aprovacao === 'aprovado' && temParcial(r)).length;
-  // Não aprovados = X (qualquer lista) ou com desmarcados que não seja o
-  // parcial acima (ex.: V com tudo desmarcado = degenerado, conta aqui).
+  // Parcial = misto com marca (V ou X): algo foi aprovado e algo não.
+  const parcial = lista.filter(
+    (r) => temParcial(r) && (r.aprovacao === 'aprovado' || r.aprovacao === 'naoAprovado'),
+  ).length;
+  // Não aprovados = X puro (tudo riscado ou só a marca), V degenerado com tudo
+  // desmarcado, ou sem marca com desmarcados.
   const naoAprovados = lista.filter(
-    (r) => r.aprovacao === 'naoAprovado' || (temNaoRealizados(r) && !(r.aprovacao === 'aprovado' && temParcial(r))),
+    (r) =>
+      (r.aprovacao === 'naoAprovado' && !temParcial(r)) ||
+      (r.aprovacao === 'aprovado' && temNaoRealizados(r) && !temParcial(r)) ||
+      (!r.aprovacao && temNaoRealizados(r)),
   ).length;
   return { aprovados: pct(aprovados), parcial: pct(parcial), naoAprovados: pct(naoAprovados), total };
 }

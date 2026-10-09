@@ -53,16 +53,19 @@ describe('relatório para Excel (aprovados)', () => {
     expect(cells[6]).toBe('Parcial');
   });
 
-  it('X com tudo riscado é "Não" puro, sem Parcial (parcial = misto)', () => {
-    const xCheio = { ...base, id: '1', criadoEm: 'x', aprovacao: 'naoAprovado', naoRealizados: [1, 2] } as OrcamentoSalvo;
-    const cells = linhaRelatorio(xCheio);
-    expect(cells[4]).toBe('Não');
-    expect(cells[6]).toBe('');
+  it('X com algo aprovado é Sim + Parcial (o X é gancho de cobrança)', () => {
+    const xParcial = { ...base, id: '1', criadoEm: 'x', aprovacao: 'naoAprovado', naoRealizados: [1] } as OrcamentoSalvo;
+    expect(linhaRelatorio(xParcial).slice(4, 7)).toEqual(['Sim', 'Vinícios', 'Parcial']);
+    // X sem nada aprovado é Não puro (tudo riscado ou só a marca)
+    const xCheio = { ...base, id: '2', criadoEm: 'x', aprovacao: 'naoAprovado', naoRealizados: [1, 2] } as OrcamentoSalvo;
+    expect(linhaRelatorio(xCheio).slice(4, 7)).toEqual(['Não', 'Vinícios', '']);
+    const xMarca = { ...base, id: '3', criadoEm: 'x', aprovacao: 'naoAprovado' } as OrcamentoSalvo;
+    expect(linhaRelatorio(xMarca).slice(4, 7)).toEqual(['Não', 'Vinícios', '']);
     // sem marca e tudo desmarcado: também não é parcial (nada aprovado)
-    const semMarcaCheio = { ...base, id: '2', criadoEm: 'x', naoRealizados: [1, 2] } as OrcamentoSalvo;
+    const semMarcaCheio = { ...base, id: '4', criadoEm: 'x', naoRealizados: [1, 2] } as OrcamentoSalvo;
     expect(linhaRelatorio(semMarcaCheio)[6]).toBe('');
-    // misto sem marca continua parcial (comportamento antigo preservado)
-    const semMarcaMisto = { ...base, id: '3', criadoEm: 'x', naoRealizados: [1] } as OrcamentoSalvo;
+    // misto sem marca continua parcial
+    const semMarcaMisto = { ...base, id: '5', criadoEm: 'x', naoRealizados: [1] } as OrcamentoSalvo;
     expect(linhaRelatorio(semMarcaMisto)[6]).toBe('Parcial');
   });
 
@@ -105,7 +108,7 @@ describe('relatório para Excel (aprovados)', () => {
     const mk = (id: string, aprovacao?: 'aprovado' | 'naoAprovado', naoRealizados?: number[]) =>
       ({ ...base, id, criadoEm: 'x', ...(aprovacao ? { aprovacao } : {}), ...(naoRealizados ? { naoRealizados } : {}) }) as OrcamentoSalvo;
     const pct = percentuaisAprovacao([mk('a', 'aprovado'), mk('b', 'aprovado', [1]), mk('c', 'naoAprovado', [1]), mk('d')]);
-    expect(pct).toEqual({ aprovados: 25, parcial: 25, naoAprovados: 25, total: 4 });
+    expect(pct).toEqual({ aprovados: 25, parcial: 50, naoAprovados: 0, total: 4 });
     expect(percentuaisAprovacao([])).toEqual({ aprovados: 0, parcial: 0, naoAprovados: 0, total: 0 });
   });
 
