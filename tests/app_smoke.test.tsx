@@ -1922,6 +1922,32 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('V com nada marcado aprova tudo (não cria V degenerado em Não Aprovados)', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      // X risca tudo...
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como não aprovado' }));
+      // ...e V sem remarcar nada aprova tudo (vai para Aprovados, sem parcial)
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      expect(salvos[0].aprovacao).toBe('aprovado');
+      expect(salvos[0].naoRealizados).toEqual([]);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      expect(screen.getByRole('button', { name: /^Aprovados \(1\)$/i })).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      const corpo = document.querySelector('[data-janela-relatorio="1"] tbody')?.textContent ?? '';
+      expect(corpo).toContain('Sim');
+      expect(corpo).not.toContain('Parcial');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
   it('V com item desmarcado salva em Não Aprovados (e Sim no relatório)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     const escrever = vi.fn();

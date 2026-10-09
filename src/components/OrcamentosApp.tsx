@@ -216,17 +216,22 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   // V/X do documento (sempre salvam): V aprova com a marcação atual (tudo feito
   // = Aprovados; algum desmarcado = Não Aprovados); X risca tudo, marca não
   // aprovado e salva. Clicar no mesmo limpa a marca (salvando também).
+  // V com NADA marcado aprova tudo (degenerado "zero aprovados" ia para Não
+  // Aprovados sem Parcial — igual ao V inline do histórico).
   const votarAprovacao = (v: AprovacaoVoto | undefined) => {
     if (!visivel || !summary) return;
+    const nadaMarcado = v === 'aprovado' && selecionados.size === 0 && visivel.items.length > 0;
+    const sel = nadaMarcado ? new Set(visivel.items.map((i) => i.id)) : selecionados;
+    if (nadaMarcado) setSelecionados(sel);
     const desmarcados =
       v === 'naoAprovado'
         ? visivel.items.map((i) => i.id)
-        : visivel.items.filter((i) => !selecionados.has(i.id)).map((i) => i.id);
+        : visivel.items.filter((i) => !sel.has(i.id)).map((i) => i.id);
     if (v === 'naoAprovado') setSelecionados(new Set());
     setAprovacao(v ?? null);
     const base = recalcularComSelecao(
       summary,
-      v === 'naoAprovado' ? new Set<number>() : selecionados,
+      v === 'naoAprovado' ? new Set<number>() : sel,
     );
     const salvos = adicionarAoHistorico({
       descReparo,

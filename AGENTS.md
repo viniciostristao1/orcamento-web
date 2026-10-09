@@ -85,7 +85,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **239 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **240 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do

@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.132.0](#v13200) — 2026-10-09 — V sem nada marcado aprova tudo (v0.132.0)
 - [v0.131.0](#v13100) — 2026-10-09 — Logo alinhado + sino com hoje + mais largo (v0.131.0)
 - [v0.130.0](#v13000) — 2026-10-09 — PEÇAS/DESCRIÇÃO MANUAL colapsados + logo no canto (v0.130.0)
 - [v0.129.0](#v12900) — 2026-10-08 — Data/hora do sino em fonte maior (v0.129.0)
@@ -191,6 +192,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13200"></a>
+## 2026-10-09 — V sem nada marcado aprova tudo (v0.132.0)
+
+**Análise (caso ANDRESSA):** V no documento com zero itens marcados salvava V + todos
+desmarcados — caía em Não Aprovados sem Parcial (degenerado "zero aprovados"; é o que
+acontece logo após o X, que zera a marcação). Na sequência, o V inline aprovava tudo
+e o Parcial sumia porque desmarcar na tela não salva no histórico (só V/X salvam).
+
+**Feito:** `votarAprovacao` com nada marcado aprova tudo (zera os desmarcados, igual
+ao V inline). V com parcial continua em Não Aprovados (recuperação, v0.107.0).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**240/240 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.132.0`.
+
+---
 
 <a id="v13100"></a>
 ## 2026-10-09 — Logo alinhado + sino com hoje + mais largo (v0.131.0)
