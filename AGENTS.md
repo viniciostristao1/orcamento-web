@@ -85,7 +85,7 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **241 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **242 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -385,6 +385,7 @@ orcamento_web/
     utils/historico.ts       HISTÓRICO orçamentos (localStorage) + backup/restaurar JSON
                              (+ `atualizarNaoRealizadosHistorico`: parcial inline sem mudar a data;
                              `temParcial` estrito: misto, não tudo riscado;
+                             marca `parcial` (P) + aba Parcial (V+desmarque antigo vai junto);
                              busca por faixa de valor: `>2000`, `1000-3000`, pelo bruto;
                              `chassi`: busca + anti-duplicado + `atualizarChassiHistorico`)
     utils/busca.ts           normalizarBusca (definição única, dois históricos)
@@ -410,15 +411,15 @@ orcamento_web/
     assets/logo_toyota.png   logo do header (fundo transparente; único asset)
     components/OrcamentosApp.tsx tela de orçamentos (entradas + resumo + tabela)
     components/HistoryModal.tsx  painel do histórico (abrir/excluir/limpar/backup/busca/
-                             abas Todos|Aprovados|Não Aprovados/filtro de cor/WhatsApp/relatório/
-                             V aprova tudo / X reprova tudo inline + caixinhas de parcial
-                             na janelinha de itens + chassi (+ CHASSI/edição) no cartão,
-                             tudo sem mudar a data)
+                             abas Todos|Aprovados|Parcial|Não Aprovados/filtro de cor/WhatsApp/
+                             relatório/V aprova tudo / P parcial / X reprova tudo inline +
+                             caixinhas de parcial na janelinha de itens + chassi (+ CHASSI/edição)
+                             no cartão, tudo sem mudar a data)
     components/HistoricoBase.tsx casca dos dois históricos (overlay/cabeçalho/busca/cor/lista)
     components/BotaoWhats.tsx    botão ícone-only WhatsApp (SVG próprio) — dois históricos
     components/CorCliente.tsx    MarcadorCor + FiltroCorCliente — dois históricos
     components/QuoteTable.tsx tabela de saída + IMPRIMIR/PDF + BAIXAR IMAGEM (PNG)
-                             + V/X de aprovação + WhatsApp do cliente (só a conversa)
+                             + V/P/X de aprovação + WhatsApp do cliente (só a conversa)
     components/NeonCard.tsx  card com borda neon (prop `compact`; `collapsible` +
                              `defaultOpen` para esconder o conteúdo atrás de seta)
     components/ClearButton.tsx botão "Limpar" (usado nas abas)

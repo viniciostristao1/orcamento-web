@@ -38,9 +38,10 @@ export interface OrcamentoSalvo {
   lembreteEm?: string | null;
   // Observação do lembrete (mesma linha da data; entra na busca).
   observacao?: string;
-  // Aprovação do cliente (botões V/X do documento; vai para o relatório Excel).
+  // Aprovação do cliente (botões V/P/X do documento; vai para o relatório Excel).
   // Marcação posterior: não entra no anti-duplicado e o reprocessar preserva.
-  aprovacao?: 'aprovado' | 'naoAprovado';
+  // V = aprovado, P = parcial, X = não aprovado (gancho de cobrança).
+  aprovacao?: 'aprovado' | 'parcial' | 'naoAprovado';
   // Quantidade de itens do orçamento (para a lista do histórico).
   // Opcional: registros antigos (antes da v0.2.2) não têm — cai no fallback.
   numItens?: number;
@@ -147,7 +148,7 @@ export function atualizarCorHistorico(id: string, cor: CorCliente | undefined): 
  */
 export function atualizarAprovacaoHistorico(
   id: string,
-  aprovacao: 'aprovado' | 'naoAprovado' | undefined,
+  aprovacao: 'aprovado' | 'parcial' | 'naoAprovado' | undefined,
 ): OrcamentoSalvo[] {
   const out = listarHistorico().map((r) => (r.id === id ? { ...r, aprovacao } : r));
   gravar(out);
@@ -285,7 +286,7 @@ export function destacarTermo(texto: string, termo: string): [string, string, st
   return [orig.slice(0, ini), orig.slice(ini, fim), orig.slice(fim)];
 }
 
-export type AbaHistorico = 'todos' | 'aprovados' | 'naoAprovados';
+export type AbaHistorico = 'todos' | 'aprovados' | 'parcial' | 'naoAprovados';
 
 /** Registro com algum item desmarcado (não aprovado). */
 export const temNaoRealizados = (r: OrcamentoSalvo): boolean => (r.naoRealizados?.length ?? 0) > 0;
@@ -306,16 +307,20 @@ export const temParcial = (r: OrcamentoSalvo): boolean => {
 };
 
 /**
- * Filtra pela aba do histórico: Todos | Aprovados (V sem desmarque) |
- * Não Aprovados (X, ou V com desmarque = oportunidade de recuperação, ou com
- * item desmarcado ainda sem marca — compatível com registros antigos).
+ * Filtra pela aba do histórico (abas mutuamente exclusivas): Todos | Aprovados
+ * (V puro) | Parcial (marca P, ou V com desmarque = registros antigos) |
+ * Não Aprovados (X, ou com item desmarcado ainda sem marca).
  */
 export function filtrarPorAba(lista: OrcamentoSalvo[], aba: AbaHistorico): OrcamentoSalvo[] {
   switch (aba) {
     case 'aprovados':
       return lista.filter((r) => r.aprovacao === 'aprovado' && !temNaoRealizados(r));
+    case 'parcial':
+      return lista.filter(
+        (r) => r.aprovacao === 'parcial' || (r.aprovacao === 'aprovado' && temNaoRealizados(r)),
+      );
     case 'naoAprovados':
-      return lista.filter((r) => temNaoRealizados(r) || r.aprovacao === 'naoAprovado');
+      return lista.filter((r) => r.aprovacao === 'naoAprovado' || (!r.aprovacao && temNaoRealizados(r)));
     default:
       return lista;
   }

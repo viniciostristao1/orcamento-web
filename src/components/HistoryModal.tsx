@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, CheckCircle2, Database, FileSpreadsheet, FolderOpen, List, Trash2, Upload, X, XCircle } from 'lucide-react';
+import { Check, CheckCircle2, Database, FileSpreadsheet, FolderOpen, List, Minus, Trash2, Upload, X, XCircle } from 'lucide-react';
 import {
   type AbaHistorico,
   type OrcamentoSalvo,
@@ -105,6 +105,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const porAba = {
     todos: porCor,
     aprovados: filtrarPorAba(porCor, 'aprovados'),
+    parcial: filtrarPorAba(porCor, 'parcial'),
     naoAprovados: filtrarPorAba(porCor, 'naoAprovados'),
   };
   const visiveis = porAba[aba];
@@ -169,13 +170,13 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
     setChassiTexto('');
   };
 
-  // V/X direto no cartão (sem "Abrir orçamento"): V aprova TUDO (limpa os
-  // desmarcados e vai para Aprovados); X reprova TUDO (risca todos e vai para
-  // Não Aprovados). Clicar no ativo desmarca (V puro volta ao comum; X cheio
-  // volta ao comum; com parcial, limpa só a marca e preserva os itens).
-  // Só troca `aprovacao`/`naoRealizados` (+ totais) — `id`, `criadoEm` e
-  // `dataDoc` ficam intactos (não muda a data).
-  const handleVotarInline = (rec: OrcamentoSalvo, voto: 'aprovado' | 'naoAprovado') => {
+  // V/P/X direto no cartão (sem "Abrir orçamento"): V aprova TUDO (limpa os
+  // desmarcados e vai para Aprovados); P marca parcial com os itens como estão
+  // (vai para Parcial); X reprova TUDO (risca todos e vai para Não Aprovados).
+  // Clicar no ativo desmarca (V puro e X cheio voltam ao comum; com parcial,
+  // limpa só a marca e preserva os itens). Só troca `aprovacao`/`naoRealizados`
+  // (+ totais) — `id`, `criadoEm` e `dataDoc` ficam intactos (não muda a data).
+  const handleVotarInline = (rec: OrcamentoSalvo, voto: 'aprovado' | 'parcial' | 'naoAprovado') => {
     const atual = rec.aprovacao;
     const len = rec.naoRealizados?.length ?? 0;
     // Tudo desmarcado (X cheio ou V degenerado): sem parcial estrita.
@@ -192,6 +193,13 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
         rec.parcelas,
         rec.ajustesManuais,
       );
+
+    if (voto === 'parcial') {
+      // Marca/desmarca parcial com os itens como estão (só a marca muda).
+      setLista(atualizarAprovacaoHistorico(rec.id, atual === 'parcial' ? undefined : 'parcial'));
+      sincronizarItens({ aprovacao: atual === 'parcial' ? undefined : 'parcial' });
+      return;
+    }
 
     if (voto === 'aprovado') {
       if (atual === 'aprovado' && !cheio) {
@@ -335,6 +343,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
             {([
               { id: 'todos' as AbaHistorico, rotulo: `Todos (${porAba.todos.length})` },
               { id: 'aprovados' as AbaHistorico, rotulo: `Aprovados (${porAba.aprovados.length})` },
+              { id: 'parcial' as AbaHistorico, rotulo: `Parcial (${porAba.parcial.length})` },
               { id: 'naoAprovados' as AbaHistorico, rotulo: `Não Aprovados (${porAba.naoAprovados.length})` },
             ]).map((t) => (
               <button
@@ -365,9 +374,11 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
               ? 'Nenhum cliente vermelho.'
               : aba === 'aprovados'
                 ? 'Nenhum orçamento aprovado.'
-                : aba === 'naoAprovados'
-                  ? 'Nenhum orçamento não aprovado.'
-                  : 'Nenhum orçamento encontrado.'
+                : aba === 'parcial'
+                  ? 'Nenhum orçamento parcial.'
+                  : aba === 'naoAprovados'
+                    ? 'Nenhum orçamento não aprovado.'
+                    : 'Nenhum orçamento encontrado.'
         }
       >
           {visiveis.map((r) => {
@@ -421,6 +432,20 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                   }`}
                 >
                   <Check size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleVotarInline(r, 'parcial')}
+                  aria-label="Marcar como parcial"
+                  title="Marcar como parcial (vai para a aba Parcial, sem mudar a data; clicar de novo desmarca)"
+                  aria-pressed={r.aprovacao === 'parcial'}
+                  className={`flex items-center justify-center p-2.5 rounded-lg transition-all cursor-pointer active:scale-95 border ${
+                    r.aprovacao === 'parcial'
+                      ? 'bg-amber-500 text-white ring-2 ring-amber-300 border-amber-400'
+                      : 'bg-slate-800 hover:bg-amber-600 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <Minus size={16} strokeWidth={3} />
                 </button>
                 <button
                   type="button"
@@ -628,6 +653,20 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                   }`}
                 >
                   <Check size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleVotarInline(itensDe, 'parcial')}
+                  aria-label="Marcar como parcial"
+                  title="Marcar como parcial (vai para a aba Parcial, sem mudar a data; clicar de novo desmarca)"
+                  aria-pressed={itensDe.aprovacao === 'parcial'}
+                  className={`flex items-center justify-center p-2.5 rounded-xl transition-all cursor-pointer active:scale-95 border ${
+                    itensDe.aprovacao === 'parcial'
+                      ? 'bg-amber-500 text-white ring-2 ring-amber-300 border-amber-400'
+                      : 'bg-slate-800 hover:bg-amber-600 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  <Minus size={16} strokeWidth={3} />
                 </button>
                 <button
                   type="button"

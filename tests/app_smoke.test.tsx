@@ -494,7 +494,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
 
     fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
-    fireEvent.click(screen.getByRole('button', { name: /Não Aprovados/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Parcial \(1\)$/i }));
     fireEvent.click(screen.getByRole('button', { name: 'Ver itens do orçamento' }));
 
     const janela = document.querySelector('[data-janela-itens="1"]') as HTMLElement;
@@ -1284,30 +1284,38 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].criadoEm).toBe('01/08/2026 09:00:00'); // não re-salvou com a data de agora
   });
 
-  it('histórico: abas Todos | Aprovados | Não Aprovados', () => {
+  it('histórico: abas Todos | Aprovados | Parcial | Não Aprovados', () => {
     const a = { ...registro('1', 'AAA1111', '24/09/2026 12:30:00'), aprovacao: 'aprovado' };
     const b = { ...registro('2', 'BBB2222', '24/09/2026 12:31:00'), aprovacao: 'aprovado', naoRealizados: [1] };
     const c = { ...registro('3', 'CCC3333', '24/09/2026 12:32:00'), aprovacao: 'naoAprovado', naoRealizados: [1, 2] };
     const d = registro('4', 'DDD4444', '24/09/2026 12:33:00');
-    localStorage.setItem('orcamentos_historico_v1', JSON.stringify([a, b, c, d]));
+    const e = { ...registro('5', 'EEE5555', '24/09/2026 12:34:00'), aprovacao: 'parcial', naoRealizados: [1] };
+    localStorage.setItem('orcamentos_historico_v1', JSON.stringify([a, b, c, d, e]));
     render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
 
-    expect(screen.getByRole('button', { name: /^Todos \(4\)$/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Todos \(5\)$/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /^Aprovados \(1\)$/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Não Aprovados \(2\)/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Parcial \(2\)$/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Não Aprovados \(1\)/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /^Aprovados \(1\)$/i }));
     expect(screen.getByText('AAA1111')).toBeTruthy();
     expect(screen.queryByText('BBB2222')).toBeNull();
 
-    // V com desmarque cai em Não Aprovados (oportunidade de recuperação)
-    fireEvent.click(screen.getByRole('button', { name: /Não Aprovados \(2\)/i }));
+    // V com desmarque e marca P caem em Parcial
+    fireEvent.click(screen.getByRole('button', { name: /^Parcial \(2\)$/i }));
     expect(screen.getByText('BBB2222')).toBeTruthy();
-    expect(screen.getByText('CCC3333')).toBeTruthy();
+    expect(screen.getByText('EEE5555')).toBeTruthy();
+    expect(screen.queryByText('CCC3333')).toBeNull();
     expect(screen.queryByText('AAA1111')).toBeNull();
     expect(screen.queryByText('DDD4444')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: /^Todos \(4\)$/i }));
+    // X continua em Não Aprovados (gancho de cobrança)
+    fireEvent.click(screen.getByRole('button', { name: /Não Aprovados \(1\)/i }));
+    expect(screen.getByText('CCC3333')).toBeTruthy();
+    expect(screen.queryByText('BBB2222')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /^Todos \(5\)$/i }));
     expect(screen.getByText('DDD4444')).toBeTruthy();
 
     // janelinha "Ver itens" do registro com desmarcados
@@ -1948,7 +1956,7 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('V com item desmarcado salva em Não Aprovados (e Sim no relatório)', () => {
+  it('V com item desmarcado salva em Parcial (e Sim no relatório)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     const escrever = vi.fn();
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
@@ -1959,13 +1967,38 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
 
       fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
-      fireEvent.click(screen.getByRole('button', { name: /Não Aprovados \(1\)/i }));
+      fireEvent.click(screen.getByRole('button', { name: /Parcial \(1\)/i }));
       expect(screen.getByText(/1 não aprovado\(s\)/)).toBeTruthy();
 
       // no relatório, parcial também é Sim
       fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
       fireEvent.click(screen.getByRole('button', { name: 'Copiar para Excel' }));
       expect(String(escrever.mock.calls[0][0])).toContain('\tSim\t');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('P marca parcial: vai para a aba Parcial e no relatório é Sim + Parcial', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar como parcial' }));
+
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      expect(salvos[0].aprovacao).toBe('parcial');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      expect(screen.getByRole('button', { name: /^Parcial \(1\)$/i })).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: /^Parcial \(1\)$/i }));
+      expect(screen.queryByText(/Nenhum orçamento parcial/)).toBeNull();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      const corpo = document.querySelector('[data-janela-relatorio="1"] tbody')?.textContent ?? '';
+      expect(corpo).toContain('Sim');
+      expect(corpo).toContain('Parcial');
     } finally {
       localStorage.removeItem('orcamentos_historico_v1');
     }

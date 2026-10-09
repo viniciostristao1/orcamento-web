@@ -11,11 +11,11 @@ export const RELATORIO_RESPONSAVEL = 'Vinícios';
 
 /** Uma linha do relatório (7 células, nesta ordem). */
 export function linhaRelatorio(r: OrcamentoSalvo): [string, string, string, string, string, string, string] {
-  // APROVADO espelha os ITENS (é o que o gerente quer ver): V aprova; X com
+  // APROVADO espelha os ITENS (é o que o gerente quer ver): V e P aprovam; X com
   // algo aprovado também é Sim (o X é gancho de cobrança — "não fechou tudo");
   // X sem nada aprovado é Não; sem marca, vazio.
   const aprovado =
-    r.aprovacao === 'aprovado' || (r.aprovacao === 'naoAprovado' && temParcial(r))
+    r.aprovacao === 'aprovado' || r.aprovacao === 'parcial' || (r.aprovacao === 'naoAprovado' && temParcial(r))
       ? 'Sim'
       : r.aprovacao === 'naoAprovado'
         ? 'Não'
@@ -27,9 +27,9 @@ export function linhaRelatorio(r: OrcamentoSalvo): [string, string, string, stri
     (r.numeroOrcamento ?? '').trim(),
     aprovado,
     RELATORIO_RESPONSAVEL,
-    // Parcial = misto (algum aprovado e algum desmarcado). X com tudo
-    // riscado é "Não" puro, sem Parcial.
-    temParcial(r) ? 'Parcial' : '',
+    // Parcial = misto (algum aprovado e algum desmarcado) ou marca P (clicar em
+    // parcial é sempre Parcial). X com tudo riscado é "Não" puro, sem Parcial.
+    temParcial(r) || r.aprovacao === 'parcial' ? 'Parcial' : '',
   ];
 }
 
@@ -130,9 +130,10 @@ export function percentuaisAprovacao(lista: OrcamentoSalvo[]): PercentuaisAprova
   const total = lista.length;
   const pct = (n: number): number => (total === 0 ? 0 : Math.round((n / total) * 100));
   const aprovados = lista.filter((r) => r.aprovacao === 'aprovado' && !temNaoRealizados(r)).length;
-  // Parcial = misto com marca (V ou X): algo foi aprovado e algo não.
+  // Parcial = misto com marca (V, P ou X) ou marca P (clicar em parcial é sempre
+  // Parcial, mesmo sem desmarque).
   const parcial = lista.filter(
-    (r) => temParcial(r) && (r.aprovacao === 'aprovado' || r.aprovacao === 'naoAprovado'),
+    (r) => !!r.aprovacao && (temParcial(r) || r.aprovacao === 'parcial'),
   ).length;
   // Não aprovados = X puro (tudo riscado ou só a marca), V degenerado com tudo
   // desmarcado, ou sem marca com desmarcados.

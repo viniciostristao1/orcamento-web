@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QuoteSummary } from '../types';
 import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
-import { Printer, Image as ImageIcon, Check, X } from 'lucide-react';
+import { Printer, Image as ImageIcon, Check, Minus, X } from 'lucide-react';
 import { exportarPng } from '../utils/exportImage';
 import { abrirWhats, temTelefoneValido } from '../utils/telefone';
 import { IconeWhatsApp } from './BotaoWhats';
 
-export type AprovacaoVoto = 'aprovado' | 'naoAprovado';
+export type AprovacaoVoto = 'aprovado' | 'parcial' | 'naoAprovado';
 
 interface QuoteTableProps {
   summary: QuoteSummary;
@@ -166,6 +166,21 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
           }`}
         >
           <Check size={24} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onMarcarAprovacao?.(aprovacao === 'parcial' ? undefined : 'parcial')}
+          disabled={!onMarcarAprovacao}
+          aria-label="Marcar como parcial"
+          title="Marcar como parcial (vai para a aba Parcial)"
+          aria-pressed={aprovacao === 'parcial'}
+          className={`flex items-center justify-center p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer disabled:opacity-40 ${
+            aprovacao === 'parcial'
+              ? 'bg-amber-500 text-white ring-4 ring-amber-300'
+              : 'bg-amber-700 hover:bg-amber-600 text-white'
+          }`}
+        >
+          <Minus size={24} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
         </button>
         <button
           type="button"

@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.134.0](#v13400) — 2026-10-09 — Botão Parcial + aba Parcial (v0.134.0)
 - [v0.133.0](#v13300) — 2026-10-09 — X parcial é Sim + Parcial no relatório (v0.133.0)
 - [v0.132.0](#v13200) — 2026-10-09 — V sem nada marcado aprova tudo (v0.132.0)
 - [v0.131.0](#v13100) — 2026-10-09 — Logo alinhado + sino com hoje + mais largo (v0.131.0)
@@ -193,6 +194,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13400"></a>
+## 2026-10-09 — Botão Parcial + aba Parcial (v0.134.0)
+
+**Pedido:** botão parcial entre V e X (também no histórico); clicar vai para a aba
+PARCIAL (nova); no relatório, Sim + Parcial.
+
+**Feito:** marca `parcial` (`V/P/X`): P no documento (preserva os itens), no cartão
+e na janelinha; abas Todos|Aprovados|Parcial|Não Aprovados mutuamente exclusivas
+(V+desmarque antigo foi para Parcial); relatório Sim + Parcial para P (e X misto);
+% parcial conta marcas V/P/X.
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**242/242 (16 arquivos)**, `npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas).
+Selo `v0.134.0`.
+
+---
 
 <a id="v13300"></a>
 ## 2026-10-09 — X parcial é Sim + Parcial no relatório (v0.133.0)

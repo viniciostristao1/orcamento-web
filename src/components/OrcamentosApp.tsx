@@ -213,9 +213,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
   };
 
-  // V/X do documento (sempre salvam): V aprova com a marcação atual (tudo feito
-  // = Aprovados; algum desmarcado = Não Aprovados); X risca tudo, marca não
-  // aprovado e salva. Clicar no mesmo limpa a marca (salvando também).
+  // V/P/X do documento (sempre salvam): V aprova com a marcação atual (tudo feito
+  // = Aprovados; algum desmarcado = Parcial); P marca parcial com os itens como
+  // estão; X risca tudo, marca não aprovado e salva. Clicar no mesmo limpa a
+  // marca (salvando também).
   // V com NADA marcado aprova tudo (degenerado "zero aprovados" ia para Não
   // Aprovados sem Parcial — igual ao V inline do histórico).
   const votarAprovacao = (v: AprovacaoVoto | undefined) => {

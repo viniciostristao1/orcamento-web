@@ -71,7 +71,7 @@ describe('histórico (localStorage)', () => {
     expect(filtrarPorAba(lista, 'naoAprovados')).toEqual([comDesmarcados]);
   });
 
-  it('abas de aprovação: V puro = Aprovados, V com desmarque = Não Aprovados', () => {
+  it('abas de aprovação: V puro = Aprovados, parcial = Parcial, X = Não Aprovados', () => {
     localStorage.clear();
     localStorage.setItem(
       'orcamentos_historico_v1',
@@ -80,12 +80,14 @@ describe('histórico (localStorage)', () => {
         { ...base, id: 'rb', criadoEm: 'x', aprovacao: 'aprovado', naoRealizados: [1] },
         { ...base, id: 'rc', criadoEm: 'x', aprovacao: 'naoAprovado', naoRealizados: [1, 2] },
         { ...base, id: 'rd', criadoEm: 'x' },
+        { ...base, id: 're', criadoEm: 'x', aprovacao: 'parcial', naoRealizados: [1] },
       ]),
     );
     const lista = listarHistorico();
     expect(filtrarPorAba(lista, 'aprovados').map((r) => r.id)).toEqual(['ra']);
-    expect(filtrarPorAba(lista, 'naoAprovados').map((r) => r.id)).toEqual(['rb', 'rc']);
-    expect(filtrarPorAba(lista, 'todos')).toHaveLength(4);
+    expect(filtrarPorAba(lista, 'parcial').map((r) => r.id)).toEqual(['rb', 're']);
+    expect(filtrarPorAba(lista, 'naoAprovados').map((r) => r.id)).toEqual(['rc']);
+    expect(filtrarPorAba(lista, 'todos')).toHaveLength(5);
   });
 
   it('não duplica quando o mais recente tem os mesmos dados', () => {
