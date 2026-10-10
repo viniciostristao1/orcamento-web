@@ -1,8 +1,29 @@
-export type Tema = 'azul' | 'papel' | 'whatsapp' | 'tecnico' | 'grafite';
+export type Tema =
+  | 'azul'
+  | 'papel'
+  | 'whatsapp'
+  | 'tecnico'
+  | 'grafite'
+  | 'meianoite'
+  | 'grafiteterra'
+  | 'chocolate'
+  | 'cobre'
+  | 'latte';
 
 export const TEMA_KEY = 'orcamentos_tema_v1';
 
-const TEMAS_VALIDOS: readonly Tema[] = ['azul', 'papel', 'whatsapp', 'tecnico', 'grafite'];
+const TEMAS_VALIDOS: readonly Tema[] = [
+  'azul',
+  'papel',
+  'whatsapp',
+  'tecnico',
+  'grafite',
+  'meianoite',
+  'grafiteterra',
+  'chocolate',
+  'cobre',
+  'latte',
+];
 
 /**
  * Nomes antigos → novos (usuários que já tinham um tema salvo não perdem nada).

@@ -19,12 +19,14 @@ pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e
 **Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.). A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As três abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
-da interface. São **5 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
-a v0.119.0 removeu o Suave Arredondado):
+da interface. São **10 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
+a v0.119.0 removeu o Suave Arredondado; a v0.135.0 somou 5 "sofisticados" escolhidos na galeria):
 **Azul** (padrão, era "Original"), **Claro** (modo claro, era "Claro Papel"), **Verde WhatsApp**,
-**Monocromático Técnico** (cinza + laranja) e **Grafite**
+**Monocromático Técnico** (cinza + laranja), **Grafite**
 (v0.19.0 — estilo das tabelas do Claude.ai: quase-preto, cabeçalho mais claro, grade sutil,
-fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do cliente não muda.
+fonte Plus Jakarta Sans) **e os 5 da v0.135.0:** **Azul-meia-noite** (navy + bege), **Terracota
+(Claude)** (grafite + terracota), **Chocolate & Caramelo**, **Grafite & Cobre** e **Latte** (modo
+claro, café). O tema vale **só para a interface** — o PNG do cliente não muda.
 
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
 - **Uso local no PC**: o app final é **UM arquivo `.html`** aberto com duplo clique no Chrome,
@@ -133,14 +135,22 @@ fonte Plus Jakarta Sans). O tema vale **só para a interface** — o PNG do clie
   (`components/ConfiguracoesTema.tsx`). Logo Toyota transparente no header
   (`src/assets/logo_toyota.png`). **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
-  - **5 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`;
-    v0.119.0 removeu `suave`):**
+  - **10 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`;
+    v0.119.0 removeu `suave`; v0.135.0 +5 sofisticados da galeria):**
     `claude`/`original` antigos caem em `azul` (`lerTemaSalvo` **migra**/descarta os nomes antigos,
     inclusive quem tinha `terracota`/`executivo`/`suave` salvo). Temas = `azul`, `papel` (modo **claro**),
-    `whatsapp` (verde), `tecnico` (cinza+laranja) e **`grafite`**
+    `whatsapp` (verde), `tecnico` (cinza+laranja), **`grafite`**
     (estilo tabela do Claude.ai: `#0c0c0c`, cabeçalho `#161616`, grade `#242424`, Plus Jakarta
-    Sans, acento azul) — cada um é um bloco `[data-tema='x']` com os ~26 tokens `--tema-*` +
-    fontes `@fontsource` (space-grotesk, poppins, chivo, **plus-jakarta-sans**).
+    Sans, acento azul) **+ (v0.135.0, escolha do usuário na galeria de layouts):** `meianoite`
+    (navy `#0e1b30` + bege `#e4d5b7`, Fraunces), `grafiteterra` (grafite + terracota do Claude
+    `#cc785c`, Fraunces), `chocolate` (espresso `#241812` + caramelo `#c98a4b`, Fraunces), `cobre`
+    (grafite + cobre `#b87333`, Space Grotesk) e `latte` (modo **claro**: latte `#dbc9b0` + café
+    `#6e4a2e`, Fraunces). Cada um é um bloco `[data-tema='x']` com os ~26 tokens `--tema-*` +
+    fontes `@fontsource` (space-grotesk, poppins, chivo, **plus-jakarta-sans**, **fraunces**).
+    ⚠️ Acento CLARO (bege/caramelo/cobre/terracota): o botão primário (`.bg-blue-600.text-white`)
+    leva texto ESCURO (`var(--tema-acento-texto)`) — senão o branco some. `latte` (acento escuro)
+    mantém branco e, por ser claro, reusa os overrides do `papel` (`.campo-tema`, `.subaba-fechada`,
+    `.logo-toyota`). As saídas resetam tudo → o **PNG do cliente não muda** (fontes voltam a Inter).
     ⚠️ Ao mexer em modo claro: literais **não** remapeados pelo `@theme inline` (ex.:
     `text-emerald-100`) não seguem o tema e podem sumir no fundo branco — usar tokens (600/500/400/900).
     ⚠️ Estilo de tabela por tema: as células da aba Dados usam `border-slate-800`

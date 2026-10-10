@@ -20,6 +20,10 @@
 @import "@fontsource/plus-jakarta-sans/latin-400.css";
 @import "@fontsource/plus-jakarta-sans/latin-500.css";
 @import "@fontsource/plus-jakarta-sans/latin-700.css";
+/* Serifada sofisticada (temas Azul-meia-noite, Terracota, Chocolate, Latte). */
+@import "@fontsource/fraunces/latin-400.css";
+@import "@fontsource/fraunces/latin-500.css";
+@import "@fontsource/fraunces/latin-600.css";
 
 /* ============================================================================
    TEMAS DA INTERFACE (Azul é o padrão)
@@ -286,6 +290,133 @@
   font: inherit;
   text-transform: inherit;
   letter-spacing: inherit;
+}
+
+/* ============================================================================
+   TEMAS SOFISTICADOS (galeria 10/2026) — só paleta + fonte da INTERFACE.
+   As saídas (#printable-quote / flyer) resetam tudo mais abaixo → o PNG do
+   cliente NÃO muda. Acentos claros (bege/caramelo/cobre/terracota) ganham
+   texto ESCURO no botão primário logo adiante.
+   ========================================================================== */
+
+/* 01 · Azul-meia-noite & Bege — navy escuro, botão bege, títulos serifados. */
+[data-tema='meianoite'] {
+  --tema-fundo: #0e1b30; --tema-campo: #0e1b30; --tema-painel: #152542;
+  --tema-borda-forte: #223150; --tema-borda-media: #2c3e62;
+  --tema-texto-fraco: #5d6f8e; --tema-texto-suave: #7b8dab; --tema-texto-medio: #9caac6;
+  --tema-texto-medio2: #c4cedf; --tema-texto: #e4eaf4; --tema-titulo: #f3f6fb;
+  --tema-acento: #e4d5b7; --tema-acento-2: #d9c9a6; --tema-acento-claro: #eaddc6;
+  --tema-acento-clarissimo: #f3ecdb; --tema-acento-escuro: #c9b890; --tema-acento-texto: #1a2740;
+  --tema-sucesso: #5b9e73; --tema-sucesso-2: #6fb187; --tema-sucesso-claro: #8fc4a1; --tema-sucesso-escuro: #14321f;
+  --tema-ambar: #d9b84a; --tema-ambar-claro: #e8ce78; --tema-sombra-sucesso: #14321f;
+  --tema-tracking-widest: 0.08em;
+  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* 02 · Grafite & Terracota (Claude) — grafite quente, acento terracota, Fraunces + Inter. */
+[data-tema='grafiteterra'] {
+  --tema-fundo: #1b1d21; --tema-campo: #1b1d21; --tema-painel: #242730;
+  --tema-borda-forte: #33363f; --tema-borda-media: #40434d;
+  --tema-texto-fraco: #6e6a64; --tema-texto-suave: #8b867e; --tema-texto-medio: #a9a49b;
+  --tema-texto-medio2: #cbc6bd; --tema-texto: #eceae6; --tema-titulo: #f6f4f0;
+  --tema-acento: #cc785c; --tema-acento-2: #d4866c; --tema-acento-claro: #dd9a82;
+  --tema-acento-clarissimo: #e8bba9; --tema-acento-escuro: #b5634a; --tema-acento-texto: #2a140c;
+  --tema-sucesso: #5b9e73; --tema-sucesso-2: #6fb187; --tema-sucesso-claro: #8fc4a1; --tema-sucesso-escuro: #14321f;
+  --tema-ambar: #d9a441; --tema-ambar-claro: #ecc677; --tema-sombra-sucesso: #14321f;
+  --tema-tracking-widest: 0.06em;
+  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* 06 · Chocolate & Caramelo — marrom espresso, acento caramelo, Fraunces + Plus Jakarta. */
+[data-tema='chocolate'] {
+  --tema-fundo: #241812; --tema-campo: #241812; --tema-painel: #2f2019;
+  --tema-borda-forte: #3d2a20; --tema-borda-media: #4a3425;
+  --tema-texto-fraco: #7a6354; --tema-texto-suave: #9a8270; --tema-texto-medio: #b8a18d;
+  --tema-texto-medio2: #d4c4b2; --tema-texto: #efe3d6; --tema-titulo: #f7eee2;
+  --tema-acento: #c98a4b; --tema-acento-2: #d39a60; --tema-acento-claro: #ddae7d;
+  --tema-acento-clarissimo: #e9cba8; --tema-acento-escuro: #b0733a; --tema-acento-texto: #241812;
+  --tema-sucesso: #6a9e6e; --tema-sucesso-2: #7cb180; --tema-sucesso-claro: #97c49a; --tema-sucesso-escuro: #1e2a16;
+  --tema-ambar: #d9a441; --tema-ambar-claro: #ecc677; --tema-sombra-sucesso: #1e2a16;
+  --tema-tracking-widest: 0.08em;
+  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* 17 · Grafite & Cobre — grafite frio, acento cobre, Space Grotesk + Inter. */
+[data-tema='cobre'] {
+  --tema-fundo: #1f2124; --tema-campo: #1f2124; --tema-painel: #27292d;
+  --tema-borda-forte: #34373c; --tema-borda-media: #42454b;
+  --tema-texto-fraco: #6f6a63; --tema-texto-suave: #8c867d; --tema-texto-medio: #aaa49a;
+  --tema-texto-medio2: #ccc6bc; --tema-texto: #ece8e2; --tema-titulo: #f5f2ec;
+  --tema-acento: #b87333; --tema-acento-2: #c5824a; --tema-acento-claro: #d29a6a;
+  --tema-acento-clarissimo: #e3bf9c; --tema-acento-escuro: #9c5f28; --tema-acento-texto: #1a120a;
+  --tema-sucesso: #5b9e73; --tema-sucesso-2: #6fb187; --tema-sucesso-claro: #8fc4a1; --tema-sucesso-escuro: #14321f;
+  --tema-ambar: #c79a3f; --tema-ambar-claro: #e0bd72; --tema-sombra-sucesso: #14321f;
+  --tema-tracking-widest: 0.06em;
+  --tema-fonte-titulo: 'Space Grotesk', sans-serif; --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* 18 · Latte & Marrom-escuro — CLARO: fundo latte, acento café, Fraunces + Inter. */
+[data-tema='latte'] {
+  --tema-fundo: #dbc9b0; --tema-campo: #e7d9c3; --tema-painel: #efe4d3;
+  --tema-borda-forte: #c8b291; --tema-borda-media: #d3c0a3;
+  --tema-texto-fraco: #a08b6e; --tema-texto-suave: #8b7558; --tema-texto-medio: #6e5b42;
+  --tema-texto-medio2: #51402c; --tema-texto: #3a2a1c; --tema-titulo: #2a1d12;
+  --tema-acento: #6e4a2e; --tema-acento-2: #7e5736; --tema-acento-claro: #916a45;
+  --tema-acento-clarissimo: #b59274; --tema-acento-escuro: #553720; --tema-acento-texto: #f3e9db;
+  --tema-sucesso: #2e7d4f; --tema-sucesso-2: #389659; --tema-sucesso-claro: #4caf6e; --tema-sucesso-escuro: #bbe4c9;
+  --tema-ambar: #b5812a; --tema-ambar-claro: #d0a24e; --tema-sombra-sucesso: #bbe4c9;
+  --tema-tracking-widest: 0.08em;
+  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* Chapado (sem neon/sombra) nos 5 temas novos — estilo sóbrio da galeria. */
+[data-tema='meianoite'] button, [data-tema='grafiteterra'] button,
+[data-tema='chocolate'] button, [data-tema='cobre'] button, [data-tema='latte'] button {
+  box-shadow: none;
+}
+[data-tema='meianoite'] [data-neon-glow], [data-tema='grafiteterra'] [data-neon-glow],
+[data-tema='chocolate'] [data-neon-glow], [data-tema='cobre'] [data-neon-glow],
+[data-tema='latte'] [data-neon-glow] {
+  display: none !important;
+}
+[data-tema='meianoite'] [data-neon-dot], [data-tema='grafiteterra'] [data-neon-dot],
+[data-tema='chocolate'] [data-neon-dot], [data-tema='cobre'] [data-neon-dot],
+[data-tema='latte'] [data-neon-dot] {
+  background-color: var(--tema-acento) !important;
+  box-shadow: none !important;
+}
+[data-tema='meianoite'] [data-neon-box], [data-tema='grafiteterra'] [data-neon-box],
+[data-tema='chocolate'] [data-neon-box], [data-tema='cobre'] [data-neon-box],
+[data-tema='latte'] [data-neon-box] {
+  box-shadow: none !important;
+}
+
+/* Acento CLARO → o botão primário (bg-blue-600 text-white) ganha texto ESCURO
+   (senão o branco some sobre bege/caramelo/cobre/terracota). O latte tem acento
+   escuro, então mantém o texto branco padrão. */
+[data-tema='meianoite'] .bg-blue-600.text-white,
+[data-tema='grafiteterra'] .bg-blue-600.text-white,
+[data-tema='chocolate'] .bg-blue-600.text-white,
+[data-tema='cobre'] .bg-blue-600.text-white {
+  color: var(--tema-acento-texto);
+}
+
+/* Latte é CLARO: campos com letra escura (os preenchimentos usam branco, que
+   some no claro) e sub-aba fechada em marrom (mesmo tratamento do tema Papel).
+   O logo Toyota é branco → escurece no cabeçalho (só na interface, não na saída). */
+[data-tema='latte'] .campo-tema {
+  border-color: #c8b291;
+  color: #2a1d12;
+}
+[data-tema='latte'] .subaba-fechada {
+  background-color: #e4d3b8;
+  color: #6e4a2e;
+}
+[data-tema='latte'] .subaba-fechada:hover {
+  background-color: #dcc8a8;
+}
+[data-tema='latte'] .logo-toyota {
+  filter: brightness(0) opacity(0.82);
 }
 
 /* Interface chapada nos temas (sem brilho neon, sem sombra nos botões). */

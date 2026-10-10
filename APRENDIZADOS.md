@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.135.0](#v13500) — 2026-10-10 — +5 temas sofisticados escolhidos na galeria (v0.135.0)
 - [v0.134.0](#v13400) — 2026-10-09 — Botão Parcial + aba Parcial (v0.134.0)
 - [v0.133.0](#v13300) — 2026-10-09 — X parcial é Sim + Parcial no relatório (v0.133.0)
 - [v0.132.0](#v13200) — 2026-10-09 — V sem nada marcado aprova tudo (v0.132.0)
@@ -194,6 +195,36 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13500"></a>
+## 2026-10-10 — +5 temas sofisticados escolhidos na galeria (v0.135.0)
+
+O usuário pediu uma galeria de direções de layout (20 mockups renderizados fora do repo, SVG→PNG),
+escolheu 5 e pediu para **acrescentá-los aos temas existentes** (sem remover nenhum). Como o app
+tem **layout fixo**, o sistema de temas só troca **paleta + fonte** — então "implementar os 5" =
+adicionar 5 paletas/fontes, não 5 layouts.
+
+- **5 temas novos** (`src/utils/tema.ts` no `Tema`/`TEMAS_VALIDOS`; blocos `[data-tema='x']` em
+  `src/index.css`; entradas em `ConfiguracoesTema.tsx`): `meianoite` (navy `#0e1b30` + bege `#e4d5b7`),
+  `grafiteterra` (grafite + terracota do Claude `#cc785c`), `chocolate` (espresso + caramelo `#c98a4b`),
+  `cobre` (grafite + cobre `#b87333`), `latte` (modo **claro**: latte `#dbc9b0` + café `#6e4a2e`).
+- **Fonte serifada:** importei **Fraunces** (`@fontsource/fraunces`, já era dep, só faltava o
+  `@import` no index.css; 4 temas a usam como título). Space Grotesk/Inter/Plus Jakarta já existiam.
+- **Gotcha de contraste:** o botão primário é `.bg-blue-600.text-white`. Acentos **claros**
+  (bege/caramelo/cobre/terracota) ficam ilegíveis com texto branco → regra
+  `[data-tema='…'] .bg-blue-600.text-white { color: var(--tema-acento-texto) }` (texto escuro). O
+  `latte` tem acento escuro, mantém branco, e por ser claro reusa os overrides do `papel`
+  (`.campo-tema` com letra escura, `.subaba-fechada`, `.logo-toyota` escurecido no header).
+- **Flat:** os 5 entram nos seletores que tiram neon/sombra (sóbrio).
+- **Saída intacta:** o bloco de reset `#printable-quote`/`[data-saida='flyer']` zera os `--tema-*` e
+  as fontes voltam a Inter → o **PNG do cliente NÃO muda** (regra-mãe respeitada).
+- **Slugs** escolhidos p/ não colidir com o LEGADO (`claude`→azul, `terracota` removido): usei
+  `grafiteterra` em vez de `terracota`/`claude`.
+- **Validação:** `tsc -b` limpo, `oxlint` só warnings pré-existentes, **242 testes passam** (1 falha
+  foi flaky — a suíte de render é pesada ~100s), `npm run build` gera `dist/index.html` 16 MB
+  autocontido com os 5 temas embutidos. ⚠️ Sem screenshot headless (não há chromium na máquina) — o
+  visual dos 5 foi conferido pelos mockups da galeria, de onde saíram as cores.
+Selo `v0.135.0`.
 
 <a id="v13400"></a>
 ## 2026-10-09 — Botão Parcial + aba Parcial (v0.134.0)
