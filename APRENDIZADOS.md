@@ -10,6 +10,7 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.136.0](#v13600) — 2026-10-13 — Parcial soma nos Aprovados da linha do mês + Dados sem negrito no azul (v0.136.0)
 - [v0.135.0](#v13500) — 2026-10-10 — +5 temas sofisticados escolhidos na galeria (v0.135.0)
 - [v0.134.0](#v13400) — 2026-10-09 — Botão Parcial + aba Parcial (v0.134.0)
 - [v0.133.0](#v13300) — 2026-10-09 — X parcial é Sim + Parcial no relatório (v0.133.0)
@@ -196,8 +197,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 <!-- INDICE-VERSOES-FIM -->
 
-<a id="v13500"></a>
-## 2026-10-10 — +5 temas sofisticados escolhidos na galeria (v0.135.0)
+<a id="v13600"></a>
+## 2026-10-13 — Parcial soma nos Aprovados da linha do mês + Dados sem negrito no azul (v0.136.0)
 
 O usuário pediu uma galeria de direções de layout (20 mockups renderizados fora do repo, SVG→PNG),
 escolheu 5 e pediu para **acrescentá-los aos temas existentes** (sem remover nenhum). Como o app
@@ -225,6 +226,24 @@ adicionar 5 paletas/fontes, não 5 layouts.
   autocontido com os 5 temas embutidos. ⚠️ Sem screenshot headless (não há chromium na máquina) — o
   visual dos 5 foi conferido pelos mockups da galeria, de onde saíram as cores.
 Selo `v0.135.0`.
+
+## 2026-10-13 — Parcial soma nos Aprovados da linha do mês + Dados sem negrito no azul (v0.136.0)
+
+**Pedido:** (1) linha do mês mostrava "Aprovados 36% · Não 55%" com 1 parcial de fora (4+6+1=11);
+quer "Aprovados 45% · Não 55%". (2) células da aba Dados no tema azul sem negrito.
+
+**Feito:** (1) só na exibição das 2 linhas comparativas do relatório (`RelatorioModal`):
+`Aprovados {aprovados + parcial}%`; `percentuaisAprovacao` intacta (cabeçalho geral e Excel
+mantêm as 3 fatias). (2) regra `[data-tema='azul'] tbody td input[type='text'], [data-grifo]`
+com `font-weight: 400` em `index.css` (mesmo padrão do Técnico v0.29.0; input + grifo juntos
+senão as larguras divergem). Cabeçalho segue bold; só interface (saídas não seguem tema).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**243/243 (16 arquivos)** — inclui teste novo "parcial soma nos Aprovados da linha do mês".
+`npm run build` OK (`dist/index.html` ~16 MB, 0 refs externas, regra presente no bundle).
+Selo `v0.136.0`.
+
+---
 
 <a id="v13400"></a>
 ## 2026-10-09 — Botão Parcial + aba Parcial (v0.134.0)

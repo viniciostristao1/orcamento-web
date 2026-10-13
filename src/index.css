@@ -449,6 +449,13 @@
   font-weight: 400;
 }
 
+/* Azul: idem — conteúdo das células da aba Dados sem negrito (input + grifo
+   juntos, senão as larguras divergem e o destaque desalinha). Cabeçalho segue bold. */
+[data-tema='azul'] tbody td input[type='text'],
+[data-tema='azul'] tbody td [data-grifo] {
+  font-weight: 400;
+}
+
 /* Técnico = cantos retos. */
 [data-tema='tecnico'] [data-neon-card],
 [data-tema='tecnico'] [data-neon-box] {

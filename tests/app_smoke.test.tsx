@@ -2051,6 +2051,34 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('relatório: parcial soma nos Aprovados da linha do mês', () => {
+    const rec = (id: string, aprovacao?: 'aprovado' | 'parcial', naoRealizados?: number[]) => ({
+      ...registro(id, `PLACA${id}`, '01/10/2026 10:00:00'),
+      dataDoc: '05/10/2026',
+      numeroOrcamento: `N${id}`,
+      nome: `NOME${id}`,
+      numItens: 2,
+      ...(aprovacao ? { aprovacao } : {}),
+      ...(naoRealizados ? { naoRealizados } : {}),
+    });
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([rec('1', 'aprovado'), rec('2', 'parcial', [1])]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Relatório para Excel' }));
+      const janela = document.querySelector('[data-janela-relatorio="1"]') as HTMLElement;
+      expect(janela.textContent).toContain('OUTUBRO/2026');
+      // 1 aprovado (50%) + 1 parcial (50%) = Aprovados 100% na linha do mês
+      expect(janela.textContent).toContain('Aprovados 100%');
+      // o cabeçalho geral mantém as 3 fatias separadas
+      expect(janela.textContent).toContain('Parcial 50%');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
   it('relatório: seletor de mês filtra a tabela e copia só o mês', () => {
     const rec = (id: string, dataDoc: string, nome: string, aprovacao?: 'aprovado' | 'naoAprovado') => ({
       ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),

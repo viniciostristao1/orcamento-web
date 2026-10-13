@@ -189,7 +189,7 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
                   <span className="text-slate-600"> · </span>
                   <span className="text-slate-300">{pctBase.total} orçamento(s)</span>
                   <span className="text-slate-600"> · </span>
-                  <span className="text-green-400">Aprovados {pctBase.aprovados}%</span>
+                  <span className="text-green-400">Aprovados {pctBase.aprovados + pctBase.parcial}%</span>
                   <span className="text-slate-600"> · </span>
                   <span className="text-red-400">Não aprovados {pctBase.naoAprovados}%</span>
                 </p>
@@ -202,7 +202,7 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
                     <>
                       <span className="text-slate-300">{pctAnt.total} orçamento(s)</span>
                       <span className="text-slate-600"> · </span>
-                      <span className="text-green-400">Aprovados {pctAnt.aprovados}%</span>
+                      <span className="text-green-400">Aprovados {pctAnt.aprovados + pctAnt.parcial}%</span>
                       <span className="text-slate-600"> · </span>
                       <span className="text-red-400">Não aprovados {pctAnt.naoAprovados}%</span>
                     </>
