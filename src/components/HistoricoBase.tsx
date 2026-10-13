@@ -151,7 +151,7 @@ const HistoricoBase: React.FC<HistoricoBaseProps> = ({
       )}
 
       {/* Lista */}
-      <div className="overflow-y-auto p-4 space-y-3">
+      <div data-historico="1" className="overflow-y-auto p-4 space-y-3">
         {totalLista === 0 && (
           <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-base">
             {vazioLista}

@@ -419,6 +419,20 @@
   filter: brightness(0) opacity(0.82);
 }
 
+/* Latte CLARO: os pastéis dos cartões do histórico (nome, placa, chassi, telefone,
+   Nº, datas, contagens — orçamentos e flyer) somem no bege. Versões bem escuras só
+   dentro do histórico (saídas e resto da interface intactos). */
+[data-tema='latte'] [data-historico] .text-sky-300 { color: #1c4e80; }
+[data-tema='latte'] [data-historico] .text-blue-300 { color: #1d4e9e; }
+[data-tema='latte'] [data-historico] .text-amber-300 { color: #8a5a00; }
+[data-tema='latte'] [data-historico] .text-teal-300 { color: #0b6b5f; }
+[data-tema='latte'] [data-historico] .text-green-300 { color: #1e7a45; }
+[data-tema='latte'] [data-historico] .text-violet-300 { color: #5b3fa8; }
+[data-tema='latte'] [data-historico] .text-red-300 { color: #b3352b; }
+[data-tema='latte'] [data-historico] .text-slate-400 { color: #5b4a38; }
+[data-tema='latte'] [data-historico] .text-slate-500 { color: #6e5b42; }
+[data-tema='latte'] [data-historico] .text-slate-600 { color: #6e5b42; }
+
 /* Interface chapada nos temas (sem brilho neon, sem sombra nos botões). */
 [data-tema='papel'] button,
 [data-tema='whatsapp'] button,

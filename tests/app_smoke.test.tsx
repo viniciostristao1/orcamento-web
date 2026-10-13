@@ -2004,6 +2004,19 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('histórico: lista tem gancho data-historico (contraste no latte)', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([registro('1', 'ABC1D23', '24/09/2026 12:30:00')]),
+    );
+    try {
+      render(<HistoryModal aberto onFechar={() => {}} onAbrir={() => {}} />);
+      expect(document.querySelector('[data-historico="1"]')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
   it('relatório: largo, meses, % e lixeiras', () => {
     const rec = (id: string, dataDoc: string, aprovacao?: 'aprovado' | 'naoAprovado', naoRealizados?: number[]) => ({
       ...registro(id, `PLACA${id}`, '01/01/2026 10:00:00'),

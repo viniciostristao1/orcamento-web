@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.137.0](#v13700) — 2026-10-13 — Contraste no latte: textos do histórico em cores escuras (v0.137.0)
+
 - [v0.136.0](#v13600) — 2026-10-13 — Parcial soma nos Aprovados da linha do mês + Dados sem negrito no azul (v0.136.0)
 - [v0.135.0](#v13500) — 2026-10-10 — +5 temas sofisticados escolhidos na galeria (v0.135.0)
 - [v0.134.0](#v13400) — 2026-10-09 — Botão Parcial + aba Parcial (v0.134.0)
@@ -196,6 +198,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13700"></a>
+## 2026-10-13 — Contraste no latte: textos do histórico em cores escuras (v0.137.0)
+
+**Pedido:** no tema claro Latte, nome/placa/chassi/telefone/Nº/datas dos cartões do histórico
+(orçamentos + flyer/CONTATO) sem contraste no bege.
+
+**Feito:** gancho `data-historico="1"` na lista do `HistoricoBase` (vale pros dois históricos)
++ 10 overrides `[data-tema='latte'] [data-historico] .text-{sky,blue,amber,teal,green,violet,
+red}-300 e slate-400/500/600` para tons bem escuros em `index.css`. Escopo só-histórico para
+não mexer em acentos de outras telas; saídas intactas (não seguem tema).
+
+**Validação:** `npm run typecheck` limpo, `npm run lint` sem erros, `npm test`
+**244/244** — inclui teste novo do gancho. `npm run build` OK (~16 MB, autocontido).
+Selo `v0.137.0`.
+
+---
 
 <a id="v13600"></a>
 ## 2026-10-13 — Parcial soma nos Aprovados da linha do mês + Dados sem negrito no azul (v0.136.0)
