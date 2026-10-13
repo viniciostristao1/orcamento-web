@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.138.0](#v13800) — 2026-10-13 — Contraste no latte: % e Sim/Não do relatório escuros (v0.138.0)
+
 - [v0.137.0](#v13700) — 2026-10-13 — Contraste no latte: textos do histórico em cores escuras (v0.137.0)
 
 - [v0.136.0](#v13600) — 2026-10-13 — Parcial soma nos Aprovados da linha do mês + Dados sem negrito no azul (v0.136.0)
@@ -198,6 +200,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13800"></a>
+## 2026-10-13 — Contraste no latte: % e Sim/Não do relatório escuros (v0.138.0)
+
+**Pedido:** linhas de % do relatório + Sim/Não da coluna APROVADO sem contraste no latte.
+
+**Feito:** overrides `[data-tema='latte'] [data-janela-relatorio] :is(span,td,th,p,label).text-{cor}`
+(9 cores → tons escuros, mesma paleta do histórico v0.137.0) em `index.css`. Escopo exclui
+botões de propósito (têm só ícone svg). Gancho `data-janela-relatorio` já existia.
+
+**Validação:** `npm run typecheck` limpo, `npm test` **244/244**, `npm run build` OK (autocontido).
+Selo `v0.138.0`.
+
+---
 
 <a id="v13700"></a>
 ## 2026-10-13 — Contraste no latte: textos do histórico em cores escuras (v0.137.0)

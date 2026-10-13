@@ -433,6 +433,18 @@
 [data-tema='latte'] [data-historico] .text-slate-500 { color: #6e5b42; }
 [data-tema='latte'] [data-historico] .text-slate-600 { color: #6e5b42; }
 
+/* Latte CLARO: % do relatório + Sim/Não da coluna APROVADO. Só textos e células
+   (span/td/th/p/label — os botões têm só ícone svg, não são afetados). */
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-green-400 { color: #1e7a45; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-amber-300 { color: #8a5a00; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-red-400 { color: #b3352b; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-blue-300 { color: #1d4e9e; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-400 { color: #5b4a38; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-500 { color: #6e5b42; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600 { color: #6e5b42; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300 { color: #3a2a1c; }
+[data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200 { color: #3a2a1c; }
+
 /* Interface chapada nos temas (sem brilho neon, sem sombra nos botões). */
 [data-tema='papel'] button,
 [data-tema='whatsapp'] button,
