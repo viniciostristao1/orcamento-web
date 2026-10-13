@@ -138,8 +138,8 @@ const AppInterno: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-slate-200 pb-24">
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden ui-compacta">
         <div className="max-w-[1400px] mx-auto pl-[30px] pr-0 h-20 flex items-center justify-between gap-5">
-          {/* Logo colado à esquerda, acima da coluna do MENU DADOS. */}
-          <div className="flex items-center justify-start w-[210px] shrink-0 -ml-[22px]">
+          {/* Logo colado na borda esquerda, acima da coluna do MENU DADOS. */}
+          <div className="flex items-center justify-start w-[210px] shrink-0 -ml-[30px]">
             <img src={logoToyota} alt="Toyota" className="logo-toyota h-11 w-auto" />
           </div>
 

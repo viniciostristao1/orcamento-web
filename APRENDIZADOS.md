@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.140.0](#v14000) — 2026-10-13 — Logo na borda esquerda (v0.140.0)
+
 - [v0.139.0](#v13900) — 2026-10-13 — Logo colado à esquerda + aba ativa escura no latte (v0.139.0)
 
 - [v0.138.0](#v13800) — 2026-10-13 — Contraste no latte: % e Sim/Não do relatório escuros (v0.138.0)
@@ -202,6 +204,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14000"></a>
+## 2026-10-13 — Logo na borda esquerda (v0.140.0)
+
+**Pedido:** os 22px da v0.139.0 foram imperceptíveis; logo deve ir bem mais à esquerda,
+acima da coluna do MENU DADOS.
+
+**Feito:** célula do logo com `-ml-[30px]` (x=0 do contêiner 1400px; regra confirmada no
+bundle). Só interface.
+
+**Validação:** `npm run typecheck` limpo, `npm test` **244/244**, `npm run build` OK.
+Selo `v0.140.0`.
+
+---
 
 <a id="v13900"></a>
 ## 2026-10-13 — Logo colado à esquerda + aba ativa escura no latte (v0.139.0)
