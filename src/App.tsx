@@ -124,19 +124,22 @@ const AppInterno: React.FC = () => {
   // Ideia 01 (sublinhado): só texto, ativa com traço âmbar embaixo.
   // No claro (papel) o texto é preto: os tons slate são remapeados pelo tema
   // (`@theme inline`), então aqui vão hex literais (não remapeiam e não somem).
-  const claro = tema === 'papel';
-  const abaAtiva = claro ? 'text-[#0f172a]' : 'text-white';
-  const abaNormal = claro
-    ? 'text-[#64748b] hover:text-[#0f172a]'
-    : 'text-slate-400 hover:text-slate-200';
+  // Latte idem, no seu tom mais escuro (igual aos campos Nº/DATA).
+  const claro = tema === 'papel' || tema === 'latte';
+  const abaAtiva = tema === 'latte' ? 'text-[#2a1d12]' : claro ? 'text-[#0f172a]' : 'text-white';
+  const abaNormal = tema === 'latte'
+    ? 'text-[#8b7558] hover:text-[#2a1d12]'
+    : claro
+      ? 'text-[#64748b] hover:text-[#0f172a]'
+      : 'text-slate-400 hover:text-slate-200';
   const abaEditandoBorda = tema === 'grafite' ? 'border-amber-500' : 'border-blue-500';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 pb-24">
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-[100] print:hidden ui-compacta">
         <div className="max-w-[1400px] mx-auto pl-[30px] pr-0 h-20 flex items-center justify-between gap-5">
-          {/* Logo alinhado à esquerda, acima do MENU DADOS (mesma origem). */}
-          <div className="flex items-center justify-start w-[210px] shrink-0">
+          {/* Logo colado à esquerda, acima da coluna do MENU DADOS. */}
+          <div className="flex items-center justify-start w-[210px] shrink-0 -ml-[22px]">
             <img src={logoToyota} alt="Toyota" className="logo-toyota h-11 w-auto" />
           </div>
 

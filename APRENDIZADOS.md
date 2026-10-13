@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.139.0](#v13900) — 2026-10-13 — Logo colado à esquerda + aba ativa escura no latte (v0.139.0)
+
 - [v0.138.0](#v13800) — 2026-10-13 — Contraste no latte: % e Sim/Não do relatório escuros (v0.138.0)
 
 - [v0.137.0](#v13700) — 2026-10-13 — Contraste no latte: textos do histórico em cores escuras (v0.137.0)
@@ -200,6 +202,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v13900"></a>
+## 2026-10-13 — Logo colado à esquerda + aba ativa escura no latte (v0.139.0)
+
+**Pedido:** (1) logo Toyota mais à esquerda (estava em `pl-[30px]`, alinhado à coluna do MENU
+DADOS). (2) aba selecionada branca no latte → preta/escura como os campos Nº/DATA.
+
+**Feito:** (1) célula do logo com `-ml-[22px]` (logo a 8px da borda, ainda acima da coluna
+do menu). (2) `App.tsx`: `claro` agora inclui `latte`; ativa em `#2a1d12` (tom mais escuro do
+latte, igual aos campos) e inativa em `#8b7558` — hex literais (slate remapeia no tema).
+Só interface.
+
+**Validação:** `npm run typecheck` limpo, `npm test` **244/244**, `npm run build` OK.
+Selo `v0.139.0`.
+
+---
 
 <a id="v13800"></a>
 ## 2026-10-13 — Contraste no latte: % e Sim/Não do relatório escuros (v0.138.0)
