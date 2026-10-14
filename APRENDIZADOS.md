@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.142.0](#v14200) — 2026-10-14 — Vitrine: logos oficiais nas linhas, sem faixa no topo, rodapé maior, 10x com valor integral (v0.142.0)
+
 - [v0.141.0](#v14100) — 2026-10-14 — Layout Vitrine da loja no Tire Flyer (v0.141.0)
 
 - [v0.140.0](#v14000) — 2026-10-13 — Logo na borda esquerda (v0.140.0)
@@ -206,6 +208,44 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14200"></a>
+## 2026-10-14 — Vitrine: logos oficiais, sem faixa no topo, rodapé maior, 10x integral (v0.142.0)
+
+**Pedido (4 itens):** (1) os logos de marca de texto "não ficaram exatamente iguais — é
+impossibilidade?"; (2) REMOVER a faixa de logos do topo; (3) usar o espaço para AUMENTAR a
+fonte do rodapé ("alinhamento cortesia…" está pequeno p/ ler no WhatsApp); (4) no valor
+parcelado escrever **"Em até 10x"** e o **valor INTEGRAL** (não a parcela).
+
+**Feito:**
+- **Logos oficiais em imagem** por marca (não é impossibilidade — logo real é arquivo):
+  baixados do Wikimedia Commons (Michelin com Bibendum + underline amarela, Bridgestone,
+  Pirelli caixa amarela 1997, Yokohama, Dunlop, BFGoodrich) e do worldvectorlogo
+  (Firestone script vermelho, Goodyear clássico; SVGs sem script — conferido). Pipeline
+  one-off: rasteriza SVG via Playwright → achata em branco → recorta no conteúdo
+  (`ImageChops.difference` + `getbbox`) → margem 12px → largura 700px → PNG em
+  `src/tire/assets/marcas/`. Vite inlineia em base64 no build (nenhum fetch em runtime).
+  O componente `<MarcaBadge>` usa `img` (alt = marca) quando existe arquivo; texto
+  estilizado (`LogoTexto`) só para marca desconhecida.
+- **Sem faixa no topo:** o componente não computa mais `marcasPresentes` para a faixa (a
+  função continua em `marcas.ts`, ainda útil/testada); a foto da loja encosta no topo.
+- **Rodapé maior:** título 16.5px (era 12.5), apoio 14.5px (era 11), ícones 42px (era 30),
+  `py-[22px]` — legível no PNG do WhatsApp.
+- **10x:** rótulo "Em até 10x no cartão" + `formatarPreco(priceInstallment)` (integral);
+  a parcela `priceInstallment/10` saiu.
+- Testes atualizados: `flyer_vitrine` valida `img[alt]` por marca (Dunlop só quando está na
+  lista), fallback de texto, ausência da parcela (`,55` some) e presença do integral;
+  `app_smoke` checa `img[alt="MICHELIN"]` no layout vitrine.
+
+**Gotchas:** SVG do worldvectorlogo pode ter viewBox quadrado com conteúdo só numa faixa —
+por isso a rasterização + recorte é no pipeline (não usar o SVG cru). JPEG/SVG de logo
+antigo do Commons (Firestone velho, "Michelin" foto de prédio) foram descartados.
+
+**Validação:** typecheck/lint limpos, `npm test` 253/253, build OK (zero referências
+externas; logos + foto inline), screenshots headless com override Arial (fonte real do
+usuário) e export PNG real de 1500px conferidos. Selo `v0.142.0`.
+
+---
 
 <a id="v14100"></a>
 ## 2026-10-14 — Layout Vitrine da loja no Tire Flyer (v0.141.0)

@@ -64,8 +64,8 @@ export function separarMarcaModelo(brand: string): { marca: MarcaPresente | null
 
 /**
  * Marcas presentes na lista de pneus (deduplicadas, ordem canônica primeiro e
- * desconhecidas depois, na ordem de aparição). A faixa de logos da Vitrine
- * mostra SÓ o que está aqui — sem Dunlop na lista, sem Dunlop no flyer.
+ * desconhecidas depois, na ordem de aparição). Usada nos testes/labels:
+ * sem Dunlop na lista, sem Dunlop no flyer.
  */
 export function marcasPresentes(brands: string[]): MarcaPresente[] {
   const vistas = new Set<string>();
