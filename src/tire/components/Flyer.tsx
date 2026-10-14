@@ -8,6 +8,7 @@ import { FlyerEtiqueta } from './FlyerEtiqueta';
 import { FlyerLaranja } from './FlyerLaranja';
 import { FlyerRacing } from './FlyerRacing';
 import { FlyerEncarte } from './FlyerEncarte';
+import { FlyerVitrine } from './FlyerVitrine';
 
 interface FlyerProps {
   data: PromoInfo;
@@ -139,6 +140,7 @@ const LAYOUTS_COLORIDOS: Partial<Record<LayoutFlyer, React.FC<{ data: PromoInfo 
   laranja: FlyerLaranja,
   racing: FlyerRacing,
   encarte: FlyerEncarte,
+  vitrine: FlyerVitrine,
 };
 
 export const Flyer: React.FC<FlyerProps> = ({ data, flyerRef, layout = 'atual' }) => {

@@ -19,7 +19,7 @@ describe('layout de saída do Tire Flyer (localStorage)', () => {
   });
 
   it('aceita os layouts coloridos novos', () => {
-    for (const id of ['laranja', 'racing', 'encarte'] as const) {
+    for (const id of ['laranja', 'racing', 'encarte', 'vitrine'] as const) {
       salvarLayoutFlyer(id);
       expect(lerLayoutFlyer()).toBe(id);
     }

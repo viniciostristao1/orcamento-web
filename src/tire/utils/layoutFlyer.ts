@@ -1,5 +1,5 @@
 /** Layouts de saída do flyer de pneus (o PNG exportado segue o escolhido). */
-export type LayoutFlyer = 'atual' | 'tabela' | 'etiqueta' | 'laranja' | 'racing' | 'encarte';
+export type LayoutFlyer = 'atual' | 'tabela' | 'etiqueta' | 'laranja' | 'racing' | 'encarte' | 'vitrine';
 
 export const LAYOUT_FLYER_KEY = 'flyer_layout_v1';
 
@@ -10,6 +10,7 @@ const LAYOUTS_VALIDOS: readonly LayoutFlyer[] = [
   'laranja',
   'racing',
   'encarte',
+  'vitrine',
 ];
 
 /**

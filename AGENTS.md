@@ -178,17 +178,26 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   `h-[250px]` e o **preview** aparece na metade (`w-[375px]` + `transform: scale(.5)` com altura
   medida por `ResizeObserver`) — **nunca usar `zoom` no preview**: zoom aninhado arredonda o
   `clientHeight` e muda o PNG (ver v0.7.1).
-- **Layouts de saída do Tire Flyer** (v0.20.0; cores na v0.21.0): o usuário escolheu, entre os
-  mockups publicados em `ideias/` (`tire-flyer-valores.md` e `tire-flyer-cores.md`), **6 opções**
+- **Layouts de saída do Tire Flyer** (v0.20.0; cores na v0.21.0; vitrine na v0.141.0): o usuário
+  escolheu, entre os mockups publicados em `ideias/` (`tire-flyer-valores.md` e
+  `tire-flyer-cores.md`), **7 opções**
   trocadas por um **ícone, sem substituir o clássico**: `atual` (padrão), `tabela` (ideia 4),
-  `etiqueta` (ideia 7), `laranja` (cores 01 — Queima-Estoque), `racing` (cores 02 — Vermelho) e
-  `encarte` (cores 09 — Amarelo jornal). `tire/utils/layoutFlyer.ts` (`flyer_layout_v1`) guarda a
+  `etiqueta` (ideia 7), `laranja` (cores 01 — Queima-Estoque), `racing` (cores 02 — Vermelho),
+  `encarte` (cores 09 — Amarelo jornal) e `vitrine` (v0.141.0 — foto da loja no topo + faixa de
+  logos das marcas presentes + tabela de ofertas; foto em `tire/assets/loja.jpeg`).
+  `tire/utils/layoutFlyer.ts` (`flyer_layout_v1`) guarda a
   escolha; `SeletorLayoutFlyer.tsx` é o botão **ícone-only** (`aria-label="Layout do flyer"`,
   menu com rolagem, padrão do `ConfiguracoesTema`) ao lado do download. O `Flyer.tsx` é
   dispatcher (`data-layout` no nó de saída): o clássico fica em `FlyerAtual` **sem mudança**, os
-  demais em `FlyerTabela.tsx`/`FlyerEtiqueta.tsx` e os 3 coloridos são flyers completos
-  (`FlyerLaranja.tsx`/`FlyerRacing.tsx`/`FlyerEncarte.tsx`, com cabeçalho/rodapé próprios);
-  `getBrandStyle` mora em `tire/utils/marcas.ts`.
+  demais em `FlyerTabela.tsx`/`FlyerEtiqueta.tsx` e os 4 coloridos são flyers completos
+  (`FlyerLaranja.tsx`/`FlyerRacing.tsx`/`FlyerEncarte.tsx`/`FlyerVitrine.tsx`, com
+  cabeçalho/rodapé próprios); `getBrandStyle`/`separarMarcaModelo`/`marcasPresentes`/
+  `logoDaMarca` moram em `tire/utils/marcas.ts`.
+  ⚠️ A Vitrine mostra SÓ as marcas presentes na tabela (sem Dunlop quando não há Dunlop) e o
+  selo "Sob encomenda" fica numa **faixa vertical à direita** com espaçador fixo — o preço
+  nunca fica embaixo dele, em nenhuma fonte. ⚠️ No headless do Playwright as fontes de sistema
+  do contêiner (DejaVu) aparecem "espalhadas" e o layout clássico sofre o MESMO artefato — é do
+  ambiente, não do código (validar com override de fonte Arial).
   ⚠️ O layout `atual` continua sendo **contrato**: validado pixel a pixel contra a v0.19.2
   (0 diferenças) em cada versão; a escolha vale para o PNG e é salva no navegador.
 - **COPIAR PNEUS do Tire Flyer** (v0.32.0 como "Descrição para WhatsApp" abaixo do flyer;
@@ -445,7 +454,8 @@ orcamento_web/
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
     tire/components/FlyerTabela.tsx / FlyerEtiqueta.tsx / FlyerLaranja.tsx /
-      FlyerRacing.tsx / FlyerEncarte.tsx (os 5 layouts alternativos)
+      FlyerRacing.tsx / FlyerEncarte.tsx / FlyerVitrine.tsx (os 6 layouts alternativos)
+    tire/assets/loja.jpeg    foto da loja da Toyota Weiand (layout Vitrine)
     tire/components/FlyerHistoryModal.tsx histórico do flyer (busca/filtro cor/WhatsApp)
     tire/components/SeletorLayoutFlyer.tsx botão ícone-only do layout de saída
     tire/utils/parser.ts     parse da tabela de pneus (TABs) + preço BRL

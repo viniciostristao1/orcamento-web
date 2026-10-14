@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.141.0](#v14100) — 2026-10-14 — Layout Vitrine da loja no Tire Flyer (v0.141.0)
+
 - [v0.140.0](#v14000) — 2026-10-13 — Logo na borda esquerda (v0.140.0)
 
 - [v0.139.0](#v13900) — 2026-10-13 — Logo colado à esquerda + aba ativa escura no latte (v0.139.0)
@@ -204,6 +206,54 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14100"></a>
+## 2026-10-14 — Layout Vitrine da loja no Tire Flyer (v0.141.0)
+
+**Pedido:** o usuário subiu 2 imagens no repo (a foto da loja Toyota Weiand e um flyer de
+referência "Tabela de Ofertas") e pediu o MESMO layout no Tire Flyer: foto da loja no topo,
+logos das marcas, medida e valores. Regras: se houver pneu Michelin, a marca Michelin
+aparece; se NÃO houver Dunlop, a marca Dunlop NÃO pode aparecer (ou ficar em branco) —
+ou seja, a faixa de marcas é DINÂMICA, só com o que está na tabela.
+
+**Feito:**
+- Novo layout `vitrine` (7º): `tire/components/FlyerVitrine.tsx` — faixa de logos (só as
+  marcas presentes), foto da loja (asset `tire/assets/loja.jpeg`, inline em base64 no build),
+  banner "TABELA DE OFERTAS / MEDIDA", uma linha por pneu (pneu em SVG desenhado — não há
+  foto por marca, badge da marca + modelo + "10X no cartão" com a PARCELA calculada
+  (`priceInstallment / 10`) e "À VISTA") e rodapé com 3 serviços + listra vermelha.
+- `tire/utils/marcas.ts`: `separarMarcaModelo` (Michelin SUV HT → marca MICHELIN + modelo
+  "SUV HT"), `marcasPresentes` (dedup + ordem canônica: Michelin, Bridgestone, Pirelli,
+  Yokohama, Dunlop, BFGoodrich, Firestone, Goodyear; desconhecidas depois) e `LOGO_MARCA`
+  (cores de cada "logo" em texto: Michelin azul + underlinha amarela, Pirelli/Dunlop amarelo,
+  etc.). A foto antiga da raiz virou asset via `git mv` (o PNG de referência ficou na raiz).
+- Seletor: opção "Vitrine da loja" (ícone `Store`); `layoutFlyer.ts` aceita `vitrine`;
+  `Flyer.tsx` dispatcha para o novo componente.
+- Selo "Sob encomenda" (estoque 0): faixa vertical vermelha na borda direita da linha +
+  ESPAÇADOR fixo de 26px quando fora de estoque — o preço nunca fica embaixo dele, em
+  qualquer fonte (1ª tentativa com `pr-32` ainda encostava no DejaVu largo do headless).
+
+**Testes:** `tests/flyer_vitrine.test.tsx` (separação marca/modelo, marcas presentes sem
+Dunlop/dedup/ordem, render com só Michelin+Bridgestone → nenhum DUNLOP, com Dunlop →
+presente, parcela/à vista formatados, selo de encomenda); `flyer_layout` e `app_smoke`
+ganharam o layout novo; 253/253 verdes.
+
+**Gotchas:**
+- ⚠️ No headless do Playwright (build do Chromium 1248 ATUAL) TODO texto do app renderiza
+  "espalhado" — o layout CLÁSSICO (contrato validado anos) sofre o mesmo, então é do
+  ambiente (fontes de sistema/fontconfig do contêiner), não do código. Para validar visual,
+  injetar `font-family: Arial` no nó do flyer via evaluate (reproduz o Chrome do usuário).
+- ⚠️ Índice/aprendizado do contêiner: `dev`/preview usam transform scale(.5)+zoom .75; para
+  screenshot fiel remover os dois via JS (`zoom: '1'` e `transform: 'none'`).
+- ⚠️ O selo vertical usa `[writing-mode:vertical-rl]` + `rotate-180` (Tailwind v4 aceita
+  propriedade arbitrária) e `class` de `aria-hidden` no espaçador.
+
+**Validação:** `npm run typecheck` limpo, lint sem erros novos, `npm test` 253/253,
+build OK (asset da foto inline base64, zero referências externas), export PNG real
+(Playwright: download de `Promocao-265-60R18.png`, 1500px) com foto e layout corretos.
+Selo `v0.141.0`.
+
+---
 
 <a id="v14000"></a>
 ## 2026-10-13 — Logo na borda esquerda (v0.140.0)

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LayoutTemplate, LayoutList, Table, Tag, Flame, Flag, Newspaper } from 'lucide-react';
+import { LayoutTemplate, LayoutList, Table, Tag, Flame, Flag, Newspaper, Store } from 'lucide-react';
 import type { LayoutFlyer } from '../utils/layoutFlyer';
 
 interface SeletorLayoutFlyerProps {
@@ -14,6 +14,7 @@ const OPCOES: { id: LayoutFlyer; nome: string; descricao: string; Icone: typeof 
   { id: 'laranja', nome: 'Laranja Queima-Estoque', descricao: 'Laranja e preto, à vista em destaque', Icone: Flame },
   { id: 'racing', nome: 'Vermelho Racing', descricao: 'Faixas vermelho/preto com listra de corrida', Icone: Flag },
   { id: 'encarte', nome: 'Amarelo Encarte', descricao: 'Tabela estilo encarte de jornal', Icone: Newspaper },
+  { id: 'vitrine', nome: 'Vitrine da loja', descricao: 'Foto da loja + ofertas com logos das marcas', Icone: Store },
 ];
 
 /**

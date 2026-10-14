@@ -435,6 +435,14 @@ describe('App — smoke test (render + processar)', () => {
     expect(flyer().textContent).toContain('Consulte disponibilidade');
     expect(localStorage.getItem('flyer_layout_v1')).toBe('encarte');
 
+    // vitrine da loja: foto no topo + faixa de logos das marcas presentes
+    fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
+    fireEvent.click(screen.getByText('Vitrine da loja'));
+    expect(flyer().dataset.layout).toBe('vitrine');
+    expect(flyer().textContent).toContain('OFERTAS');
+    expect(flyer().textContent).toContain('MICHELIN');
+    expect(localStorage.getItem('flyer_layout_v1')).toBe('vitrine');
+
     // volta para o clássico
     fireEvent.click(screen.getByRole('button', { name: 'Layout do flyer' }));
     fireEvent.click(screen.getByText('Clássico'));
