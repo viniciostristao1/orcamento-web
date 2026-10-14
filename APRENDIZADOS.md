@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.143.0](#v14300) — 2026-10-14 — Logos da Vitrine com fundo transparente (v0.143.0)
+
 - [v0.142.0](#v14200) — 2026-10-14 — Vitrine: logos oficiais nas linhas, sem faixa no topo, rodapé maior, 10x com valor integral (v0.142.0)
 
 - [v0.141.0](#v14100) — 2026-10-14 — Layout Vitrine da loja no Tire Flyer (v0.141.0)
@@ -208,6 +210,37 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14300"></a>
+## 2026-10-14 — Logos da Vitrine com fundo transparente (v0.143.0)
+
+**Pedido:** os logos ficavam num retângulo branco sobre a linha azulada. Queria o fundo
+igual ao da linha — ou transparente ("obviamente Pirelli tem fundo amarelo, mas atrás do
+amarelo tem um fundo branco").
+
+**Causa:** o pipeline da v0.142.0 ACHATAVA tudo em branco (`achatar_branco`) — mesmo as
+fontes que já eram transparentes (Michelin, Bridgestone, Yokohama, Dunlop, BFGoodrich
+vieram RGBA/P com alpha) — e os SVGs foram rasterizados sobre fundo branco.
+
+**Feito:** pipeline refeito preservando alpha: rasteriza os SVGs com fundo transparente
+(`omitBackground: true`), recorta no bbox do ALPHA, margem transparente de 8px, largura
+700px. Dois casos especiais:
+- **Pirelli:** o PNG de origem tem fundo BRANCO opaco → flood-fill do branco a partir das
+  bordas (BFS com limiar min(RGB)>=238 + 4 passadas de franja anti-aliasing 232→205) →
+  transparente. As linhas brancas INTERNAS da caixa amarela (highlight do "P") não são
+  alcançadas pelo fill (não são conectadas à borda) — ficam intactas.
+- **Goodyear:** o SVG do worldvectorlogo tem um `<path fill="#fff">` de fundo embutido →
+  removido por regex antes de rasterizar (senão, com omitBackground, sobrava o quadrado
+  branco). Também rasterizar como `<img>` com largura fixa: inline o SVG com
+  `width/height=2500` estourava a viewport e cortava o logo.
+- Artefato medido: o raster inline anterior (body com o SVG) gerou um PNG 716x1474 (retrato)
+  com o logo CORTADO — daí a regra de renderizar via `<img>` dimensionado.
+
+**Validação:** painéis de conferência compostos sobre a cor exata da linha (`#eef2f8`)
+para os 8 logos (cantos com alpha 0) + screenshot do flyer + export PNG real conferidos.
+typecheck/lint limpos, `npm test` completo verde. Selo `v0.143.0`.
+
+---
 
 <a id="v14200"></a>
 ## 2026-10-14 — Vitrine: logos oficiais, sem faixa no topo, rodapé maior, 10x integral (v0.142.0)

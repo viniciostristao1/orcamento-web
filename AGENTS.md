@@ -200,8 +200,9 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   selo "Sob encomenda" fica numa **faixa vertical à direita** com espaçador fixo (o preço
   nunca fica embaixo dele) e o rodapé tem **fonte grande** p/ leitura no WhatsApp. O preço do
   "10x" mostra o **valor INTEGRAL à prazo** (não a parcela) com o rótulo **"Em até 10x"**.
-  Os PNGs de logo foram normalizados (rasterizados, fundo branco achatado, recorte + 12px de
-  margem, largura 700px) — script one-off documentado no APRENDIZADOS.
+  Os PNGs de logo foram normalizados com **fundo TRANSPARENTE** (rasterizados, recorte no
+  alpha + 8px de margem, largura 700px) — Pirelli/Goodyear mantêm só a CAIXA do logo
+  (amarela/azul) e o resto é transparente; script one-off documentado no APRENDIZADOS.
   ⚠️ No headless do Playwright as fontes de sistema
   do contêiner (DejaVu) aparecem "espalhadas" e o layout clássico sofre o MESMO artefato — é do
   ambiente, não do código (validar com override de fonte Arial).
