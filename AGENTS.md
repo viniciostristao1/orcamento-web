@@ -197,9 +197,11 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   usa os **logos oficiais em imagem** (`tire/assets/marcas/<marca>.png`, embutidos em base64 no
   build — Michelin com Bibendum, Bridgestone, Pirelli caixa amarela, Yokohama, Dunlop,
   BFGoodrich, Firestone e Goodyear; marca sem arquivo cai no selo de texto `LogoTexto`), o
-  selo "Sob encomenda" fica numa **faixa vertical à direita** com espaçador fixo (o preço
-  nunca fica embaixo dele) e o rodapé tem **fonte grande** p/ leitura no WhatsApp. O preço do
+  selo "Sob encomenda" fica numa **faixa vertical à direita** e o rodapé tem **fonte grande**
+  p/ leitura no WhatsApp. O preço do
   "10x" mostra o **valor INTEGRAL à prazo** (não a parcela) com o rótulo **"Em até 10x"**.
+  ⚠️ O espaçador de 26px do selo é **FIXO em todas as linhas** (v0.144.0) — sem isso a grade
+  de preços encolhia nas linhas sem estoque e a divisória 10x/à vista desalinhava.
   Os PNGs de logo foram normalizados com **fundo TRANSPARENTE** (rasterizados, recorte no
   alpha + 8px de margem, largura 700px) — Pirelli/Goodyear mantêm só a CAIXA do logo
   (amarela/azul) e o resto é transparente; script one-off documentado no APRENDIZADOS.

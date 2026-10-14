@@ -77,7 +77,7 @@ const MarcaBadge: React.FC<{ marca: MarcaPresente }> = ({ marca }) => {
     <img
       src={src}
       alt={marca.rotulo}
-      className="max-w-[152px] max-h-[46px] object-contain"
+      className="max-w-[174px] max-h-[52px] object-contain"
       draggable={false}
     />
   );
@@ -130,7 +130,7 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
         <PneuIcone className="w-[74px] h-[74px]" />
       </div>
 
-      <div className="w-[186px] shrink-0 flex flex-col items-center justify-center px-2 py-2">
+      <div className="w-[194px] shrink-0 flex flex-col items-center justify-center px-2 py-2">
         {marca ? (
           <MarcaBadge marca={marca} />
         ) : (
@@ -158,9 +158,10 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
         </div>
       </div>
 
-      {/* Espaçador do selo "Sob encomenda": garante que o preço NUNCA fica
-          embaixo da faixa vertical, em qualquer fonte. */}
-      {tire.stock <= 0 && <div className="w-[26px] shrink-0" aria-hidden="true" />}
+      {/* Espaçador FIXO do selo "Sob encomenda": fica em TODAS as linhas (não só
+          nas sem estoque) para a divisória 10x/à vista cair sempre no MESMO x —
+          e o preço nunca fica embaixo da faixa vertical. */}
+      <div className="w-[26px] shrink-0" aria-hidden="true" />
 
       {tire.stock <= 0 && (
         <div className="absolute right-[4px] top-1/2 -translate-y-1/2 rotate-180 [writing-mode:vertical-rl] bg-[#e11d2e] text-white rounded-[3px] px-[3px] py-2 text-[9.5px] font-black uppercase tracking-[0.16em]">

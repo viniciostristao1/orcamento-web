@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.144.0](#v14400) — 2026-10-14 — Vitrine: logos um pouco maiores + divisória 10x/à vista alinhada (v0.144.0)
+
 - [v0.143.0](#v14300) — 2026-10-14 — Logos da Vitrine com fundo transparente (v0.143.0)
 
 - [v0.142.0](#v14200) — 2026-10-14 — Vitrine: logos oficiais nas linhas, sem faixa no topo, rodapé maior, 10x com valor integral (v0.142.0)
@@ -210,6 +212,25 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14400"></a>
+## 2026-10-14 — Vitrine: logos maiores + divisória alinhada (v0.144.0)
+
+**Pedido:** (1) aumentar um pouco o tamanho dos logos das marcas; (2) a divisória entre o
+preço "10x" e o "à vista" deve ficar alinhada (mesmo x) em TODAS as linhas.
+
+**Causa do desalinhamento:** o espaçador de 26px do selo "Sob encomenda" (v0.141.0) só era
+renderizado nas linhas SEM estoque — a grade de preços (flex-1) encolhia 26px nessas linhas
+e a divisória caía ~13px mais à esquerda que nas demais.
+
+**Feito:** o espaçador virou FIXO em todas as linhas (`w-[26px] shrink-0` sempre) — a grade
+de preços tem a mesma largura em todas e a divisória cai no mesmo x. A coluna da marca foi de
+186→194px e o logo de `max-w-[152px] max-h-[46px]` → `max-w-[174px] max-h-[52px]`.
+
+**Validação:** screenshot headless (com override Arial) conferindo o x da divisória igual nas
+6 linhas; typecheck/lint limpos; `npm test` 254/254. Selo `v0.144.0`.
+
+---
 
 <a id="v14300"></a>
 ## 2026-10-14 — Logos da Vitrine com fundo transparente (v0.143.0)
