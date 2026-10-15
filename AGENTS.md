@@ -203,7 +203,9 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   **pneu da linha é FOTO realista** (v0.147.0 — recorte do flyer de referência do usuário,
   fundo transparente: `tire/assets/pneu.png`; BFGoodrich usa `pneu-offroad.png`), o
   selo "Sob encomenda" fica numa **faixa vertical à direita** e o rodapé tem **fonte grande**
-  p/ leitura no WhatsApp.
+  p/ leitura no WhatsApp: desde a v0.153.0 os blocos são **ALINHAMENTO / BALANCEAMENTO /
+  PARCELAMOS** (título 18px `tracking-tight`, sub 15,5px, ícone 44) — "BALANCEAMENTO" é o
+  título mais largo e usa a área toda do bloco (não aumentar sem medir).
   Desde a **v0.148.0** as tarjas **"EM ATÉ 10X NO CARTÃO"** (vermelha) e
   **"PIX/DINHEIRO/DÉBITO"** (verde) aparecem **UMA vez como TÍTULO das colunas** — entre a
   tarja da MEDIDA e a 1ª linha, **coladas nas duas** (sem espaço) e alinhadas com as colunas

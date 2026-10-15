@@ -160,8 +160,12 @@ describe('FlyerVitrine (layout Vitrine da loja)', () => {
     expect(container.textContent).toContain('1.004');
     expect(container.textContent).toContain(',28');
     expect(container.textContent).toContain('Sob encomenda');
-    expect(container.textContent).toContain('Alinhamento cortesia');
-    expect(container.textContent).toContain('Parcelamos em');
+    expect(container.textContent).toContain('Alinhamento');
+    expect(container.textContent).toContain('Cortesia na troca dos 4 pneus');
+    expect(container.textContent).toContain('Balanceamento');
+    expect(container.textContent).toContain('e montagem cortesia');
+    expect(container.textContent).toContain('Parcelamos');
+    expect(container.textContent).toContain('Em até 10x');
   });
 
   it('com estoque não mostra o aviso de encomenda', () => {

@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.153.0](#v15300) — 2026-10-15 — Vitrine: rodapé com fontes maiores e textos novos (v0.153.0)
+
 - [v0.152.0](#v15200) — 2026-10-15 — Vitrine: tarjas sem itálico e fonte 13px (retângulo igual) (v0.152.0)
 
 - [v0.151.0](#v15100) — 2026-10-15 — Vitrine: fonte das tarjas maior (retângulo igual) + "Sob" centralizado (v0.151.0)
@@ -228,6 +230,29 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15300"></a>
+## 2026-10-15 — Vitrine: rodapé maior e textos novos (v0.153.0)
+
+**Pedido:** aumentar as fontes do rodapé e trocar os textos dos 3 blocos:
+**ALINHAMENTO** / "CORTESIA NA TROCA DOS 4 PNEUS"; **BALANCEAMENTO** / "E MONTAGEM CORTESIA";
+**PARCELAMOS** / "EM ATÉ 10X".
+
+**Feito:** `Beneficio` com título 16,5 → **18px** (`tracking-tight`), apoio 14,5 → **15,5px**
+(`text-white/85`), ícones 42 → **44** e `gap-3`; os três usos agora são
+`Alinhamento/"Cortesia na troca dos 4 pneus"`, `Balanceamento/"e montagem cortesia"`,
+`Parcelamos/"em até 10x"` (maiúsculas pelo CSS). Testes atualizados para os textos novos.
+
+**Gotcha (medição obrigatória):** "BALANCEAMENTO" a 18px dá **163px** e a área útil do bloco
+é **164px** (bloco 249 = px 14×2 + ícone 44 + gap 12) — encaixa por ~1px; por isso o
+`tracking-tight` no título. Medido no DOM (Inter); em fonte mais larga o título invade só o
+padding de 14px (não quebra o divisor). "CORTESIA NA TROCA DOS 4 PNEUS" quebra em 2 linhas
+naturalmente.
+
+**Validação:** medição de DOM + zoom no preview; typecheck/lint limpos; `npm test`
+**258/258**. Selo `v0.153.0`.
+
+---
 
 <a id="v15200"></a>
 ## 2026-10-15 — Vitrine: tarjas sem itálico, 13px, retângulo igual (v0.152.0)

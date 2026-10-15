@@ -211,13 +211,13 @@ const Beneficio: React.FC<{ Icone: typeof Gauge; titulo: string; texto: string }
   titulo,
   texto,
 }) => (
-  <div className="flex items-center gap-3.5 px-4 py-[22px]">
-    <Icone size={42} className="text-white shrink-0" strokeWidth={1.7} />
+  <div className="flex items-center gap-3 px-3.5 py-[22px]">
+    <Icone size={44} className="text-white shrink-0" strokeWidth={1.7} />
     <div className="min-w-0">
-      <p className="text-white text-[16.5px] font-black uppercase leading-tight border-b-[3px] border-[#e11d2e] inline-block pb-[2px]">
+      <p className="text-white text-[18px] tracking-tight font-black uppercase leading-tight border-b-[3px] border-[#e11d2e] inline-block pb-[2px]">
         {titulo}
       </p>
-      <p className="text-white/80 text-[14.5px] font-semibold uppercase leading-tight mt-[5px]">{texto}</p>
+      <p className="text-white/85 text-[15.5px] font-semibold uppercase leading-tight mt-[5px]">{texto}</p>
     </div>
   </div>
 );
@@ -311,11 +311,12 @@ export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Rodapé de serviços — fonte grande p/ leitura no WhatsApp. */}
+      {/* Rodapé de serviços — fonte grande p/ leitura no WhatsApp (v0.153.0:
+          títulos novos em 18px: ALINHAMENTO / BALANCEAMENTO / PARCELAMOS). */}
       <div className="bg-[#0d1626] grid grid-cols-3 divide-x divide-white/15">
-        <Beneficio Icone={Gauge} titulo="Alinhamento cortesia" texto="na troca de 4 pneus" />
-        <Beneficio Icone={Wrench} titulo="Montagem e" texto="balanceamento cortesia" />
-        <Beneficio Icone={CreditCard} titulo="Parcelamos em" texto="até 10x" />
+        <Beneficio Icone={Gauge} titulo="Alinhamento" texto="Cortesia na troca dos 4 pneus" />
+        <Beneficio Icone={Wrench} titulo="Balanceamento" texto="e montagem cortesia" />
+        <Beneficio Icone={CreditCard} titulo="Parcelamos" texto="em até 10x" />
       </div>
       <div className="h-[6px] bg-[#e11d2e]" />
     </>
