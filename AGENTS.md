@@ -178,7 +178,7 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   `h-[250px]` e o **preview** aparece na metade (`w-[375px]` + `transform: scale(.5)` com altura
   medida por `ResizeObserver`) — **nunca usar `zoom` no preview**: zoom aninhado arredonda o
   `clientHeight` e muda o PNG (ver v0.7.1).
-- **Layouts de saída do Tire Flyer** (v0.20.0; cores na v0.21.0; vitrine na v0.141.0/0.142.0): o usuário
+- **Layouts de saída do Tire Flyer** (v0.20.0; cores na v0.21.0; vitrine na v0.141.0/0.142.0/0.145.0): o usuário
   escolheu, entre os mockups publicados em `ideias/` (`tire-flyer-valores.md` e
   `tire-flyer-cores.md`), **7 opções**
   trocadas por um **ícone, sem substituir o clássico**: `atual` (padrão), `tabela` (ideia 4),
@@ -193,7 +193,10 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   (`FlyerLaranja.tsx`/`FlyerRacing.tsx`/`FlyerEncarte.tsx`/`FlyerVitrine.tsx`, com
   cabeçalho/rodapé próprios); `getBrandStyle`/`separarMarcaModelo`/`marcasPresentes`/
   `logoDaMarca` moram em `tire/utils/marcas.ts`.
-  ⚠️ A Vitrine (v0.142.0) **NÃO tem faixa de logos no topo** (decisão do usuário); nas LINHAS
+  ⚠️ A Vitrine (v0.145.0) tem uma **faixa FIXA das 6 marcas no topo da foto** (Michelin,
+  BFGoodrich, Bridgestone, Pirelli, Yokohama e Dunlop, na ordem pedida — independe da tabela):
+  linha única, `h-[15px]`, fundo transparente sobre a foto + realce branco (drop-shadow; sem
+  ele o Michelin some no totem escuro da foto); nas LINHAS
   usa os **logos oficiais em imagem** (`tire/assets/marcas/<marca>.png`, embutidos em base64 no
   build — Michelin com Bibendum, Bridgestone, Pirelli caixa amarela, Yokohama, Dunlop,
   BFGoodrich, Firestone e Goodyear; marca sem arquivo cai no selo de texto `LogoTexto`), o

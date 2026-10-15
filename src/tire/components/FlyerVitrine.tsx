@@ -17,6 +17,19 @@ interface FlyerVitrineProps {
   data: PromoInfo;
 }
 
+/**
+ * Faixa FIXA de marcas no topo (v0.145.0): sempre as 6 marcas de pneus que a
+ * loja trabalha, na ordem pedida — independente do que está na tabela.
+ */
+const MARCAS_TOPO: { id: string; nome: string; src: string }[] = [
+  { id: 'MICHELIN', nome: 'Michelin', src: logoMichelin },
+  { id: 'BFGOODRICH', nome: 'BFGoodrich', src: logoBfGoodrich },
+  { id: 'BRIDGESTONE', nome: 'Bridgestone', src: logoBridgestone },
+  { id: 'PIRELLI', nome: 'Pirelli', src: logoPirelli },
+  { id: 'YOKOHAMA', nome: 'Yokohama', src: logoYokohama },
+  { id: 'DUNLOP', nome: 'Dunlop', src: logoDunlop },
+];
+
 /** Logos oficiais embutidos (PNG no repo) — marca desconhecida cai no texto. */
 const LOGOS_MARCA: Record<string, string> = {
   MICHELIN: logoMichelin,
@@ -192,7 +205,9 @@ const Beneficio: React.FC<{ Icone: typeof Gauge; titulo: string; texto: string }
  * Layout "Vitrine da loja" (v0.141.0): foto da loja no topo, banner
  * "TABELA DE OFERTAS + MEDIDA" e uma linha por pneu com o logo OFICIAL da marca
  * (texto estilizado só quando não há arquivo), 10x com o valor integral e à
- * vista. Sem faixa de logos no topo (v0.142.0) — o espaço foi para o rodapé.
+ * vista. Desde a v0.145.0 o topo da foto leva as 6 marcas fixas (Michelin,
+ * BFGoodrich, Bridgestone, Pirelli, Yokohama e Dunlop) numa linha só, bem
+ * pequenas e com fundo transparente — a loja aparece atrás.
  */
 export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
   return (
@@ -205,6 +220,29 @@ export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: 'center 58%' }}
         />
+        {/* Faixa de marcas colada no topo, direto sobre a foto: linha única,
+            bem pequena e SEM fundo (transparente — a loja aparece atrás).
+            O realce BRANCO (drop-shadow) é só um contorno: sem ele, logo de
+            letra escura (Michelin azul) some em cima do totem escuro da foto. */}
+        <div
+          data-faixa-marcas
+          className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-[8px]"
+        >
+          {MARCAS_TOPO.map((m) => (
+            <img
+              key={m.id}
+              src={m.src}
+              alt={m.nome}
+              data-logo-topo={m.id}
+              draggable={false}
+              className="h-[15px] w-auto object-contain"
+              style={{
+                filter:
+                  'drop-shadow(0 0 1.5px rgba(255,255,255,.95)) drop-shadow(0 0 3px rgba(255,255,255,.55))',
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Banner TABELA DE OFERTAS / MEDIDA */}
@@ -234,7 +272,7 @@ export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
       </div>
 
       {/* Uma linha por pneu */}
-      <div className="bg-white px-4 py-3.5 space-y-3">
+      <div data-linhas-pneu className="bg-white px-4 py-3.5 space-y-3">
         {data.tires.map((tire, idx) => (
           <LinhaPneu key={idx} tire={tire} />
         ))}

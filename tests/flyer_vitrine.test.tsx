@@ -65,26 +65,44 @@ describe('marcasPresentes', () => {
 });
 
 describe('FlyerVitrine (layout Vitrine da loja)', () => {
-  it('sem faixa de marcas no topo e banner com a medida', () => {
+  it('faixa fixa de marcas no topo (uma linha, 6 logos) e banner com a medida', () => {
     const { container } = renderVitrine(
       promoCom([{ brand: 'Michelin SUV HT' }, { brand: 'Bridgestone Dueler HT' }]),
     );
     expect(container.querySelector('[data-layout="vitrine"]')).toBeTruthy();
+    // Topo: SEMPRE as 6 marcas fixas, na ordem pedida (independe da tabela).
+    const topo = container.querySelectorAll('[data-faixa-marcas] img');
+    expect([...topo].map((el) => el.getAttribute('data-logo-topo'))).toEqual([
+      'MICHELIN',
+      'BFGOODRICH',
+      'BRIDGESTONE',
+      'PIRELLI',
+      'YOKOHAMA',
+      'DUNLOP',
+    ]);
     // Logos OFICIAIS na linha (imagem), um por linha de pneu.
-    expect(container.querySelectorAll('img[alt="MICHELIN"]')).toHaveLength(1);
-    expect(container.querySelectorAll('img[alt="BRIDGESTONE"]')).toHaveLength(1);
-    expect(container.querySelector('img[alt="DUNLOP"]')).toBeNull();
+    const linhas = '[data-linhas-pneu]';
+    expect(container.querySelectorAll(`${linhas} img[alt="MICHELIN"]`)).toHaveLength(1);
+    expect(container.querySelectorAll(`${linhas} img[alt="BRIDGESTONE"]`)).toHaveLength(1);
+    expect(container.querySelector(`${linhas} img[alt="DUNLOP"]`)).toBeNull();
     expect(container.textContent).toContain('235/60R18');
     expect(container.textContent).toContain('OFERTAS');
   });
 
+  it('a faixa do topo não some nem muda quando a tabela não tem aquelas marcas', () => {
+    const { container } = renderVitrine(promoCom([{ brand: 'Xing Ling LT' }]));
+    const topo = container.querySelectorAll('[data-faixa-marcas] img');
+    expect(topo).toHaveLength(6);
+  });
+
   it('com Dunlop na lista, o logo Dunlop aparece; sem Dunlop, não aparece', () => {
+    const linhas = '[data-linhas-pneu]';
     const comDunlop = renderVitrine(promoCom([{ brand: 'Dunlop' }, { brand: 'Michelin' }]));
-    expect(comDunlop.container.querySelectorAll('img[alt="DUNLOP"]')).toHaveLength(1);
-    expect(comDunlop.container.querySelectorAll('img[alt="MICHELIN"]')).toHaveLength(1);
+    expect(comDunlop.container.querySelectorAll(`${linhas} img[alt="DUNLOP"]`)).toHaveLength(1);
+    expect(comDunlop.container.querySelectorAll(`${linhas} img[alt="MICHELIN"]`)).toHaveLength(1);
     cleanup();
     const semDunlop = renderVitrine(promoCom([{ brand: 'Michelin' }]));
-    expect(semDunlop.container.querySelector('img[alt="DUNLOP"]')).toBeNull();
+    expect(semDunlop.container.querySelector(`${linhas} img[alt="DUNLOP"]`)).toBeNull();
   });
 
   it('marca sem arquivo de logo cai no selo de texto', () => {

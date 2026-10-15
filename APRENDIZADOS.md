@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.145.0](#v14500) — 2026-10-15 — Vitrine: faixa fixa das 6 marcas no topo da foto (v0.145.0)
+
 - [v0.144.0](#v14400) — 2026-10-14 — Vitrine: logos um pouco maiores + divisória 10x/à vista alinhada (v0.144.0)
 
 - [v0.143.0](#v14300) — 2026-10-14 — Logos da Vitrine com fundo transparente (v0.143.0)
@@ -212,6 +214,30 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14500"></a>
+## 2026-10-15 — Vitrine: faixa fixa das 6 marcas no topo, sobre a foto (v0.145.0)
+
+**Pedido:** no flyer Vitrine da loja, **bem no topo, bem pequeno, numa linha só**, as
+logomarcas **Michelin, BF Goodrich, Bridgestone, Pirelli, Yokohama e Dunlop** — **sem fundo**
+(transparente, "para aparecer a loja no fundo"). É uma lista **FIXA** (as 6 marcas da loja,
+independe da tabela de pneus) — diferente da faixa dinâmica da v0.141.0, removida na v0.142.0.
+
+**Feito:** `MARCAS_TOPO` (na ordem pedida) sobreposta na **própria foto** da loja
+(`absolute top-0 … flex justify-between px-4 pt-[8px]`, linha única) com `h-[15px]` cada —
+fundo 100% transparente (os PNGs da v0.143.0 já são recortados no alpha). Cada logo leva um
+**realce branco** (`filter: drop-shadow(0 0 1.5px …) drop-shadow(0 0 3px …)`): sem ele o
+"MICHELIN" azul sumia em cima do **totem escuro** da Toyota que aparece no canto esquerdo da
+foto (conferido no screenshot). O realce **não é fundo** — é só um contorno que desaparece
+sobre fundos claros. Testes travam a ordem das 6 (`data-logo-topo`) e a independência da
+tabela; as consultas antigas de `img[alt]` foram escopadas em `[data-linhas-pneu]` (a faixa do
+topo usa alt = nome da marca e entraria nas contagens — p.ex. Dunlop apareceria "sempre").
+
+**Validação:** screenshot real (Playwright, preview sem o zoom/scale) e **PNG exportado de
+verdade** (fluxo "Confirmar e Baixar Imagem", 1500px) conferidos — a faixa e o realce saem no
+export. typecheck/lint limpos; `npm test` 255/255. Selo `v0.145.0`.
+
+---
 
 <a id="v14400"></a>
 ## 2026-10-14 — Vitrine: logos maiores + divisória alinhada (v0.144.0)
