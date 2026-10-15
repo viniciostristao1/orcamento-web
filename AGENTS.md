@@ -195,7 +195,7 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   `logoDaMarca` moram em `tire/utils/marcas.ts`.
   ⚠️ A Vitrine (v0.145.0) tem uma **faixa FIXA das 6 marcas no topo da foto** (Michelin,
   BFGoodrich, Bridgestone, Pirelli, Yokohama e Dunlop, na ordem pedida — independe da tabela):
-  linha única, `h-[15px]`, fundo transparente sobre a foto + realce branco (drop-shadow; sem
+  linha única, `h-[20px]` (era 15px na v0.145.0), fundo transparente sobre a foto + realce branco (drop-shadow; sem
   ele o Michelin some no totem escuro da foto); nas LINHAS
   usa os **logos oficiais em imagem** (`tire/assets/marcas/<marca>.png`, embutidos em base64 no
   build — Michelin com Bibendum, Bridgestone, Pirelli caixa amarela, Yokohama, Dunlop,

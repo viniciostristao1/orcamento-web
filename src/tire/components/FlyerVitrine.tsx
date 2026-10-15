@@ -206,8 +206,8 @@ const Beneficio: React.FC<{ Icone: typeof Gauge; titulo: string; texto: string }
  * "TABELA DE OFERTAS + MEDIDA" e uma linha por pneu com o logo OFICIAL da marca
  * (texto estilizado só quando não há arquivo), 10x com o valor integral e à
  * vista. Desde a v0.145.0 o topo da foto leva as 6 marcas fixas (Michelin,
- * BFGoodrich, Bridgestone, Pirelli, Yokohama e Dunlop) numa linha só, bem
- * pequenas e com fundo transparente — a loja aparece atrás.
+ * BFGoodrich, Bridgestone, Pirelli, Yokohama e Dunlop) numa linha só, pequenas
+ * e com fundo transparente — a loja aparece atrás (20px desde a v0.146.0).
  */
 export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
   return (
@@ -235,7 +235,7 @@ export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
               alt={m.nome}
               data-logo-topo={m.id}
               draggable={false}
-              className="h-[15px] w-auto object-contain"
+              className="h-[20px] w-auto object-contain"
               style={{
                 filter:
                   'drop-shadow(0 0 1.5px rgba(255,255,255,.95)) drop-shadow(0 0 3px rgba(255,255,255,.55))',

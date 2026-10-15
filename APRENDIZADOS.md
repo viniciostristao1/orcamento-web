@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.146.0](#v14600) — 2026-10-15 — Vitrine: logos da faixa do topo um pouco maiores (v0.146.0)
+
 - [v0.145.0](#v14500) — 2026-10-15 — Vitrine: faixa fixa das 6 marcas no topo da foto (v0.145.0)
 
 - [v0.144.0](#v14400) — 2026-10-14 — Vitrine: logos um pouco maiores + divisória 10x/à vista alinhada (v0.144.0)
@@ -214,6 +216,25 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14600"></a>
+## 2026-10-15 — Vitrine: logos da faixa do topo um pouco maiores (v0.146.0)
+
+**Pedido:** aumentar um pouco os logos das marcas na parte superior (a faixa fixa da v0.145.0).
+
+**Feito:** `h-[15px]` → `h-[20px]` no logo da faixa do topo (a de baixo, por linha, não mudou).
+Ainda cabe tudo numa linha no `justify-between`: a soma das larguras a 20px dá ~624px
+(+32px de `px-4`) em 750px — sobram ~19px entre logo e logo. Conferido no preview real e no
+**PNG exportado** (1500px): sem corte, sem quebra de linha, realce branco intacto.
+
+**Validação:** typecheck/lint limpos; `npm test` 255/255. Selo `v0.146.0`.
+
+**Junto:** o script `test` do `package.json` voltou a ser `vitest run --testTimeout=20000`
+(é o comando que o AGENTS já documentava; a flag tinha se perdido — sem ela, o
+`app_smoke` > "migra nomes antigos…" estourava os 5s padrão *às vezes*, o flake conhecido
+"a suíte grande; 5s estourava sob carga").
+
+---
 
 <a id="v14500"></a>
 ## 2026-10-15 — Vitrine: faixa fixa das 6 marcas no topo, sobre a foto (v0.145.0)
