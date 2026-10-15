@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.154.0](#v15400) — 2026-10-15 — Vitrine: títulos do rodapé alinhados + símbolo Toyota na MEDIDA (v0.154.0)
+
 - [v0.153.0](#v15300) — 2026-10-15 — Vitrine: rodapé com fontes maiores e textos novos (v0.153.0)
 
 - [v0.152.0](#v15200) — 2026-10-15 — Vitrine: tarjas sem itálico e fonte 13px (retângulo igual) (v0.152.0)
@@ -230,6 +232,29 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15400"></a>
+## 2026-10-15 — Vitrine: títulos do rodapé alinhados + símbolo Toyota na MEDIDA (v0.154.0)
+
+**Pedido:** (1) "PARCELAMOS" na mesma altura de "ALINHAMENTO" e "BALANCEAMENTO";
+(2) símbolo da Toyota (só a marca, branco) entre o "TABELA DE OFERTAS" e a barra da
+MEDIDA — mantendo "TABELA DE OFERTAS", um espaço, o símbolo e depois "/ MEDIDA 265/60R18".
+
+**Causa do desalinhamento:** o `Beneficio` era `items-center`; o bloco do PARCELAMOS tem
+apoio de 1 linha ("EM ATÉ 10X") enquanto os outros quebram em 2 — centrado, o título dele
+descia. **Feito:** `items-start` no bloco + `self-center` no ícone: títulos todos na mesma
+altura e ícones ainda centrados verticalmente.
+
+**Símbolo Toyota:** o `assets/logo_toyota.png` (do header) é branco com alpha e tem o
+símbolo em cima e o "TOYOTA" embaixo (faixas de alpha y 7–205 e 234–298). Extraído só o
+símbolo (crop da faixa de cima, largura pelo alpha) para `tire/assets/toyota-simbolo.png`
+(309x199) e usado na tarja com `h-[38px]` + `data-simbolo-toyota` (teste). O espaço entre o
+"TABELA DE OFERTAS" e o símbolo vem do `flex-1`/`justify-end` do banner.
+
+**Validação:** zoom do banner e do rodapé no preview; typecheck/lint limpos; `npm test`
+**258/258**. Selo `v0.154.0`.
+
+---
 
 <a id="v15300"></a>
 ## 2026-10-15 — Vitrine: rodapé maior e textos novos (v0.153.0)

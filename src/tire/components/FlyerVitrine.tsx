@@ -4,6 +4,7 @@ import { PromoInfo, TireData } from '../types';
 import { formatarPreco } from '../utils/parser';
 import { separarMarcaModelo, logoDaMarca, type MarcaPresente } from '../utils/marcas';
 import fotoLoja from '../assets/loja.jpeg';
+import toyotaSimbolo from '../assets/toyota-simbolo.png';
 import pneuRegular from '../assets/pneu.png';
 import pneuOffroad from '../assets/pneu-offroad.png';
 import logoMichelin from '../assets/marcas/michelin.png';
@@ -206,13 +207,16 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
   );
 };
 
+// items-start + ícone self-center (v0.154.0): os TÍTULOS ficam todos na mesma
+// altura (o bloco do PARCELAMOS tem apoio de 1 linha; centrado, o título
+// descia em relação aos outros dois).
 const Beneficio: React.FC<{ Icone: typeof Gauge; titulo: string; texto: string }> = ({
   Icone,
   titulo,
   texto,
 }) => (
-  <div className="flex items-center gap-3 px-3.5 py-[22px]">
-    <Icone size={44} className="text-white shrink-0" strokeWidth={1.7} />
+  <div className="flex items-start gap-3 px-3.5 py-[22px]">
+    <Icone size={44} className="text-white shrink-0 self-center" strokeWidth={1.7} />
     <div className="min-w-0">
       <p className="text-white text-[18px] tracking-tight font-black uppercase leading-tight border-b-[3px] border-[#e11d2e] inline-block pb-[2px]">
         {titulo}
@@ -289,6 +293,15 @@ export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
           </p>
         </div>
         <div className="flex-1 flex items-center justify-end gap-4 pr-6">
+          {/* Símbolo Toyota em branco (só a marca, sem o escrito) antes da
+              barra — v0.154.0. */}
+          <img
+            src={toyotaSimbolo}
+            alt=""
+            data-simbolo-toyota
+            className="h-[38px] w-auto"
+            draggable={false}
+          />
           <div className="w-[4px] h-[56px] bg-[#e11d2e] rotate-[14deg] rounded-full" />
           <div className="text-right">
             <p className="text-[#e11d2e] font-black uppercase italic tracking-[0.25em] text-[12px]">

@@ -87,6 +87,8 @@ describe('FlyerVitrine (layout Vitrine da loja)', () => {
     expect(container.querySelector(`${linhas} img[alt="DUNLOP"]`)).toBeNull();
     expect(container.textContent).toContain('235/60R18');
     expect(container.textContent).toContain('OFERTAS');
+    // Símbolo Toyota (branco) na tarja da MEDIDA, antes da barra.
+    expect(container.querySelector('[data-simbolo-toyota]')).toBeTruthy();
   });
 
   it('a faixa do topo não some nem muda quando a tabela não tem aquelas marcas', () => {
