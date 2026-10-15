@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.155.0](#v15500) — 2026-10-15 — Vitrine: tarjas 14px com divisão reta (sem corte itálico) (v0.155.0)
+
 - [v0.154.0](#v15400) — 2026-10-15 — Vitrine: títulos do rodapé alinhados + símbolo Toyota na MEDIDA (v0.154.0)
 
 - [v0.153.0](#v15300) — 2026-10-15 — Vitrine: rodapé com fontes maiores e textos novos (v0.153.0)
@@ -232,6 +234,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15500"></a>
+## 2026-10-15 — Vitrine: tarjas 14px e divisão reta (sem corte itálico) (v0.155.0)
+
+**Pedido:** aumentar mais um pouco a fonte das tarjas (retângulo do mesmo tamanho) e tirar o
+"corte itálico" que divide as duas frases (a divisão diagonal `clip-path` entre vermelho e
+verde).
+
+**Feito:** os `clip-path` diagonais saíram — a divisão entre as tarjas é **reta (vertical)**,
+como as primeiras sugestões do `ideias/vitrine-banners.md`. Com a divisão reta o texto deixa
+de ser aparado no vermelho, então a fonte foi de 13 → **14px** (medição: 171px em 183px de
+tarja — 6px de folga de cada lado; caixa continua `h-[26px]`).
+
+**Validação:** zoom no preview + medição no DOM; typecheck/lint limpos; `npm test`
+**258/258**. Selo `v0.155.0`.
+
+---
 
 <a id="v15400"></a>
 ## 2026-10-15 — Vitrine: títulos do rodapé alinhados + símbolo Toyota na MEDIDA (v0.154.0)

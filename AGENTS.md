@@ -214,10 +214,10 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   **"PIX/DINHEIRO/DÉBITO"** (verde) aparecem **UMA vez como TÍTULO das colunas** — entre a
   tarja da MEDIDA e a 1ª linha, **coladas nas duas** (sem espaço) e alinhadas com as colunas
   de preço (`marginLeft 302` = pneu 92 + marca 210; `width 390` = área dos preços); estilo
-  **com corte diagonal** (`clip-path` encaixa vermelho/verde; SEM itálico desde a v0.152.0) —
-  texto em `text-[13px]` (caixa continua `h-[26px]`; medição: 158px de texto em 183px de tarja,
-  sem tracking extra p/ não encostar no corte do vermelho) e o verde é
-  **"Pix / Dinheiro / Débito"** (com espaços nas barras). As LINHAS ficam **só
+  **com divisão RETA** (v0.155.0 — saiu o `clip-path` diagonal) — texto em `text-[14px]`
+  (caixa continua `h-[26px]`; medição: 171px de texto em 183px de tarja, 6px de cada lado)
+  e o verde é **"Pix / Dinheiro / Débito"** (com espaços nas barras). Sem itálico desde a
+  v0.152.0. As LINHAS ficam **só
   com os valores**: `PrecoGrande` **17/40-43/20px** com `tracking-tighter` (v0.150.0; o NÚMERO
   do PIX/à vista é 43px, um pouco maior que os 40px do 10x — R$ e centavos iguais nos dois)
   e logos de marca `max-w-[226px] max-h-[66px]` numa coluna de **232px SEM padding lateral**.

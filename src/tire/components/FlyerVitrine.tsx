@@ -132,26 +132,20 @@ const FotoPneu: React.FC<{ marcaId?: string }> = ({ marcaId }) => {
 };
 
 /**
- * Tarja-título das colunas (v0.148.0, estilo "02"): aparece UMA vez, logo
- * abaixo da MEDIDA e acima dos primeiros valores — como cabeçalho da coluna
- * do 10x (vermelha) e do PIX/DINHEIRO/DÉBITO (verde). Fica colada na tarja
- * azul em cima e na 1ª linha embaixo (sem espaço branco) e alinhada com as
- * colunas de preço: começa depois do pneu (92) + marca (232) e tem a largura
- * da área dos preços (750 - 2 de borda - 32 de padding - 92 - 232 - 26 do
- * espaçador = 366). O corte diagonal no meio encaixa o vermelho no verde.
+ * Tarja-título das colunas (v0.148.0; divisão RETA desde a v0.155.0): aparece
+ * UMA vez, logo abaixo da MEDIDA e acima dos primeiros valores — como cabeçalho
+ * da coluna do 10x (vermelha) e do PIX/DINHEIRO/DÉBITO (verde). Fica colada na
+ * tarja azul em cima e na 1ª linha embaixo (sem espaço branco) e alinhada com as
+ * colunas de preço: começa depois do pneu (92) + marca (232) e tem a largura da
+ * área dos preços (750 - 2 de borda - 32 de padding - 92 - 232 - 26 do
+ * espaçador = 366). Texto 14px (v0.155.0); retângulo continua h-[26px].
  */
 const TituloColunas: React.FC = () => (
   <div data-titulo-colunas className="flex h-[26px] shrink-0" style={{ marginLeft: 324, width: 366 }}>
-    <div
-      className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black uppercase text-[13px] whitespace-nowrap"
-      style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)' }}
-    >
+    <div className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black uppercase text-[14px] whitespace-nowrap">
       Em até 10x no cartão
     </div>
-    <div
-      className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black uppercase text-[13px] whitespace-nowrap"
-      style={{ clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%)' }}
-    >
+    <div className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black uppercase text-[14px] whitespace-nowrap">
       Pix / Dinheiro / Débito
     </div>
   </div>
