@@ -209,12 +209,14 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   tarja da MEDIDA e a 1ª linha, **coladas nas duas** (sem espaço) e alinhadas com as colunas
   de preço (`marginLeft 302` = pneu 92 + marca 210; `width 390` = área dos preços); estilo
   **itálico com corte diagonal** (`clip-path` encaixa vermelho/verde). As LINHAS ficam **só
-  com os valores**: `PrecoGrande` **18/37-39/20px** (v0.149.0; o NÚMERO do PIX/à vista é
-  39px, um pouco maior que os 37px do 10x — R$ e centavos iguais nos dois) e logos de marca
-  `max-w-[205px] max-h-[60px]` com a coluna da marca em **224px**.
+  com os valores**: `PrecoGrande` **17/40-43/20px** com `tracking-tighter` (v0.150.0; o NÚMERO
+  do PIX/à vista é 43px, um pouco maior que os 40px do 10x — R$ e centavos iguais nos dois)
+  e logos de marca `max-w-[226px] max-h-[66px]` numa coluna de **232px SEM padding lateral**.
   ⚠️ O selo "Sob encomenda" é `text-[7.5px]` `h-[76px]` colado na borda (`right-0`), dentro
   do espaçador de 26px — **não alargar**: a v0.149.0 afinou justamente para o dígito final
-  do preço à vista (o mais largo) não ficar atrás dele. O preço do
+  do preço à vista (o mais largo) não ficar atrás dele.
+  ⚠️ Os PNGs de `tire/assets/marcas/` foram re-recortados na v0.150.0 (margem transparente de
+  8px → 4px) — o `max-w` do badge foi calibrado DEPOIS disso; não redimensionar de novo. O preço do
   "10x" mostra o **valor INTEGRAL à prazo** (não a parcela) com o rótulo **"Em até 10x"**.
   ⚠️ O espaçador de 26px do selo é **FIXO em todas as linhas** (v0.144.0) — sem isso a grade
   de preços encolhia nas linhas sem estoque e a divisória 10x/à vista desalinhava.

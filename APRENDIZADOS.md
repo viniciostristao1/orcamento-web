@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.150.0](#v15000) — 2026-10-15 — Vitrine: valores bem maiores (40/43) e logos maiores sem padding (v0.150.0)
+
 - [v0.149.0](#v14900) — 2026-10-15 — Vitrine: PIX maior que o 10x, valores/logos maiores e selo afinado (v0.149.0)
 
 - [v0.148.0](#v14800) — 2026-10-15 — Vitrine: tarja-título das colunas (10x/PIX), valores e logos maiores (v0.148.0)
@@ -222,6 +224,38 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15000"></a>
+## 2026-10-15 — Vitrine: valores bem maiores + logos maiores sem padding (v0.150.0)
+
+**Feedback:** o usuário NÃO percebeu os aumentos da v0.149.0 (valores 37/39, logos 205) —
+"+2px/+4px" foi sutil demais. Pediu de novo: valores um pouco maiores (PIX levemente maior
+que o 10x) e logos um pouco maiores.
+
+**Feito:**
+- `PrecoGrande`: `tracking-tight` → **`tracking-tighter`** (dígitos mais densos abrem espaço)
+  e números **40px (10x) / 43px (PIX)** — R$ 17 e centavos 20 iguais nos dois. Medido no DOM
+  (fonte Inter): texto do PIX = 177px na célula de 183px (3px de margem de cada lado);
+  no Segoe UI do Windows a folga é maior.
+- Brands: coluna da marca 224 → **232px SEM padding lateral** (o `px-2` saiu) e badge
+  `max-w-[226px] max-h-[66px]` → os logos ganharam ~10% de largura SEM tirar espaço dos
+  valores (a coluna ficou 8px mais larga e a grade perdeu só 4px por célula).
+- PNGs de `tire/assets/marcas/*.png` **re-recortados** (margem transparente 8px → 4px):
+  ~+8% de conteúdo por altura; ajuda também a faixa do topo (que é height-capped).
+- `TituloColunas`: `marginLeft 316→324`, `width 376→366`.
+
+**Gotchas:**
+- ⚠️ Crescimentos pequenos (≤6%) **não se percebem** lado a lado — para "um pouco maior"
+  funcionar, mexer em TAMANHO + DENSIDADE (tracking) juntos, como aqui.
+- ⚠️ No headless (DejaVu) a medição "Arial" estoura — não usar como referência absoluta; a
+  régua é o Inter (≈ Segoe UI), com folga p/ fonte mais larga. Medições de DOM > olhômetro.
+- O selo "Sob encomenda" (26px, dentro do espaçador) NÃO foi tocado — a folga do valor à
+  vista até ele ficou em 3px (Inter) e o export real bateu com o preview.
+
+**Validação:** medição de DOM (texto × célula × selo), preview real (Inter) e export PNG
+real com linha estoque 0; typecheck/lint limpos; `npm test` **258/258**. Selo `v0.150.0`.
+
+---
 
 <a id="v14900"></a>
 ## 2026-10-15 — Vitrine: PIX maior que o 10x + valores/logos maiores + selo afinado (v0.149.0)

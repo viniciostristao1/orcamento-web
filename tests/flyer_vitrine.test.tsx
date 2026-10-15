@@ -117,8 +117,8 @@ describe('FlyerVitrine (layout Vitrine da loja)', () => {
     const vista = container.querySelectorAll(`${linhas} [data-preco="vista"]`);
     expect(dez).toHaveLength(2);
     expect(vista).toHaveLength(2);
-    expect(dez[0].querySelector('.text-\\[37px\\]')).toBeTruthy();
-    expect(vista[0].querySelector('.text-\\[39px\\]')).toBeTruthy();
+    expect(dez[0].querySelector('.text-\\[40px\\]')).toBeTruthy();
+    expect(vista[0].querySelector('.text-\\[43px\\]')).toBeTruthy();
   });
 
   it('cada linha tem a foto do pneu; BFGoodrich usa a banda off-road', () => {
