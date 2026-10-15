@@ -57,3 +57,11 @@ export function removerRapido(id: string): LembreteRapido[] {
   gravar(out);
   return out;
 }
+
+/** Reprograma um lembrete rápido (troca a data/hora). Formato inválido não muda nada. */
+export function atualizarRapido(id: string, quando: string): LembreteRapido[] {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(quando)) return listarRapidos();
+  const out = listarRapidos().map((r) => (r.id === id ? { ...r, quando } : r));
+  gravar(out);
+  return out;
+}

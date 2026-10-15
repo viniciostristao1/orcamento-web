@@ -1812,6 +1812,33 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('sino: reprograma um lembrete pela lista (ícone relógio)', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'lembretes_rapidos_v1',
+      JSON.stringify([{ id: 'q1', texto: 'Pagar pneus', quando: '2999-01-01T09:00', criadoEm: 'x' }]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Reprogramar lembrete Pagar pneus' }));
+      fireEvent.change(screen.getByLabelText('Nova data e hora do lembrete'), {
+        target: { value: '2999-03-15T14:30' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Confirmar reprogramação' }));
+
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')[0].quando).toBe(
+        '2999-03-15T14:30',
+      );
+      // o editor fecha e a lista mostra a data nova
+      expect(screen.queryByLabelText('Nova data e hora do lembrete')).toBeNull();
+      expect(screen.getByText('15/03/2999 14:30')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
+    }
+  });
+
   it('sino: fechar limpa o que estava escrevendo', () => {
     localStorage.removeItem('lembretes_rapidos_v1');
     try {

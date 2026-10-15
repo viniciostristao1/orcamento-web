@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.156.0](#v15600) — 2026-10-15 — Vitrine: separador branco nas tarjas + reprogamar lembrete no sino (v0.156.0)
+
 - [v0.155.0](#v15500) — 2026-10-15 — Vitrine: tarjas 14px com divisão reta (sem corte itálico) (v0.155.0)
 
 - [v0.154.0](#v15400) — 2026-10-15 — Vitrine: títulos do rodapé alinhados + símbolo Toyota na MEDIDA (v0.154.0)
@@ -234,6 +236,35 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15600"></a>
+## 2026-10-15 — Separador branco nas tarjas + reprogramar lembrete no sino (v0.156.0)
+
+**Pedidos:**
+1. Um "cortesinho" branco entre "EM ATÉ 10X NO CARTÃO" e "PIX / DINHEIRO / DÉBITO" —
+   espessura de barra.
+2. **Reprogramar lembrete**: o clique no aviso piscante continua concluindo (mantido), mas
+   na lista "TODOS OS LEMBRETES" do sino cada item ganha um **ícone para reprogramar**.
+
+**Feito:**
+- Tarja: `<div className="w-[4px] shrink-0 bg-white" aria-hidden />` entre as duas metades
+  (mesma espessura da barra vermelha da MEDIDA). Cada metade ficou 181px; o texto de 171px
+  continua sobrando ~5px de cada lado.
+- `lembretesRapidos.ts`: nova `atualizarRapido(id, quando)` (data inválida não muda nada).
+- `SinoLembretes.tsx`: estado `reprogramando` (chave `origem:id`) + `novoQuando`; botão
+  ícone `Clock` em cada item (`aria-label` "Reprogramar lembrete <rótulo>", `aria-pressed`
+  quando aberto) e editor embaixo do item (datetime-local + Confirmar/Cancelar). Reprograma
+  os TRÊS tipos: rápido (`atualizarRapido`), flyer (`atualizarLembreteFlyer`) e orçamento
+  (`atualizarLembreteHistorico`) — sem observação no editor do sino, então a observação
+  existente é **preservada** (as funções só mexem nela quando recebem o 3º parâmetro).
+  Fechar o sino (qualquer caminho) zera o editor aberto.
+- Testes: unit de `atualizarRapido` (lembretesRapidos) + smoke de tela ("sino: reprograma um
+  lembrete pela lista") — confere o localStorage e a data nova na lista.
+
+**Validação:** screenshot do sino com o editor aberto (Playwright) + zoom da tarja;
+typecheck/lint limpos; `npm test` **260/260**. Selo `v0.156.0`.
+
+---
 
 <a id="v15500"></a>
 ## 2026-10-15 — Vitrine: tarjas 14px e divisão reta (sem corte itálico) (v0.155.0)

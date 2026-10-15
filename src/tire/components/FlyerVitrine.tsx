@@ -145,6 +145,9 @@ const TituloColunas: React.FC = () => (
     <div className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black uppercase text-[14px] whitespace-nowrap">
       Em até 10x no cartão
     </div>
+    {/* Separador branco entre o vermelho e o verde — espessura de barra
+        (v0.156.0). */}
+    <div className="w-[4px] shrink-0 bg-white" aria-hidden="true" />
     <div className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black uppercase text-[14px] whitespace-nowrap">
       Pix / Dinheiro / Débito
     </div>

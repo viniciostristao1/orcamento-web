@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   RAPIDOS_KEY,
+  atualizarRapido,
   criarRapido,
   listarRapidos,
   removerRapido,
@@ -29,6 +30,16 @@ describe('lembretes rápidos do sino', () => {
     if (!r.ok) return;
     removerRapido(r.item.id);
     expect(listarRapidos()).toHaveLength(0);
+  });
+
+  it('reprograma por id (data inválida não muda nada)', () => {
+    const r = criarRapido('Pagar', '2026-10-12T09:00');
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    atualizarRapido(r.item.id, '2026-10-20T15:30');
+    expect(listarRapidos()[0].quando).toBe('2026-10-20T15:30');
+    atualizarRapido(r.item.id, '???');
+    expect(listarRapidos()[0].quando).toBe('2026-10-20T15:30');
   });
 
   it('rápido vencido entra no popup; futuro, na lista do sino', () => {

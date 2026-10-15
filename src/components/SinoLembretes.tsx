@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Bell, BellRing, X } from 'lucide-react';
+import { Bell, BellRing, Check, Clock, X } from 'lucide-react';
 import {
   LEMBRETES_EVENTO,
   avisarLembretesMudaram,
   formatarLembrete,
   hojeHoraInput,
   listarTodosLembretes,
+  paraInputDatetime,
   type LembreteAgendado,
 } from '../utils/lembretes';
 import {
+  atualizarRapido,
   criarRapido,
   removerRapido,
 } from '../utils/lembretesRapidos';
@@ -26,6 +28,9 @@ const SinoLembretes: React.FC = () => {
   const [quando, setQuando] = useState('');
   const [erro, setErro] = useState('');
   const [itens, setItens] = useState<LembreteAgendado[]>(() => listarTodosLembretes());
+  /** Chave `origem:id` do lembrete com o editor de reprogramação aberto. */
+  const [reprogramando, setReprogramando] = useState<string | null>(null);
+  const [novoQuando, setNovoQuando] = useState('');
   const ref = useRef<HTMLDivElement>(null);
 
   const recarregar = () => setItens(listarTodosLembretes());
@@ -35,6 +40,8 @@ const SinoLembretes: React.FC = () => {
     setTexto('');
     setQuando('');
     setErro('');
+    setReprogramando(null);
+    setNovoQuando('');
     setAberto(false);
   };
 
@@ -84,6 +91,29 @@ const SinoLembretes: React.FC = () => {
     if (item.origem === 'rapido') removerRapido(item.id);
     else if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, null);
     else atualizarLembreteHistorico(item.id, null);
+    recarregar();
+    avisarLembretesMudaram();
+  };
+
+  /** Abre/fecha o editor de data/hora do lembrete (o clique no piscante continua
+   *  concluindo; a reprogramação mora aqui, na lista). */
+  const abrirReprogramacao = (item: LembreteAgendado) => {
+    const chave = `${item.origem}:${item.id}`;
+    if (reprogramando === chave) {
+      setReprogramando(null);
+      return;
+    }
+    setReprogramando(chave);
+    setNovoQuando(paraInputDatetime(item.quando));
+  };
+
+  /** Reprograma: grava a nova data/hora (rápido/flyer/orçamento) sem concluir. */
+  const reprogramar = (item: LembreteAgendado) => {
+    if (!novoQuando) return;
+    if (item.origem === 'rapido') atualizarRapido(item.id, novoQuando);
+    else if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, novoQuando);
+    else atualizarLembreteHistorico(item.id, novoQuando);
+    setReprogramando(null);
     recarregar();
     avisarLembretesMudaram();
   };
@@ -168,33 +198,84 @@ const SinoLembretes: React.FC = () => {
             <p className="text-xs font-bold text-slate-500 px-3 pb-2">Nenhum lembrete.</p>
           ) : (
             <div className="space-y-1.5 px-1">
-              {itens.map((item) => (
-                <div
-                  key={`${item.origem}:${item.id}`}
-                  className={`flex items-center gap-2 px-2.5 py-2 rounded-xl border ${
-                    item.vencido ? 'bg-amber-500/10 border-amber-500/40' : 'bg-slate-900 border-slate-800'
-                  }`}
-                >
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 shrink-0 w-16">
-                    {nomeOrigem(item.origem)}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold text-slate-100 break-words line-clamp-2" title={item.rotulo}>{item.rotulo}</span>
-                    <span className={`block text-[11px] font-bold ${item.vencido ? 'text-amber-300' : 'text-slate-500'}`}>
-                      {formatarLembrete(item.quando) ?? item.quando}
-                    </span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => excluir(item)}
-                    aria-label={`Excluir lembrete ${item.rotulo}`}
-                    title="Excluir lembrete"
-                    className="p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer shrink-0"
+              {itens.map((item) => {
+                const chave = `${item.origem}:${item.id}`;
+                const editando = reprogramando === chave;
+                return (
+                  <div
+                    key={chave}
+                    className={`rounded-xl border ${
+                      item.vencido ? 'bg-amber-500/10 border-amber-500/40' : 'bg-slate-900 border-slate-800'
+                    }`}
                   >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
+                    <div className="flex items-center gap-2 px-2.5 py-2">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 shrink-0 w-16">
+                        {nomeOrigem(item.origem)}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-bold text-slate-100 break-words line-clamp-2" title={item.rotulo}>{item.rotulo}</span>
+                        <span className={`block text-[11px] font-bold ${item.vencido ? 'text-amber-300' : 'text-slate-500'}`}>
+                          {formatarLembrete(item.quando) ?? item.quando}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => abrirReprogramacao(item)}
+                        aria-label={`Reprogramar lembrete ${item.rotulo}`}
+                        title="Reprogramar lembrete (data e hora)"
+                        aria-pressed={editando}
+                        className={`p-1.5 transition-colors cursor-pointer shrink-0 ${
+                          editando ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'
+                        }`}
+                      >
+                        <Clock size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => excluir(item)}
+                        aria-label={`Excluir lembrete ${item.rotulo}`}
+                        title="Excluir lembrete"
+                        className="p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer shrink-0"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+
+                    {editando && (
+                      <div className="flex flex-wrap items-center gap-2 px-2.5 pb-2.5">
+                        <Clock size={14} className="text-amber-400 shrink-0" />
+                        <input
+                          autoFocus
+                          type="datetime-local"
+                          value={novoQuando}
+                          onChange={(e) => setNovoQuando(e.target.value)}
+                          aria-label="Nova data e hora do lembrete"
+                          className="campo-tema border border-slate-800 rounded-lg px-3 py-2 text-base font-bold text-slate-200 focus:border-amber-500 outline-none [color-scheme:dark]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => reprogramar(item)}
+                          disabled={!novoQuando}
+                          aria-label="Confirmar reprogramação"
+                          title="Confirmar reprogramação"
+                          className="p-2 bg-green-600 hover:bg-green-500 disabled:opacity-40 text-white rounded-lg transition-all cursor-pointer active:scale-95"
+                        >
+                          <Check size={14} strokeWidth={3} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setReprogramando(null)}
+                          aria-label="Cancelar reprogramação"
+                          title="Cancelar"
+                          className="p-2 text-slate-500 hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

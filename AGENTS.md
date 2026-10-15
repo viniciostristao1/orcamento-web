@@ -214,9 +214,10 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   **"PIX/DINHEIRO/DÉBITO"** (verde) aparecem **UMA vez como TÍTULO das colunas** — entre a
   tarja da MEDIDA e a 1ª linha, **coladas nas duas** (sem espaço) e alinhadas com as colunas
   de preço (`marginLeft 302` = pneu 92 + marca 210; `width 390` = área dos preços); estilo
-  **com divisão RETA** (v0.155.0 — saiu o `clip-path` diagonal) — texto em `text-[14px]`
-  (caixa continua `h-[26px]`; medição: 171px de texto em 183px de tarja, 6px de cada lado)
-  e o verde é **"Pix / Dinheiro / Débito"** (com espaços nas barras). Sem itálico desde a
+  **com divisão RETA** (v0.155.0 — saiu o `clip-path` diagonal) e um **separador branco de
+  4px** entre o vermelho e o verde (v0.156.0) — texto em `text-[14px]`
+  (caixa continua `h-[26px]`; medição: 171px de texto em 181px de tarja) e o verde é
+  **"Pix / Dinheiro / Débito"** (com espaços nas barras). Sem itálico desde a
   v0.152.0. As LINHAS ficam **só
   com os valores**: `PrecoGrande` **17/40-43/20px** com `tracking-tighter` (v0.150.0; o NÚMERO
   do PIX/à vista é 43px, um pouco maior que os 40px do 10x — R$ e centavos iguais nos dois)
@@ -731,6 +732,10 @@ npm run build        # gera dist/index.html (arquivo único)
   quantidade; cria **lembretes rápidos** (texto + data/hora, avulsos) e lista TODOS
   (rápidos + históricos, com excluir). Rápidos vencidos piscam no mesmo popup (o clique
   conclui); entram no backup com merge por id. Fechar o sino limpa o rascunho (v0.101.0).
+  Desde a v0.156.0 cada item da lista tem um **ícone de relógio para REPROGRAMAR**
+  (`aria-label` "Reprogramar lembrete <rotulo>") — abre um editor de data/hora embaixo do
+  item (confirmar/cancelar); vale para os três tipos: rápido (`atualizarRapido`, nova em
+  `lembretesRapidos.ts`), flyer e orçamento (`atualizarLembrete*` — observação preservada).
 - **Ajustes de lembrete + menu** (v0.97.0): selo do sino conta só vencidos; DESCRIÇÃO
   da revisão com +1 linha (review de DADOS compensa, alinhamento mantido); clique no
   aviso abre o **histórico** no cartão destacado (não gera na tela); mockups do
