@@ -56,9 +56,9 @@ const PrecoGrande: React.FC<{ valor: number; cor: string }> = ({ valor, cor }) =
   const [reais, cents] = separarPreco(valor);
   return (
     <p className="font-black leading-none tracking-tight whitespace-nowrap" style={{ color: cor }}>
-      <span className="text-[15px] align-top mr-[3px]">R$</span>
-      <span className="text-[31px]">{reais}</span>
-      <span className="text-[17px]">,{cents}</span>
+      <span className="text-[17px] align-top mr-[3px]">R$</span>
+      <span className="text-[35px]">{reais}</span>
+      <span className="text-[19px]">,{cents}</span>
     </p>
   );
 };
@@ -92,7 +92,7 @@ const MarcaBadge: React.FC<{ marca: MarcaPresente }> = ({ marca }) => {
     <img
       src={src}
       alt={marca.rotulo}
-      className="max-w-[174px] max-h-[52px] object-contain"
+      className="max-w-[194px] max-h-[56px] object-contain"
       draggable={false}
     />
   );
@@ -116,6 +116,32 @@ const FotoPneu: React.FC<{ marcaId?: string }> = ({ marcaId }) => {
   );
 };
 
+/**
+ * Tarja-título das colunas (v0.148.0, estilo "02"): aparece UMA vez, logo
+ * abaixo da MEDIDA e acima dos primeiros valores — como cabeçalho da coluna
+ * do 10x (vermelha) e do PIX/DINHEIRO/DÉBITO (verde). Fica colada na tarja
+ * azul em cima e na 1ª linha embaixo (sem espaço branco) e alinhada com as
+ * colunas de preço: começa depois do pneu (92) + marca (210) e tem a largura
+ * da área dos preços (750 - 32 de padding - 92 - 210 - 26 do espaçador).
+ * O corte diagonal no meio encaixa o vermelho no verde (itálico).
+ */
+const TituloColunas: React.FC = () => (
+  <div data-titulo-colunas className="flex h-[26px] shrink-0" style={{ marginLeft: 302, width: 390 }}>
+    <div
+      className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black italic uppercase text-[11px] tracking-[0.02em]"
+      style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)' }}
+    >
+      Em até 10x no cartão
+    </div>
+    <div
+      className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black italic uppercase text-[11px] tracking-[0.02em]"
+      style={{ clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%)' }}
+    >
+      Pix/Dinheiro/Débito
+    </div>
+  </div>
+);
+
 const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
   const { marca, modelo } = separarMarcaModelo(tire.brand);
   return (
@@ -124,7 +150,7 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
         <FotoPneu marcaId={marca?.id} />
       </div>
 
-      <div className="w-[194px] shrink-0 flex flex-col items-center justify-center px-2 py-2">
+      <div className="w-[210px] shrink-0 flex flex-col items-center justify-center px-2 py-2">
         {marca ? (
           <MarcaBadge marca={marca} />
         ) : (
@@ -137,17 +163,13 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
         )}
       </div>
 
+      {/* Só os valores na linha (v0.148.0): as tarjas que explicam 10x e
+          PIX/DINHEIRO/DÉBITO ficam uma vez só, como título das colunas. */}
       <div className="flex-1 grid grid-cols-2 items-center">
         <div className="text-center border-r border-[#c9d2dd] px-1">
-          <p className="text-[12px] font-black uppercase text-slate-600 leading-none mb-[3px]">
-            Em até 10x <span className="text-slate-400">no cartão</span>
-          </p>
           <PrecoGrande valor={tire.priceInstallment} cor="#0f1b2d" />
         </div>
         <div className="text-center px-1">
-          <p className="text-[12px] font-black uppercase text-slate-600 leading-none mb-[3px]">
-            À vista
-          </p>
           <PrecoGrande valor={tire.priceCash} cor="#0f1b2d" />
         </div>
       </div>
@@ -190,6 +212,10 @@ const Beneficio: React.FC<{ Icone: typeof Gauge; titulo: string; texto: string }
  * BFGoodrich, Bridgestone, Pirelli, Yokohama e Dunlop) numa linha só, pequenas
  * e com fundo transparente — a loja aparece atrás (20px desde a v0.146.0).
  * O pneu da linha é FOTO realista (v0.147.0), recorte do flyer de referência.
+ * Desde a v0.148.0 as tarjas "EM ATÉ 10X NO CARTÃO" (vermelha) e
+ * "PIX/DINHEIRO/DÉBITO" (verde) viraram TÍTULO das colunas — uma vez só,
+ * abaixo da MEDIDA e acima dos primeiros valores — e as linhas ficam só com
+ * os valores (maiores), com os logos das marcas também um pouco maiores.
  */
 export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
   return (
@@ -253,11 +279,14 @@ export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Uma linha por pneu */}
-      <div data-linhas-pneu className="bg-white px-4 py-3.5 space-y-3">
-        {data.tires.map((tire, idx) => (
-          <LinhaPneu key={idx} tire={tire} />
-        ))}
+      {/* Tarja-título das colunas (colada na tarja azul) + uma linha por pneu */}
+      <div className="bg-white px-4 pb-3.5">
+        <TituloColunas />
+        <div data-linhas-pneu className="space-y-3">
+          {data.tires.map((tire, idx) => (
+            <LinhaPneu key={idx} tire={tire} />
+          ))}
+        </div>
       </div>
 
       {/* Rodapé de serviços — fonte grande p/ leitura no WhatsApp. */}

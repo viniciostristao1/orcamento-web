@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.148.0](#v14800) — 2026-10-15 — Vitrine: tarja-título das colunas (10x/PIX), valores e logos maiores (v0.148.0)
+
 - [v0.147.0](#v14700) — 2026-10-15 — Vitrine: pneu realista (foto) na linha, off-road no BFGoodrich (v0.147.0)
 
 - [v0.146.0](#v14600) — 2026-10-15 — Vitrine: logos da faixa do topo um pouco maiores (v0.146.0)
@@ -218,6 +220,44 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14800"></a>
+## 2026-10-15 — Vitrine: tarja-título das colunas + valores/logos maiores (v0.148.0)
+
+**Pedido:** implementar a sugestão **02 como TÍTULO das colunas** (aprovada nos mockups de
+`ideias/vitrine-banners.md`): as tarjas vermelha/verde aparecem **uma vez só**, abaixo da
+MEDIDA e acima dos primeiros valores — **não** repetidas em cada linha. Junto: **valores um
+pouco maiores** e **logos das marcas (ao lado dos valores) um pouco maiores**. A palavra
+"VALOR" na tarja verde ficou pendente (o usuário decidiu depois de ver esta versão).
+
+**Feito:**
+- Novo `TituloColunas` no `FlyerVitrine.tsx`: `data-titulo-colunas`, `h-[26px]`,
+  `marginLeft 302` (92 do pneu + 210 da marca) e `width 390` (área dos preços:
+  750 − 32 de `px-4` − 92 − 210 − 26 do espaçador) — alinhado exatamente com as colunas.
+  **Colado** na tarja azul em cima (`pt-0` no container, o `<div>` da tarja é o 1º filho) e
+  na 1ª linha embaixo (o `space-y-3` fica num wrapper só das linhas). Estilo 02: itálico +
+  `clip-path` diagonal no meio (`calc(100% - 10px)` no vermelho / `10px` no verde).
+- As linhas ficaram **só com os valores**: saíram as etiquetas "Em até 10x no cartão" e
+  "À vista"; a divisória central (`border-r`) ficou e continua o traço do corte da tarja.
+- `PrecoGrande` 15/31/17px → **17/35/19px**; `MarcaBadge` `max-w-[174px] max-h-[52px]` →
+  **`max-w-[194px] max-h-[56px]`** e coluna da marca 194 → **210px**.
+- Teste novo em `flyer_vitrine`: a tarja aparece **1×** (`data-titulo-colunas`), com os dois
+  textos, e o container `[data-linhas-pneu]` **não** contém "Em até"/"Pix/Dinheiro"/"À vista".
+
+**Gotchas:**
+- ⚠️ Tailwind v4: `space-y-3` usa **`margin-bottom`** nos filhos (não `margin-top`) — ao
+  inserir a tarja como primeiro filho do wrapper de linhas, ela ganharia 12px embaixo e a 1ª
+  linha também; por isso a tarja **saiu do `space-y`** (wrapper só das linhas).
+- ⚠️ No headless o flyer cai na fonte do sistema (DejaVu) e os valores a 35px ficam "espalhados"
+  (parece sobrepor as colunas) e o texto da tarja quebra linha — **artefato do contêiner**: na
+  validação precisa forçar Inter/Arial no flyer (como nos mockups). Confirmado com a fonte
+  real: valores com folga na coluna (≈160px em 195px).
+- `clip-path` e `drop-shadow` sobreviveram ao export real (html-to-image, 1500px).
+
+**Validação:** preview real (com override de fonte) + **PNG exportado** conferidos; typecheck/
+lint limpos; `npm test` **257/257**. Selo `v0.148.0`.
+
+---
 
 <a id="v14700"></a>
 ## 2026-10-15 — Vitrine: pneu realista na linha (foto) (v0.147.0)

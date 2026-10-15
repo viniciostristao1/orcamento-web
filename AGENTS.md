@@ -203,7 +203,14 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   **pneu da linha é FOTO realista** (v0.147.0 — recorte do flyer de referência do usuário,
   fundo transparente: `tire/assets/pneu.png`; BFGoodrich usa `pneu-offroad.png`), o
   selo "Sob encomenda" fica numa **faixa vertical à direita** e o rodapé tem **fonte grande**
-  p/ leitura no WhatsApp. O preço do
+  p/ leitura no WhatsApp.
+  Desde a **v0.148.0** as tarjas **"EM ATÉ 10X NO CARTÃO"** (vermelha) e
+  **"PIX/DINHEIRO/DÉBITO"** (verde) aparecem **UMA vez como TÍTULO das colunas** — entre a
+  tarja da MEDIDA e a 1ª linha, **coladas nas duas** (sem espaço) e alinhadas com as colunas
+  de preço (`marginLeft 302` = pneu 92 + marca 210; `width 390` = área dos preços); estilo
+  **itálico com corte diagonal** (`clip-path` encaixa vermelho/verde). As LINHAS ficam **só
+  com os valores**: `PrecoGrande` 17/35/19px (era 15/31/17) e logos de marca
+  `max-w-[194px] max-h-[56px]` com a coluna da marca em **210px** (era 194). O preço do
   "10x" mostra o **valor INTEGRAL à prazo** (não a parcela) com o rótulo **"Em até 10x"**.
   ⚠️ O espaçador de 26px do selo é **FIXO em todas as linhas** (v0.144.0) — sem isso a grade
   de preços encolhia nas linhas sem estoque e a divisória 10x/à vista desalinhava.
