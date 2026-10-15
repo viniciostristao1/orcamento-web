@@ -142,16 +142,16 @@ const FotoPneu: React.FC<{ marcaId?: string }> = ({ marcaId }) => {
 const TituloColunas: React.FC = () => (
   <div data-titulo-colunas className="flex h-[26px] shrink-0" style={{ marginLeft: 324, width: 366 }}>
     <div
-      className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black italic uppercase text-[11px] tracking-[0.02em]"
+      className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black italic uppercase text-[12.5px] tracking-[0.02em] whitespace-nowrap"
       style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)' }}
     >
       Em até 10x no cartão
     </div>
     <div
-      className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black italic uppercase text-[11px] tracking-[0.02em]"
+      className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black italic uppercase text-[12.5px] tracking-[0.02em] whitespace-nowrap"
       style={{ clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%)' }}
     >
-      Pix/Dinheiro/Débito
+      Pix / Dinheiro / Débito
     </div>
   </div>
 );
@@ -198,7 +198,7 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
       <div className="w-[26px] shrink-0" aria-hidden="true" />
 
       {tire.stock <= 0 && (
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 rotate-180 [writing-mode:vertical-rl] h-[76px] bg-[#e11d2e] text-white rounded-l-[3px] px-[2px] py-1 text-[7.5px] leading-[1.2] font-black uppercase tracking-[0.06em]">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 rotate-180 [writing-mode:vertical-rl] text-center h-[76px] bg-[#e11d2e] text-white rounded-l-[3px] px-[2px] py-1 text-[7.5px] leading-[1.2] font-black uppercase tracking-[0.06em]">
           Sob encomenda
         </div>
       )}

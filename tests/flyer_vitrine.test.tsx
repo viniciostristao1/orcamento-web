@@ -102,11 +102,11 @@ describe('FlyerVitrine (layout Vitrine da loja)', () => {
     const titulos = container.querySelectorAll('[data-titulo-colunas]');
     expect(titulos).toHaveLength(1);
     expect(titulos[0].textContent).toContain('Em até 10x no cartão');
-    expect(titulos[0].textContent).toContain('Pix/Dinheiro/Débito');
+    expect(titulos[0].textContent).toContain('Pix / Dinheiro / Débito');
     // As linhas ficam só com os valores (sem etiquetas repetidas).
     const linhas = container.querySelector('[data-linhas-pneu]');
     expect(linhas?.textContent).not.toContain('Em até');
-    expect(linhas?.textContent).not.toContain('Pix/Dinheiro');
+    expect(linhas?.textContent).not.toContain('Pix / Dinheiro');
     expect(linhas?.textContent).not.toContain('À vista');
   });
 

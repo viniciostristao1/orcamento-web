@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.151.0](#v15100) — 2026-10-15 — Vitrine: fonte das tarjas maior (retângulo igual) + "Sob" centralizado (v0.151.0)
+
 - [v0.150.0](#v15000) — 2026-10-15 — Vitrine: valores bem maiores (40/43) e logos maiores sem padding (v0.150.0)
 
 - [v0.149.0](#v14900) — 2026-10-15 — Vitrine: PIX maior que o 10x, valores/logos maiores e selo afinado (v0.149.0)
@@ -224,6 +226,27 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15100"></a>
+## 2026-10-15 — Vitrine: fonte das tarjas maior + "Sob" centralizado (v0.151.0)
+
+**Pedido:** (1) aumentar a fonte das frases "EM ATÉ 10X NO CARTÃO" e "PIX / DINHEIRO /
+DÉBITO" (agora com espaço antes/depois das barras) **sem aumentar o retângulo** vermelho/verde;
+(2) no selo "Sob encomenda", centralizar a palavra "Sob" em relação a "Encomenda".
+
+**Feito:**
+- Tarjas: `text-[11px]` → **`text-[12.5px]`** (+ `whitespace-nowrap` p/ garantir linha única);
+  caixa continua `h-[26px]` e larguras idênticas. Medição no DOM (Inter): 158px de texto na
+  tarja de 183px — sobra p/ o corte diagonal. Texto do verde virou **"Pix / Dinheiro / Débito"**
+  (o CSS uppercase renderiza "PIX / DINHEIRO / DÉBITO"); testes atualizados.
+- Selo: **`text-center`** no div com `[writing-mode:vertical-rl]` — no modo vertical o
+  `text-align` corre no eixo inline (vertical), então "Sob" (coluna curta) ficou centrado em
+  relação a "Encomenda" (coluna longa). Tamanho/largura do selo não mudaram (26px).
+
+**Validação:** zoom no preview (tarja + selo) + export PNG real (1500px) conferidos; typecheck/
+lint limpos; `npm test` **258/258**. Selo `v0.151.0`.
+
+---
 
 <a id="v15000"></a>
 ## 2026-10-15 — Vitrine: valores bem maiores + logos maiores sem padding (v0.150.0)

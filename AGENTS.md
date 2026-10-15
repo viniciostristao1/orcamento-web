@@ -208,11 +208,14 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   **"PIX/DINHEIRO/DÉBITO"** (verde) aparecem **UMA vez como TÍTULO das colunas** — entre a
   tarja da MEDIDA e a 1ª linha, **coladas nas duas** (sem espaço) e alinhadas com as colunas
   de preço (`marginLeft 302` = pneu 92 + marca 210; `width 390` = área dos preços); estilo
-  **itálico com corte diagonal** (`clip-path` encaixa vermelho/verde). As LINHAS ficam **só
+  **itálico com corte diagonal** (`clip-path` encaixa vermelho/verde) — texto em `text-[12.5px]`
+  desde a v0.151.0 (caixa continua `h-[26px]`; medição: 158px de texto em 183px de tarja) e o
+  verde é **"Pix / Dinheiro / Débito"** (com espaços nas barras). As LINHAS ficam **só
   com os valores**: `PrecoGrande` **17/40-43/20px** com `tracking-tighter` (v0.150.0; o NÚMERO
   do PIX/à vista é 43px, um pouco maior que os 40px do 10x — R$ e centavos iguais nos dois)
   e logos de marca `max-w-[226px] max-h-[66px]` numa coluna de **232px SEM padding lateral**.
-  ⚠️ O selo "Sob encomenda" é `text-[7.5px]` `h-[76px]` colado na borda (`right-0`), dentro
+  ⚠️ O selo "Sob encomenda" é `text-[7.5px]` `h-[76px]` `text-center` (v0.151.0 — o "Sob"
+  fica centrado em relação a "Encomenda") colado na borda (`right-0`), dentro
   do espaçador de 26px — **não alargar**: a v0.149.0 afinou justamente para o dígito final
   do preço à vista (o mais largo) não ficar atrás dele.
   ⚠️ Os PNGs de `tire/assets/marcas/` foram re-recortados na v0.150.0 (margem transparente de
