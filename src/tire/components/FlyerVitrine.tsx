@@ -51,14 +51,27 @@ const separarPreco = (valor: number): [string, string] => {
   return [reais, cents];
 };
 
-/** Preço grande do layout (R$ pequeno, reais gigantes, centavos médios). */
-const PrecoGrande: React.FC<{ valor: number; cor: string }> = ({ valor, cor }) => {
+/**
+ * Preço grande do layout (R$ pequeno, reais gigantes, centavos médios).
+ * Desde a v0.149.0 o número do PIX/DINHEIRO/DÉBITO é um pouco MAIOR que o do
+ * 10x (hierarquia à vista): 39px contra 37px, com o R$ e os centavos iguais
+ * nos dois (18/20) — assim o valor à vista não invade o selo "Sob encomenda".
+ */
+const PrecoGrande: React.FC<{ valor: number; cor: string; maior?: boolean }> = ({
+  valor,
+  cor,
+  maior,
+}) => {
   const [reais, cents] = separarPreco(valor);
   return (
-    <p className="font-black leading-none tracking-tight whitespace-nowrap" style={{ color: cor }}>
-      <span className="text-[17px] align-top mr-[3px]">R$</span>
-      <span className="text-[35px]">{reais}</span>
-      <span className="text-[19px]">,{cents}</span>
+    <p
+      data-preco={maior ? 'vista' : '10x'}
+      className="font-black leading-none tracking-tight whitespace-nowrap"
+      style={{ color: cor }}
+    >
+      <span className="text-[18px] align-top mr-[3px]">R$</span>
+      <span className={maior ? 'text-[39px]' : 'text-[37px]'}>{reais}</span>
+      <span className="text-[20px]">,{cents}</span>
     </p>
   );
 };
@@ -92,7 +105,7 @@ const MarcaBadge: React.FC<{ marca: MarcaPresente }> = ({ marca }) => {
     <img
       src={src}
       alt={marca.rotulo}
-      className="max-w-[194px] max-h-[56px] object-contain"
+      className="max-w-[205px] max-h-[60px] object-contain"
       draggable={false}
     />
   );
@@ -121,12 +134,12 @@ const FotoPneu: React.FC<{ marcaId?: string }> = ({ marcaId }) => {
  * abaixo da MEDIDA e acima dos primeiros valores — como cabeçalho da coluna
  * do 10x (vermelha) e do PIX/DINHEIRO/DÉBITO (verde). Fica colada na tarja
  * azul em cima e na 1ª linha embaixo (sem espaço branco) e alinhada com as
- * colunas de preço: começa depois do pneu (92) + marca (210) e tem a largura
- * da área dos preços (750 - 32 de padding - 92 - 210 - 26 do espaçador).
+ * colunas de preço: começa depois do pneu (92) + marca (224) e tem a largura
+ * da área dos preços (750 - 32 de padding - 92 - 224 - 26 do espaçador).
  * O corte diagonal no meio encaixa o vermelho no verde (itálico).
  */
 const TituloColunas: React.FC = () => (
-  <div data-titulo-colunas className="flex h-[26px] shrink-0" style={{ marginLeft: 302, width: 390 }}>
+  <div data-titulo-colunas className="flex h-[26px] shrink-0" style={{ marginLeft: 316, width: 376 }}>
     <div
       className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black italic uppercase text-[11px] tracking-[0.02em]"
       style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)' }}
@@ -150,7 +163,7 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
         <FotoPneu marcaId={marca?.id} />
       </div>
 
-      <div className="w-[210px] shrink-0 flex flex-col items-center justify-center px-2 py-2">
+      <div className="w-[224px] shrink-0 flex flex-col items-center justify-center px-2 py-2">
         {marca ? (
           <MarcaBadge marca={marca} />
         ) : (
@@ -164,13 +177,15 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
       </div>
 
       {/* Só os valores na linha (v0.148.0): as tarjas que explicam 10x e
-          PIX/DINHEIRO/DÉBITO ficam uma vez só, como título das colunas. */}
+          PIX/DINHEIRO/DÉBITO ficam uma vez só, como título das colunas.
+          Sem px nas células (v0.149.0): o preço à vista (39px) precisa da
+          largura toda para não invadir o selo "Sob encomenda". */}
       <div className="flex-1 grid grid-cols-2 items-center">
-        <div className="text-center border-r border-[#c9d2dd] px-1">
+        <div className="text-center border-r border-[#c9d2dd]">
           <PrecoGrande valor={tire.priceInstallment} cor="#0f1b2d" />
         </div>
-        <div className="text-center px-1">
-          <PrecoGrande valor={tire.priceCash} cor="#0f1b2d" />
+        <div className="text-center">
+          <PrecoGrande valor={tire.priceCash} cor="#0f1b2d" maior />
         </div>
       </div>
 
@@ -180,7 +195,7 @@ const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
       <div className="w-[26px] shrink-0" aria-hidden="true" />
 
       {tire.stock <= 0 && (
-        <div className="absolute right-[4px] top-1/2 -translate-y-1/2 rotate-180 [writing-mode:vertical-rl] bg-[#e11d2e] text-white rounded-[3px] px-[3px] py-2 text-[9.5px] font-black uppercase tracking-[0.16em]">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 rotate-180 [writing-mode:vertical-rl] h-[76px] bg-[#e11d2e] text-white rounded-l-[3px] px-[2px] py-1 text-[7.5px] leading-[1.2] font-black uppercase tracking-[0.06em]">
           Sob encomenda
         </div>
       )}
@@ -215,7 +230,11 @@ const Beneficio: React.FC<{ Icone: typeof Gauge; titulo: string; texto: string }
  * Desde a v0.148.0 as tarjas "EM ATÉ 10X NO CARTÃO" (vermelha) e
  * "PIX/DINHEIRO/DÉBITO" (verde) viraram TÍTULO das colunas — uma vez só,
  * abaixo da MEDIDA e acima dos primeiros valores — e as linhas ficam só com
- * os valores (maiores), com os logos das marcas também um pouco maiores.
+ * os valores. Na v0.149.0 os valores cresceram de novo (10x 37px, PIX/à
+ * vista 39px — um pouco MAIOR que o 10x) e os logos das marcas foram para
+ * 205px de largura (coluna da marca em 224px). O selo "Sob encomenda" ficou
+ * mais fino (7,5px, dentro do espaçador de 26px, colado na borda) para não
+ * cobrir o dígito final do preço à vista, que é mais largo.
  */
 export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
   return (

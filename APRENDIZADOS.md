@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.149.0](#v14900) — 2026-10-15 — Vitrine: PIX maior que o 10x, valores/logos maiores e selo afinado (v0.149.0)
+
 - [v0.148.0](#v14800) — 2026-10-15 — Vitrine: tarja-título das colunas (10x/PIX), valores e logos maiores (v0.148.0)
 
 - [v0.147.0](#v14700) — 2026-10-15 — Vitrine: pneu realista (foto) na linha, off-road no BFGoodrich (v0.147.0)
@@ -220,6 +222,45 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14900"></a>
+## 2026-10-15 — Vitrine: PIX maior que o 10x + valores/logos maiores + selo afinado (v0.149.0)
+
+**Pedido:** aumentar de novo os valores; o valor do PIX/DINHEIRO/DÉBITO deve ficar **um pouco
+maior** que o do "EM ATÉ 10X NO CARTÃO"; aumentar de novo os logos das marcas (ao lado dos
+valores).
+
+**Feito:**
+- `PrecoGrande` ganhou o prop `maior` (`data-preco="vista"|"10x"`): NÚMERO do PIX/à vista em
+  **39px** contra **37px** do 10x (R$ e centavos iguais nos dois: 18/20px). Células de preço
+  ficaram **sem px** e o preço centrado.
+- `MarcaBadge` 194 → **205px** de largura / 56 → **60px** de altura; coluna da marca 210 →
+  **224px** (a grade dos preços foi para 374px reais — 2 a menos que a conta "718−312" por
+  causa da borda de 1px do flyer + arredondamento).
+- **Selo "Sob encomenda" afinado** (a parte que ninguém pediu, mas era preciso): ele tinha
+  ~44px de largura (vira 3 colunas verticais) e **invadia a coluna do PIX**; com o valor à
+  vista maior, o último dígito ficava atrás dele. Agora: `text-[7.5px]`, `tracking .06em`,
+  `h-[76px]` (força 2 colunas) e `right-0` → **26px**, exatamente dentro do espaçador de 26px
+  do selo (que existe desde a v0.144.0 para a divisória 10x/à vista ficar alinhada em todas
+  as linhas). Conseguido com medição no DOM: folga do valor à vista até o selo = **7,5px**
+  (pior caso: preços com dois "0", que são os mais largos).
+- Teste novo: cada linha tem `data-preco="10x"` (classe `text-[37px]`) e `data-preco="vista"`
+  (classe `text-[39px]`).
+
+**Gotchas:**
+- ⚠️ **Fonte do headless não é métrica real**: sem override, o flyer cai em DejaVu (muito
+  mais largo) e os valores parecem estourar; na validação de verdade usei Inter (≈ Segoe UI
+  do Windows). Ainda assim, o tamanho do PIX foi escolhido com folga p/ aguentar fonte mais
+  larga: 172px de texto em ~184px disponíveis até o selo.
+- ⚠️ **Tailwind:** classes dinâmicas (`text-[${x}px]`) NÃO são geradas pelo scanner — sizes
+  por classe estática condicional (`maior ? 'text-[39px]' : 'text-[37px]'`).
+- `writing-mode: vertical-rl` + `rotate-180` do selo sobrevive ao export do `html-to-image`
+  (conferido no PNG de 1500px com uma linha estoque 0).
+
+**Validação:** medições de DOM (texto vs célula vs selo) + preview real (fonte Inter) + export
+PNG real; typecheck/lint limpos; `npm test` **258/258**. Selo `v0.149.0`.
+
+---
 
 <a id="v14800"></a>
 ## 2026-10-15 — Vitrine: tarja-título das colunas + valores/logos maiores (v0.148.0)

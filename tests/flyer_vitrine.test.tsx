@@ -110,6 +110,17 @@ describe('FlyerVitrine (layout Vitrine da loja)', () => {
     expect(linhas?.textContent).not.toContain('À vista');
   });
 
+  it('valores por linha: 10x e PIX/à vista, com o à vista em fonte MAIOR', () => {
+    const { container } = renderVitrine(promoCom([{ brand: 'Michelin' }, { brand: 'Bridgestone' }]));
+    const linhas = '[data-linhas-pneu]';
+    const dez = container.querySelectorAll(`${linhas} [data-preco="10x"]`);
+    const vista = container.querySelectorAll(`${linhas} [data-preco="vista"]`);
+    expect(dez).toHaveLength(2);
+    expect(vista).toHaveLength(2);
+    expect(dez[0].querySelector('.text-\\[37px\\]')).toBeTruthy();
+    expect(vista[0].querySelector('.text-\\[39px\\]')).toBeTruthy();
+  });
+
   it('cada linha tem a foto do pneu; BFGoodrich usa a banda off-road', () => {
     const { container } = renderVitrine(
       promoCom([{ brand: 'Michelin SUV HT' }, { brand: 'BF Goodrich All-Terrain' }]),
