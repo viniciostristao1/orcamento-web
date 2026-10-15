@@ -142,13 +142,13 @@ const FotoPneu: React.FC<{ marcaId?: string }> = ({ marcaId }) => {
 const TituloColunas: React.FC = () => (
   <div data-titulo-colunas className="flex h-[26px] shrink-0" style={{ marginLeft: 324, width: 366 }}>
     <div
-      className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black italic uppercase text-[12.5px] tracking-[0.02em] whitespace-nowrap"
+      className="flex-1 flex items-center justify-center bg-[#ea1d2c] text-white font-black uppercase text-[13px] whitespace-nowrap"
       style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)' }}
     >
       Em até 10x no cartão
     </div>
     <div
-      className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black italic uppercase text-[12.5px] tracking-[0.02em] whitespace-nowrap"
+      className="flex-1 flex items-center justify-center bg-[#16a34a] text-white font-black uppercase text-[13px] whitespace-nowrap"
       style={{ clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%)' }}
     >
       Pix / Dinheiro / Débito

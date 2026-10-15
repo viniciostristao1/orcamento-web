@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.152.0](#v15200) — 2026-10-15 — Vitrine: tarjas sem itálico e fonte 13px (retângulo igual) (v0.152.0)
+
 - [v0.151.0](#v15100) — 2026-10-15 — Vitrine: fonte das tarjas maior (retângulo igual) + "Sob" centralizado (v0.151.0)
 
 - [v0.150.0](#v15000) — 2026-10-15 — Vitrine: valores bem maiores (40/43) e logos maiores sem padding (v0.150.0)
@@ -226,6 +228,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15200"></a>
+## 2026-10-15 — Vitrine: tarjas sem itálico, 13px, retângulo igual (v0.152.0)
+
+**Pedido:** aumentar de novo a fonte de "EM ATÉ 10X NO CARTÃO" e "PIX / DINHEIRO / DÉBITO"
+(com os espaços nas barras) sem aumentar o retângulo vermelho/verde, e **tirar o itálico**.
+
+**Feito:** tarjas de `text-[12.5px] italic` → **`text-[13px]` sem itálico** e SEM o
+`tracking-[0.02em]` (o tracking extra era o que encostava o "TÃO" do vermelho no corte
+diagonal: sem ele o texto cai de 163 para 158px). Caixa e larguras intactas (`h-[26px]`,
+183px por metade). Folgas medidas no DOM (Inter): vermelho 158px dentro de 183 (5px até o
+corte no ponto mais apertado), verde 158px com 10px de folga.
+
+**Validação:** zoom no preview + medição no DOM; typecheck/lint limpos; `npm test`
+**258/258**. Selo `v0.152.0`.
+
+---
 
 <a id="v15100"></a>
 ## 2026-10-15 — Vitrine: fonte das tarjas maior + "Sob" centralizado (v0.151.0)
