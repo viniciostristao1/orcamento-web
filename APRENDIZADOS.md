@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.147.0](#v14700) — 2026-10-15 — Vitrine: pneu realista (foto) na linha, off-road no BFGoodrich (v0.147.0)
+
 - [v0.146.0](#v14600) — 2026-10-15 — Vitrine: logos da faixa do topo um pouco maiores (v0.146.0)
 
 - [v0.145.0](#v14500) — 2026-10-15 — Vitrine: faixa fixa das 6 marcas no topo da foto (v0.145.0)
@@ -216,6 +218,35 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v14700"></a>
+## 2026-10-15 — Vitrine: pneu realista na linha (foto) (v0.147.0)
+
+**Pedido:** "o desenho dos pneus que ficam no lado esquerdo [das linhas] — não gostei, quero
+algo mais realista". O ícone era um SVG de traço (aro cinza chapado).
+
+**Fonte do pneu:** recorte do PRÓPRIO flyer de referência do usuário (raiz do repo,
+`Ofertas de Pneus Toyota Weiland.png`) — os pneus dele são renderizações 3/4 com aro de liga
+e sombra. Linhas 1–5 usam o mesmo pneu de estrada; a linha do BFGoodrich usa um pneu de
+banda off-road (diferente no referência) → 2 assets.
+
+**Pipeline (PIL/numpy, one-off):** crop `(28,512)-(152,662)` e `(28,1226)-(152,1372)`;
+máscara `L<145`; **maior componente conectado** (tira a linha solta da borda do cartão que
+ficava no recorte); preenche os furos internos (miolo do aro/buracos entre raios) por
+flood-fill da borda; alpha = máscara com blur 0.6px (borda suave); **upscale 2.2x** Lanczos
+(nativo 124x150 é pequeno pro export de 2x) + `UnsharpMask(radius=2, 55%)`; salva RGBA em
+`tire/assets/pneu.png` e `pneu-offroad.png` (Vite inlineia em base64 — segue offline/único).
+A sombra aterrada do referência veio junto de graça (parte do componente escuro do pneu).
+
+**Feito:** `PneuIcone` (SVG) saiu; entrou `FotoPneu` (`img` `h-[76px] w-auto`, `data-pneu`),
+com off-road só quando `marca.id === 'BFGOODRICH'` (desconhecidas caem no de estrada). As
+linhas cresceram ~2px (flyer 1075→1087px a 750 — a Vitrine não é contrato pixel a pixel).
+
+**Validação:** teste novo em `flyer_vitrine` (2 linhas → `regular` + `bfgoodrich`); screenshot
+do preview e **export PNG real** (1500px) conferidos; typecheck/lint limpos; `npm test`
+256/256. Selo `v0.147.0`.
+
+---
 
 <a id="v14600"></a>
 ## 2026-10-15 — Vitrine: logos da faixa do topo um pouco maiores (v0.146.0)

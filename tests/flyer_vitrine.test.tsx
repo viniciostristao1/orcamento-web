@@ -95,6 +95,18 @@ describe('FlyerVitrine (layout Vitrine da loja)', () => {
     expect(topo).toHaveLength(6);
   });
 
+  it('cada linha tem a foto do pneu; BFGoodrich usa a banda off-road', () => {
+    const { container } = renderVitrine(
+      promoCom([{ brand: 'Michelin SUV HT' }, { brand: 'BF Goodrich All-Terrain' }]),
+    );
+    const pneus = container.querySelectorAll('[data-linhas-pneu] img[data-pneu]');
+    expect(pneus).toHaveLength(2);
+    expect([...pneus].map((el) => el.getAttribute('data-pneu'))).toEqual([
+      'regular',
+      'bfgoodrich',
+    ]);
+  });
+
   it('com Dunlop na lista, o logo Dunlop aparece; sem Dunlop, não aparece', () => {
     const linhas = '[data-linhas-pneu]';
     const comDunlop = renderVitrine(promoCom([{ brand: 'Dunlop' }, { brand: 'Michelin' }]));

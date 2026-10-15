@@ -4,6 +4,8 @@ import { PromoInfo, TireData } from '../types';
 import { formatarPreco } from '../utils/parser';
 import { separarMarcaModelo, logoDaMarca, type MarcaPresente } from '../utils/marcas';
 import fotoLoja from '../assets/loja.jpeg';
+import pneuRegular from '../assets/pneu.png';
+import pneuOffroad from '../assets/pneu-offroad.png';
 import logoMichelin from '../assets/marcas/michelin.png';
 import logoBridgestone from '../assets/marcas/bridgestone.png';
 import logoPirelli from '../assets/marcas/pirelli.png';
@@ -96,51 +98,30 @@ const MarcaBadge: React.FC<{ marca: MarcaPresente }> = ({ marca }) => {
   );
 };
 
-/** Desenho de pneu (SVG) que preenche a foto de cada linha. */
-const PneuIcone: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 80 80" className={className} aria-hidden="true">
-    <circle cx="40" cy="40" r="38" fill="#1c2634" />
-    <circle cx="40" cy="40" r="38" fill="none" stroke="#0e1520" strokeWidth="2" />
-    <g stroke="#3d4856" strokeWidth="4" strokeLinecap="round">
-      {Array.from({ length: 20 }).map((_, i) => {
-        const a = (i / 20) * Math.PI * 2;
-        const x1 = 40 + Math.cos(a) * 32.5;
-        const y1 = 40 + Math.sin(a) * 32.5;
-        const x2 = 40 + Math.cos(a) * 37;
-        const y2 = 40 + Math.sin(a) * 37;
-        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />;
-      })}
-    </g>
-    <circle cx="40" cy="40" r="24.5" fill="#c9d2dd" />
-    <circle cx="40" cy="40" r="24.5" fill="none" stroke="#93a0ae" strokeWidth="2" />
-    <g fill="#eef2f7" stroke="#9aa6b4" strokeWidth="1.4">
-      {Array.from({ length: 5 }).map((_, i) => {
-        const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
-        const cx = 40 + Math.cos(a) * 13.5;
-        const cy = 40 + Math.sin(a) * 13.5;
-        return (
-          <ellipse
-            key={i}
-            cx={cx}
-            cy={cy}
-            rx="6"
-            ry="9.5"
-            transform={`rotate(${(i * 360) / 5} ${cx} ${cy})`}
-          />
-        );
-      })}
-    </g>
-    <circle cx="40" cy="40" r="6" fill="#6b7684" />
-    <circle cx="40" cy="40" r="3" fill="#2b323c" />
-  </svg>
-);
+/**
+ * Foto realista do pneu (v0.147.0): recorte do flyer de referência do usuário,
+ * fundo transparente e embutida no build. O BFGoodrich usa a banda off-road,
+ * como no flyer original; as demais marcas (e desconhecidas) a linha de estrada.
+ */
+const FotoPneu: React.FC<{ marcaId?: string }> = ({ marcaId }) => {
+  const offroad = marcaId === 'BFGOODRICH';
+  return (
+    <img
+      src={offroad ? pneuOffroad : pneuRegular}
+      alt=""
+      data-pneu={offroad ? 'bfgoodrich' : 'regular'}
+      draggable={false}
+      className="h-[76px] w-auto object-contain"
+    />
+  );
+};
 
 const LinhaPneu: React.FC<{ tire: TireData }> = ({ tire }) => {
   const { marca, modelo } = separarMarcaModelo(tire.brand);
   return (
     <div className="relative flex items-stretch bg-[#eef2f8] rounded-2xl overflow-hidden">
       <div className="w-[92px] shrink-0 flex items-center justify-center bg-[#e3e9f2]">
-        <PneuIcone className="w-[74px] h-[74px]" />
+        <FotoPneu marcaId={marca?.id} />
       </div>
 
       <div className="w-[194px] shrink-0 flex flex-col items-center justify-center px-2 py-2">
@@ -208,6 +189,7 @@ const Beneficio: React.FC<{ Icone: typeof Gauge; titulo: string; texto: string }
  * vista. Desde a v0.145.0 o topo da foto leva as 6 marcas fixas (Michelin,
  * BFGoodrich, Bridgestone, Pirelli, Yokohama e Dunlop) numa linha só, pequenas
  * e com fundo transparente — a loja aparece atrás (20px desde a v0.146.0).
+ * O pneu da linha é FOTO realista (v0.147.0), recorte do flyer de referência.
  */
 export const FlyerVitrine: React.FC<FlyerVitrineProps> = ({ data }) => {
   return (

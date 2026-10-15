@@ -199,7 +199,9 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   ele o Michelin some no totem escuro da foto); nas LINHAS
   usa os **logos oficiais em imagem** (`tire/assets/marcas/<marca>.png`, embutidos em base64 no
   build — Michelin com Bibendum, Bridgestone, Pirelli caixa amarela, Yokohama, Dunlop,
-  BFGoodrich, Firestone e Goodyear; marca sem arquivo cai no selo de texto `LogoTexto`), o
+  BFGoodrich, Firestone e Goodyear; marca sem arquivo cai no selo de texto `LogoTexto`) e o
+  **pneu da linha é FOTO realista** (v0.147.0 — recorte do flyer de referência do usuário,
+  fundo transparente: `tire/assets/pneu.png`; BFGoodrich usa `pneu-offroad.png`), o
   selo "Sob encomenda" fica numa **faixa vertical à direita** e o rodapé tem **fonte grande**
   p/ leitura no WhatsApp. O preço do
   "10x" mostra o **valor INTEGRAL à prazo** (não a parcela) com o rótulo **"Em até 10x"**.
@@ -470,6 +472,8 @@ orcamento_web/
       FlyerRacing.tsx / FlyerEncarte.tsx / FlyerVitrine.tsx (os 6 layouts alternativos)
     tire/assets/loja.jpeg    foto da loja da Toyota Weiand (layout Vitrine)
     tire/assets/marcas/*.png logos oficiais das marcas (layout Vitrine; embutidos no build)
+    tire/assets/pneu.png / pneu-offroad.png fotos realistas do pneu (linhas da Vitrine;
+                             recorte do flyer de referência; off-road só no BFGoodrich)
     tire/components/FlyerHistoryModal.tsx histórico do flyer (busca/filtro cor/WhatsApp)
     tire/components/SeletorLayoutFlyer.tsx botão ícone-only do layout de saída
     tire/utils/parser.ts     parse da tabela de pneus (TABs) + preço BRL
