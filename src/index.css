@@ -255,12 +255,15 @@
   --tema-fonte-conteudo: 'Plus Jakarta Sans', sans-serif;
 }
 /* Grafite: chapado (sem neon/sombra) + o cabeçalho da tabela (Dados) fica mais
-   CLARO que o corpo (a marca do estilo Claude), e o conteúdo usa a fonte do tema. */
+   CLARO que o corpo (a marca do estilo Claude), e o conteúdo usa a fonte do tema.
+   Meia-noite usa o MESMO fundo de cabeçalho (painel) — é a cor da linha
+   ITEM/DESCRIÇÃO/VALOR que o usuário pediu igual à do grafite. */
 [data-tema='grafite'] button { box-shadow: none; }
 [data-tema='grafite'] [data-neon-glow] { display: none !important; }
 [data-tema='grafite'] [data-neon-dot] { background-color: var(--tema-acento) !important; box-shadow: none !important; }
 [data-tema='grafite'] [data-neon-box] { box-shadow: none !important; }
-[data-tema='grafite'] thead th { background-color: var(--tema-painel) !important; }
+[data-tema='grafite'] thead th,
+[data-tema='meianoite'] thead th { background-color: var(--tema-painel) !important; }
 /* Grafite: TÍTULOS das colunas em NEGRITO (caixa normal), e as CÉLULAS do corpo em
    peso normal — o inverso do estranho "célula em negrito, título não".
    O overlay data-grifo precisa das MESMAS regras do input (senão o mark
@@ -479,6 +482,14 @@
    juntos, senão as larguras divergem e o destaque desalinha). Cabeçalho segue bold. */
 [data-tema='azul'] tbody td input[type='text'],
 [data-tema='azul'] tbody td [data-grifo] {
+  font-weight: 400;
+}
+
+/* Meia-noite: idem — conteúdo das células da aba Dados sem negrito (input +
+   grifo juntos, senão as larguras divergem e o destaque desalinha).
+   Cabeçalho segue bold. */
+[data-tema='meianoite'] tbody td input[type='text'],
+[data-tema='meianoite'] tbody td [data-grifo] {
   font-weight: 400;
 }
 

@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.157.0](#v15700) — 2026-10-16 — Meia-noite: tabelas sem negrito + header ITEM/DESCRIÇÃO/VALOR cor grafite (v0.157.0)
+
 - [v0.156.0](#v15600) — 2026-10-15 — Vitrine: separador branco nas tarjas + reprogamar lembrete no sino (v0.156.0)
 
 - [v0.155.0](#v15500) — 2026-10-15 — Vitrine: tarjas 14px com divisão reta (sem corte itálico) (v0.155.0)
@@ -236,6 +238,30 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15700"></a>
+## 2026-10-16 — Meia-noite: tabelas sem negrito + header ITEM/DESCRIÇÃO/VALOR cor grafite (v0.157.0)
+
+**Pedidos (tema azul meia-noite):**
+1. Dentro das tabelas, o conteúdo (o que é escrito) sem negrito.
+2. Na geração de orçamentos, a linha dos títulos "ITEM, DESCRIÇÃO, VALOR (R$)"
+   na mesma cor da linha do tema grafite.
+
+**Feito (`src/index.css`, só interface — o PNG do cliente segue igual ao grafite dentro da saída):**
+- Corpo das tabelas (aba Dados) sem negrito no meianoite, igual ao grafite/técnico/azul:
+  `[data-tema='meianoite'] tbody td input[type='text'], [data-tema='meianoite'] tbody td [data-grifo] { font-weight: 400; }`
+  (input + overlay do grifo juntos, senão as larguras divergem; cabeçalho segue bold).
+- Cabeçalho compartilha a regra do grafite:
+  `[data-tema='grafite'] thead th, [data-tema='meianoite'] thead th { background-color: var(--tema-painel) !important; }`
+  — na saída (`#printable-quote`) os dois caem no painel resetado (original), então a linha
+  ITEM/DESCRIÇÃO/VALOR fica idêntica nos dois temas; nos Dados o painel é mais claro que o
+  fundo nos dois (marca do estilo Claude).
+
+**Validação:** typecheck limpo; lint só com warnings conhecidos (`set-state-in-effect`);
+`npm test` **260/260**; `npm run build` gera `dist/index.html` autocontido (~17 MB, sem
+`<script src>`/`<link>` externos). Selo `v0.157.0`.
+
+---
 
 <a id="v15600"></a>
 ## 2026-10-15 — Separador branco nas tarjas + reprogramar lembrete no sino (v0.156.0)
