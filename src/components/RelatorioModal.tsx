@@ -11,7 +11,9 @@ import {
   percentuaisAprovacao,
   relatorioParaExcel,
   rotuloMes,
+  somasAprovadasBruto,
 } from '../utils/relatorio';
+import { formatCurrency } from '../utils/quoteLogic';
 
 interface RelatorioModalProps {
   aberto: boolean;
@@ -57,6 +59,9 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
   const ordenados = ordenarPorData(filtrados, ordemData);
   const gruposVisiveis = gruposPorMes(ordenados);
   const pct = percentuaisAprovacao(filtrados);
+  // Soma mensal em bruto (aprovados + parciais), no mesmo recorte do % —
+  // o copiar-para-Excel continua só com as linhas (sem coluna de valor).
+  const somas = somasAprovadasBruto(filtrados);
 
   // Comparativo: mês em foco (o selecionado, ou o mais recente) x mês anterior.
   const mesBase = mesEfetivo === 'todos' ? (grupos[0]?.mes ?? null) : mesEfetivo;
@@ -174,13 +179,15 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
               )}
             </div>
             <div className="px-6 py-3 border-b border-slate-800/60 text-sm font-black uppercase tracking-widest">
-              <span className="text-green-400">Aprovados {pct.aprovados}%</span>
+              <span className="text-green-400">Aprovados {pct.aprovados}% (R$ {formatCurrency(somas.aprovados)})</span>
               <span className="text-slate-600"> · </span>
-              <span className="text-amber-300">Parcial {pct.parcial}%</span>
+              <span className="text-amber-300">Parcial {pct.parcial}% (R$ {formatCurrency(somas.parcial)})</span>
               <span className="text-slate-600"> · </span>
               <span className="text-red-400">Não aprovados {pct.naoAprovados}%</span>
               <span className="text-slate-600"> · </span>
               <span className="text-slate-400">{pct.total} orçamento(s)</span>
+              <span className="text-slate-600"> · </span>
+              <span className="text-blue-300">Total aprovado R$ {formatCurrency(somas.total)}</span>
             </div>
             {mesBase && pctBase && mesAnt && pctAnt && (
               <div className="px-6 py-3 border-b border-slate-800/60 text-xs font-bold uppercase tracking-widest space-y-1">

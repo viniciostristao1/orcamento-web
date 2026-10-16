@@ -1,5 +1,6 @@
 import { temNaoRealizados, temParcial, type OrcamentoSalvo } from './historico';
 import { dataDoRegistro } from './lembretes';
+import { parseBrazilianNumber, processQuote } from './quoteLogic';
 
 /**
  * Relatório para Excel: uma linha por orçamento do histórico, colunas TAB
@@ -123,6 +124,71 @@ export interface PercentuaisAprovacao {
   parcial: number;
   naoAprovados: number;
   total: number;
+}
+
+/**
+ * Valor APROVADO em bruto (sem desconto) de um registro — base da soma mensal.
+ * Segue o mesmo recorte do `%` (só entra com marca):
+ * - V puro (aprovado sem desmarcados) → `totalGeral` do snapshot (revisão + tudo);
+ * - Parcial (marca P, ou V com desmarque misto, ou X com algo aprovado) →
+ *   soma dos itens MARCADOS recalculada dos textos salvos (`processQuote`),
+ *   SEM a revisão (decisão do usuário) — funciona nos salvos antigos, sem migração;
+ * - demais (sem marca, X puro/cheio, V cheio degenerado) → 0.
+ * Nunca joga exceção (falha no recálculo = 0).
+ */
+export function valorAprovadoBruto(r: OrcamentoSalvo): number {
+  try {
+    if (r.aprovacao === 'aprovado' && !temNaoRealizados(r)) {
+      const snap = (r as { totalGeral?: unknown }).totalGeral;
+      if (typeof snap === 'number' && Number.isFinite(snap)) return snap;
+      const s = processQuote(
+        r.descReparo ?? '',
+        r.orcamentoRaw ?? '',
+        parseBrazilianNumber(r.revAprovadaInput ?? ''),
+        parseBrazilianNumber(r.revPecasInput ?? ''),
+        r.desconto ?? 0,
+        r.parcelas ?? 1,
+        r.ajustesManuais ?? '',
+      );
+      return s.revisaoAprovada + s.items.reduce((acc, i) => acc + i.value, 0);
+    }
+    if (!!r.aprovacao && (temParcial(r) || r.aprovacao === 'parcial')) {
+      const s = processQuote(
+        r.descReparo ?? '',
+        r.orcamentoRaw ?? '',
+        parseBrazilianNumber(r.revAprovadaInput ?? ''),
+        parseBrazilianNumber(r.revPecasInput ?? ''),
+        r.desconto ?? 0,
+        r.parcelas ?? 1,
+        r.ajustesManuais ?? '',
+      );
+      const nao = new Set(r.naoRealizados ?? []);
+      return s.items.reduce((acc, i) => (nao.has(i.id) ? acc : acc + i.value), 0);
+    }
+  } catch {
+    return 0;
+  }
+  return 0;
+}
+
+export interface SomasAprovadas {
+  aprovados: number;
+  parcial: number;
+  total: number;
+}
+
+/**
+ * Somas em bruto por categoria (mesma lista do `%` — respeita o mês filtrado).
+ * `total` = aprovados + parcial. Função pura, sem tocar no Excel.
+ */
+export function somasAprovadasBruto(lista: OrcamentoSalvo[]): SomasAprovadas {
+  let aprovados = 0;
+  let parcial = 0;
+  for (const r of lista) {
+    if (r.aprovacao === 'aprovado' && !temNaoRealizados(r)) aprovados += valorAprovadoBruto(r);
+    else if (!!r.aprovacao && (temParcial(r) || r.aprovacao === 'parcial')) parcial += valorAprovadoBruto(r);
+  }
+  return { aprovados, parcial, total: aprovados + parcial };
 }
 
 /** % sobre o total (arredondadas; sem marca não entra em nenhuma fatia). */

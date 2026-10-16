@@ -6,7 +6,7 @@ import {
   listarHistorico,
   type OrcamentoSalvo,
 } from '../src/utils/historico';
-import { gruposPorMes, linhaRelatorio, mesAnterior, mesDoRegistro, ordenarPorData, percentuaisAprovacao, relatorioParaExcel, rotuloMes, tempoDoRegistro } from '../src/utils/relatorio';
+import { gruposPorMes, linhaRelatorio, mesAnterior, mesDoRegistro, ordenarPorData, percentuaisAprovacao, relatorioParaExcel, rotuloMes, somasAprovadasBruto, tempoDoRegistro, valorAprovadoBruto } from '../src/utils/relatorio';
 
 const base = {
   descReparo: '1 X',
@@ -146,6 +146,62 @@ describe('relatório para Excel (aprovados)', () => {
     expect(mesAnterior('13/2026')).toBeNull();
     expect(mesAnterior('todos')).toBeNull();
     expect(mesAnterior('')).toBeNull();
+  });
+
+  it('soma mensal em bruto: V puro usa o totalGeral; parcial soma só os marcados (sem revisão)', () => {
+    const rec = {
+      descReparo: '1 PASTILHA\n2 OLEO',
+      orcamentoRaw: '1 Peça PASTILHA 100,00\n2 Serviço OLEO 50,00',
+      ajustesManuais: '',
+      revAprovadaInput: '200,00',
+      revPecasInput: '0,00',
+      desconto: 0,
+      parcelas: 1,
+      dataDoc: '25/08/2026',
+      criadoEm: 'x',
+      totalGeral: 350,
+      numItens: 2,
+    };
+    const mk = (id: string, extra: Partial<OrcamentoSalvo> = {}) =>
+      ({ ...rec, id, ...extra }) as OrcamentoSalvo;
+    // V puro = bruto cheio (revisão + tudo)
+    expect(valorAprovadoBruto(mk('v', { aprovacao: 'aprovado' }))).toBe(350);
+    // V com desmarque misto = só o marcado, sem revisão
+    expect(valorAprovadoBruto(mk('vp', { aprovacao: 'aprovado', naoRealizados: [2] }))).toBe(100);
+    // P sem desmarque = todos os itens, sem revisão
+    expect(valorAprovadoBruto(mk('p', { aprovacao: 'parcial' }))).toBe(150);
+    // P com desmarque = só o marcado
+    expect(valorAprovadoBruto(mk('pp', { aprovacao: 'parcial', naoRealizados: [2] }))).toBe(100);
+    // X com algo aprovado soma o marcado (mesmo recorte do % parcial)
+    expect(valorAprovadoBruto(mk('x', { aprovacao: 'naoAprovado', naoRealizados: [2] }))).toBe(100);
+    // Zerados: X puro, V cheio degenerado, sem marca
+    expect(valorAprovadoBruto(mk('xn', { aprovacao: 'naoAprovado' }))).toBe(0);
+    expect(valorAprovadoBruto(mk('vc', { aprovacao: 'aprovado', naoRealizados: [1, 2] }))).toBe(0);
+    expect(valorAprovadoBruto(mk('sm', { naoRealizados: [2] }))).toBe(0);
+    expect(valorAprovadoBruto(mk('sz'))).toBe(0);
+  });
+
+  it('somasAprovadasBruto: separa aprovados/parcial e respeita o mês filtrado', () => {
+    const rec = {
+      descReparo: '1 PASTILHA\n2 OLEO',
+      orcamentoRaw: '1 Peça PASTILHA 100,00\n2 Serviço OLEO 50,00',
+      ajustesManuais: '',
+      revAprovadaInput: '200,00',
+      revPecasInput: '0,00',
+      desconto: 0,
+      parcelas: 1,
+      criadoEm: 'x',
+      totalGeral: 350,
+      numItens: 2,
+    };
+    const vAgo = { ...rec, id: 'v', dataDoc: '25/08/2026', aprovacao: 'aprovado' } as OrcamentoSalvo;
+    const pAgo = { ...rec, id: 'p', dataDoc: '26/08/2026', aprovacao: 'parcial', naoRealizados: [2] } as OrcamentoSalvo;
+    const vSet = { ...rec, id: 's', dataDoc: '05/09/2026', aprovacao: 'aprovado' } as OrcamentoSalvo;
+    const xSet = { ...rec, id: 'x', dataDoc: '06/09/2026', aprovacao: 'naoAprovado' } as OrcamentoSalvo;
+    expect(somasAprovadasBruto([vAgo, pAgo, vSet, xSet])).toEqual({ aprovados: 700, parcial: 100, total: 800 });
+    const soAgo = [vAgo, pAgo, vSet, xSet].filter((r) => mesDoRegistro(r) === '08/2026');
+    expect(somasAprovadasBruto(soAgo)).toEqual({ aprovados: 350, parcial: 100, total: 450 });
+    expect(somasAprovadasBruto([])).toEqual({ aprovados: 0, parcial: 0, total: 0 });
   });
 
   it('ordem da data: recentes primeiro ou antigos primeiro', () => {

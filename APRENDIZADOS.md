@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.159.0](#v15900) — 2026-10-16 — Relatório: soma mensal em bruto dos aprovados + parciais no topo (v0.159.0)
+
 - [v0.158.0](#v15800) — 2026-10-16 — Meia-noite: escrita branca na linha ITEM/DESCRIÇÃO/VALOR (v0.158.0)
 
 - [v0.157.0](#v15700) — 2026-10-16 — Meia-noite: tabelas sem negrito + header ITEM/DESCRIÇÃO/VALOR cor grafite (v0.157.0)
@@ -240,6 +242,33 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15900"></a>
+## 2026-10-16 — Relatório: soma mensal em bruto dos aprovados + parciais no topo (v0.159.0)
+
+**Pedido:** no histórico, somar os valores aprovados — aprovados e parciais (o difícil)
+— puxando dos salvos antigos, com soma mensal. Exibir no topo do Relatório junto ao
+`%`, sem mexer no copiar-para-Excel. Decisões do usuário: valor em **bruto**, parcial
+= **só itens marcados (sem revisão)**.
+
+**Feito:**
+- `src/utils/relatorio.ts`: novas `valorAprovadoBruto(r)` + `somasAprovadasBruto(lista)`
+  (puras, sem exceção). V puro → `totalGeral` do snapshot (revisão + tudo, sem
+  recalcular); parcial (P, V com desmarque misto, X com algo aprovado — mesmo recorte
+  do `%`) → `processQuote` dos textos salvos + soma dos `item.value` marcados, sem
+  revisão e sem desconto (vale nos salvos antigos, sem migração); demais → 0.
+  Sem marca não soma (igual ao `%`).
+- `src/components/RelatorioModal.tsx`: topo passa a mostrar
+  `Aprovados X% (R$ A) · Parcial Y% (R$ P) · Não aprovados Z% · N orçamento(s) ·
+  Total aprovado R$ T`, no mesmo recorte do mês filtrado. `relatorioParaExcel`/
+  `linhaRelatorio` intactos (Excel sem coluna nova).
+- Testes: +2 em `tests/relatorio.test.ts` (regras por categoria + soma respeitando o
+  mês; X+parcial soma o marcado, V cheio degenerado e sem-marca zeram).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **262/262**;
+build único autocontido. Selo `v0.159.0`.
+
+---
 
 <a id="v15800"></a>
 ## 2026-10-16 — Meia-noite: escrita branca na linha ITEM/DESCRIÇÃO/VALOR (v0.158.0)

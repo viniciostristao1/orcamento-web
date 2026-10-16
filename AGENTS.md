@@ -456,7 +456,10 @@ orcamento_web/
                              (+ seletor de mês no modal: tabela, % e copiar seguem o mês;
                              PARCIAL só no misto, X cheio é Não puro;
                              X com misto = Sim + Parcial (X é cobrança);
-                             comparativo mês em foco x anterior via `mesAnterior`)
+                             comparativo mês em foco x anterior via `mesAnterior`;
+                             soma em bruto no topo via `valorAprovadoBruto`/`somasAprovadasBruto`:
+                             V puro = totalGeral, parcial = só marcados sem revisão,
+                             Excel intacto)
     utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
     utils/bloqueio.ts        senha do cadeado (criar/trocar/conferir; entra no backup)
     utils/lembretes.ts       vencidos + formatos + evento (dois históricos)
