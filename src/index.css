@@ -396,12 +396,20 @@
 
 /* Acento CLARO → o botão primário (bg-blue-600 text-white) ganha texto ESCURO
    (senão o branco some sobre bege/caramelo/cobre/terracota). O latte tem acento
-   escuro, então mantém o texto branco padrão. */
-[data-tema='meianoite'] .bg-blue-600.text-white,
-[data-tema='grafiteterra'] .bg-blue-600.text-white,
-[data-tema='chocolate'] .bg-blue-600.text-white,
-[data-tema='cobre'] .bg-blue-600.text-white {
+   escuro, então mantém o texto branco padrão.
+   Escopo em `button`: o `tr` do cabeçalho ITEM/DESCRIÇÃO/VALOR (R$) usa as MESMAS
+   classes e precisa continuar BRANCO (pedido do usuário no meianoite). */
+[data-tema='meianoite'] button.bg-blue-600.text-white,
+[data-tema='grafiteterra'] button.bg-blue-600.text-white,
+[data-tema='chocolate'] button.bg-blue-600.text-white,
+[data-tema='cobre'] button.bg-blue-600.text-white {
   color: var(--tema-acento-texto);
+}
+/* Linha ITEM/DESCRIÇÃO/VALOR (R$) sempre com escrita BRANCA no meianoite
+   (o fundo é o painel escuro, igual ao grafite). */
+[data-tema='meianoite'] thead tr.bg-blue-600,
+[data-tema='meianoite'] thead tr.bg-blue-600 th {
+  color: #fff !important;
 }
 
 /* Latte é CLARO: campos com letra escura (os preenchimentos usam branco, que

@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.158.0](#v15800) — 2026-10-16 — Meia-noite: escrita branca na linha ITEM/DESCRIÇÃO/VALOR (v0.158.0)
+
 - [v0.157.0](#v15700) — 2026-10-16 — Meia-noite: tabelas sem negrito + header ITEM/DESCRIÇÃO/VALOR cor grafite (v0.157.0)
 
 - [v0.156.0](#v15600) — 2026-10-15 — Vitrine: separador branco nas tarjas + reprogamar lembrete no sino (v0.156.0)
@@ -238,6 +240,30 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v15800"></a>
+## 2026-10-16 — Meia-noite: escrita branca na linha ITEM/DESCRIÇÃO/VALOR (v0.158.0)
+
+**Pedido:** a cor da escrita nessa linha "ITEM, DESCRIÇÃO, VALOR (R$)" deve ser branca
+(no tema azul meia-noite).
+
+**Causa:** a regra do acento CLARO (`[data-tema='meianoite'] .bg-blue-600.text-white`
+→ `color: var(--tema-acento-texto)`) foi feita para o **botão** primário (bege com
+texto escuro), mas o `tr` do cabeçalho do orçamento usa as MESMAS classes — então o
+texto herdava o escuro (`#1a2740` na interface; o reset da saída trocava pelo azul
+escuro original). No grafite não há essa regra (acento azul sustenta branco).
+
+**Feito (`src/index.css`, só interface):**
+- Regra do texto escuro com escopo em `button` (vale nos 4 temas de acento claro:
+  meianoite, grafiteterra, chocolate, cobre) — o `tr` do cabeçalho volta ao branco
+  do `text-white`.
+- Garantia explícita: `[data-tema='meianoite'] thead tr.bg-blue-600, th { color: #fff !important; }`
+  (fundo continua o painel escuro igual ao grafite, v0.157.0).
+
+**Validação:** typecheck limpo; lint sem erros; `npm test` **260/260**; build único
+autocontido. Selo `v0.158.0`.
+
+---
 
 <a id="v15700"></a>
 ## 2026-10-16 — Meia-noite: tabelas sem negrito + header ITEM/DESCRIÇÃO/VALOR cor grafite (v0.157.0)
