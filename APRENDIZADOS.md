@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.167.0](#v16700) — 2026-10-23 — Revisões: PRÓXIMA sem textos longos (v0.167.0)
+
 - [v0.166.0](#v16600) — 2026-10-23 — Revisões: pilha esquerda, 3 últimas e backup verificado (v0.166.0)
 
 - [v0.165.0](#v16500) — 2026-10-23 — Revisões: aba larga, PASSAGENS e PRÓXIMA lado a lado (v0.165.0)
@@ -256,6 +258,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16700"></a>
+## 2026-10-23 — Revisões: PRÓXIMA sem textos longos (v0.167.0)
+
+**Pedido:** no card PRÓXIMA REVISÃO, remover o bloco de texto (chassi/veículo/
+última/ritmo/estimada/previsão) e a frase explicativa — não são necessários.
+
+**Feito (`src/revisoes/RevisoesApp.tsx`, só UI):**
+- Saíram os dois parágrafos; o card fica só com os 4 quadros (KM alvo, Data
+  limite, Ritmo médio, Previsão) + Nome/WhatsApp + Adicionar à lista.
+- Junto saiu o botão de copiar (copiava justamente o texto removido) e o código
+  morto (`textoProjecao`, `copiarProjecao`, estado `copiado`, ícones Check/Copy).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **280/280**;
+build único autocontido. Selo `v0.167.0`.
+
+---
 
 <a id="v16600"></a>
 ## 2026-10-23 — Revisões: pilha esquerda, 3 últimas e backup verificado (v0.166.0)

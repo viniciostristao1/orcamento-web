@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Copy, Eraser, Play, Plus, Trash2 } from 'lucide-react';
+import { Eraser, Play, Plus, Trash2 } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import BotaoWhats from '../components/BotaoWhats';
@@ -35,7 +35,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
     const inicial = lerRascunhoRevisoes();
     return inicial.trim() ? parseTextoRevisoes(inicial) : null;
   });
-  const [copiado, setCopiado] = useState(false);
   // Nome/telefone do cliente (abaixo da projeção): entram na lista ao salvar.
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
@@ -84,33 +83,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   // Só as 3 últimas (a previsão usa o histórico completo).
   const passagensRecentes = [...passagensOrdenadas].reverse().slice(0, 3);
   const listaOrdenada = ordenarPorPrevisao(lista);
-
-  const textoProjecao =
-    dados && projecao
-      ? [
-          dados.chassi ? `Chassi: ${dados.chassi}` : '',
-          dados.veiculo ? `Veículo: ${dados.veiculo}` : '',
-          `Última: ${projecao.baseAbertura} · ${formatarKmPtBr(projecao.baseKm)} km (${projecao.baseDescricao})`,
-          projecao.kmPorDia !== null
-            ? `Ritmo: ${formatarKmPorDia(projecao.kmPorDia)} km/dia em ${projecao.diasTotais} dias (${formatarKmPtBr(projecao.kmTotais)} km)`
-            : 'Ritmo: sem histórico suficiente (1 passagem só)',
-          projecao.dataEstimadaPorRitmo
-            ? `Pelo ritmo chega aos ${formatarKmPtBr(projecao.kmAlvo)} km em ${projecao.dataEstimadaPorRitmo}`
-            : `Limite: ${formatarKmPtBr(projecao.kmAlvo)} km ou ${projecao.dataLimite}`,
-          projecao.revisaoProxima !== null
-            ? `Previsão: revisão ${String(projecao.revisaoProxima).padStart(2, '0')} — ${projecao.dataPrevista} (${projecao.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite de 12 meses'})`
-            : `Previsão: ${projecao.dataPrevista} (${projecao.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite de 12 meses'})`,
-        ]
-          .filter(Boolean)
-          .join('\n')
-      : '';
-
-  const copiarProjecao = () => {
-    if (!textoProjecao) return;
-    navigator.clipboard.writeText(textoProjecao);
-    setCopiado(true);
-    window.setTimeout(() => setCopiado(false), 2000);
-  };
 
   // Colar → calcular → lista (chassi + data prevista pelo ritmo). Mesmo chassi atualiza.
   const salvarNaLista = () => {
@@ -224,21 +196,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                 title="PRÓXIMA REVISÃO"
                 borderColor="emerald-500"
                 compact
-                actions={
-                  <button
-                    type="button"
-                    onClick={copiarProjecao}
-                    aria-label={copiado ? 'Projeção copiada' : 'Copiar projeção'}
-                    title={copiado ? 'Projeção copiada' : 'Copiar projeção'}
-                    className={`flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 ${
-                      copiado
-                        ? 'bg-green-600 border-green-700 text-white'
-                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                    }`}
-                  >
-                    {copiado ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
-                  </button>
-                }
               >
                 <div className="grid grid-cols-2 gap-2">
                   <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">
@@ -274,18 +231,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                     </span>
                   </div>
                 </div>
-                <p
-                  className="text-lg leading-relaxed text-slate-200 whitespace-pre-wrap mt-3"
-                  style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
-                >
-                  {textoProjecao}
-                </p>
-                <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase mt-2">
-                  Previsão pelo quanto roda: chega aos {formatarKmPtBr(projecao.kmAlvo)} km em{' '}
-                  {projecao.dataEstimadaPorRitmo ?? projecao.dataLimite} — vale a mais próxima entre
-                  ela e o limite de 12 meses ({projecao.dataLimite}).
-                </p>
-
                 {/* Nome + WhatsApp do cliente: entram na lista ao salvar. */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                   <div className="relative">
