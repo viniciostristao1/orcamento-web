@@ -226,3 +226,29 @@ export function rotuloRevisao(r: { nome?: string; chassi?: string; dataPrevista?
 export function textoLembreteRevisao(lembreteEm: string | null | undefined): string | null {
   return formatarLembrete(lembreteEm);
 }
+
+/**
+ * Lista pronta para colar no Excel (TAB entre colunas): cabeçalho + uma linha
+ * por previsão, na ordem recebida (a tela manda já ordenada).
+ */
+export function textoListaParaExcel(itens: RevisaoAgendada[]): string {
+  const linhas = itens.map((r) =>
+    [
+      r.chassi ?? '',
+      r.veiculo ?? '',
+      r.nome ?? '',
+      r.telefone ?? '',
+      r.dataPrevista ?? '',
+      String(r.kmAlvo ?? ''),
+      r.revisaoProxima === null || r.revisaoProxima === undefined
+        ? ''
+        : String(r.revisaoProxima).padStart(2, '0'),
+      r.ultimaAbertura ?? '',
+      String(r.ultimoKm ?? ''),
+    ].join('\t'),
+  );
+  return [
+    'CHASSI\tVEÍCULO\tNOME\tWHATSAPP\tPREVISÃO\tKM ALVO\tREV\tÚLTIMA\tÚLTIMO KM',
+    ...linhas,
+  ].join('\n');
+}

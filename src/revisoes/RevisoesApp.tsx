@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Eraser, Play, Plus, Trash2 } from 'lucide-react';
+import { Check, Copy, Eraser, Play, Plus, Trash2 } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import BotaoWhats from '../components/BotaoWhats';
@@ -13,6 +13,7 @@ import {
   parseTextoRevisoes,
   projetarProxima,
   salvarRascunhoRevisoes,
+  textoPassagensParaCopiar,
   type DadosRevisoes,
 } from './utils/parseRevisoes';
 import {
@@ -26,6 +27,7 @@ import {
   listarHistoricoRevisoes,
   ordenarPorPrevisao,
   removerDoHistoricoRevisoes,
+  textoListaParaExcel,
   type RevisaoAgendada,
 } from './utils/historicoRevisoes';
 
@@ -42,6 +44,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   // Lista de previsões (chassi + data): recarrega no sino/storage também.
   const [lista, setLista] = useState<RevisaoAgendada[]>(listarHistoricoRevisoes);
   const [lembreteAberto, setLembreteAberto] = useState<string | null>(null);
+  const [copiadoPassagens, setCopiadoPassagens] = useState(false);
+  const [copiadoLista, setCopiadoLista] = useState(false);
 
   useEffect(() => {
     salvarRascunhoRevisoes(texto);
@@ -119,6 +123,23 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
     setLista(removerDoHistoricoRevisoes(id));
   };
 
+  // Copia as passagens visíveis (DATA ⇥ KM ⇥ REVISÃO): sem OS e sem extras.
+  const copiarPassagens = () => {
+    const t = textoPassagensParaCopiar(passagensRecentes);
+    if (!t) return;
+    navigator.clipboard.writeText(t);
+    setCopiadoPassagens(true);
+    window.setTimeout(() => setCopiadoPassagens(false), 2000);
+  };
+
+  // Copia a lista para colar no Excel (TAB entre colunas, com cabeçalho).
+  const copiarLista = () => {
+    if (listaOrdenada.length === 0) return;
+    navigator.clipboard.writeText(textoListaParaExcel(listaOrdenada));
+    setCopiadoLista(true);
+    window.setTimeout(() => setCopiadoLista(false), 2000);
+  };
+
   return (
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
       <div className="mx-auto space-y-6">
@@ -158,7 +179,23 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
             )}
 
             {passagensRecentes.length > 0 && (
-              <NeonCard title={passagensOrdenadas.length > 3 ? `PASSAGENS (ÚLTIMAS 3 DE ${passagensOrdenadas.length})` : `PASSAGENS (${passagensOrdenadas.length})`} borderColor="#f59e0b" compact>
+              <NeonCard title={passagensOrdenadas.length > 3 ? `PASSAGENS (ÚLTIMAS 3 DE ${passagensOrdenadas.length})` : `PASSAGENS (${passagensOrdenadas.length})`} borderColor="#f59e0b" compact
+                actions={
+                  <button
+                    type="button"
+                    onClick={copiarPassagens}
+                    aria-label={copiadoPassagens ? 'Passagens copiadas' : 'Copiar passagens'}
+                    title={copiadoPassagens ? 'Passagens copiadas' : 'Copiar passagens (sem OS)'}
+                    className={`flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                      copiadoPassagens
+                        ? 'bg-green-600 border-green-700 text-white'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                    }`}
+                  >
+                    {copiadoPassagens ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
+                  </button>
+                }
+              >
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-left">
                     <thead>
@@ -296,7 +333,23 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
         </div>
 
         {/* Lista de previsões à direita: chassi + data (editável), nome/WhatsApp, lembrete e WhatsApp. */}
-        <NeonCard title={`LISTA DE PREVISÕES (${listaOrdenada.length})`} borderColor="blue-600" compact>
+        <NeonCard title={`LISTA DE PREVISÕES (${listaOrdenada.length})`} borderColor="blue-600" compact
+          actions={
+            <button
+              type="button"
+              onClick={copiarLista}
+              aria-label={copiadoLista ? 'Lista copiada' : 'Copiar lista para Excel'}
+              title={copiadoLista ? 'Lista copiada' : 'Copiar lista para Excel'}
+              className={`flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                copiadoLista
+                  ? 'bg-green-600 border-green-700 text-white'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+              }`}
+            >
+              {copiadoLista ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
+            </button>
+          }
+        >
           {listaOrdenada.length === 0 ? (
             <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-6 text-center">
               Cole as passagens ao lado e clique em “Adicionar à lista”.

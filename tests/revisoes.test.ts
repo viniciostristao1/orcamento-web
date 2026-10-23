@@ -8,8 +8,8 @@ import {
   ordenarPorData,
   parseTextoRevisoes,
   projetarProxima,
-  proximoMultiplo10k,
   somarMeses,
+  textoPassagensParaCopiar,
   parseDataPtBr,
 } from '../src/revisoes/utils/parseRevisoes';
 import {
@@ -24,6 +24,7 @@ import {
   listarHistoricoRevisoes,
   ordenarPorPrevisao,
   removerDoHistoricoRevisoes,
+  textoListaParaExcel,
   REVISOES_HISTORICO_KEY,
 } from '../src/revisoes/utils/historicoRevisoes';
 
@@ -129,13 +130,13 @@ describe('revisões — parse do portal Toyota', () => {
     expect(porData[2].extras.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('projeta a próxima: 70.000 km ou 14/10/2027', () => {
+  it('projeta a próxima: 70.306 km (última + 10 mil exatos)', () => {
     const d = parseTextoRevisoes(EXEMPLO);
     const p = projetarProxima(d.passagens);
     expect(p).not.toBeNull();
     expect(p!.baseAbertura).toBe('14/10/2026');
     expect(p!.baseKm).toBe(60306);
-    expect(p!.kmAlvo).toBe(70000);
+    expect(p!.kmAlvo).toBe(70306);
     expect(p!.dataLimite).toBe('14/10/2027');
     expect(p!.revisaoAtual).toBe(6);
     expect(p!.revisaoProxima).toBe(7);
@@ -144,7 +145,7 @@ describe('revisões — parse do portal Toyota', () => {
     expect(p!.dataPrevista).toBeTruthy();
   });
 
-  it('SW4: ritmo prevê agosto/2026 bem antes do limite 11/06/2027', () => {
+  it('SW4: ritmo prevê setembro/2026 bem antes do limite 11/06/2027', () => {
     const d = parseTextoRevisoes(EXEMPLO_SW4);
     expect(d.chassi).toBe('8AJBA3FS9R0361321');
     expect(d.passagens).toHaveLength(3);
@@ -157,10 +158,10 @@ describe('revisões — parse do portal Toyota', () => {
     expect(diferencaDias('05/12/2025', '25/03/2026')).toBe(110);
     expect(diferencaDias('25/03/2026', '11/06/2026')).toBe(78);
     const p = projetarProxima(d.passagens);
-    expect(p!.kmAlvo).toBe(80000);
+    expect(p!.kmAlvo).toBe(80805);
     expect(p!.dataLimite).toBe('11/06/2027');
-    expect(p!.dataEstimadaPorRitmo).toBe('28/08/2026');
-    expect(p!.dataPrevista).toBe('28/08/2026');
+    expect(p!.dataEstimadaPorRitmo).toBe('04/09/2026');
+    expect(p!.dataPrevista).toBe('04/09/2026');
     expect(p!.motivoPrevisao).toBe('ritmo');
     expect(formatarKmPorDia(p!.kmPorDia!)).toContain('118,');
   });
@@ -175,11 +176,47 @@ describe('revisões — parse do portal Toyota', () => {
     expect(calcularRitmo([])).toBeNull();
   });
 
-  it('km alvo é o próximo múltiplo de 10k', () => {
-    expect(proximoMultiplo10k(60306)).toBe(70000);
-    expect(proximoMultiplo10k(52260)).toBe(60000);
-    expect(proximoMultiplo10k(60000)).toBe(70000);
-    expect(proximoMultiplo10k(10000)).toBe(20000);
+  it('km alvo é a última + 10.000 exatos (sem arredondar)', () => {
+    const d = parseTextoRevisoes(EXEMPLO);
+    expect(projetarProxima(d.passagens)!.kmAlvo).toBe(60306 + 10000);
+    const sw4 = parseTextoRevisoes(EXEMPLO_SW4);
+    expect(projetarProxima(sw4.passagens)!.kmAlvo).toBe(70805 + 10000);
+  });
+
+  it('copiar passagens: DATA ⇥ KM ⇥ REVISÃO, sem OS e sem extras', () => {
+    const d = parseTextoRevisoes(EXEMPLO_SW4);
+    const texto = textoPassagensParaCopiar(ordenarPorData(d.passagens).reverse());
+    const linhas = texto.split('\n');
+    expect(linhas).toHaveLength(3);
+    expect(linhas[0]).toBe('11/06/2026\t70805\tCSP 6 REVISAO 60 000 GUN15640B1D33');
+    expect(linhas[2]).toBe('05/12/2025\t48469\tCSP 4 REVISAO 40 000 GUN15640B1C23');
+    expect(texto).not.toContain('168948');
+    expect(texto).not.toContain('164130');
+    expect(texto).not.toContain('item(ns) extra');
+    expect(textoPassagensParaCopiar([])).toBe('');
+  });
+
+  it('copiar lista: cabeçalho + TABs para o Excel', () => {
+    const texto = textoListaParaExcel([
+      {
+        id: 'r1',
+        criadoEm: '23/10/2026',
+        chassi: '8AJBA3FS9R0361321',
+        veiculo: 'SW4 SUV HIGH + Diamond',
+        nome: 'JOAO',
+        telefone: '51 99999-9999',
+        ultimaAbertura: '11/06/2026',
+        ultimoKm: 70805,
+        kmAlvo: 80805,
+        revisaoProxima: 7,
+        dataPrevista: '04/09/2026',
+      },
+    ]);
+    const linhas = texto.split('\n');
+    expect(linhas[0]).toBe('CHASSI\tVEÍCULO\tNOME\tWHATSAPP\tPREVISÃO\tKM ALVO\tREV\tÚLTIMA\tÚLTIMO KM');
+    expect(linhas[1]).toBe(
+      '8AJBA3FS9R0361321\tSW4 SUV HIGH + Diamond\tJOAO\t51 99999-9999\t04/09/2026\t80805\t07\t11/06/2026\t70805',
+    );
   });
 
   it('data limite soma 12 meses (29/02 vira 28/02)', () => {

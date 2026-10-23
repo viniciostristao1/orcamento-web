@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.168.0](#v16800) — 2026-10-23 — Revisões: copiar passagens/lista e alvo exato (v0.168.0)
+
 - [v0.167.0](#v16700) — 2026-10-23 — Revisões: PRÓXIMA sem textos longos (v0.167.0)
 
 - [v0.166.0](#v16600) — 2026-10-23 — Revisões: pilha esquerda, 3 últimas e backup verificado (v0.166.0)
@@ -258,6 +260,27 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16800"></a>
+## 2026-10-23 — Revisões: copiar passagens/lista e alvo exato (v0.168.0)
+
+**Pedido:** (1) botão copiar em PASSAGENS sem OS e sem "+N extras"; (2) botão
+copiar na LISTA para colar no Excel; (3) alvo preciso — última 60.306 com alvo
+70.000 chamava o cliente cedo (faltavam 9.694, não 10.000).
+
+**Feito:**
+- `parseRevisoes.ts`: `kmAlvo = base.km + 10000` (saiu `proximoMultiplo10k` +
+  seu teste); `textoPassagensParaCopiar` (DATA ⇥ KM ⇥ REVISÃO, sem OS/extras).
+  Ex.: SW4 70.805 → alvo 80.805, estimada 04/09/2026 (era 80.000/28/08).
+- `historicoRevisoes.ts`: `textoListaParaExcel` (cabeçalho + 9 colunas com TAB:
+  CHASSI, VEÍCULO, NOME, WHATSAPP, PREVISÃO, KM ALVO, REV, ÚLTIMA, ÚLTIMO KM).
+- `RevisoesApp`: botão copiar nos dois cards (padrão Copy/Check verde).
+- Testes: alvo exato (Yaris 70.306, SW4 80.805/04/09) + 2 de copiar.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **282/282**;
+build único autocontido. Selo `v0.168.0`.
+
+---
 
 <a id="v16700"></a>
 ## 2026-10-23 — Revisões: PRÓXIMA sem textos longos (v0.167.0)

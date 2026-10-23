@@ -19,7 +19,7 @@ pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG),
 **Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.) e
 **Revisões** (v0.160.0 — cola as passagens do portal Toyota e projeta a próxima
 revisão: 10 mil km ou 12 meses; v0.161.0 — lista de previsões por chassi + data
-editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação). A aba **Whats**
+editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação); v0.168.0 — copiar passagens/lista + alvo exato +10 mil. A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As quatro abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **10 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
@@ -90,7 +90,7 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **280 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **282 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -527,8 +527,8 @@ orcamento_web/
                              projeção (próx. múltiplo 10k ou +12 meses) + rascunho
     revisoes/utils/historicoRevisoes.ts lista `revisoes_historico_v1` (um item por
                              chassi; data editável move o lembrete; entra no sino/popup)
-    revisoes: ritmo médio (km total / dias totais) estima a data do km alvo;
-                             previsão = mais próxima entre ritmo e limite
+    revisoes: ritmo médio (km total / dias totais) estima a data do km alvo
+                             (alvo = última + 10.000 exatos); previsão = mais próxima entre ritmo e limite
   tests/                     vitest run: quote_logic, historico, telefone, versao,
                              sistema_extracao, export_image, tire_flyer, flyer_layout,
                              flyer_historico, dados, backup, bloqueio, lembretes,

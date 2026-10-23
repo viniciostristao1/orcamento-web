@@ -3,8 +3,8 @@
  * passagens do veículo e projeta a próxima revisão.
  *
  * Limites Toyota (10 mil km ou 12 meses, o que ocorrer primeiro):
- * - km alvo = próximo múltiplo de 10.000 acima do último km lançado
- *   (ex.: 60.306 → 70.000; cobre o "REVISAO 06 60000" → "07 70000").
+ * - km alvo = último km + 10.000 exatos (ex.: 60.306 → 70.306; arredondar para
+ *   o múltiplo de 10k chamava o cliente cedo demais).
  * - data limite = última abertura + 12 meses.
  *
  * Previsão por ritmo (v0.162.0): média de km/dia entre as passagens
@@ -140,11 +140,6 @@ export function diferencaDias(de: string, ate: string): number | null {
   return Math.round((d2.getTime() - d1.getTime()) / 86400000);
 }
 
-/** Próximo múltiplo de 10.000 acima do km (60.306 → 70.000). */
-export function proximoMultiplo10k(km: number): number {
-  return Math.ceil((km + 1) / 10000) * 10000;
-}
-
 /** Nº da revisão no texto ("REVISAO 06 60000", "5 REVISAO 50 000"...). */
 export function extrairNumeroRevisao(descricao: string): number | null {
   // Formato "5 REVISAO 50 000": o nº da revisão vem ANTES (o "50" é o km).
@@ -242,8 +237,8 @@ export function ordenarPorData(passagens: PassagemRevisao[]): PassagemRevisao[] 
 
 /**
  * Projeta a próxima revisão a partir da última passagem (a mais recente por
- * data): +12 meses na data e próximo múltiplo de 10k no km. Null sem passagem
- * válida.
+ * data): alvo = último km + 10.000 exatos e limite = +12 meses na data.
+ * Null sem passagem válida.
  *
  * Ritmo (v0.162.0): com 2+ passagens válidas, estima quando o km alvo é
  * atingido (km que faltam / km por dia, arredondando o dia para cima) e a
@@ -257,7 +252,8 @@ export function projetarProxima(passagens: PassagemRevisao[]): ProjecaoRevisao |
   if (!dataBase) return null;
   const revisaoAtual = extrairNumeroRevisao(base.descricao);
   const dataLimite = formatarDataPtBr(somarMeses(dataBase, 12));
-  const kmAlvo = proximoMultiplo10k(base.km);
+  // Alvo exato: 10.000 km rodados a partir da última (sem arredondar).
+  const kmAlvo = base.km + 10000;
   const ritmo = calcularRitmo(ordenadas);
 
   let dataEstimadaPorRitmo: string | null = null;
@@ -333,6 +329,11 @@ export function calcularRitmo(passagens: PassagemRevisao[]): RitmoRodagem | null
     numIntervalos: intervalos.length,
     intervalos,
   };
+}
+
+/** Texto para copiar as passagens (DATA ⇥ KM ⇥ REVISÃO): sem OS e sem extras. */
+export function textoPassagensParaCopiar(passagens: PassagemRevisao[]): string {
+  return passagens.map((p) => `${p.abertura}\t${p.km}\t${p.descricao}`).join('\n');
 }
 
 /** Rascunho do texto colado (localStorage local, como o das outras abas). */
