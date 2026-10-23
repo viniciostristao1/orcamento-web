@@ -4,6 +4,8 @@ import {
   BACKUP_DATA_KEY,
   diasDesdeBackup,
   HISTORICO_KEY,
+  FLYER_KEY,
+  REVISOES_HISTORICO_KEY,
   montarBackup,
   nomeArquivoBackup,
   precisaLembreteBackup,
@@ -53,6 +55,33 @@ describe('backup de tudo (Configurações)', () => {
     expect(JSON.parse(localStorage.getItem('zap_contacts') ?? '[]')).toHaveLength(1);
     expect(localStorage.getItem('zap_template')).toBe('Oi');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('claude');
+  });
+
+  it('inclui orçamentos, flyer e revisões (texto + lista) no mesmo arquivo', () => {
+    localStorage.setItem(HISTORICO_KEY, JSON.stringify([{ id: '1' }]));
+    localStorage.setItem(FLYER_KEY, JSON.stringify([{ id: 'f1' }]));
+    localStorage.setItem('revisoes_texto_v1', 'Chassi: ABC');
+    localStorage.setItem(REVISOES_HISTORICO_KEY, JSON.stringify([{ id: 'r1', chassi: 'ABC' }]));
+    const json = JSON.parse(montarBackup());
+    expect(json.dados[HISTORICO_KEY]).toHaveLength(1);
+    expect(json.dados[FLYER_KEY]).toHaveLength(1);
+    expect(json.dados.revisoes_texto_v1).toBe('Chassi: ABC');
+    expect(json.dados[REVISOES_HISTORICO_KEY]).toHaveLength(1);
+  });
+
+  it('restaurar mescla a lista de revisões por id (sem apagar a atual)', () => {
+    localStorage.setItem(REVISOES_HISTORICO_KEY, JSON.stringify([{ id: 'r1', chassi: 'ATUAL' }]));
+    const r = restaurarBackup(
+      JSON.stringify({
+        app: 'toyota-orcamentos-whats',
+        versao: 2,
+        dados: { [REVISOES_HISTORICO_KEY]: [{ id: 'r1', chassi: 'BACKUP' }, { id: 'r2' }] },
+      }),
+    );
+    expect(r.ok).toBe(true);
+    const lista = JSON.parse(localStorage.getItem(REVISOES_HISTORICO_KEY) ?? '[]');
+    expect(lista).toHaveLength(2);
+    expect(lista.find((i: { id: string }) => i.id === 'r1').chassi).toBe('ATUAL');
   });
 
   it('restaurar mescla listas por id (não apaga o que já está no navegador)', () => {

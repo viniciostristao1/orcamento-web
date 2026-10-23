@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.166.0](#v16600) — 2026-10-23 — Revisões: pilha esquerda, 3 últimas e backup verificado (v0.166.0)
+
 - [v0.165.0](#v16500) — 2026-10-23 — Revisões: aba larga, PASSAGENS e PRÓXIMA lado a lado (v0.165.0)
 
 - [v0.164.0](#v16400) — 2026-10-23 — Revisões: 2 colunas e sem DADOS DO VEÍCULO (v0.164.0)
@@ -254,6 +256,29 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16600"></a>
+## 2026-10-23 — Revisões: pilha esquerda, 3 últimas e backup verificado (v0.166.0)
+
+**Pedido:** PRÓXIMA abaixo de PASSAGENS (coluna esquerda em pilha, liberando a
+LISTA da direita); PASSAGENS só com as 3 últimas; COLAR com 5 linhas visíveis;
+remover a frase do rascunho; confirmar que o EXPORTAR BACKUP salva tudo
+(orçamentos + flyer + revisões).
+
+**Feito (só UI em `RevisoesApp.tsx`, sem lógica nova):**
+- Grade do topo virou pilha à esquerda (COLAR + PASSAGENS + PRÓXIMA) com a LISTA
+  ocupando a direita inteira; saiu a 2ª grade de baixo.
+- `passagensRecentes` com `.slice(0, 3)` (título "ÚLTIMAS 3 DE N"); a previsão
+  continua usando o histórico completo.
+- Textarea `h-[280px]` → `h-[190px]` (~5 linhas); frase do rascunho removida.
+- Backup: confirmado que `CHAVES_BACKUP` já tinha `revisoes_texto_v1` e
+  `revisoes_historico_v1` (esta com merge por id); +2 testes em
+  `tests/backup.test.ts` travando a cobertura (inclui + mescla).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **280/280**;
+build único autocontido. Selo `v0.166.0`.
+
+---
 
 <a id="v16500"></a>
 ## 2026-10-23 — Revisões: aba larga, PASSAGENS e PRÓXIMA lado a lado (v0.165.0)
