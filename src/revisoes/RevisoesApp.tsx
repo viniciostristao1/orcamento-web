@@ -26,9 +26,11 @@ import {
   dataPtBrParaInput,
   dataPtBrParaISOManha,
   inputParaDataPtBr,
+  lerUltimaBusca,
   listarHistoricoRevisoes,
   ordenarPorPrevisao,
   removerDoHistoricoRevisoes,
+  salvarUltimaBusca,
   textoListaParaExcel,
   type RevisaoAgendada,
 } from './utils/historicoRevisoes';
@@ -45,6 +47,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   const [salvoAgora, setSalvoAgora] = useState(false);
   // Lista de previsões (chassi + data): recarrega no sino/storage também.
   const [lista, setLista] = useState<RevisaoAgendada[]>(listarHistoricoRevisoes);
+  // Data da última busca de clientes para prever revisão (ao lado do copiar).
+  const [ultimaBusca, setUltimaBusca] = useState<string>(lerUltimaBusca);
   const [lembreteAberto, setLembreteAberto] = useState<string | null>(null);
   const [copiadoPassagens, setCopiadoPassagens] = useState(false);
   const [copiadoLista, setCopiadoLista] = useState(false);
@@ -54,7 +58,10 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   }, [texto]);
 
   useEffect(() => {
-    const recarregar = () => setLista(listarHistoricoRevisoes());
+    const recarregar = () => {
+      setLista(listarHistoricoRevisoes());
+      setUltimaBusca(lerUltimaBusca());
+    };
     window.addEventListener(LEMBRETES_EVENTO, recarregar);
     window.addEventListener('storage', recarregar);
     return () => {
@@ -337,9 +344,29 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
         {/* Lista de previsões à direita: chassi + data (editável), nome/WhatsApp, lembrete e WhatsApp. */}
         <NeonCard title={`LISTA DE PREVISÕES (${listaOrdenada.length})`} borderColor="blue-600" compact
           actions={
-            <button
-              type="button"
-              onClick={copiarLista}
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={dataPtBrParaInput(ultimaBusca)}
+                onChange={(e) => {
+                  if (!e.target.value) {
+                    salvarUltimaBusca('');
+                    setUltimaBusca('');
+                    return;
+                  }
+                  const pt = inputParaDataPtBr(e.target.value);
+                  if (pt) {
+                    salvarUltimaBusca(pt);
+                    setUltimaBusca(pt);
+                  }
+                }}
+                aria-label="Data da última busca de clientes"
+                title="Data da última busca de clientes para prever revisão"
+                className="campo-tema border border-slate-800 rounded-lg px-2 py-1.5 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none [color-scheme:dark]"
+              />
+              <button
+                type="button"
+                onClick={copiarLista}
               aria-label={copiadoLista ? 'Lista copiada' : 'Copiar lista para Excel'}
               title={copiadoLista ? 'Lista copiada' : 'Copiar lista para Excel'}
               className={`flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 ${
@@ -349,7 +376,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
               }`}
             >
               {copiadoLista ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
-            </button>
+              </button>
+            </div>
           }
         >
           {listaOrdenada.length === 0 ? (
@@ -387,27 +415,29 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                           {item.motivoPrevisao ? ` (${item.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite'})` : ''}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => excluirItem(item.id, item.chassi)}
-                        aria-label={`Excluir previsão ${item.chassi}`}
-                        title="Excluir previsão"
-                        className="p-2 text-slate-600 hover:text-red-400 transition-colors cursor-pointer shrink-0"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={!!item.chamado}
+                          onChange={(e) => setLista(atualizarChamadoRevisao(item.id, e.target.checked))}
+                          aria-label="Marcar como chamado"
+                          title="Já chamei (segundo contato): acinzenta o item"
+                          className="w-5 h-5 accent-amber-500 cursor-pointer"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => excluirItem(item.id, item.chassi)}
+                          aria-label={`Excluir previsão ${item.chassi}`}
+                          title="Excluir previsão"
+                          className="p-2 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
 
                     {/* Nome + WhatsApp + previsão (editável) + WhatsApp + lembrete, numa linha só. */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={!!item.chamado}
-                        onChange={(e) => setLista(atualizarChamadoRevisao(item.id, e.target.checked))}
-                        aria-label="Marcar como chamado"
-                        title="Já chamei (segundo contato): acinzenta o item"
-                        className="w-5 h-5 accent-amber-500 cursor-pointer shrink-0"
-                      />
                       <input
                         type="text"
                         value={item.nome}

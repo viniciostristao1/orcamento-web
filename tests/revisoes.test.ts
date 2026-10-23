@@ -23,12 +23,16 @@ import {
   dataPtBrParaISOManha,
   inputParaDataPtBr,
   isoParaDataPtBr,
+  lerUltimaBusca,
   listarHistoricoRevisoes,
   ordenarPorPrevisao,
   removerDoHistoricoRevisoes,
+  salvarUltimaBusca,
   textoListaParaExcel,
   REVISOES_HISTORICO_KEY,
+  REVISOES_ULTIMA_BUSCA_KEY,
 } from '../src/revisoes/utils/historicoRevisoes';
+import { CHAVES_BACKUP } from '../src/utils/backup';
 
 const EXEMPLO = `Chassi: 9BRKC9F35M8127574\tAno Fab./Mod.: 2020/2021\tProdução: 14/12/2020\tTipo de uso(venda): Particular
 Veículo: YARIS HB XL PLUS CON AT\tKatashiki: NSP151L-HHXRGG\tVenda: 12/01/2021\tEntrega: 15/01/2021
@@ -360,5 +364,18 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     const { listarLembretesVencidos, listarTodosLembretes } = await import('../src/utils/lembretes');
     expect(listarLembretesVencidos().some((l) => l.origem === 'revisao')).toBe(true);
     expect(listarTodosLembretes().some((l) => l.origem === 'revisao')).toBe(true);
+  });
+
+  it('última busca: salva, lê, ignora inválida e entra no backup', () => {
+    expect(lerUltimaBusca()).toBe('');
+    salvarUltimaBusca('20/10/2026');
+    expect(lerUltimaBusca()).toBe('20/10/2026');
+    expect(localStorage.getItem(REVISOES_ULTIMA_BUSCA_KEY)).toBe('20/10/2026');
+    salvarUltimaBusca('lixo');
+    expect(lerUltimaBusca()).toBe('20/10/2026');
+    salvarUltimaBusca('');
+    expect(lerUltimaBusca()).toBe('');
+    expect(localStorage.getItem(REVISOES_ULTIMA_BUSCA_KEY)).toBeNull();
+    expect(CHAVES_BACKUP).toContain(REVISOES_ULTIMA_BUSCA_KEY);
   });
 });

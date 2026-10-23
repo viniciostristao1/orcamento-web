@@ -38,6 +38,8 @@ export interface RevisaoAgendada {
 }
 
 export const REVISOES_HISTORICO_KEY = 'revisoes_historico_v1';
+/** Data da última busca de clientes para prever revisão (dd/mm/aaaa). */
+export const REVISOES_ULTIMA_BUSCA_KEY = 'revisoes_ultima_busca_v1';
 const MAX = 200;
 
 /** dd/mm/aaaa → yyyy-mm-dd (para `<input type="date">`). Vazio se inválida. */
@@ -270,4 +272,26 @@ export function textoListaParaExcel(itens: RevisaoAgendada[]): string {
     'CHASSI\tVEÍCULO\tNOME\tWHATSAPP\tPREVISÃO\tKM ALVO\tREV\tÚLTIMA\tÚLTIMO KM',
     ...linhas,
   ].join('\n');
+}
+
+/**
+ * Última busca de clientes para prever revisão (dd/mm/aaaa, ao lado do copiar).
+ * Vazio = nunca registrada; inválida não salva.
+ */
+export function lerUltimaBusca(storage: Storage = localStorage): string {
+  try {
+    const v = storage.getItem(REVISOES_ULTIMA_BUSCA_KEY) ?? '';
+    return parseDataPtBr(v) ? v : '';
+  } catch {
+    return '';
+  }
+}
+
+export function salvarUltimaBusca(dataPtBr: string, storage: Storage = localStorage): void {
+  try {
+    if (!dataPtBr) storage.removeItem(REVISOES_ULTIMA_BUSCA_KEY);
+    else if (parseDataPtBr(dataPtBr)) storage.setItem(REVISOES_ULTIMA_BUSCA_KEY, dataPtBr);
+  } catch {
+    /* cota/privacidade: ignora */
+  }
 }

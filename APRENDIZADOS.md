@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.174.0](#v17400) — 2026-10-23 — Revisões: chamado ao lado do excluir + última busca (v0.174.0)
+
 - [v0.173.0](#v17300) — 2026-10-23 — Pesquisa dos Dados grudada no topo (v0.173.0)
 
 - [v0.172.0](#v17200) — 2026-10-23 — Limpar chamados, notas gerais e editar lembrete (v0.172.0)
@@ -270,6 +272,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17400"></a>
+## 2026-10-23 — Revisões: chamado ao lado do excluir + última busca (v0.174.0)
+
+**Pedido:** (1) caixinha "já chamei" ao lado do excluir (estava no início da
+linha); (2) campo ao lado do "copiar lista para Excel" para a data da última
+busca de clientes para prever revisão.
+
+**Feito (só Revisões):**
+- Caixinha movida para o cabeçalho do item, junto do excluir.
+- `revisoes_ultima_busca_v1` (dd/mm/aaaa, entra no backup) + campo de data no
+  cabeçalho da lista (salva na hora, limpa apagando; sincroniza via storage).
+- Testes: unidade da última busca (+ backup) e tela (posição + marcar + data).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **296/296**;
+build único autocontido. Selo `v0.174.0`.
+
+---
 
 <a id="v17300"></a>
 ## 2026-10-23 — Pesquisa dos Dados grudada no topo (v0.173.0)

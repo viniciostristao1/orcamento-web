@@ -2486,4 +2486,46 @@ describe('App — smoke test (render + processar)', () => {
       localStorage.removeItem('lembretes_rapidos_v1');
     }
   });
+
+  it('revisões: caixinha ao lado do excluir + campo última busca', () => {
+    localStorage.setItem(
+      'revisoes_historico_v1',
+      JSON.stringify([
+        {
+          id: 'r1',
+          criadoEm: '23/10/2026 10:00:00',
+          chassi: 'ABC123',
+          veiculo: '',
+          nome: '',
+          telefone: '',
+          ultimaAbertura: '11/06/2026',
+          ultimoKm: 70805,
+          kmAlvo: 80805,
+          revisaoProxima: 7,
+          dataPrevista: '04/09/2026',
+        },
+      ]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByText('Revisões'));
+      // caixinha na mesma linha do excluir (cabeçalho do item)
+      const check = screen.getByRole('checkbox', { name: 'Marcar como chamado' });
+      const excluir = screen.getByRole('button', { name: 'Excluir previsão ABC123' });
+      expect(excluir.parentElement).toBe(check.parentElement);
+      // marcar acinzenta o item e salva
+      fireEvent.click(check);
+      expect(document.querySelector('[data-revisao="r1"]')?.className).toContain('opacity-50');
+      expect(JSON.parse(localStorage.getItem('revisoes_historico_v1') ?? '[]')[0].chamado).toBe(true);
+      // campo da última busca salva a data
+      const busca = screen.getByLabelText('Data da última busca de clientes') as HTMLInputElement;
+      expect(busca.value).toBe('');
+      fireEvent.change(busca, { target: { value: '2026-10-20' } });
+      expect(busca.value).toBe('2026-10-20');
+      expect(localStorage.getItem('revisoes_ultima_busca_v1')).toBe('20/10/2026');
+    } finally {
+      localStorage.removeItem('revisoes_historico_v1');
+      localStorage.removeItem('revisoes_ultima_busca_v1');
+    }
+  });
 });

@@ -41,6 +41,7 @@ export const CHAVES_BACKUP = [
   'dados_tabelas_v1',
   'revisoes_texto_v1',
   REVISOES_HISTORICO_KEY,
+  'revisoes_ultima_busca_v1',
   'rotulos_v1',
   SENHA_KEY, // a senha do cadeado acompanha o backup (restaurar mantém a senha)
   RAPIDOS_KEY, // lembretes rápidos do sino
