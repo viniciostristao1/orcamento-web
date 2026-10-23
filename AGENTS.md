@@ -18,7 +18,8 @@ O app tem **quatro abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — c
 pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG),
 **Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.) e
 **Revisões** (v0.160.0 — cola as passagens do portal Toyota e projeta a próxima
-revisão: 10 mil km ou 12 meses). A aba **Whats**
+revisão: 10 mil km ou 12 meses; v0.161.0 — lista de previsões por chassi + data
+editável, nome/WhatsApp, lembrete global e botão WhatsApp). A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As quatro abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **10 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
@@ -89,7 +90,7 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **269 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **276 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -520,9 +521,12 @@ orcamento_web/
     dados/DadosApp.tsx       tela da aba Dados (sub-abas + busca + grifo)
     dados/components/OrdenarTabela.tsx janelinha "Ordenar por coluna"
     dados/utils/tabelas.ts   modelo { abas, ordem } + seleção em grade + ordenar + notas
-    revisoes/RevisoesApp.tsx tela da aba Revisões (colar passagens + projeção)
+    revisoes/RevisoesApp.tsx tela da aba Revisões (colar + projeção + lista com
+                             nome/WhatsApp, data editável, lembrete e WhatsApp)
     revisoes/utils/parseRevisoes.ts puro: chassi/veículo/Toyota10 + passagens +
                              projeção (próx. múltiplo 10k ou +12 meses) + rascunho
+    revisoes/utils/historicoRevisoes.ts lista `revisoes_historico_v1` (um item por
+                             chassi; data editável move o lembrete; entra no sino/popup)
   tests/                     vitest run: quote_logic, historico, telefone, versao,
                              sistema_extracao, export_image, tire_flyer, flyer_layout,
                              flyer_historico, dados, backup, bloqueio, lembretes,

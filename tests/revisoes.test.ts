@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+// @vitest-environment jsdom
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   extrairNumeroRevisao,
   ordenarPorData,
@@ -8,6 +9,20 @@ import {
   somarMeses,
   parseDataPtBr,
 } from '../src/revisoes/utils/parseRevisoes';
+import {
+  adicionarAhistoricoRevisoes,
+  atualizarContatoRevisao,
+  atualizarDataPrevista,
+  atualizarLembreteRevisao,
+  dataPtBrParaInput,
+  dataPtBrParaISOManha,
+  inputParaDataPtBr,
+  isoParaDataPtBr,
+  listarHistoricoRevisoes,
+  ordenarPorPrevisao,
+  removerDoHistoricoRevisoes,
+  REVISOES_HISTORICO_KEY,
+} from '../src/revisoes/utils/historicoRevisoes';
 
 const EXEMPLO = `Chassi: 9BRKC9F35M8127574\tAno Fab./Mod.: 2020/2021\tProdução: 14/12/2020\tTipo de uso(venda): Particular
 Veículo: YARIS HB XL PLUS CON AT\tKatashiki: NSP151L-HHXRGG\tVenda: 12/01/2021\tEntrega: 15/01/2021
@@ -121,5 +136,100 @@ describe('revisões — parse do portal Toyota', () => {
   it('sem passagem não há projeção', () => {
     expect(projetarProxima([])).toBeNull();
     expect(parseTextoRevisoes('nada aqui').passagens).toHaveLength(0);
+  });
+});
+
+describe('revisões — lista de previsões (chassi + data)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const item = (chassi: string, dataPrevista: string, lembreteEm: string | null = null) => ({
+    chassi,
+    veiculo: 'YARIS HB XL PLUS CON AT',
+    nome: '',
+    telefone: '',
+    ultimaAbertura: '14/10/2026',
+    ultimoKm: 60306,
+    kmAlvo: 70000,
+    revisaoProxima: 7,
+    dataPrevista,
+    lembreteEm,
+    observacao: '',
+  });
+
+  it('conversões de data (lista, input e lembrete)', () => {
+    expect(dataPtBrParaInput('14/10/2027')).toBe('2027-10-14');
+    expect(dataPtBrParaInput('lixo')).toBe('');
+    expect(dataPtBrParaInput('99/99/9999')).toBe('');
+    expect(inputParaDataPtBr('2027-10-14')).toBe('14/10/2027');
+    expect(inputParaDataPtBr('2027-13-40')).toBe('');
+    expect(isoParaDataPtBr('2027-10-14T09:00')).toBe('14/10/2027');
+    expect(isoParaDataPtBr(null)).toBe('');
+    expect(dataPtBrParaISOManha('14/10/2027')).toBe('2027-10-14T09:00');
+    // mantém a hora ao mover a data
+    expect(dataPtBrParaISOManha('15/11/2027', '2027-10-14T15:30')).toBe('2027-11-15T15:30');
+    expect(dataPtBrParaISOManha('lixo')).toBeNull();
+  });
+
+  it('adiciona chassi + previsão com nome/telefone e lembrete', () => {
+    const out = adicionarAhistoricoRevisoes({
+      ...item('9BRKC9F35M8127574', '14/10/2027', '2027-10-14T09:00'),
+      nome: 'JOAO',
+      telefone: '51 99999-9999',
+    });
+    expect(out).toHaveLength(1);
+    expect(out[0].chassi).toBe('9BRKC9F35M8127574');
+    expect(out[0].nome).toBe('JOAO');
+    expect(out[0].telefone).toBe('51 99999-9999');
+    expect(out[0].dataPrevista).toBe('14/10/2027');
+    expect(listarHistoricoRevisoes()).toHaveLength(1);
+    // persiste na chave própria (entra no backup)
+    expect(JSON.parse(localStorage.getItem(REVISOES_HISTORICO_KEY) ?? '[]')).toHaveLength(1);
+  });
+
+  it('mesmo chassi atualiza em vez de duplicar (nome vazio mantém)', () => {
+    adicionarAhistoricoRevisoes({ ...item('ABC123', '14/10/2027'), nome: 'JOAO', telefone: '51 1111-1111' });
+    const out = adicionarAhistoricoRevisoes({ ...item('abc123', '15/11/2027'), nome: '', telefone: '' });
+    expect(out).toHaveLength(1);
+    expect(out[0].dataPrevista).toBe('15/11/2027');
+    expect(out[0].nome).toBe('JOAO');
+    expect(out[0].telefone).toBe('51 1111-1111');
+  });
+
+  it('editar a data move o lembrete junto (mantém a hora)', () => {
+    const [criado] = adicionarAhistoricoRevisoes(item('ABC123', '14/10/2027', '2027-10-14T15:30'));
+    const out = atualizarDataPrevista(criado.id, '20/12/2027');
+    expect(out[0].dataPrevista).toBe('20/12/2027');
+    expect(out[0].lembreteEm).toBe('2027-12-20T15:30');
+    // data inválida não salva
+    expect(atualizarDataPrevista(criado.id, 'lixo')[0].dataPrevista).toBe('20/12/2027');
+  });
+
+  it('contato, lembrete e remoção', () => {
+    const [criado] = adicionarAhistoricoRevisoes(item('ABC123', '14/10/2027'));
+    expect(atualizarContatoRevisao(criado.id, 'MARIA', '51 98888-7777')[0]).toMatchObject({
+      nome: 'MARIA',
+      telefone: '51 98888-7777',
+    });
+    expect(atualizarLembreteRevisao(criado.id, '2027-10-14T09:00', 'chamar')[0]).toMatchObject({
+      lembreteEm: '2027-10-14T09:00',
+      observacao: 'chamar',
+    });
+    expect(atualizarLembreteRevisao(criado.id, null)[0].lembreteEm).toBeNull();
+    expect(removerDoHistoricoRevisoes(criado.id)).toHaveLength(0);
+  });
+
+  it('ordena pela previsão (mais próxima primeiro)', () => {
+    adicionarAhistoricoRevisoes(item('C2', '20/12/2027'));
+    adicionarAhistoricoRevisoes(item('C1', '14/10/2027'));
+    expect(ordenarPorPrevisao(listarHistoricoRevisoes()).map((r) => r.chassi)).toEqual(['C1', 'C2']);
+  });
+
+  it('lembrete da revisão entra no sino global', async () => {
+    adicionarAhistoricoRevisoes(item('ABC123', '14/10/2027', '2020-01-01T09:00'));
+    const { listarLembretesVencidos, listarTodosLembretes } = await import('../src/utils/lembretes');
+    expect(listarLembretesVencidos().some((l) => l.origem === 'revisao')).toBe(true);
+    expect(listarTodosLembretes().some((l) => l.origem === 'revisao')).toBe(true);
   });
 });

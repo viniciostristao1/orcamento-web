@@ -10,6 +10,7 @@ import SinoLembretes from './components/SinoLembretes';
 import LembreteHistorico from './components/LembreteHistorico';
 import { atualizarLembreteHistorico } from './utils/historico';
 import { atualizarLembreteFlyer } from './tire/utils/historicoFlyer';
+import { atualizarLembreteRevisao } from './revisoes/utils/historicoRevisoes';
 import { removerRapido } from './utils/lembretesRapidos';
 import {
   LEMBRETES_EVENTO,
@@ -72,6 +73,14 @@ const AppInterno: React.FC = () => {
   const irParaLembrete = (item: LembreteVencido) => {
     if (item.origem === 'rapido') {
       removerRapido(item.id);
+    } else if (item.origem === 'revisao') {
+      setAba('revisoes');
+      setIrParaHistorico((d) => ({
+        origem: item.origem,
+        id: item.id,
+        vez: (d?.vez ?? 0) + 1,
+      }));
+      atualizarLembreteRevisao(item.id, null);
     } else {
       setAba(item.origem === 'flyer' ? 'pneus' : 'orcamentos');
       setIrParaHistorico((d) => ({
@@ -223,7 +232,7 @@ const AppInterno: React.FC = () => {
           <DadosApp subAba={subAbaDados} buscaDados={buscaDados} />
         </div>
         <div className={aba === 'revisoes' ? '' : 'hidden'}>
-          <RevisoesApp />
+          <RevisoesApp destaqueId={irParaHistorico?.origem === 'revisao' ? irParaHistorico.id : null} />
         </div>
       </main>
 

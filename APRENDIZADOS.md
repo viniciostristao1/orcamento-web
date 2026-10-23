@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.161.0](#v16100) — 2026-10-23 — Revisões: lista de previsões com lembrete e WhatsApp (v0.161.0)
+
 - [v0.160.0](#v16000) — 2026-10-23 — Nova aba REVISÕES: colar passagens Toyota + próxima revisão (v0.160.0)
 
 - [v0.159.0](#v15900) — 2026-10-16 — Relatório: soma mensal em bruto dos aprovados + parciais no topo (v0.159.0)
@@ -244,6 +246,35 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16100"></a>
+## 2026-10-23 — Revisões: lista de previsões com lembrete e WhatsApp (v0.161.0)
+
+**Pedido:** montar a lista da próxima passagem por cliente (chassi + data prevista),
+com lembrete para enviar mensagem na data (editável) + botão WhatsApp como nos
+orçamentos/flyer + campos nome e WhatsApp abaixo da projeção. Previsão ainda em teste.
+
+**Feito:**
+- `src/revisoes/utils/historicoRevisoes.ts` (novo, `revisoes_historico_v1`): um item
+  por chassi (recolar atualiza, não duplica; vazio em nome/tel mantém o anterior);
+  `dataPrevista` editável move o `lembreteEm` junto (mantém a hora; sem lembrete cria
+  às 09:00); `atualizarContato/Lembrete`, `ordenarPorPrevisao`, conversões
+  pt-BR↔`input[type=date]`↔ISO e `rotuloRevisao`.
+- `src/revisoes/RevisoesApp.tsx`: PRÓXIMA REVISÃO ganha Nome + WhatsApp +
+  "Adicionar à lista" (chassi + data); LISTA DE PREVISÕES com nome/tel editáveis,
+  data via `<input type=date>` + texto, `BotaoWhats`, `BotaoRelogio/EditorLembrete`,
+  excluir com confirmação e destaque ao vir do sino/popup.
+- Global: `lembretes.ts` ganha origem `revisao` (rótulo nome/chassi/data);
+  `SinoLembretes` (excluir/reprogramar/"Revisão"), `App` (abre a aba Revisões e
+  conclui) e `LembreteHistorico` ("Ir para revisão", cabeçalho genérico) cobrem a
+  nova origem; `backup.ts` inclui a chave na lista (merge por id) e no aviso.
+- Testes: `tests/revisoes.test.ts` +7 (conversões, salvar/atualizar, data→lembrete,
+  ordenação, sino global).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **276/276**;
+build único autocontido. Selo `v0.161.0`.
+
+---
 
 <a id="v16000"></a>
 ## 2026-10-23 — Nova aba REVISÕES: colar passagens Toyota + próxima revisão (v0.160.0)

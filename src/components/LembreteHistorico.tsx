@@ -11,15 +11,21 @@ interface LembreteHistoricoProps {
 }
 
 /**
- * Lembretes vencidos dos históricos (orçamentos + tire flyer) e rápidos: pisca
- * no canto inferior direito; cada linha leva ao orçamento em questão.
+ * Lembretes vencidos dos históricos (orçamentos + tire flyer + revisões) e
+ * rápidos: pisca no canto inferior direito; cada linha leva ao item em questão.
  */
 const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, onDispensar }) => {
   if (itens.length === 0) return null;
 
   const irPrimeiro = () => onIrPara(itens[0]);
+  // Legado: flyer usa o mesmo "orçamento" do botão (os testes travam esse nome);
+  // só a revisão ganha nome próprio.
   const nomeAcao = (item: LembreteVencido): string =>
-    item.origem === 'rapido' ? `Concluir lembrete ${item.rotulo}` : `Ir para orçamento ${item.rotulo}`;
+    item.origem === 'rapido'
+      ? `Concluir lembrete ${item.rotulo}`
+      : item.origem === 'revisao'
+        ? `Ir para revisão ${item.rotulo}`
+        : `Ir para orçamento ${item.rotulo}`;
 
   return (
     <div className="animate-pulse print:hidden">
@@ -46,7 +52,7 @@ const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, 
         </div>
         <div className="min-w-0">
           <p className="text-[10px] font-bold text-amber-400 uppercase tracking-[0.1em]">
-            {itens.length === 1 ? 'Lembrete: 1 orçamento' : `Lembretes: ${itens.length} orçamentos`}
+            {itens.length === 1 ? 'Lembrete' : `Lembretes: ${itens.length}`}
           </p>
           <div className="flex flex-col gap-0.5 mt-0.5">
             {itens.map((item) => {
@@ -59,7 +65,7 @@ const LembreteHistorico: React.FC<LembreteHistoricoProps> = ({ itens, onIrPara, 
                   onIrPara(item);
                 }}
                 aria-label={nomeAcao(item)}
-                title={item.origem === 'rapido' ? `Concluir "${item.rotulo}"` : `Abrir ${item.origem === 'flyer' ? 'flyer' : 'orçamento'} ${item.rotulo}`}
+                title={item.origem === 'rapido' ? `Concluir "${item.rotulo}"` : `Abrir ${item.origem === 'flyer' ? 'flyer' : item.origem === 'revisao' ? 'revisão' : 'orçamento'} ${item.rotulo}`}
                 className="font-extrabold text-slate-100 text-sm tracking-tight truncate text-left hover:text-amber-300 transition-colors cursor-pointer"
               >
                 {item.rotulo}

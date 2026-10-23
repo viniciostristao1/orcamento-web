@@ -13,6 +13,8 @@ export const CONTATOS_KEY = 'zap_contacts';
 export const HISTORICO_KEY = 'orcamentos_historico_v1';
 /** Chave do histórico do Tire Flyer (a mesma usada em tire/utils/historicoFlyer.ts). */
 export const FLYER_KEY = 'flyer_historico_v1';
+/** Chave da lista de previsões da aba Revisões (a mesma de revisoes/utils/historicoRevisoes.ts). */
+export const REVISOES_HISTORICO_KEY = 'revisoes_historico_v1';
 
 /** Quando foi feito o último backup (ISO; atualizado a cada download). */
 export const BACKUP_DATA_KEY = 'backup_ultimo_v1';
@@ -37,6 +39,7 @@ export const CHAVES_BACKUP = [
   'flyer_layout_v1',
   'dados_tabelas_v1',
   'revisoes_texto_v1',
+  REVISOES_HISTORICO_KEY,
   'rotulos_v1',
   SENHA_KEY, // a senha do cadeado acompanha o backup (restaurar mantém a senha)
   RAPIDOS_KEY, // lembretes rápidos do sino
@@ -73,7 +76,7 @@ export function diasDesdeBackup(agora: Date = new Date()): number | null {
 /** Há dados que valem backup? (sem histórico/contatos, o aviso não faz sentido). */
 function temDadosParaBackup(): boolean {
   try {
-    for (const chave of [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY]) {
+    for (const chave of [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY, REVISOES_HISTORICO_KEY]) {
       const bruto = localStorage.getItem(chave);
       if (bruto && bruto !== '[]') return true;
     }
@@ -95,7 +98,7 @@ export function precisaLembreteBackup(agora: Date = new Date()): boolean {
  * restaurar, mesclam por id em vez de sobrescrever — o que já está no navegador
  * nunca é apagado. As demais chaves são "estado atual" e seguem sobrescritas.
  */
-const CHAVES_LISTA: readonly string[] = [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY, RAPIDOS_KEY];
+const CHAVES_LISTA: readonly string[] = [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY, RAPIDOS_KEY, REVISOES_HISTORICO_KEY];
 
 export interface ResumoBackup {
   orcamentos: number;

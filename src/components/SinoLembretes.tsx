@@ -16,6 +16,7 @@ import {
 } from '../utils/lembretesRapidos';
 import { atualizarLembreteFlyer } from '../tire/utils/historicoFlyer';
 import { atualizarLembreteHistorico } from '../utils/historico';
+import { atualizarLembreteRevisao } from '../revisoes/utils/historicoRevisoes';
 
 /**
  * Sino do header (entre o cadeado e as configurações): cria lembretes rápidos
@@ -90,6 +91,7 @@ const SinoLembretes: React.FC = () => {
   const excluir = (item: LembreteAgendado) => {
     if (item.origem === 'rapido') removerRapido(item.id);
     else if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, null);
+    else if (item.origem === 'revisao') atualizarLembreteRevisao(item.id, null);
     else atualizarLembreteHistorico(item.id, null);
     recarregar();
     avisarLembretesMudaram();
@@ -107,11 +109,12 @@ const SinoLembretes: React.FC = () => {
     setNovoQuando(paraInputDatetime(item.quando));
   };
 
-  /** Reprograma: grava a nova data/hora (rápido/flyer/orçamento) sem concluir. */
+  /** Reprograma: grava a nova data/hora (rápido/flyer/orçamento/revisão) sem concluir. */
   const reprogramar = (item: LembreteAgendado) => {
     if (!novoQuando) return;
     if (item.origem === 'rapido') atualizarRapido(item.id, novoQuando);
     else if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, novoQuando);
+    else if (item.origem === 'revisao') atualizarLembreteRevisao(item.id, novoQuando);
     else atualizarLembreteHistorico(item.id, novoQuando);
     setReprogramando(null);
     recarregar();
@@ -120,7 +123,7 @@ const SinoLembretes: React.FC = () => {
 
   const nomeOrigem =
     (o: LembreteAgendado['origem']): string =>
-      o === 'rapido' ? 'Rápido' : o === 'flyer' ? 'Flyer' : 'Orçamento';
+      o === 'rapido' ? 'Rápido' : o === 'flyer' ? 'Flyer' : o === 'revisao' ? 'Revisão' : 'Orçamento';
 
   // O selo conta só vencidos (atrasados ou na tela) — não todos os agendados.
   const nVencidos = itens.filter((i) => i.vencido).length;

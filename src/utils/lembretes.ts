@@ -5,7 +5,7 @@
  * orçamento em questão. Clicar num aviso vencido abre e o conclude (limpa).
  */
 
-export type OrigemLembrete = 'orcamento' | 'flyer' | 'rapido';
+export type OrigemLembrete = 'orcamento' | 'flyer' | 'revisao' | 'rapido';
 
 export interface LembreteVencido {
   origem: OrigemLembrete;
@@ -67,6 +67,9 @@ interface RegistroComLembrete {
   descReparo?: string;
   contato?: string;
   medida?: string;
+  nome?: string;
+  chassi?: string;
+  dataPrevista?: string;
 }
 
 const lerLista = (chave: string): RegistroComLembrete[] => {
@@ -86,6 +89,12 @@ const rotuloOrcamento = (r: RegistroComLembrete): string =>
 
 const rotuloFlyer = (r: RegistroComLembrete): string =>
   r.contato?.trim() || r.medida?.trim() || dataDoRegistro(r.criadoEm);
+
+const rotuloRevisao = (r: RegistroComLembrete): string =>
+  r.nome?.trim() ||
+  r.chassi?.trim() ||
+  r.dataPrevista?.trim() ||
+  dataDoRegistro(r.criadoEm);
 
 /** Registros com lembrete vencido (data/hora <= agora): históricos + rápidos. */
 export function listarLembretesVencidos(agora: number = Date.now()): LembreteVencido[] {
@@ -120,6 +129,7 @@ export function listarTodosLembretes(agora: number = Date.now()): LembreteAgenda
   };
   colher('orcamento', 'orcamentos_historico_v1', rotuloOrcamento);
   colher('flyer', 'flyer_historico_v1', rotuloFlyer);
+  colher('revisao', 'revisoes_historico_v1', rotuloRevisao);
   for (const q of listarRapidos()) {
     const t = new Date(q.quando).getTime();
     if (!Number.isFinite(t)) continue;
