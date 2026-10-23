@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.177.0](#v17700) — 2026-10-23 — Revisões: nota azul preenchida (v0.177.0)
+
 - [v0.176.0](#v17600) — 2026-10-23 — Revisões: nota por revisão (v0.176.0)
 
 - [v0.175.0](#v17500) — 2026-10-23 — Revisões: sem "+N extras" nas passagens (v0.175.0)
@@ -276,6 +278,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17700"></a>
+## 2026-10-23 — Revisões: nota azul preenchida (v0.177.0)
+
+**Pedido:** melhorar o desenho da nota (pouco nítida); com nota, azul no
+grafite — amarelo já é dos lembretes.
+
+**Feito (`src/revisoes/RevisoesApp.tsx`, só UI):** preenchida virou azul
+(`bg-blue-600`, em todos os temas — o âmbar ficou só para lembretes);
+fantasma com mais contraste (`text-slate-300` + borda `slate-600`) e ícone
+maior (16 → 18).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **297/297**;
+build único autocontido. Selo `v0.177.0`.
+
+---
 
 <a id="v17600"></a>
 ## 2026-10-23 — Revisões: nota por revisão (v0.176.0)

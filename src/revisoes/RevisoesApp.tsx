@@ -429,11 +429,11 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                           aria-pressed={notaAberta === item.id}
                           className={`flex items-center justify-center p-2 rounded-lg transition-all border cursor-pointer active:scale-95 ${
                             item.nota?.trim()
-                              ? 'bg-amber-500 hover:bg-amber-400 text-black border-amber-400'
-                              : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700'
+                              ? 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500'
+                              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-600'
                           }`}
                         >
-                          <StickyNote size={16} />
+                          <StickyNote size={18} />
                         </button>
                         <input
                           type="checkbox"

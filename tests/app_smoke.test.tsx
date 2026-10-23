@@ -2523,15 +2523,15 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.change(busca, { target: { value: '2026-10-20' } });
       expect(busca.value).toBe('2026-10-20');
       expect(localStorage.getItem('revisoes_ultima_busca_v1')).toBe('20/10/2026');
-      // nota da revisão: escreve, salva e o ícone acende
+      // nota da revisão: escreve, salva e o ícone acende em azul
       const notaBtn = screen.getByRole('button', { name: 'Nota da revisão ABC123' });
-      expect(notaBtn.className).not.toContain('bg-amber-500');
+      expect(notaBtn.className).not.toContain('bg-blue-600');
       fireEvent.click(notaBtn);
       const ta = screen.getByLabelText('Texto da nota da revisão') as HTMLTextAreaElement;
       fireEvent.change(ta, { target: { value: 'Trocar pastilhas' } });
       fireEvent.click(screen.getByRole('button', { name: 'Salvar nota' }));
       expect(JSON.parse(localStorage.getItem('revisoes_historico_v1') ?? '[]')[0].nota).toBe('Trocar pastilhas');
-      expect(screen.getByRole('button', { name: 'Nota da revisão ABC123' }).className).toContain('bg-amber-500');
+      expect(screen.getByRole('button', { name: 'Nota da revisão ABC123' }).className).toContain('bg-blue-600');
     } finally {
       localStorage.removeItem('revisoes_historico_v1');
       localStorage.removeItem('revisoes_ultima_busca_v1');
