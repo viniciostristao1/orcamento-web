@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.170.0](#v17000) — 2026-10-23 — Dados: "+" na nota cria outra abaixo (v0.170.0)
+
 - [v0.169.0](#v16900) — 2026-10-23 — Revisões: descrição curta sem tipo/código (v0.169.0)
 
 - [v0.168.0](#v16800) — 2026-10-23 — Revisões: copiar passagens/lista e alvo exato (v0.168.0)
@@ -262,6 +264,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17000"></a>
+## 2026-10-23 — Dados: "+" na nota cria outra abaixo (v0.170.0)
+
+**Pedido:** dentro de cada nota, um "+" no canto inferior direito criando uma
+nota separada abaixo — mais rápido que rolar ao topo com muitas notas.
+
+**Feito:**
+- `tabelas.ts`: `criarNotaApos(dados, abaId, aposId)` (insere na ordem logo
+  após a nota; sem referência cai no fim; volta `{ dados, id }`).
+- `DadosApp`: botão "+" âmbar flutuante no canto da nota (foca a nova, o que já
+  edita e rola até ela).
+- Teste: posição na ordem + fallback no fim.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **284/284**;
+build único autocontido. Selo `v0.170.0`.
+
+---
 
 <a id="v16900"></a>
 ## 2026-10-23 — Revisões: descrição curta sem tipo/código (v0.169.0)

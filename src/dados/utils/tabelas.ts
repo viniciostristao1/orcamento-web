@@ -283,6 +283,37 @@ export const criarNota = (dados: DadosTabelas, abaId: string): DadosTabelas => {
   };
 };
 
+/**
+ * Cria uma nota vazia logo abaixo de outra (`aposId` na ordem) — atalho do "+"
+ * no canto da nota (evita rolar até o topo). Sem `aposId` na ordem, cai no fim.
+ */
+export const criarNotaApos = (
+  dados: DadosTabelas,
+  abaId: string,
+  aposId: string,
+): { dados: DadosTabelas; id: string } => {
+  const nota: NotaDados = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    criadoEm: new Date().toLocaleString('pt-BR'),
+    texto: '',
+    largura: NOTA_LARGURA_PADRAO,
+    altura: NOTA_ALTURA_PADRAO,
+  };
+  const atualizada = {
+    ...dados,
+    abas: dados.abas.map((a) => {
+      if (a.id !== abaId) return a;
+      const pos = a.ordem.indexOf(aposId);
+      const ordem =
+        pos < 0
+          ? [...a.ordem, nota.id]
+          : [...a.ordem.slice(0, pos + 1), nota.id, ...a.ordem.slice(pos + 1)];
+      return { ...a, notas: [...a.notas, nota], ordem };
+    }),
+  };
+  return { dados: atualizada, id: nota.id };
+};
+
 const atualizarNota = (
   dados: DadosTabelas,
   abaId: string,

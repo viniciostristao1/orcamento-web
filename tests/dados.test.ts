@@ -14,6 +14,7 @@ import {
   celulaContem,
   criarAba,
   criarNota,
+  criarNotaApos,
   criarTabela,
   encontrar,
   estadoInicial,
@@ -157,6 +158,26 @@ describe('aba Dados — tabelas de Peças e O.S\'s', () => {
     d = removerNota(d, ABA_PECAS, nota.id);
     expect(d.abas[0].notas).toEqual([]);
     expect(d.abas[0].ordem).toEqual([]);
+  });
+
+  it('"+": cria a nota logo abaixo da atual (ou no fim sem referência)', () => {
+    let d = criarNota(estadoInicial(), ABA_PECAS);
+    const n1 = d.abas[0].notas[0].id;
+    d = criarNota(d, ABA_PECAS);
+    const n2 = d.abas[0].notas[1].id;
+    expect(d.abas[0].ordem).toEqual([n1, n2]);
+
+    // "+" na 1ª nota: a nova entra entre as duas
+    const r = criarNotaApos(d, ABA_PECAS, n1);
+    d = r.dados;
+    expect(d.abas[0].notas).toHaveLength(3);
+    expect(d.abas[0].ordem).toEqual([n1, r.id, n2]);
+    const nova = d.abas[0].notas.find((n) => n.id === r.id)!;
+    expect(nova.texto).toBe('');
+
+    // referência inexistente: cai no fim
+    const r2 = criarNotaApos(d, ABA_PECAS, 'x');
+    expect(r2.dados.abas[0].ordem).toEqual([n1, r.id, n2, r2.id]);
   });
 
   it('arrastar a nota muda a ordem dos blocos (acima/entre tabelas)', () => {

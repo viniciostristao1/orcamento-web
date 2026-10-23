@@ -38,6 +38,7 @@ import {
   colarBloco,
   criarAba,
   criarNota,
+  criarNotaApos,
   criarTabela,
   lerDados,
   limparBloco,
@@ -281,6 +282,21 @@ const DadosApp: React.FC<{
     navigator.clipboard.writeText(nota.texto);
     setCopiadoNota(nota.id);
     window.setTimeout(() => setCopiadoNota((c) => (c === nota.id ? null : c)), 2000);
+  };
+
+  // "+" no canto da nota: cria uma nota separada logo abaixo (sem rolar ao topo).
+  const criarNotaAbaixo = (abaId: string, notaId: string) => {
+    let novoId = '';
+    setDados((d) => {
+      const r = criarNotaApos(d, abaId, notaId);
+      novoId = r.id;
+      return r.dados;
+    });
+    // Foca a nova (o foco já edita e rola até ela).
+    window.setTimeout(() => {
+      const el = document.querySelector(`[data-nota="${novoId}"] textarea`) as HTMLTextAreaElement | null;
+      el?.focus();
+    }, 0);
   };
 
   // Ícone de lista: põe a bolinha na linha onde está o cursor (ou a seleção) —
@@ -953,6 +969,16 @@ const DadosApp: React.FC<{
                           onMouseDown={(e) => iniciarRedimensionamentoNota(nota, 'ambos', e)}
                           className="absolute right-0 bottom-0 w-3 h-3 cursor-nwse-resize bg-slate-700 hover:bg-blue-500 z-20 rounded-tl"
                         />
+                        {/* "+" no canto inferior direito: nova nota logo abaixo, sem rolar ao topo. */}
+                        <button
+                          type="button"
+                          onClick={() => criarNotaAbaixo(aba.id, nota.id)}
+                          aria-label="Criar nota abaixo"
+                          title="Criar nota abaixo desta"
+                          className="absolute bottom-2 right-2 z-30 flex items-center justify-center w-6 h-6 bg-amber-500/90 hover:bg-amber-500 text-slate-950 rounded-full shadow-lg transition-all active:scale-95 cursor-pointer"
+                        >
+                          <Plus size={14} strokeWidth={3} />
+                        </button>
                       </div>
                     );
                   })}
