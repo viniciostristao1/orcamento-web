@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.165.0](#v16500) — 2026-10-23 — Revisões: aba larga, PASSAGENS e PRÓXIMA lado a lado (v0.165.0)
+
 - [v0.164.0](#v16400) — 2026-10-23 — Revisões: 2 colunas e sem DADOS DO VEÍCULO (v0.164.0)
 
 - [v0.163.0](#v16300) — 2026-10-23 — Revisões: lista enxuta (1 data, modelo, 1 linha, horário) (v0.163.0)
@@ -252,6 +254,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16500"></a>
+## 2026-10-23 — Revisões: aba larga, PASSAGENS e PRÓXIMA lado a lado (v0.165.0)
+
+**Pedido:** PASSAGENS e PRÓXIMA REVISÃO lado a lado; alargar as colunas da aba
+(estava estreita para as informações).
+
+**Feito (`src/revisoes/RevisoesApp.tsx`, só UI):**
+- Container saiu de `max-w-[1150px]` para a largura cheia do `main` (~1340px) —
+  cada coluna passa de ~560px para ~650px.
+- Segunda grade `lg:grid-cols-2`: PASSAGENS à esquerda, PRÓXIMA REVISÃO à
+  direita (empilham no mobile).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **278/278**;
+build único autocontido. Selo `v0.165.0`.
+
+---
 
 <a id="v16400"></a>
 ## 2026-10-23 — Revisões: 2 colunas e sem DADOS DO VEÍCULO (v0.164.0)

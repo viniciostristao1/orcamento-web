@@ -147,7 +147,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
 
   return (
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
-      <div className="max-w-[1150px] mx-auto space-y-6">
+      <div className="mx-auto space-y-6">
         <div className="grid gap-6 lg:grid-cols-2 items-start">
         <NeonCard
           title="COLAR PASSAGENS"
@@ -306,6 +306,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
               </p>
             )}
 
+            <div className="grid gap-6 lg:grid-cols-2 items-start">
             {passagensRecentes.length > 0 && (
               <NeonCard title={`PASSAGENS (${passagensRecentes.length})`} borderColor="#f59e0b" compact>
                 <div className="overflow-x-auto">
@@ -467,6 +468,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                 </button>
               </NeonCard>
             )}
+            </div>
           </>
         )}
 
