@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.163.0](#v16300) — 2026-10-23 — Revisões: lista enxuta (1 data, modelo, 1 linha, horário) (v0.163.0)
+
 - [v0.162.0](#v16200) — 2026-10-23 — Revisões: previsão pelo ritmo de rodagem (v0.162.0)
 
 - [v0.161.0](#v16100) — 2026-10-23 — Revisões: lista de previsões com lembrete e WhatsApp (v0.161.0)
@@ -248,6 +250,26 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16300"></a>
+## 2026-10-23 — Revisões: lista enxuta (1 data, modelo, 1 linha, horário) (v0.163.0)
+
+**Pedido:** na lista, remover a 2ª data (amarela) e ficar só com o campo editável;
+modelo ao lado do chassi; nome + WhatsApp + previsão + relógio numa linha só;
+ao lado do relógio só o horário (sem "Avisar em dd/mm/aaaa HH:mm").
+
+**Feito (`src/revisoes/RevisoesApp.tsx`, só UI):**
+- Saiu o `span` amarelo com a data duplicada — a data aparece só no
+  `<input type="date">` (editável, move o lembrete junto como antes).
+- Cabeçalho do item em 1 linha: `CHASSI · MODELO` (+ linha pequena de última/km/ritmo).
+- Nome + telefone + previsão + WhatsApp + relógio + horário num único flex
+  (quebra só em tela estreita); horário = `lembreteTxt.split(' ')[1]` (HH:mm).
+- Sem mudança de lógica: testes intactos.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **278/278**;
+build único autocontido. Selo `v0.163.0`.
+
+---
 
 <a id="v16200"></a>
 ## 2026-10-23 — Revisões: previsão pelo ritmo de rodagem (v0.162.0)

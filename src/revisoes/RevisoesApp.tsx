@@ -400,10 +400,12 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="text-base font-black text-slate-100 tracking-wide break-all">{item.chassi}</p>
-                        {item.veiculo && (
-                          <p className="text-xs font-bold text-slate-400 truncate">{item.veiculo}</p>
-                        )}
+                        <p className="text-base font-black text-slate-100 tracking-wide break-words">
+                          {item.chassi}
+                          {item.veiculo && (
+                            <span className="font-bold text-slate-400"> · {item.veiculo}</span>
+                          )}
+                        </p>
                         <p className="text-[11px] text-slate-500 font-bold">
                           Última {item.ultimaAbertura} · {formatarKmPtBr(item.ultimoKm)} km →{' '}
                           {item.revisaoProxima !== null ? `rev. ${String(item.revisaoProxima).padStart(2, '0')} · ` : ''}
@@ -425,8 +427,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                       </button>
                     </div>
 
-                    {/* Nome + WhatsApp (editáveis na lista). */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {/* Nome + WhatsApp + previsão (editável) + WhatsApp + lembrete, numa linha só. */}
+                    <div className="flex flex-wrap items-center gap-2">
                       <input
                         type="text"
                         value={item.nome}
@@ -434,7 +436,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                         placeholder="Nome do cliente"
                         maxLength={60}
                         aria-label={`Nome do cliente ${item.chassi}`}
-                        className="campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+                        className="flex-1 min-w-[140px] campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
                       />
                       <input
                         type="tel"
@@ -444,12 +446,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                         placeholder="WhatsApp (DDD + número)"
                         maxLength={20}
                         aria-label={`WhatsApp do cliente ${item.chassi}`}
-                        className="campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white tracking-wide focus:border-blue-500 outline-none"
+                        className="w-40 campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white tracking-wide focus:border-blue-500 outline-none"
                       />
-                    </div>
-
-                    {/* Data prevista (editável) + WhatsApp + lembrete. */}
-                    <div className="flex flex-wrap items-center gap-2">
                       <label className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
                           Previsão
@@ -465,9 +463,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                           title="Editar a data prevista (move o lembrete junto)"
                           className="campo-tema border border-slate-800 rounded-lg px-2 py-1.5 text-base font-bold text-slate-100 focus:border-amber-500 outline-none [color-scheme:dark]"
                         />
-                        <span className="text-base font-black text-amber-400 whitespace-nowrap">
-                          {item.dataPrevista}
-                        </span>
                       </label>
                       <BotaoWhats telefone={item.telefone} />
                       <BotaoRelogio
@@ -476,8 +471,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                       />
                       {lembreteTxt && (
                         <span className="text-[11px] font-bold text-amber-300">
-                          Avisar em {lembreteTxt}
-                          {item.observacao ? ` · ${item.observacao}` : ''}
+                          {lembreteTxt.split(' ')[1]}
                         </span>
                       )}
                     </div>
