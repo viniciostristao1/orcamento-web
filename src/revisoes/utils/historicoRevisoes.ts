@@ -25,6 +25,10 @@ export interface RevisaoAgendada {
   revisaoProxima: number | null;
   /** Data prevista da próxima (dd/mm/aaaa; editável na lista). */
   dataPrevista: string;
+  /** Como a previsão foi calculada (ritmo = chega ao km antes do limite). */
+  motivoPrevisao?: 'ritmo' | 'limite';
+  /** Ritmo médio usado no cálculo (km/dia; para conferir na lista). */
+  ritmoKmPorDia?: number | null;
   /** Lembrete com data/hora (botão relógio; ISO "YYYY-MM-DDTHH:mm"). */
   lembreteEm?: string | null;
   /** Observação do lembrete (entra na busca do sino via rótulo? fica no cartão). */

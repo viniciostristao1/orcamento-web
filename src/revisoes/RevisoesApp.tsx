@@ -6,6 +6,7 @@ import BotaoWhats from '../components/BotaoWhats';
 import { BotaoRelogio, EditorLembrete } from '../components/LembreteRelogio';
 import { formatarLembrete, LEMBRETES_EVENTO } from '../utils/lembretes';
 import {
+  formatarKmPorDia,
   formatarKmPtBr,
   lerRascunhoRevisoes,
   ordenarPorData,
@@ -101,9 +102,15 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
           dados.chassi ? `Chassi: ${dados.chassi}` : '',
           dados.veiculo ? `Veículo: ${dados.veiculo}` : '',
           `Última: ${projecao.baseAbertura} · ${formatarKmPtBr(projecao.baseKm)} km (${projecao.baseDescricao})`,
+          projecao.kmPorDia !== null
+            ? `Ritmo: ${formatarKmPorDia(projecao.kmPorDia)} km/dia em ${projecao.diasTotais} dias (${formatarKmPtBr(projecao.kmTotais)} km)`
+            : 'Ritmo: sem histórico suficiente (1 passagem só)',
+          projecao.dataEstimadaPorRitmo
+            ? `Pelo ritmo chega aos ${formatarKmPtBr(projecao.kmAlvo)} km em ${projecao.dataEstimadaPorRitmo}`
+            : `Limite: ${formatarKmPtBr(projecao.kmAlvo)} km ou ${projecao.dataLimite}`,
           projecao.revisaoProxima !== null
-            ? `Próxima: revisão ${String(projecao.revisaoProxima).padStart(2, '0')} — ${formatarKmPtBr(projecao.kmAlvo)} km ou ${projecao.dataLimite} (o que ocorrer primeiro)`
-            : `Próxima: ${formatarKmPtBr(projecao.kmAlvo)} km ou ${projecao.dataLimite} (o que ocorrer primeiro)`,
+            ? `Previsão: revisão ${String(projecao.revisaoProxima).padStart(2, '0')} — ${projecao.dataPrevista} (${projecao.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite de 12 meses'})`
+            : `Previsão: ${projecao.dataPrevista} (${projecao.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite de 12 meses'})`,
         ]
           .filter(Boolean)
           .join('\n')
@@ -116,7 +123,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
     window.setTimeout(() => setCopiado(false), 2000);
   };
 
-  // Colar → calcular → lista (chassi + data prevista). Mesmo chassi atualiza.
+  // Colar → calcular → lista (chassi + data prevista pelo ritmo). Mesmo chassi atualiza.
   const salvarNaLista = () => {
     if (!dados || !projecao) return;
     const chassi = (dados.chassi ?? '').trim().toUpperCase();
@@ -133,8 +140,10 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
       ultimoKm: projecao.baseKm,
       kmAlvo: projecao.kmAlvo,
       revisaoProxima: projecao.revisaoProxima,
-      dataPrevista: projecao.dataLimite,
-      lembreteEm: dataPtBrParaISOManha(projecao.dataLimite),
+      dataPrevista: projecao.dataPrevista,
+      motivoPrevisao: projecao.motivoPrevisao,
+      ritmoKmPorDia: projecao.kmPorDia,
+      lembreteEm: dataPtBrParaISOManha(projecao.dataPrevista),
       observacao: '',
     });
     setLista(out);
@@ -272,6 +281,28 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                     <span className="text-[10px] font-black text-slate-500 uppercase block mb-0.5">Data limite</span>
                     <span className="titulo-tema text-xl font-black text-slate-100">{projecao.dataLimite}</span>
                   </div>
+                  <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                    <span className="text-[10px] font-black text-slate-500 uppercase block mb-0.5">Ritmo médio</span>
+                    <span className="titulo-tema text-xl font-black text-slate-100">
+                      {projecao.kmPorDia !== null ? `${formatarKmPorDia(projecao.kmPorDia)} km/dia` : '—'}
+                    </span>
+                    {projecao.kmPorDia !== null && (
+                      <span className="block text-[10px] font-bold text-slate-500">
+                        {formatarKmPtBr(projecao.kmTotais)} km em {projecao.diasTotais} dias
+                        {projecao.ultimoKmPorDia !== null && ` · último ${formatarKmPorDia(projecao.ultimoKmPorDia)}`}
+                      </span>
+                    )}
+                  </div>
+                  <div className="px-3 py-2 bg-emerald-600/10 rounded-2xl border border-emerald-500/30 text-center">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase block mb-0.5">Previsão</span>
+                    <span className="titulo-tema text-xl font-black text-emerald-400">{projecao.dataPrevista}</span>
+                    <span className="block text-[10px] font-bold text-emerald-500">
+                      {projecao.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite'}
+                      {projecao.dataEstimadaPorRitmo && projecao.motivoPrevisao === 'limite'
+                        ? ` (ritmo daria ${projecao.dataEstimadaPorRitmo})`
+                        : ''}
+                    </span>
+                  </div>
                 </div>
                 <p
                   className="text-lg leading-relaxed text-slate-200 whitespace-pre-wrap mt-3"
@@ -280,8 +311,9 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                   {textoProjecao}
                 </p>
                 <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase mt-2">
-                  Regra Toyota: 10 mil km ou 12 meses a partir da última ({projecao.baseAbertura} ·{' '}
-                  {formatarKmPtBr(projecao.baseKm)} km) — o que ocorrer primeiro.
+                  Previsão pelo quanto roda: chega aos {formatarKmPtBr(projecao.kmAlvo)} km em{' '}
+                  {projecao.dataEstimadaPorRitmo ?? projecao.dataLimite} — vale a mais próxima entre
+                  ela e o limite de 12 meses ({projecao.dataLimite}).
                 </p>
 
                 {/* Nome + WhatsApp do cliente: entram na lista ao salvar. */}
@@ -376,6 +408,10 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                           Última {item.ultimaAbertura} · {formatarKmPtBr(item.ultimoKm)} km →{' '}
                           {item.revisaoProxima !== null ? `rev. ${String(item.revisaoProxima).padStart(2, '0')} · ` : ''}
                           {formatarKmPtBr(item.kmAlvo)} km
+                          {item.ritmoKmPorDia != null
+                            ? ` · ritmo ${formatarKmPorDia(item.ritmoKmPorDia)} km/dia`
+                            : ''}
+                          {item.motivoPrevisao ? ` (${item.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite'})` : ''}
                         </p>
                       </div>
                       <button

@@ -1,7 +1,10 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  calcularRitmo,
+  diferencaDias,
   extrairNumeroRevisao,
+  formatarKmPorDia,
   ordenarPorData,
   parseTextoRevisoes,
   projetarProxima,
@@ -61,6 +64,35 @@ Outros\t\t\t4\tCSR\tTR BORRACHA DAS PALHETAS
 4\t08/01/2025\t43066\t1421420 - WEIAND VEICULOS LTDA\t155651\tF\t1\tCSP\t4 REVISAO 40 000 NSP15110B3C23
 5\t10/01/2024\t29980\t1421420 - WEIAND VEICULOS LTDA\t147148\tF\t1\tCSP\t3 REVISAO 30000 NSP15110B3B73`;
 
+const EXEMPLO_SW4 = `Chassi: 8AJBA3FS9R0361321\tAno Fab./Mod.: 2024/2024\tProdução: 14/03/2024\tTipo de uso(venda): Comercial
+Veículo: SW4 SUV HIGH + Diamond\tKatashiki: GUN156L-SGTHXG\tVenda: 28/03/2024\tEntrega: 12/04/2024
+Distribuidor de venda: 1437507 - SAVAR 2000 LTDA\t
+Posição
+Abertura
+KM
+Distribuidor
+OS
+Sts
+Item
+Tipo
+Descrição
+2\t11/06/2026\t70805\t1421420 - WEIAND VEICULOS LTDA\t168948\tF\t1\tCSP\t6 REVISAO 60 000 GUN15640B1D33
+Outros\t\t\t2\tCSD\tCLIENTE SOLICITA BALANCEAMENTO
+Outros\t\t\t3\tCSD\tCLIENTE SOLICITA ALINHAMENTO
+Outros\t\t\t4\tCSD\tTR PASTILHAS DE FREIO TRAS RETIFICA DO
+3\t25/03/2026\t60419\t1421420 - WEIAND VEICULOS LTDA\t166846\tF\t1\tCSP\t5 REVISAO 50 000 GUN15640B1C83
+Outros\t\t\t2\tCSD\tCLIENTE SOLICITA ALINHAMENTO
+Outros\t\t\t3\tCSD\tKIT REVISAO
+Outros\t\t\t4\tCSD\tCLIENTE SOLICITA BALANACEAMENTO
+Outros\t\t\t5\tCSR\tCLIENTE ALEGA TREPIDACAO AO FREAR
+4\t05/12/2025\t48469\t1421420 - WEIAND VEICULOS LTDA\t164130\tF\t1\tCSP\t4 REVISAO 40 000 GUN15640B1C23
+Outros\t\t\t2\tCSD\tCLIENTE SOLICITA BALANCEAMENTO
+Outros\t\t\t3\tCSD\tCLIENTE SOLICITA ALINHAMENTO`;
+
+const EXEMPLO_UMA = `Chassi: 8AJBA3FS9R0361321
+Veículo: SW4 SUV HIGH + Diamond\tKatashiki: GUN156L-SGTHXG
+2\t11/06/2026\t70805\t1421420 - WEIAND VEICULOS LTDA\t168948\tF\t1\tCSP\t6 REVISAO 60 000 GUN15640B1D33`;
+
 describe('revisões — parse do portal Toyota', () => {
   it('extrai chassi, veículo e Toyota 10', () => {
     const d = parseTextoRevisoes(EXEMPLO);
@@ -107,6 +139,40 @@ describe('revisões — parse do portal Toyota', () => {
     expect(p!.dataLimite).toBe('14/10/2027');
     expect(p!.revisaoAtual).toBe(6);
     expect(p!.revisaoProxima).toBe(7);
+    // ritmo: com 4 passagens há média (previsão = mais próxima entre ritmo e limite)
+    expect(p!.kmPorDia).not.toBeNull();
+    expect(p!.dataPrevista).toBeTruthy();
+  });
+
+  it('SW4: ritmo prevê agosto/2026 bem antes do limite 11/06/2027', () => {
+    const d = parseTextoRevisoes(EXEMPLO_SW4);
+    expect(d.chassi).toBe('8AJBA3FS9R0361321');
+    expect(d.passagens).toHaveLength(3);
+    const ritmo = calcularRitmo(d.passagens);
+    expect(ritmo).not.toBeNull();
+    expect(ritmo!.numIntervalos).toBe(2);
+    expect(ritmo!.diasTotais).toBe(188);
+    expect(ritmo!.kmTotais).toBe(22336);
+    expect(ritmo!.kmPorDia).toBeCloseTo(118.8, 1);
+    expect(diferencaDias('05/12/2025', '25/03/2026')).toBe(110);
+    expect(diferencaDias('25/03/2026', '11/06/2026')).toBe(78);
+    const p = projetarProxima(d.passagens);
+    expect(p!.kmAlvo).toBe(80000);
+    expect(p!.dataLimite).toBe('11/06/2027');
+    expect(p!.dataEstimadaPorRitmo).toBe('28/08/2026');
+    expect(p!.dataPrevista).toBe('28/08/2026');
+    expect(p!.motivoPrevisao).toBe('ritmo');
+    expect(formatarKmPorDia(p!.kmPorDia!)).toContain('118,');
+  });
+
+  it('sem 2 passagens não há ritmo (vale o limite)', () => {
+    const d = parseTextoRevisoes(EXEMPLO_UMA);
+    const p = projetarProxima(d.passagens);
+    expect(p!.kmPorDia).toBeNull();
+    expect(p!.dataEstimadaPorRitmo).toBeNull();
+    expect(p!.dataPrevista).toBe(p!.dataLimite);
+    expect(p!.motivoPrevisao).toBe('limite');
+    expect(calcularRitmo([])).toBeNull();
   });
 
   it('km alvo é o próximo múltiplo de 10k', () => {

@@ -2,10 +2,15 @@
  * Aba REVISÕES (v0.160.0): cola o texto do portal Toyota com as últimas
  * passagens do veículo e projeta a próxima revisão.
  *
- * Regra Toyota (10 mil km ou 12 meses, o que ocorrer primeiro):
+ * Limites Toyota (10 mil km ou 12 meses, o que ocorrer primeiro):
  * - km alvo = próximo múltiplo de 10.000 acima do último km lançado
  *   (ex.: 60.306 → 70.000; cobre o "REVISAO 06 60000" → "07 70000").
  * - data limite = última abertura + 12 meses.
+ *
+ * Previsão por ritmo (v0.162.0): média de km/dia entre as passagens
+ * (km total / dias totais, só intervalos com data e km crescentes) estima em
+ * que data o cliente chega ao km alvo. A data prevista é a mais próxima entre
+ * a estimada pelo ritmo e a data limite (o que ocorrer primeiro).
  *
  * Tudo puro (sem localStorage) para os testes cobrirem direto.
  */
@@ -49,10 +54,41 @@ export interface ProjecaoRevisao {
   baseAbertura: string;
   baseKm: number;
   baseDescricao: string;
-  dataLimite: string; // dd/mm/aaaa
+  dataLimite: string; // dd/mm/aaaa (+12 meses)
   kmAlvo: number;
   revisaoAtual: number | null; // nº extraído do "REVISAO 06..." (se houver)
   revisaoProxima: number | null;
+  /** Ritmo médio entre as passagens (km/dia; null com <2 passagens válidas). */
+  kmPorDia: number | null;
+  /** Ritmo só do último intervalo (referência; null sem intervalo válido). */
+  ultimoKmPorDia: number | null;
+  diasTotais: number;
+  kmTotais: number;
+  numIntervalos: number;
+  /** Data em que chega ao km alvo pelo ritmo (null sem ritmo). */
+  dataEstimadaPorRitmo: string | null;
+  /** Previsão final = mais próxima entre estimada e limite. */
+  dataPrevista: string;
+  motivoPrevisao: 'ritmo' | 'limite';
+}
+
+/** Um intervalo entre duas passagens (base do ritmo). */
+export interface IntervaloRitmo {
+  de: string;
+  ate: string;
+  dias: number;
+  kmRodados: number;
+  kmPorDia: number;
+}
+
+/** Ritmo de rodagem a partir do histórico. Null sem intervalo válido. */
+export interface RitmoRodagem {
+  kmPorDia: number;
+  ultimoKmPorDia: number | null;
+  diasTotais: number;
+  kmTotais: number;
+  numIntervalos: number;
+  intervalos: IntervaloRitmo[];
 }
 
 const DATA_RE = '(\\d{2}/\\d{2}/\\d{4})';
@@ -89,6 +125,19 @@ export function somarMeses(data: Date, meses: number): Date {
 
 export function formatarKmPtBr(km: number): string {
   return km.toLocaleString('pt-BR');
+}
+
+/** km/dia com 1 decimal no padrão pt-BR (ex.: 118,8). */
+export function formatarKmPorDia(kmPorDia: number): string {
+  return kmPorDia.toLocaleString('pt-BR', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+}
+
+/** Dias cheios entre duas datas pt-BR (meio-dia, sem fuso). */
+export function diferencaDias(de: string, ate: string): number | null {
+  const d1 = parseDataPtBr(de);
+  const d2 = parseDataPtBr(ate);
+  if (!d1 || !d2) return null;
+  return Math.round((d2.getTime() - d1.getTime()) / 86400000);
 }
 
 /** Próximo múltiplo de 10.000 acima do km (60.306 → 70.000). */
@@ -195,6 +244,10 @@ export function ordenarPorData(passagens: PassagemRevisao[]): PassagemRevisao[] 
  * Projeta a próxima revisão a partir da última passagem (a mais recente por
  * data): +12 meses na data e próximo múltiplo de 10k no km. Null sem passagem
  * válida.
+ *
+ * Ritmo (v0.162.0): com 2+ passagens válidas, estima quando o km alvo é
+ * atingido (km que faltam / km por dia, arredondando o dia para cima) e a
+ * previsão final é a mais próxima entre a estimada e o limite de 12 meses.
  */
 export function projetarProxima(passagens: PassagemRevisao[]): ProjecaoRevisao | null {
   const ordenadas = ordenarPorData(passagens.filter((p) => parseDataPtBr(p.abertura)));
@@ -203,14 +256,82 @@ export function projetarProxima(passagens: PassagemRevisao[]): ProjecaoRevisao |
   const dataBase = parseDataPtBr(base.abertura);
   if (!dataBase) return null;
   const revisaoAtual = extrairNumeroRevisao(base.descricao);
+  const dataLimite = formatarDataPtBr(somarMeses(dataBase, 12));
+  const kmAlvo = proximoMultiplo10k(base.km);
+  const ritmo = calcularRitmo(ordenadas);
+
+  let dataEstimadaPorRitmo: string | null = null;
+  if (ritmo && ritmo.kmPorDia > 0) {
+    const kmFaltam = kmAlvo - base.km;
+    if (kmFaltam > 0) {
+      const diasEstimados = Math.ceil(kmFaltam / ritmo.kmPorDia);
+      dataEstimadaPorRitmo = formatarDataPtBr(
+        new Date(dataBase.getTime() + diasEstimados * 86400000),
+      );
+    }
+  }
+
+  // O que ocorrer primeiro: estimada pelo ritmo ou limite de 12 meses.
+  let dataPrevista = dataLimite;
+  let motivoPrevisao: 'ritmo' | 'limite' = 'limite';
+  if (dataEstimadaPorRitmo) {
+    const tEst = parseDataPtBr(dataEstimadaPorRitmo)?.getTime() ?? Number.POSITIVE_INFINITY;
+    const tLim = parseDataPtBr(dataLimite)?.getTime() ?? Number.POSITIVE_INFINITY;
+    if (tEst <= tLim) {
+      dataPrevista = dataEstimadaPorRitmo;
+      motivoPrevisao = 'ritmo';
+    }
+  }
+
   return {
     baseAbertura: base.abertura,
     baseKm: base.km,
     baseDescricao: base.descricao,
-    dataLimite: formatarDataPtBr(somarMeses(dataBase, 12)),
-    kmAlvo: proximoMultiplo10k(base.km),
+    dataLimite,
+    kmAlvo,
     revisaoAtual,
     revisaoProxima: revisaoAtual === null ? null : revisaoAtual + 1,
+    kmPorDia: ritmo?.kmPorDia ?? null,
+    ultimoKmPorDia: ritmo?.ultimoKmPorDia ?? null,
+    diasTotais: ritmo?.diasTotais ?? 0,
+    kmTotais: ritmo?.kmTotais ?? 0,
+    numIntervalos: ritmo?.numIntervalos ?? 0,
+    dataEstimadaPorRitmo,
+    dataPrevista,
+    motivoPrevisao,
+  };
+}
+
+/**
+ * Ritmo médio de rodagem entre as passagens (já ordenadas ou não): soma só os
+ * intervalos com data crescente e km crescente (ignora repetição/retrocesso de
+ * hodômetro). Null sem nenhum intervalo válido.
+ */
+export function calcularRitmo(passagens: PassagemRevisao[]): RitmoRodagem | null {
+  const ordenadas = ordenarPorData(passagens.filter((p) => parseDataPtBr(p.abertura)));
+  const intervalos: IntervaloRitmo[] = [];
+  for (let i = 1; i < ordenadas.length; i++) {
+    const ant = ordenadas[i - 1];
+    const atu = ordenadas[i];
+    const d1 = parseDataPtBr(ant.abertura);
+    const d2 = parseDataPtBr(atu.abertura);
+    if (!d1 || !d2) continue;
+    const dias = Math.round((d2.getTime() - d1.getTime()) / 86400000);
+    const kmRodados = atu.km - ant.km;
+    if (!(dias > 0) || !(kmRodados > 0)) continue;
+    intervalos.push({ de: ant.abertura, ate: atu.abertura, dias, kmRodados, kmPorDia: kmRodados / dias });
+  }
+  if (intervalos.length === 0) return null;
+  const diasTotais = intervalos.reduce((a, x) => a + x.dias, 0);
+  const kmTotais = intervalos.reduce((a, x) => a + x.kmRodados, 0);
+  if (!(diasTotais > 0) || !(kmTotais > 0)) return null;
+  return {
+    kmPorDia: kmTotais / diasTotais,
+    ultimoKmPorDia: intervalos[intervalos.length - 1].kmPorDia,
+    diasTotais,
+    kmTotais,
+    numIntervalos: intervalos.length,
+    intervalos,
   };
 }
 

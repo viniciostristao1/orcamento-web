@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.162.0](#v16200) — 2026-10-23 — Revisões: previsão pelo ritmo de rodagem (v0.162.0)
+
 - [v0.161.0](#v16100) — 2026-10-23 — Revisões: lista de previsões com lembrete e WhatsApp (v0.161.0)
 
 - [v0.160.0](#v16000) — 2026-10-23 — Nova aba REVISÕES: colar passagens Toyota + próxima revisão (v0.160.0)
@@ -246,6 +248,31 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16200"></a>
+## 2026-10-23 — Revisões: previsão pelo ritmo de rodagem (v0.162.0)
+
+**Pedido:** não mostrar só os limites (km alvo + 12 meses) — estimar quando o
+cliente roda os próximos 10 mil km pelo histórico. Ex.: SW4 8AJBA3FS9R0361321
+(48.469 em 05/12/2025 → 60.419 em 25/03/2026 → 70.805 em 11/06/2026).
+
+**Feito:**
+- `parseRevisoes.ts`: `calcularRitmo` (só intervalos com data e km crescentes;
+  média = km total / dias totais) + `diferencaDias` + `formatarKmPorDia`.
+  `projetarProxima` ganha `kmPorDia/ultimoKmPorDia/diasTotais/kmTotais`,
+  `dataEstimadaPorRitmo` (km que faltam / ritmo, dia arredondado para cima) e
+  `dataPrevista` = mais próxima entre estimada e limite (`motivoPrevisao`).
+  Ex.: 22.336 km em 188 dias = 118,8/dia → faltam 9.195 → 78 dias → 28/08/2026
+  (bem antes do limite 11/06/2027, motivo ritmo). 1 passagem só = sem ritmo.
+- `RevisoesApp`: card mostra RITMO MÉDIO (total + último intervalo) e PREVISÃO em
+  destaque (verde); texto de copiar inclui ritmo/estimada/motivo; lista salva a
+  `dataPrevista` do ritmo (com motivo + km/dia visíveis no item).
+- Testes: +2 (SW4 com dias 110/78 e estimada 28/08/2026; 1 passagem = limite).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **278/278**;
+build único autocontido. Selo `v0.162.0`.
+
+---
 
 <a id="v16100"></a>
 ## 2026-10-23 — Revisões: lista de previsões com lembrete e WhatsApp (v0.161.0)
