@@ -3,6 +3,7 @@ import { Lock } from 'lucide-react';
 import OrcamentosApp from './components/OrcamentosApp';
 import TireFlyerApp from './tire/TireFlyerApp';
 import DadosApp from './dados/DadosApp';
+import RevisoesApp from './revisoes/RevisoesApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
 import Bloqueio from './components/Bloqueio';
 import SinoLembretes from './components/SinoLembretes';
@@ -21,12 +22,13 @@ import { aplicarTema, lerTemaSalvo, TEMA_KEY, type Tema } from './utils/tema';
 import { VERSAO } from './utils/versao';
 import logoToyota from './assets/logo_toyota.png';
 
-type Aba = 'orcamentos' | 'pneus' | 'dados';
+type Aba = 'orcamentos' | 'pneus' | 'dados' | 'revisoes';
 
 const ABAS: { id: Aba; label: string }[] = [
   { id: 'orcamentos', label: 'Orçamentos' },
   { id: 'pneus', label: 'Tire Flyer' },
   { id: 'dados', label: 'Dados' },
+  { id: 'revisoes', label: 'Revisões' },
 ];
 
 const AppInterno: React.FC = () => {
@@ -219,6 +221,9 @@ const AppInterno: React.FC = () => {
         </div>
         <div className={aba === 'dados' ? '' : 'hidden'}>
           <DadosApp subAba={subAbaDados} buscaDados={buscaDados} />
+        </div>
+        <div className={aba === 'revisoes' ? '' : 'hidden'}>
+          <RevisoesApp />
         </div>
       </main>
 

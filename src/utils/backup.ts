@@ -36,6 +36,7 @@ export const CHAVES_BACKUP = [
   FLYER_KEY,
   'flyer_layout_v1',
   'dados_tabelas_v1',
+  'revisoes_texto_v1',
   'rotulos_v1',
   SENHA_KEY, // a senha do cadeado acompanha o backup (restaurar mantém a senha)
   RAPIDOS_KEY, // lembretes rápidos do sino

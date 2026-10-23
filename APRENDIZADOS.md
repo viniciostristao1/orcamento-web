@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.160.0](#v16000) — 2026-10-23 — Nova aba REVISÕES: colar passagens Toyota + próxima revisão (v0.160.0)
+
 - [v0.159.0](#v15900) — 2026-10-16 — Relatório: soma mensal em bruto dos aprovados + parciais no topo (v0.159.0)
 
 - [v0.158.0](#v15800) — 2026-10-16 — Meia-noite: escrita branca na linha ITEM/DESCRIÇÃO/VALOR (v0.158.0)
@@ -242,6 +244,33 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16000"></a>
+## 2026-10-23 — Nova aba REVISÕES: colar passagens Toyota + próxima revisão (v0.160.0)
+
+**Pedido:** quarta aba à direita de DADOS, chamada REVISÕES, para colar as passagens do
+portal Toyota e projetar a próxima. Primeira etapa: só o campo de colar (o usuário diz
+depois o que extrair). Exemplo Yaris 9BRKC9F35M8127574 com 4 passagens.
+
+**Feito:**
+- `src/revisoes/utils/parseRevisoes.ts` (puro): `parseTextoRevisoes` extrai chassi,
+  ano fab./mod., produção, veículo, katashiki, venda/entrega, distribuidor e Toyota 10
+  (vigência + km) + passagens `Posição/Abertura/KM/OS` com extras "Outros";
+  `projetarProxima` = última por data → próximo múltiplo de 10k no km + 12 meses na
+  data (regra Toyota, o que ocorrer primeiro); `extrairNumeroRevisao` prefere o nº
+  antes do REVISAO ("5 REVISAO 50 000" → 5, não 50); rascunho `revisoes_texto_v1`.
+- `src/revisoes/RevisoesApp.tsx`: card COLAR PASSAGENS (textarea 280px + play +
+  limpar, mesmo padrão das outras abas) + DADOS DO VEÍCULO + PASSAGENS (N) em tabela
+  (recentes primeiro) + PRÓXIMA REVISÃO (KM alvo + data limite + copiar).
+  Ex.: 60.306 em 14/10/2026 → 70.000 km ou 14/10/2027 (revisão 07).
+- `src/App.tsx`: `Aba` + `ABAS` ganham `revisoes` (à direita de Dados, mesma regra
+  hidden para não perder o digitado); `rotulos.ts` e `backup.ts` incluem a aba/chave.
+- Testes: `tests/revisoes.test.ts` (7 casos com o exemplo real do usuário).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **269/269**;
+build único autocontido. Selo `v0.160.0`.
+
+---
 
 <a id="v15900"></a>
 ## 2026-10-16 — Relatório: soma mensal em bruto dos aprovados + parciais no topo (v0.159.0)

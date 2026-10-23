@@ -12,11 +12,13 @@ export const ROTULOS_PADRAO: Rotulos = {
     orcamentos: 'Orçamentos',
     pneus: 'Tire Flyer',
     dados: 'Dados',
+    revisoes: 'Revisões',
   },
   titulos: {
     orcamentos: 'ORÇAMENTOS',
     pneus: 'TIRE FLYER',
     dados: 'DADOS',
+    revisoes: 'REVISÕES',
   },
 };
 

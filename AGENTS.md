@@ -14,11 +14,13 @@ dados do orçamento copiados do PDF do sistema) e o app **interpreta, agrupa por
 peças/serviços, aplica **desconto em peças (%)**, divide em **parcelas** e monta o resumo +
 tabela de saída. O resultado é **exportado como PNG** e enviado ao cliente pelo **WhatsApp**.
 
-O app tem **três abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
-pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG) e
-**Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.). A aba **Whats**
+O app tem **quatro abas**: **Orçamentos** (acima), **Tire Flyer** (v0.4.0 — cola a tabela de
+pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG),
+**Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.) e
+**Revisões** (v0.160.0 — cola as passagens do portal Toyota e projeta a próxima
+revisão: 10 mil km ou 12 meses). A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
-As três abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
+As quatro abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **10 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
 a v0.119.0 removeu o Suave Arredondado; a v0.135.0 somou 5 "sofisticados" escolhidos na galeria):
 **Azul** (padrão, era "Original"), **Claro** (modo claro, era "Claro Papel"), **Verde WhatsApp**,
@@ -87,12 +89,12 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **242 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **269 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
   flyer (`tests/flyer_historico.test.ts`), dados (`tests/dados.test.ts`), backup
-  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`, `tests/lembretesRapidos.test.ts`), relatório (`tests/relatorio.test.ts`) e smoke de tela
+  (`tests/backup.test.ts`), cadeado (`tests/bloqueio.test.ts`), lembretes (`tests/lembretes.test.ts`, `tests/lembretesRapidos.test.ts`), relatório (`tests/relatorio.test.ts`), revisões (`tests/revisoes.test.ts`) e smoke de tela
   (`tests/app_smoke.test.tsx`, jsdom), incluindo a troca de layout do Tire Flyer.
 - **Aba Whats removida** (v0.117.0; existiu da v0.7.0 à v0.116.0): contatos/relatório de
   envios + lembrete global de "contatos para hoje" saíram (os lembretes de orçamentos,
@@ -518,10 +520,13 @@ orcamento_web/
     dados/DadosApp.tsx       tela da aba Dados (sub-abas + busca + grifo)
     dados/components/OrdenarTabela.tsx janelinha "Ordenar por coluna"
     dados/utils/tabelas.ts   modelo { abas, ordem } + seleção em grade + ordenar + notas
+    revisoes/RevisoesApp.tsx tela da aba Revisões (colar passagens + projeção)
+    revisoes/utils/parseRevisoes.ts puro: chassi/veículo/Toyota10 + passagens +
+                             projeção (próx. múltiplo 10k ou +12 meses) + rascunho
   tests/                     vitest run: quote_logic, historico, telefone, versao,
                              sistema_extracao, export_image, tire_flyer, flyer_layout,
                              flyer_historico, dados, backup, bloqueio, lembretes,
-                             lembretesRapidos, relatorio, app_smoke (jsdom)
+                             lembretesRapidos, relatorio, revisoes, app_smoke (jsdom)
   dist/index.html            BUILD = arquivo único entregue ao usuário (ignorado no git)
 ```
 
