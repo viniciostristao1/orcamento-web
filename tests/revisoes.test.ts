@@ -5,6 +5,7 @@ import {
   diferencaDias,
   extrairNumeroRevisao,
   formatarKmPorDia,
+  limparDescricaoRevisao,
   ordenarPorData,
   parseTextoRevisoes,
   projetarProxima,
@@ -183,17 +184,29 @@ describe('revisões — parse do portal Toyota', () => {
     expect(projetarProxima(sw4.passagens)!.kmAlvo).toBe(70805 + 10000);
   });
 
-  it('copiar passagens: DATA ⇥ KM ⇥ REVISÃO, sem OS e sem extras', () => {
+  it('copiar passagens: "DATA - KM km - REVISÃO", sem OS e sem extras', () => {
     const d = parseTextoRevisoes(EXEMPLO_SW4);
     const texto = textoPassagensParaCopiar(ordenarPorData(d.passagens).reverse());
     const linhas = texto.split('\n');
     expect(linhas).toHaveLength(3);
-    expect(linhas[0]).toBe('11/06/2026\t70805\tCSP 6 REVISAO 60 000 GUN15640B1D33');
-    expect(linhas[2]).toBe('05/12/2025\t48469\tCSP 4 REVISAO 40 000 GUN15640B1C23');
+    expect(linhas[0]).toBe('11/06/2026 - 70.805 km - REVISAO 60 000');
+    expect(linhas[2]).toBe('05/12/2025 - 48.469 km - REVISAO 40 000');
     expect(texto).not.toContain('168948');
     expect(texto).not.toContain('164130');
     expect(texto).not.toContain('item(ns) extra');
     expect(textoPassagensParaCopiar([])).toBe('');
+  });
+
+  it('descrição curta: sem tipo (CSP/CSR/...) e sem código final', () => {
+    expect(limparDescricaoRevisao('CSP REVISAO 06 60000 NSP151LHHXR06')).toBe('REVISAO 06 60000');
+    expect(limparDescricaoRevisao('CSP 5 REVISAO 50 000 NSP15110B3C83')).toBe('REVISAO 50 000');
+    expect(limparDescricaoRevisao('CSP 6 REVISAO 60 000 GUN15640B1D33')).toBe('REVISAO 60 000');
+    expect(limparDescricaoRevisao('GSE REVISAO 07 70000 GUN15640B1D44')).toBe('REVISAO 07 70000');
+    // números puros e palavras no fim ficam
+    expect(limparDescricaoRevisao('CSP REVISAO 06 60000')).toBe('REVISAO 06 60000');
+    expect(limparDescricaoRevisao('CSD TROCA DE OLEO')).toBe('CSD TROCA DE OLEO');
+    // nunca volta vazio
+    expect(limparDescricaoRevisao('CSP')).toBe('CSP');
   });
 
   it('copiar lista: cabeçalho + TABs para o Excel', () => {

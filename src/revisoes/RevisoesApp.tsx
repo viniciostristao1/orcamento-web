@@ -9,6 +9,7 @@ import {
   formatarKmPorDia,
   formatarKmPtBr,
   lerRascunhoRevisoes,
+  limparDescricaoRevisao,
   ordenarPorData,
   parseTextoRevisoes,
   projetarProxima,
@@ -215,7 +216,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                           </td>
                           <td className="px-3 py-2 text-base text-slate-400 whitespace-nowrap">{p.os}</td>
                           <td className="px-3 py-2 text-base text-slate-200">
-                            {p.descricao}
+                            {limparDescricaoRevisao(p.descricao)}
                             {p.extras.length > 0 && (
                               <span className="block text-xs text-slate-500">+{p.extras.length} item(ns) extra(s)</span>
                             )}

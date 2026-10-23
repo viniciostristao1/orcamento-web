@@ -331,9 +331,37 @@ export function calcularRitmo(passagens: PassagemRevisao[]): RitmoRodagem | null
   };
 }
 
-/** Texto para copiar as passagens (DATA ⇥ KM ⇥ REVISÃO): sem OS e sem extras. */
+/** Texto para copiar as passagens (uma por linha, sem OS e sem extras). */
 export function textoPassagensParaCopiar(passagens: PassagemRevisao[]): string {
-  return passagens.map((p) => `${p.abertura}\t${p.km}\t${p.descricao}`).join('\n');
+  return passagens
+    .map((p) => `${p.abertura} - ${formatarKmPtBr(p.km)} km - ${limparDescricaoRevisao(p.descricao)}`)
+    .join('\n');
+}
+
+/**
+ * Descrição curta da passagem (exibir/copiar): sem o tipo de serviço (CSP,
+ * CSR, CSD, ISS, GS, GSE...) e sem o código final (NSP151LHHXR06...).
+ * Ex.: "CSP REVISAO 06 60000 NSP151LHHXR06" → "REVISAO 06 60000".
+ */
+export function limparDescricaoRevisao(descricao: string): string {
+  let s = descricao.trim().replace(/\s+/g, ' ');
+  // Tipo de serviço no início (2-4 letras antes de número ou REVISAO).
+  s = s.replace(/^[A-Za-z]{2,4}\s+(?=\d|REVISAO\b)/i, '');
+  // Nº duplicado antes do REVISAO ("6 REVISAO 60 000" → "REVISAO 60 000").
+  s = s.replace(/^\d{1,2}\s+(?=REVISAO\b)/i, '');
+  // Código final (letras+números, 8+ chars): palavras e números puros ficam.
+  const partes = s.split(' ');
+  const ultimo = partes[partes.length - 1] ?? '';
+  if (
+    ultimo.length >= 8 &&
+    /^[A-Z0-9]+$/.test(ultimo) &&
+    /[A-Z]/.test(ultimo) &&
+    /[0-9]/.test(ultimo)
+  ) {
+    partes.pop();
+    s = partes.join(' ');
+  }
+  return s.trim() || descricao.trim();
 }
 
 /** Rascunho do texto colado (localStorage local, como o das outras abas). */

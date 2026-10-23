@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.169.0](#v16900) — 2026-10-23 — Revisões: descrição curta sem tipo/código (v0.169.0)
+
 - [v0.168.0](#v16800) — 2026-10-23 — Revisões: copiar passagens/lista e alvo exato (v0.168.0)
 
 - [v0.167.0](#v16700) — 2026-10-23 — Revisões: PRÓXIMA sem textos longos (v0.167.0)
@@ -260,6 +262,25 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16900"></a>
+## 2026-10-23 — Revisões: descrição curta sem tipo/código (v0.169.0)
+
+**Pedido:** em PASSAGENS, ignorar o tipo (CSP, CSR, CSD, ISS, GS, GSE...) e o
+código final (NSP151LHHXR06...); ficar só com `14/10/2026 - 60.306 km - REVISAO
+06 60000`.
+
+**Feito:**
+- `parseRevisoes.ts`: `limparDescricaoRevisao` (tira tipo de 2-4 letras antes de
+  número/REVISAO, nº duplicado antes do REVISAO e código final só-letras+números
+  com 8+ chars; palavras e números puros ficam; nunca volta vazio). Vale para a
+  tabela e para o copiar (`textoPassagensParaCopiar` agora no formato pedido).
+- Testes: formato de copiar atualizado + 7 casos da limpeza.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **283/283**;
+build único autocontido. Selo `v0.169.0`.
+
+---
 
 <a id="v16800"></a>
 ## 2026-10-23 — Revisões: copiar passagens/lista e alvo exato (v0.168.0)
