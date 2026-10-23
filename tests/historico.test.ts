@@ -4,6 +4,7 @@ import {
   type OrcamentoSalvo,
   adicionarAoHistorico,
   atualizarAprovacaoHistorico,
+  atualizarChamadoHistorico,
   atualizarCorHistorico,
   atualizarChassiHistorico,
   atualizarNaoRealizadosHistorico,
@@ -172,6 +173,19 @@ describe('histórico (localStorage)', () => {
     const lista = listarHistorico();
     expect(lista).toHaveLength(1);
     expect(lista[0].cor).toBe('verde');
+  });
+
+  it('chamado: marca/desmarca e reprocessar não apaga', () => {
+    adicionarAoHistorico(base);
+    const id = listarHistorico()[0].id;
+    expect(listarHistorico()[0].chamado).toBeFalsy();
+    atualizarChamadoHistorico(id, true);
+    expect(listarHistorico()[0].chamado).toBe(true);
+    adicionarAoHistorico(base); // mesmos dados → substitui, sem duplicar
+    expect(listarHistorico()).toHaveLength(1);
+    expect(listarHistorico()[0].chamado).toBe(true);
+    atualizarChamadoHistorico(id, false);
+    expect(listarHistorico()[0].chamado).toBe(false);
   });
 
   it('nome: entra na busca e no anti-duplicado', () => {

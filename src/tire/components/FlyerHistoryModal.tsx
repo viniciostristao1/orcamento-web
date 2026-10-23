@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FolderOpen, List, Trash2, X } from 'lucide-react';
 import {
   type FlyerSalvo,
+  atualizarChamadoFlyer,
   atualizarCorFlyer,
   atualizarLembreteFlyer,
   filtrarFlyerHistorico,
@@ -92,6 +93,11 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
     setLista(atualizarCorFlyer(id, cor));
   };
 
+  // Caixinha "já chamei" (segundo contato): acinzenta o cartão (salva na hora).
+  const handleChamado = (id: string, chamado: boolean) => {
+    setLista(atualizarChamadoFlyer(id, chamado));
+  };
+
   // Agenda/limpa o lembrete do flyer (salva na hora; avisa o popup global).
   // Sem observação, mantém a atual (a nota sobrevive ao concluir/limpar).
   const handleLembrete = (id: string, iso: string | null, observacao?: string) => {
@@ -140,7 +146,7 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
           data-destaque={destaqueId === r.id ? '1' : undefined}
           className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)} ${
             destaqueId === r.id ? 'ring-2 ring-amber-400/70' : ''
-          }`}
+          } ${r.chamado ? 'opacity-50 saturate-50' : ''}`}
         >
           <div className="flex items-center justify-between gap-4 mb-2">
             <span className="text-base font-black uppercase tracking-widest text-slate-500">
@@ -159,6 +165,14 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
               )}
             </span>
             <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={!!r.chamado}
+                onChange={(e) => handleChamado(r.id, e.target.checked)}
+                aria-label="Marcar como chamado"
+                title="Já chamei (segundo contato): acinzenta o cartão"
+                className="w-5 h-5 accent-amber-500 cursor-pointer shrink-0"
+              />
               <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
               <BotaoRelogio lembreteEm={r.lembreteEm} onAbrir={() => setLembreteDe((d) => (d === r.id ? null : r.id))} />
               <BotaoWhats telefone={r.telefone} />

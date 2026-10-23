@@ -19,6 +19,7 @@ import {
 } from './utils/parseRevisoes';
 import {
   adicionarAhistoricoRevisoes,
+  atualizarChamadoRevisao,
   atualizarContatoRevisao,
   atualizarDataPrevista,
   atualizarLembreteRevisao,
@@ -366,7 +367,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                     data-revisao={item.id}
                     className={`bg-slate-950/60 border rounded-2xl p-3 space-y-2 transition-colors ${
                       destacado ? 'border-amber-400 ring-2 ring-amber-400/60' : 'border-slate-800'
-                    }`}
+                    } ${item.chamado ? 'opacity-50 saturate-50' : ''}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -399,6 +400,14 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
 
                     {/* Nome + WhatsApp + previsão (editável) + WhatsApp + lembrete, numa linha só. */}
                     <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={!!item.chamado}
+                        onChange={(e) => setLista(atualizarChamadoRevisao(item.id, e.target.checked))}
+                        aria-label="Marcar como chamado"
+                        title="Já chamei (segundo contato): acinzenta o item"
+                        className="w-5 h-5 accent-amber-500 cursor-pointer shrink-0"
+                      />
                       <input
                         type="text"
                         value={item.nome}

@@ -31,6 +31,8 @@ export interface RevisaoAgendada {
   ritmoKmPorDia?: number | null;
   /** Lembrete com data/hora (botão relógio; ISO "YYYY-MM-DDTHH:mm"). */
   lembreteEm?: string | null;
+  /** Já chamei (segundo contato): caixinha da lista que acinzenta o item. */
+  chamado?: boolean;
   /** Observação do lembrete (entra na busca do sino via rótulo? fica no cartão). */
   observacao?: string;
 }
@@ -123,6 +125,7 @@ export function adicionarAhistoricoRevisoes(
       chassi: chave || novo.chassi,
       nome: novo.nome.trim() || atual.nome,
       telefone: novo.telefone.trim() || atual.telefone,
+      chamado: novo.chamado ?? atual.chamado,
       id: atual.id,
       criadoEm: atual.criadoEm,
     };
@@ -209,6 +212,22 @@ export function atualizarLembreteRevisao(
   );
   gravar(out, storage);
   avisarLembretesMudaram();
+  return out;
+}
+
+/**
+ * Marca/desmarca "já chamei" (segundo contato). Salva na hora;
+ * o item fica acinzentado na lista.
+ */
+export function atualizarChamadoRevisao(
+  id: string,
+  chamado: boolean,
+  storage: Storage = localStorage,
+): RevisaoAgendada[] {
+  const out = listarHistoricoRevisoes(storage).map((r) =>
+    r.id === id ? { ...r, chamado } : r,
+  );
+  gravar(out, storage);
   return out;
 }
 

@@ -13,6 +13,8 @@ export interface FlyerSalvo {
   telefone?: string;
   /** Cor do cliente: verde = quer fazer em breve; vermelho = só pesquisou. */
   cor?: CorCliente;
+  /** Já chamei (segundo contato): caixinha do histórico que acinzenta o cartão. */
+  chamado?: boolean;
   /** Lembrete com data/hora (botão relógio do cartão; ISO "YYYY-MM-DDTHH:mm"). */
   lembreteEm?: string | null;
   /** Observação do lembrete (mesma linha da data; entra na busca). */
@@ -71,7 +73,7 @@ export function adicionarAoFlyerHistorico(
   ) {
     // Cor e lembrete são marcações posteriores (não entram no anti-duplicado):
     // reprocessar o mesmo flyer não pode apagá-las.
-    lista[0] = { ...ultimo, ...novo, cor: novo.cor ?? ultimo.cor, lembreteEm: novo.lembreteEm ?? ultimo.lembreteEm, id: ultimo.id, criadoEm: ultimo.criadoEm };
+    lista[0] = { ...ultimo, ...novo, cor: novo.cor ?? ultimo.cor, chamado: novo.chamado ?? ultimo.chamado, lembreteEm: novo.lembreteEm ?? ultimo.lembreteEm, id: ultimo.id, criadoEm: ultimo.criadoEm };
     gravar(lista);
     return lista;
   }
@@ -97,6 +99,16 @@ export function removerDoFlyerHistorico(id: string): FlyerSalvo[] {
  */
 export function atualizarCorFlyer(id: string, cor: CorCliente | undefined): FlyerSalvo[] {
   const out = listarFlyerHistorico().map((r) => (r.id === id ? { ...r, cor } : r));
+  gravar(out);
+  return out;
+}
+
+/**
+ * Marca/desmarca "já chamei" (segundo contato) num flyer. Salva na hora;
+ * o cartão fica acinzentado no histórico.
+ */
+export function atualizarChamadoFlyer(id: string, chamado: boolean): FlyerSalvo[] {
+  const out = listarFlyerHistorico().map((r) => (r.id === id ? { ...r, chamado } : r));
   gravar(out);
   return out;
 }

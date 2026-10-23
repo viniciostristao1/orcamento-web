@@ -15,6 +15,7 @@ import {
 } from '../src/revisoes/utils/parseRevisoes';
 import {
   adicionarAhistoricoRevisoes,
+  atualizarChamadoRevisao,
   atualizarContatoRevisao,
   atualizarDataPrevista,
   atualizarLembreteRevisao,
@@ -334,6 +335,18 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     });
     expect(atualizarLembreteRevisao(criado.id, null)[0].lembreteEm).toBeNull();
     expect(removerDoHistoricoRevisoes(criado.id)).toHaveLength(0);
+  });
+
+  it('chamado: marca/desmarca e recolar o chassi não apaga', () => {
+    const [criado] = adicionarAhistoricoRevisoes(item('ABC123', '14/10/2027'));
+    expect(listarHistoricoRevisoes()[0].chamado).toBeFalsy();
+    atualizarChamadoRevisao(criado.id, true);
+    expect(listarHistoricoRevisoes()[0].chamado).toBe(true);
+    adicionarAhistoricoRevisoes(item('ABC123', '15/11/2027')); // mesmo chassi → atualiza
+    expect(listarHistoricoRevisoes()).toHaveLength(1);
+    expect(listarHistoricoRevisoes()[0].chamado).toBe(true);
+    atualizarChamadoRevisao(criado.id, false);
+    expect(listarHistoricoRevisoes()[0].chamado).toBe(false);
   });
 
   it('ordena pela previsão (mais próxima primeiro)', () => {

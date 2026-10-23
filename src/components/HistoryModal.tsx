@@ -4,6 +4,7 @@ import {
   type AbaHistorico,
   type OrcamentoSalvo,
   atualizarAprovacaoHistorico,
+  atualizarChamadoHistorico,
   atualizarChassiHistorico,
   atualizarCorHistorico,
   atualizarLembreteHistorico,
@@ -148,6 +149,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   const handleMudarCor = (id: string, cor: CorCliente | undefined) => {
     setLista(atualizarCorHistorico(id, cor));
     setItensDe((atual) => (atual && atual.id === id ? { ...atual, cor } : atual));
+  };
+
+  // Caixinha "já chamei" (segundo contato): acinzenta o cartão (salva na hora).
+  const handleChamado = (id: string, chamado: boolean) => {
+    setLista(atualizarChamadoHistorico(id, chamado));
+    setItensDe((atual) => (atual && atual.id === id ? { ...atual, chamado } : atual));
   };
 
   // Agenda/limpa o lembrete do registro (salva na hora; avisa o popup global).
@@ -392,7 +399,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
               data-destaque={destaqueId === r.id ? '1' : undefined}
               className={`border rounded-2xl p-4 bg-slate-950/40 transition-colors ${classeBordaCor(r.cor)} ${
                 destaqueId === r.id ? 'ring-2 ring-amber-400/70' : ''
-              }`}
+              } ${r.chamado ? 'opacity-50 saturate-50' : ''}`}
             >
               <div className="flex items-center justify-between gap-4 mb-2">
                 <span className="text-base font-black uppercase tracking-widest text-slate-500">
@@ -416,6 +423,14 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                   )}
                 </span>
                 <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!!r.chamado}
+                    onChange={(e) => handleChamado(r.id, e.target.checked)}
+                    aria-label="Marcar como chamado"
+                    title="Já chamei (segundo contato): acinzenta o cartão"
+                    className="w-5 h-5 accent-amber-500 cursor-pointer shrink-0"
+                  />
                   <MarcadorCor cor={r.cor} onMudar={(cor) => handleMudarCor(r.id, cor)} />
                   <BotaoRelogio lembreteEm={r.lembreteEm} onAbrir={() => setLembreteDe((d) => (d === r.id ? null : r.id))} />
                   <BotaoWhats telefone={r.telefone} />

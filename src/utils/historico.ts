@@ -23,6 +23,9 @@ export interface OrcamentoSalvo {
   // Cor do cliente: verde = quer fazer em breve; vermelho = só pesquisou.
   // Marcada no histórico, depois de gerar (não entra no PNG nem no anti-duplicado).
   cor?: CorCliente;
+  // Já chamei (segundo contato): caixinha do histórico que acinzenta o cartão.
+  // Marcação posterior: não entra no anti-duplicado e o reprocessar preserva.
+  chamado?: boolean;
   // Nº do orçamento + data do documento (card 3: extraídos do PDF/print).
   // Opcionais; entram na busca e no anti-duplicado, como placa/telefone.
   numeroOrcamento?: string;
@@ -102,12 +105,13 @@ export function adicionarAoHistorico(
 ): OrcamentoSalvo[] {
   const lista = listarHistorico();
   if (lista.length > 0 && mesmosDados(lista[0], novo)) {
-    // Cor, lembrete e aprovação são marcações posteriores (não entram no
+    // Cor, lembrete, aprovação e chamado são marcações posteriores (não entram no
     // anti-duplicado): reprocessar o mesmo orçamento não pode apagá-las.
     lista[0] = {
       ...lista[0],
       ...novo,
       cor: novo.cor ?? lista[0].cor,
+      chamado: novo.chamado ?? lista[0].chamado,
       lembreteEm: novo.lembreteEm ?? lista[0].lembreteEm,
       aprovacao: novo.aprovacao ?? lista[0].aprovacao,
       id: lista[0].id,
@@ -138,6 +142,16 @@ export function removerDoHistorico(id: string): OrcamentoSalvo[] {
  */
 export function atualizarCorHistorico(id: string, cor: CorCliente | undefined): OrcamentoSalvo[] {
   const out = listarHistorico().map((r) => (r.id === id ? { ...r, cor } : r));
+  gravar(out);
+  return out;
+}
+
+/**
+ * Marca/desmarca "já chamei" (segundo contato) num registro. Salva na hora;
+ * o cartão fica acinzentado no histórico.
+ */
+export function atualizarChamadoHistorico(id: string, chamado: boolean): OrcamentoSalvo[] {
+  const out = listarHistorico().map((r) => (r.id === id ? { ...r, chamado } : r));
   gravar(out);
   return out;
 }

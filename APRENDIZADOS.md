@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.171.0](#v17100) — 2026-10-23 — Caixinha "já chamei" nos 3 históricos (v0.171.0)
+
 - [v0.170.0](#v17000) — 2026-10-23 — Dados: "+" na nota cria outra abaixo (v0.170.0)
 
 - [v0.169.0](#v16900) — 2026-10-23 — Revisões: descrição curta sem tipo/código (v0.169.0)
@@ -264,6 +266,27 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17100"></a>
+## 2026-10-23 — Caixinha "já chamei" nos 3 históricos (v0.171.0)
+
+**Pedido:** caixinha de seleção no HISTÓRICO — TIRE FLYER, no histórico de
+orçamentos e na lista de revisões; ao marcar, o cartão fica fraco/acinzentado
+(sinal de 2º contato tentado, para saber quem já chamou).
+
+**Feito:**
+- Campo `chamado?: boolean` em `OrcamentoSalvo`, `FlyerSalvo` e
+  `RevisaoAgendada` (entra no backup dentro dos itens; fora do anti-duplicado
+  e preservado no reprocessar/recolar, como a cor).
+- `atualizarChamadoHistorico/Flyer/Revisao` + checkbox âmbar `w-5` no início da
+  linha de botões de cada cartão (aria "Marcar como chamado"); marcado aplica
+  `opacity-50 saturate-50` no cartão.
+- Testes: marca/desmarca + preservação no reprocessar nos 3 arquivos.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **287/287**;
+build único autocontido. Selo `v0.171.0`.
+
+---
 
 <a id="v17000"></a>
 ## 2026-10-23 — Dados: "+" na nota cria outra abaixo (v0.170.0)

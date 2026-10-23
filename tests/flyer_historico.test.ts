@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   adicionarAoFlyerHistorico,
+  atualizarChamadoFlyer,
   atualizarCorFlyer,
   atualizarLembreteFlyer,
   filtrarFlyerHistorico,
@@ -30,13 +31,25 @@ describe('histórico do Tire Flyer (localStorage)', () => {
     expect(removerDoFlyerHistorico(lista[0].id)).toEqual([]);
   });
 
-  it('migra registros antigos (numPneus → numMarcas)', () => {
-    localStorage.setItem(
+  it('migra registros antigos (numPneus → numMarcas)', () => {    localStorage.setItem(
       'flyer_historico_v1',
       JSON.stringify([{ ...base, numPneus: 4, numMarcas: undefined }]),
     );
     const lista = listarFlyerHistorico();
     expect(lista[0].numMarcas).toBe(4);
+  });
+
+  it('chamado: marca/desmarca e reprocessar não apaga', () => {
+    adicionarAoFlyerHistorico(base);
+    const id = listarFlyerHistorico()[0].id;
+    expect(listarFlyerHistorico()[0].chamado).toBeFalsy();
+    atualizarChamadoFlyer(id, true);
+    expect(listarFlyerHistorico()[0].chamado).toBe(true);
+    adicionarAoFlyerHistorico(base); // mesma tabela/contato → substitui
+    expect(listarFlyerHistorico()).toHaveLength(1);
+    expect(listarFlyerHistorico()[0].chamado).toBe(true);
+    atualizarChamadoFlyer(id, false);
+    expect(listarFlyerHistorico()[0].chamado).toBe(false);
   });
 
   it('não duplica quando a tabela e o contato são os mesmos', () => {
