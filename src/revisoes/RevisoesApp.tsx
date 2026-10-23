@@ -29,19 +29,6 @@ import {
   type RevisaoAgendada,
 } from './utils/historicoRevisoes';
 
-/** Linha "etiqueta: valor" do cartão de dados do veículo. */
-const Linha: React.FC<{ rotulo: string; valor: string }> = ({ rotulo, valor }) => {
-  if (!valor) return null;
-  return (
-    <div className="flex items-baseline justify-between gap-4 py-1 border-b border-slate-800/50 last:border-0">
-      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 shrink-0">
-        {rotulo}
-      </span>
-      <span className="text-base font-bold text-slate-100 text-right break-all">{valor}</span>
-    </div>
-  );
-};
-
 const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = null }) => {
   const [texto, setTexto] = useState<string>(lerRascunhoRevisoes);
   const [dados, setDados] = useState<DadosRevisoes | null>(() => {
@@ -161,6 +148,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   return (
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
       <div className="max-w-[1150px] mx-auto space-y-6">
+        <div className="grid gap-6 lg:grid-cols-2 items-start">
         <NeonCard
           title="COLAR PASSAGENS"
           borderColor="blue-600"
@@ -186,34 +174,137 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
           </button>
           <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase mt-2">
             O texto fica salvo neste navegador (entra no backup geral). A previsão vai para a lista
-            abaixo com chassi + data.
+            ao lado com chassi + data.
           </p>
         </NeonCard>
 
+        {/* Lista de previsões à direita do colar: chassi + data (editável), nome/WhatsApp, lembrete e WhatsApp. */}
+        <NeonCard title={`LISTA DE PREVISÕES (${listaOrdenada.length})`} borderColor="blue-600" compact>
+          {listaOrdenada.length === 0 ? (
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-6 text-center">
+              Cole as passagens ao lado e clique em “Adicionar à lista”.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {listaOrdenada.map((item) => {
+                const destacado = destaqueId === item.id;
+                const lembreteTxt = formatarLembrete(item.lembreteEm);
+                return (
+                  <div
+                    key={item.id}
+                    data-revisao={item.id}
+                    className={`bg-slate-950/60 border rounded-2xl p-3 space-y-2 transition-colors ${
+                      destacado ? 'border-amber-400 ring-2 ring-amber-400/60' : 'border-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-base font-black text-slate-100 tracking-wide break-words">
+                          {item.chassi}
+                          {item.veiculo && (
+                            <span className="font-bold text-slate-400"> · {item.veiculo}</span>
+                          )}
+                        </p>
+                        <p className="text-[11px] text-slate-500 font-bold">
+                          Última {item.ultimaAbertura} · {formatarKmPtBr(item.ultimoKm)} km →{' '}
+                          {item.revisaoProxima !== null ? `rev. ${String(item.revisaoProxima).padStart(2, '0')} · ` : ''}
+                          {formatarKmPtBr(item.kmAlvo)} km
+                          {item.ritmoKmPorDia != null
+                            ? ` · ritmo ${formatarKmPorDia(item.ritmoKmPorDia)} km/dia`
+                            : ''}
+                          {item.motivoPrevisao ? ` (${item.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite'})` : ''}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => excluirItem(item.id, item.chassi)}
+                        aria-label={`Excluir previsão ${item.chassi}`}
+                        title="Excluir previsão"
+                        className="p-2 text-slate-600 hover:text-red-400 transition-colors cursor-pointer shrink-0"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    {/* Nome + WhatsApp + previsão (editável) + WhatsApp + lembrete, numa linha só. */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="text"
+                        value={item.nome}
+                        onChange={(e) => setLista(atualizarContatoRevisao(item.id, e.target.value, item.telefone))}
+                        placeholder="Nome do cliente"
+                        maxLength={60}
+                        aria-label={`Nome do cliente ${item.chassi}`}
+                        className="flex-1 min-w-[140px] campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
+                      />
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        value={item.telefone}
+                        onChange={(e) => setLista(atualizarContatoRevisao(item.id, item.nome, e.target.value))}
+                        placeholder="WhatsApp (DDD + número)"
+                        maxLength={20}
+                        aria-label={`WhatsApp do cliente ${item.chassi}`}
+                        className="w-40 campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white tracking-wide focus:border-blue-500 outline-none"
+                      />
+                      <label className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                          Previsão
+                        </span>
+                        <input
+                          type="date"
+                          value={dataPtBrParaInput(item.dataPrevista)}
+                          onChange={(e) => {
+                            const pt = inputParaDataPtBr(e.target.value);
+                            if (pt) setLista(atualizarDataPrevista(item.id, pt));
+                          }}
+                          aria-label={`Data prevista ${item.chassi}`}
+                          title="Editar a data prevista (move o lembrete junto)"
+                          className="campo-tema border border-slate-800 rounded-lg px-2 py-1.5 text-base font-bold text-slate-100 focus:border-amber-500 outline-none [color-scheme:dark]"
+                        />
+                      </label>
+                      <BotaoWhats telefone={item.telefone} />
+                      <BotaoRelogio
+                        lembreteEm={item.lembreteEm}
+                        onAbrir={() => setLembreteAberto((a) => (a === item.id ? null : item.id))}
+                      />
+                      {lembreteTxt && (
+                        <span className="text-[11px] font-bold text-amber-300">
+                          {lembreteTxt.split(' ')[1]}
+                        </span>
+                      )}
+                    </div>
+                    {lembreteAberto === item.id && (
+                      <EditorLembrete
+                        inicial={item.lembreteEm}
+                        obsInicial={item.observacao ?? ''}
+                        temAtual={!!lembreteTxt}
+                        onConfirmar={(iso, obs) => {
+                          setLista(atualizarLembreteRevisao(item.id, iso, obs));
+                          setLembreteAberto(null);
+                        }}
+                        onLimpar={() => {
+                          setLista(atualizarLembreteRevisao(item.id, null));
+                          setLembreteAberto(null);
+                        }}
+                        onFechar={() => setLembreteAberto(null)}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </NeonCard>
+        </div>
+
         {dados && (
           <>
-            <NeonCard title="DADOS DO VEÍCULO" borderColor="blue-500" compact>
-              <Linha rotulo="Chassi" valor={dados.chassi} />
-              <Linha rotulo="Veículo" valor={dados.veiculo} />
-              <Linha rotulo="Ano Fab./Mod." valor={dados.anoFabMod} />
-              <Linha rotulo="Produção" valor={dados.producao} />
-              <Linha rotulo="Katashiki" valor={dados.katashiki} />
-              <Linha rotulo="Venda" valor={dados.venda} />
-              <Linha rotulo="Entrega" valor={dados.entrega} />
-              <Linha rotulo="Tipo de uso" valor={dados.tipoUso} />
-              <Linha rotulo="Distribuidor" valor={dados.distribuidorVenda} />
-              {dados.toyota10 && (
-                <Linha
-                  rotulo="Toyota 10"
-                  valor={`${dados.toyota10.vigenciaInicio} a ${dados.toyota10.vigenciaFim} · ${formatarKmPtBr(dados.toyota10.kmDe)} a ${formatarKmPtBr(dados.toyota10.kmAte)} km`}
-                />
-              )}
-              {!dados.chassi && !dados.veiculo && dados.passagens.length === 0 && (
-                <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-4 text-center">
-                  Nada reconhecido — confira o texto colado.
-                </p>
-              )}
-            </NeonCard>
+            {!dados.chassi && !dados.veiculo && dados.passagens.length === 0 && (
+              <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-4 text-center">
+                Nada reconhecido — confira o texto colado.
+              </p>
+            )}
 
             {passagensRecentes.length > 0 && (
               <NeonCard title={`PASSAGENS (${passagensRecentes.length})`} borderColor="#f59e0b" compact>
@@ -379,124 +470,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
           </>
         )}
 
-        {/* Lista de previsões: chassi + data (editável), nome/WhatsApp, lembrete e WhatsApp. */}
-        <NeonCard title={`LISTA DE PREVISÕES (${listaOrdenada.length})`} borderColor="blue-600" compact>
-          {listaOrdenada.length === 0 ? (
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-6 text-center">
-              Cole as passagens acima e clique em “Adicionar à lista”.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {listaOrdenada.map((item) => {
-                const destacado = destaqueId === item.id;
-                const lembreteTxt = formatarLembrete(item.lembreteEm);
-                return (
-                  <div
-                    key={item.id}
-                    data-revisao={item.id}
-                    className={`bg-slate-950/60 border rounded-2xl p-3 space-y-2 transition-colors ${
-                      destacado ? 'border-amber-400 ring-2 ring-amber-400/60' : 'border-slate-800'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="text-base font-black text-slate-100 tracking-wide break-words">
-                          {item.chassi}
-                          {item.veiculo && (
-                            <span className="font-bold text-slate-400"> · {item.veiculo}</span>
-                          )}
-                        </p>
-                        <p className="text-[11px] text-slate-500 font-bold">
-                          Última {item.ultimaAbertura} · {formatarKmPtBr(item.ultimoKm)} km →{' '}
-                          {item.revisaoProxima !== null ? `rev. ${String(item.revisaoProxima).padStart(2, '0')} · ` : ''}
-                          {formatarKmPtBr(item.kmAlvo)} km
-                          {item.ritmoKmPorDia != null
-                            ? ` · ritmo ${formatarKmPorDia(item.ritmoKmPorDia)} km/dia`
-                            : ''}
-                          {item.motivoPrevisao ? ` (${item.motivoPrevisao === 'ritmo' ? 'pelo ritmo' : 'pelo limite'})` : ''}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => excluirItem(item.id, item.chassi)}
-                        aria-label={`Excluir previsão ${item.chassi}`}
-                        title="Excluir previsão"
-                        className="p-2 text-slate-600 hover:text-red-400 transition-colors cursor-pointer shrink-0"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-
-                    {/* Nome + WhatsApp + previsão (editável) + WhatsApp + lembrete, numa linha só. */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <input
-                        type="text"
-                        value={item.nome}
-                        onChange={(e) => setLista(atualizarContatoRevisao(item.id, e.target.value, item.telefone))}
-                        placeholder="Nome do cliente"
-                        maxLength={60}
-                        aria-label={`Nome do cliente ${item.chassi}`}
-                        className="flex-1 min-w-[140px] campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white uppercase tracking-wide focus:border-blue-500 outline-none"
-                      />
-                      <input
-                        type="tel"
-                        inputMode="numeric"
-                        value={item.telefone}
-                        onChange={(e) => setLista(atualizarContatoRevisao(item.id, item.nome, e.target.value))}
-                        placeholder="WhatsApp (DDD + número)"
-                        maxLength={20}
-                        aria-label={`WhatsApp do cliente ${item.chassi}`}
-                        className="w-40 campo-tema border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white tracking-wide focus:border-blue-500 outline-none"
-                      />
-                      <label className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-                          Previsão
-                        </span>
-                        <input
-                          type="date"
-                          value={dataPtBrParaInput(item.dataPrevista)}
-                          onChange={(e) => {
-                            const pt = inputParaDataPtBr(e.target.value);
-                            if (pt) setLista(atualizarDataPrevista(item.id, pt));
-                          }}
-                          aria-label={`Data prevista ${item.chassi}`}
-                          title="Editar a data prevista (move o lembrete junto)"
-                          className="campo-tema border border-slate-800 rounded-lg px-2 py-1.5 text-base font-bold text-slate-100 focus:border-amber-500 outline-none [color-scheme:dark]"
-                        />
-                      </label>
-                      <BotaoWhats telefone={item.telefone} />
-                      <BotaoRelogio
-                        lembreteEm={item.lembreteEm}
-                        onAbrir={() => setLembreteAberto((a) => (a === item.id ? null : item.id))}
-                      />
-                      {lembreteTxt && (
-                        <span className="text-[11px] font-bold text-amber-300">
-                          {lembreteTxt.split(' ')[1]}
-                        </span>
-                      )}
-                    </div>
-                    {lembreteAberto === item.id && (
-                      <EditorLembrete
-                        inicial={item.lembreteEm}
-                        obsInicial={item.observacao ?? ''}
-                        temAtual={!!lembreteTxt}
-                        onConfirmar={(iso, obs) => {
-                          setLista(atualizarLembreteRevisao(item.id, iso, obs));
-                          setLembreteAberto(null);
-                        }}
-                        onLimpar={() => {
-                          setLista(atualizarLembreteRevisao(item.id, null));
-                          setLembreteAberto(null);
-                        }}
-                        onFechar={() => setLembreteAberto(null)}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </NeonCard>
       </div>
     </div>
   );

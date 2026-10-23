@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.164.0](#v16400) — 2026-10-23 — Revisões: 2 colunas e sem DADOS DO VEÍCULO (v0.164.0)
+
 - [v0.163.0](#v16300) — 2026-10-23 — Revisões: lista enxuta (1 data, modelo, 1 linha, horário) (v0.163.0)
 
 - [v0.162.0](#v16200) — 2026-10-23 — Revisões: previsão pelo ritmo de rodagem (v0.162.0)
@@ -250,6 +252,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v16400"></a>
+## 2026-10-23 — Revisões: 2 colunas e sem DADOS DO VEÍCULO (v0.164.0)
+
+**Pedido:** COLAR PASSAGENS e LISTA DE PREVISÕES lado a lado (lista à direita, em
+cima); remover o card DADOS DO VEÍCULO (chassi/modelo já aparecem na lista).
+
+**Feito (`src/revisoes/RevisoesApp.tsx`, só UI):**
+- Topo em `grid gap-6 lg:grid-cols-2 items-start`: COLAR à esquerda, LISTA à
+  direita (empilha no mobile); PASSAGENS + PRÓXIMA REVISÃO seguem abaixo.
+- Removidos o card DADOS DO VEÍCULO e o componente `Linha` (o `dados.veiculo`
+  continua alimentando a lista ao salvar — sem mudança de lógica).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **278/278**;
+build único autocontido. Selo `v0.164.0`.
+
+---
 
 <a id="v16300"></a>
 ## 2026-10-23 — Revisões: lista enxuta (1 data, modelo, 1 linha, horário) (v0.163.0)
