@@ -19,7 +19,7 @@ pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG),
 **Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.) e
 **Revisões** (v0.160.0 — cola as passagens do portal Toyota e projeta a próxima
 revisão: 10 mil km ou 12 meses; v0.161.0 — lista de previsões por chassi + data
-editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação); v0.168.0 — copiar passagens/lista + alvo exato +10 mil; v0.169.0 — descrição curta (sem tipo/código); v0.170.0 — "+" na nota cria outra abaixo; v0.171.0 — caixinha "já chamei" nos 3 históricos. A aba **Whats**
+editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação); v0.168.0 — copiar passagens/lista + alvo exato +10 mil; v0.169.0 — descrição curta (sem tipo/código); v0.170.0 — "+" na nota cria outra abaixo; v0.171.0 — caixinha "já chamei" nos 3 históricos; v0.172.0 — limpar chamados, notas gerais e editar lembrete. A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As quatro abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **10 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
@@ -90,7 +90,7 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **287 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **293 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -465,8 +465,9 @@ orcamento_web/
                              Excel intacto)
     utils/versao.ts          VERSAO do selo do header (= package.json; travado por teste)
     utils/bloqueio.ts        senha do cadeado (criar/trocar/conferir; entra no backup)
-    utils/lembretes.ts       vencidos + formatos + evento (dois históricos)
-    utils/lembretesRapidos.ts rápidos avulsos do sino (CRUD + chave)
+    utils/lembretes.ts       vencidos + formatos + evento (três históricos + rápidos)
+    utils/lembretesRapidos.ts rápidos avulsos do sino (CRUD + texto + chave)
+    utils/notasGerais.ts     bloco de notas gerais do header (CRUD + chave)
     utils/rascunho.ts        rascunho em edição (orcamento_rascunho_v1)
     utils/ultimoOrcamento.ts último documento gerado (orcamento_ultimo_v1)
     utils/backup.ts          backup geral (todas as chaves) + restaurar
@@ -495,7 +496,8 @@ orcamento_web/
     components/LembreteHistorico.tsx popup âmbar pulsante dos vencidos
     components/RelatorioModal.tsx janela do relatório Excel (tabela + seletor de mês +
                              ordem de data + copiar; comparativo mês x anterior)
-    components/SinoLembretes.tsx sino do header (rápidos + lista geral, janela larga)
+    components/SinoLembretes.tsx sino do header (rápidos + lista geral com editar texto, janela larga)
+    components/NotasGerais.tsx bloco de notas gerais do header (nova/salvar/copiar/limpar/excluir)
     tire/TireFlyerApp.tsx    tela da aba Tire Flyer (entrada + preview + export)
     tire/components/Flyer.tsx dispatcher de layout (data-layout) — clássico intacto
     tire/components/FlyerTabela.tsx / FlyerEtiqueta.tsx / FlyerLaranja.tsx /
@@ -532,7 +534,7 @@ orcamento_web/
   tests/                     vitest run: quote_logic, historico, telefone, versao,
                              sistema_extracao, export_image, tire_flyer, flyer_layout,
                              flyer_historico, dados, backup, bloqueio, lembretes,
-                             lembretesRapidos, relatorio, revisoes, app_smoke (jsdom)
+                             lembretesRapidos, relatorio, revisoes, notasGerais, app_smoke (jsdom)
   dist/index.html            BUILD = arquivo único entregue ao usuário (ignorado no git)
 ```
 

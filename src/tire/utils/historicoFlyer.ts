@@ -94,6 +94,21 @@ export function removerDoFlyerHistorico(id: string): FlyerSalvo[] {
 }
 
 /**
+ * Apaga do histórico os marcados como chamado (segundo contato).
+ * Retorna a lista restante.
+ */
+export function limparChamadosFlyer(): FlyerSalvo[] {
+  const out = listarFlyerHistorico().filter((r) => !r.chamado);
+  gravar(out);
+  return out;
+}
+
+/** Quantos marcados como chamado há no histórico. */
+export function contarChamadosFlyer(): number {
+  return listarFlyerHistorico().filter((r) => r.chamado).length;
+}
+
+/**
  * Marca/desmarca a cor do cliente num flyer (verde = quer fazer em breve,
  * vermelho = só pesquisou; `undefined` limpa). Salva na hora.
  */

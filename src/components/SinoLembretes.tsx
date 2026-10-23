@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Bell, BellRing, Check, Clock, X } from 'lucide-react';
+import { Bell, BellRing, Check, Clock, Pencil, X } from 'lucide-react';
 import {
   LEMBRETES_EVENTO,
   avisarLembretesMudaram,
@@ -11,6 +11,7 @@ import {
 } from '../utils/lembretes';
 import {
   atualizarRapido,
+  atualizarTextoRapido,
   criarRapido,
   removerRapido,
 } from '../utils/lembretesRapidos';
@@ -32,6 +33,9 @@ const SinoLembretes: React.FC = () => {
   /** Chave `origem:id` do lembrete com o editor de reprogramação aberto. */
   const [reprogramando, setReprogramando] = useState<string | null>(null);
   const [novoQuando, setNovoQuando] = useState('');
+  /** Chave `origem:id` do lembrete com o editor de texto aberto. */
+  const [editandoTexto, setEditandoTexto] = useState<string | null>(null);
+  const [novoTexto, setNovoTexto] = useState('');
   const ref = useRef<HTMLDivElement>(null);
 
   const recarregar = () => setItens(listarTodosLembretes());
@@ -43,6 +47,8 @@ const SinoLembretes: React.FC = () => {
     setErro('');
     setReprogramando(null);
     setNovoQuando('');
+    setEditandoTexto(null);
+    setNovoTexto('');
     setAberto(false);
   };
 
@@ -117,6 +123,29 @@ const SinoLembretes: React.FC = () => {
     else if (item.origem === 'revisao') atualizarLembreteRevisao(item.id, novoQuando);
     else atualizarLembreteHistorico(item.id, novoQuando);
     setReprogramando(null);
+    recarregar();
+    avisarLembretesMudaram();
+  };
+
+  /** Abre/fecha o editor de texto (rápido: o texto; históricos: a observação). */
+  const abrirEdicao = (item: LembreteAgendado) => {
+    const chave = `${item.origem}:${item.id}`;
+    if (editandoTexto === chave) {
+      setEditandoTexto(null);
+      return;
+    }
+    setEditandoTexto(chave);
+    setNovoTexto(item.origem === 'rapido' ? item.rotulo : (item.obs ?? ''));
+  };
+
+  /** Salva o texto editado sem mexer na data/hora. Vazio não salva. */
+  const salvarEdicao = (item: LembreteAgendado) => {
+    if (!novoTexto.trim()) return;
+    if (item.origem === 'rapido') atualizarTextoRapido(item.id, novoTexto);
+    else if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, item.quando, novoTexto);
+    else if (item.origem === 'revisao') atualizarLembreteRevisao(item.id, item.quando, novoTexto);
+    else atualizarLembreteHistorico(item.id, item.quando, novoTexto);
+    setEditandoTexto(null);
     recarregar();
     avisarLembretesMudaram();
   };
@@ -235,6 +264,18 @@ const SinoLembretes: React.FC = () => {
                       </button>
                       <button
                         type="button"
+                        onClick={() => abrirEdicao(item)}
+                        aria-label={`Editar texto do lembrete ${item.rotulo}`}
+                        title={item.origem === 'rapido' ? 'Editar o texto' : 'Editar a observação'}
+                        aria-pressed={editandoTexto === chave}
+                        className={`p-1.5 transition-colors cursor-pointer shrink-0 ${
+                          editandoTexto === chave ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'
+                        }`}
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => excluir(item)}
                         aria-label={`Excluir lembrete ${item.rotulo}`}
                         title="Excluir lembrete"
@@ -269,6 +310,41 @@ const SinoLembretes: React.FC = () => {
                           type="button"
                           onClick={() => setReprogramando(null)}
                           aria-label="Cancelar reprogramação"
+                          title="Cancelar"
+                          className="p-2 text-slate-500 hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+
+                    {editandoTexto === chave && (
+                      <div className="flex flex-wrap items-center gap-2 px-2.5 pb-2.5">
+                        <Pencil size={14} className="text-amber-400 shrink-0" />
+                        <input
+                          autoFocus
+                          type="text"
+                          value={novoTexto}
+                          onChange={(e) => setNovoTexto(e.target.value)}
+                          placeholder={item.origem === 'rapido' ? 'Texto do lembrete' : 'Observação do lembrete'}
+                          aria-label="Texto do lembrete"
+                          maxLength={120}
+                          className="flex-1 min-w-[140px] campo-tema border border-slate-800 rounded-lg px-3 py-2 text-base font-bold text-slate-200 focus:border-amber-500 outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => salvarEdicao(item)}
+                          disabled={!novoTexto.trim()}
+                          aria-label="Confirmar edição"
+                          title="Confirmar edição"
+                          className="p-2 bg-green-600 hover:bg-green-500 disabled:opacity-40 text-white rounded-lg transition-all cursor-pointer active:scale-95"
+                        >
+                          <Check size={14} strokeWidth={3} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditandoTexto(null)}
+                          aria-label="Cancelar edição"
                           title="Cancelar"
                           className="p-2 text-slate-500 hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
                         >

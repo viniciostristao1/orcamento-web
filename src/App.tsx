@@ -7,6 +7,7 @@ import RevisoesApp from './revisoes/RevisoesApp';
 import ConfiguracoesTema from './components/ConfiguracoesTema';
 import Bloqueio from './components/Bloqueio';
 import SinoLembretes from './components/SinoLembretes';
+import NotasGerais from './components/NotasGerais';
 import LembreteHistorico from './components/LembreteHistorico';
 import { atualizarLembreteHistorico } from './utils/historico';
 import { atualizarLembreteFlyer } from './tire/utils/historicoFlyer';
@@ -206,6 +207,7 @@ const AppInterno: React.FC = () => {
               <Lock size={18} />
             </button>
             <SinoLembretes />
+            <NotasGerais />
             <ConfiguracoesTema tema={tema} onChange={setTema} />
           </div>
         </div>

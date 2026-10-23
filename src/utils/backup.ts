@@ -3,6 +3,7 @@ import { RASCUNHO_KEY } from './rascunho';
 import { ULTIMO_KEY } from './ultimoOrcamento';
 import { SENHA_KEY } from './bloqueio';
 import { RAPIDOS_KEY } from './lembretesRapidos';
+import { NOTAS_GERAIS_KEY } from './notasGerais';
 
 /** Chaves legadas da aba Whats (removida na v0.117.0): só para restaurar backups antigos. */
 export const SCRIPT_PNEUS_KEY = 'zap_script_pneus_v1';
@@ -43,6 +44,7 @@ export const CHAVES_BACKUP = [
   'rotulos_v1',
   SENHA_KEY, // a senha do cadeado acompanha o backup (restaurar mantém a senha)
   RAPIDOS_KEY, // lembretes rápidos do sino
+  NOTAS_GERAIS_KEY, // bloco de notas gerais (ao lado do sino)
   BACKUP_DATA_KEY, // data do último backup (restaurar não reacende o aviso à toa)
 ] as const;
 
@@ -98,7 +100,7 @@ export function precisaLembreteBackup(agora: Date = new Date()): boolean {
  * restaurar, mesclam por id em vez de sobrescrever — o que já está no navegador
  * nunca é apagado. As demais chaves são "estado atual" e seguem sobrescritas.
  */
-const CHAVES_LISTA: readonly string[] = [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY, RAPIDOS_KEY, REVISOES_HISTORICO_KEY];
+const CHAVES_LISTA: readonly string[] = [HISTORICO_KEY, FLYER_KEY, CONTATOS_KEY, RAPIDOS_KEY, REVISOES_HISTORICO_KEY, NOTAS_GERAIS_KEY];
 
 export interface ResumoBackup {
   orcamentos: number;

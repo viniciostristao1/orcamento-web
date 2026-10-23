@@ -13,6 +13,7 @@ import {
   formatarLembrete,
   hojeHoraInput,
   listarLembretesVencidos,
+  listarTodosLembretes,
   paraInputDatetime,
 } from '../src/utils/lembretes';
 import { adicionarAoHistorico, listarHistorico } from '../src/utils/historico';
@@ -94,6 +95,19 @@ describe('lembretes com data/hora (botão relógio)', () => {
     expect(listarHistorico()).toHaveLength(1);
     expect(listarHistorico()[0].lembreteEm).toBe(PASSADO);
     expect(listarLembretesVencidos()).toHaveLength(1);
+  });
+
+  it('sino carrega o texto editável (observação ou texto do rápido)', () => {
+    adicionarAoHistorico(base);
+    const [rec] = listarHistorico();
+    atualizarLembreteHistorico(rec.id, FUTURO, 'Ligar de manhã');
+    const todos = listarTodosLembretes();
+    expect(todos).toHaveLength(1);
+    expect(todos[0].obs).toBe('Ligar de manhã');
+    // editar a observação não mexe na data
+    atualizarLembreteHistorico(rec.id, FUTURO, 'Ligar à tarde');
+    expect(listarTodosLembretes()[0].obs).toBe('Ligar à tarde');
+    expect(listarTodosLembretes()[0].quando).toBe(FUTURO);
   });
 
   it('hojeHoraInput devolve hoje com a hora local (formato do datetime-local)', () => {

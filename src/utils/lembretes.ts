@@ -18,6 +18,8 @@ export interface LembreteVencido {
 /** Item da lista geral do sino (vencidos e agendados). */
 export interface LembreteAgendado extends LembreteVencido {
   vencido: boolean;
+  /** Texto editável: observação (históricos) ou o próprio texto (rápidos). */
+  obs?: string;
 }
 
 import { listarRapidos } from './lembretesRapidos';
@@ -70,6 +72,7 @@ interface RegistroComLembrete {
   nome?: string;
   chassi?: string;
   dataPrevista?: string;
+  observacao?: string;
 }
 
 const lerLista = (chave: string): RegistroComLembrete[] => {
@@ -124,6 +127,7 @@ export function listarTodosLembretes(agora: number = Date.now()): LembreteAgenda
         rotulo: rotulo(r),
         quando: String(r.lembreteEm),
         vencido: t <= agora,
+        obs: r.observacao ?? '',
       });
     }
   };
@@ -133,7 +137,7 @@ export function listarTodosLembretes(agora: number = Date.now()): LembreteAgenda
   for (const q of listarRapidos()) {
     const t = new Date(q.quando).getTime();
     if (!Number.isFinite(t)) continue;
-    todos.push({ origem: 'rapido', id: q.id, rotulo: q.texto, quando: q.quando, vencido: t <= agora });
+    todos.push({ origem: 'rapido', id: q.id, rotulo: q.texto, quando: q.quando, vencido: t <= agora, obs: q.texto });
   }
   return todos.sort((a, b) => a.quando.localeCompare(b.quando));
 }

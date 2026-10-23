@@ -4,6 +4,8 @@ import {
   adicionarAoFlyerHistorico,
   atualizarChamadoFlyer,
   atualizarCorFlyer,
+  contarChamadosFlyer,
+  limparChamadosFlyer,
   atualizarLembreteFlyer,
   filtrarFlyerHistorico,
   limparFlyerHistorico,
@@ -50,6 +52,23 @@ describe('histórico do Tire Flyer (localStorage)', () => {
     expect(listarFlyerHistorico()[0].chamado).toBe(true);
     atualizarChamadoFlyer(id, false);
     expect(listarFlyerHistorico()[0].chamado).toBe(false);
+  });
+
+  it('limpar chamados apaga só os marcados', () => {
+    // ids explícitos: dois adicionar() no mesmo milissegundo gerariam o mesmo id
+    localStorage.setItem(
+      'flyer_historico_v1',
+      JSON.stringify([
+        { ...base, id: 'a', criadoEm: '24/09/2026 12:30:00', contato: 'A' },
+        { ...base, id: 'b', criadoEm: '24/09/2026 12:30:00', contato: 'B' },
+      ]),
+    );
+    atualizarChamadoFlyer('a', true);
+    expect(contarChamadosFlyer()).toBe(1);
+    const resto = limparChamadosFlyer();
+    expect(resto).toHaveLength(1);
+    expect(resto[0].contato).toBe('B');
+    expect(contarChamadosFlyer()).toBe(0);
   });
 
   it('não duplica quando a tabela e o contato são os mesmos', () => {

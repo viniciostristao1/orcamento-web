@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FolderOpen, List, Trash2, X } from 'lucide-react';
+import { FolderOpen, List, PhoneOff, Trash2, X } from 'lucide-react';
 import {
   type FlyerSalvo,
   atualizarChamadoFlyer,
   atualizarCorFlyer,
   atualizarLembreteFlyer,
   filtrarFlyerHistorico,
+  limparChamadosFlyer,
   limparFlyerHistorico,
   listarFlyerHistorico,
   removerDoFlyerHistorico,
@@ -88,6 +89,15 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
     setLista(removerDoFlyerHistorico(id));
   };
 
+  // Apaga os marcados como chamado (segundo contato já tentado).
+  const nChamados = lista.filter((r) => r.chamado).length;
+  const handleLimparChamados = () => {
+    if (nChamados === 0) return;
+    if (!window.confirm(`Apagar do histórico os ${nChamados} marcado(s) como chamado?`)) return;
+    setLista(limparChamadosFlyer());
+    setMsg(`${nChamados} chamado(s) apagado(s).`);
+  };
+
   // Marca/desmarca a cor do cliente (salva na hora).
   const handleMudarCor = (id: string, cor: CorCliente | undefined) => {
     setLista(atualizarCorFlyer(id, cor));
@@ -112,6 +122,18 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
       onFechar={onFechar}
       onLimpar={handleLimpar}
       podeLimpar={lista.length > 0}
+      acoesExtras={
+        <button
+          type="button"
+          onClick={handleLimparChamados}
+          disabled={nChamados === 0}
+          aria-label="Limpar chamados"
+          title={nChamados > 0 ? `Apagar os ${nChamados} marcado(s) como chamado` : 'Nenhum chamado para apagar'}
+          className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-red-600 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95 disabled:cursor-not-allowed"
+        >
+          <PhoneOff size={18} />
+        </button>
+      }
       buscaAberta={buscaAberta}
       onAlternarBusca={() => {
         setBuscaAberta((v) => !v);

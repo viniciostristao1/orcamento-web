@@ -65,3 +65,12 @@ export function atualizarRapido(id: string, quando: string): LembreteRapido[] {
   gravar(out);
   return out;
 }
+
+/** Edita o texto de um lembrete rápido (1–120 caracteres; vazio não muda nada). */
+export function atualizarTextoRapido(id: string, texto: string): LembreteRapido[] {
+  const limpo = texto.trim().slice(0, 120);
+  if (!limpo) return listarRapidos();
+  const out = listarRapidos().map((r) => (r.id === id ? { ...r, texto: limpo } : r));
+  gravar(out);
+  return out;
+}

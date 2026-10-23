@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.172.0](#v17200) — 2026-10-23 — Limpar chamados, notas gerais e editar lembrete (v0.172.0)
+
 - [v0.171.0](#v17100) — 2026-10-23 — Caixinha "já chamei" nos 3 históricos (v0.171.0)
 
 - [v0.170.0](#v17000) — 2026-10-23 — Dados: "+" na nota cria outra abaixo (v0.170.0)
@@ -266,6 +268,29 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17200"></a>
+## 2026-10-23 — Limpar chamados, notas gerais e editar lembrete (v0.172.0)
+
+**Pedido:** (1) no HISTÓRICO — TIRE FLYER, apagar os marcados como chamado;
+(2) botão de nota ao lado do sino (bloco geral, com limpar/copiar/salvar/
+excluir); (3) no sino, editar o texto do lembrete (só dava reprogramar/excluir).
+
+**Feito:**
+- Flyer: `limparChamadosFlyer`/`contarChamadosFlyer` + botão `PhoneOff` via
+  `acoesExtras` (desabilitado sem chamados, confirma com a contagem).
+- Notas gerais: `utils/notasGerais.ts` (`notas_gerais_v1`, CRUD, entra no backup
+  com merge por id) + `components/NotasGerais.tsx` no header (Nova + rascunho
+  com Salvar/Copiar/Limpar/Excluir e aviso de não salvo).
+- Sino: `LembreteAgendado.obs` (observação dos históricos, texto dos rápidos),
+  `atualizarTextoRapido` e lápis por item (salva sem mexer na data).
+- Testes: limpar chamados, CRUD das notas (+ backup/merge), editar texto do
+  rápido e `obs` no sino.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **293/293**;
+build único autocontido. Selo `v0.172.0`.
+
+---
 
 <a id="v17100"></a>
 ## 2026-10-23 — Caixinha "já chamei" nos 3 históricos (v0.171.0)
