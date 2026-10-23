@@ -584,8 +584,10 @@ const DadosApp: React.FC<{
     <div className="ui-compacta pt-1 pb-16 text-slate-200">
 
       <div className="max-w-[1150px] mx-auto">
-        {/* Pesquisa + criar tabela */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
+        {/* Pesquisa + criar tabela (grudada no topo ao rolar: o pulo
+            automático até o termo não tira o campo de vista no meio da
+            digitação). */}
+        <div className="sticky top-20 z-40 flex flex-wrap items-center gap-3 mb-4 bg-slate-950/95 backdrop-blur-md py-2">
           <div className="relative flex-1 min-w-[260px]">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
             <input

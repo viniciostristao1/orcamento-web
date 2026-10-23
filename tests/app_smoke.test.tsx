@@ -1213,6 +1213,22 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('aba Dados: barra de pesquisa gruda no topo (dá para ver digitando)', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByText('Dados'));
+      // o campo continua visível mesmo com a página rolada no termo:
+      // a fileira da pesquisa é sticky logo abaixo do header
+      const barra = screen.getByPlaceholderText(/Pesquisar nas tabelas/i).closest('div.sticky');
+      expect(barra).toBeTruthy();
+      expect(barra?.className).toContain('top-20');
+      expect(barra?.className).toContain('z-40');
+    } finally {
+      localStorage.removeItem('dados_tabelas_v1');
+    }
+  });
+
   it('orçamentos: o BUSCAR do atalho limpa sozinho após 1 min sem digitar', () => {
     vi.useFakeTimers();
     localStorage.removeItem('dados_tabelas_v1');

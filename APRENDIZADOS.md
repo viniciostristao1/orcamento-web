@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.173.0](#v17300) — 2026-10-23 — Pesquisa dos Dados grudada no topo (v0.173.0)
+
 - [v0.172.0](#v17200) — 2026-10-23 — Limpar chamados, notas gerais e editar lembrete (v0.172.0)
 
 - [v0.171.0](#v17100) — 2026-10-23 — Caixinha "já chamei" nos 3 históricos (v0.171.0)
@@ -268,6 +270,24 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17300"></a>
+## 2026-10-23 — Pesquisa dos Dados grudada no topo (v0.173.0)
+
+**Pedido:** no BUSCAR do MENU DADOS (Orçamentos → Dados), ao digitar um termo
+lá de baixo a página pula ao resultado e o campo some de vista — não dá para
+ver o que continua digitando.
+
+**Feito (`src/dados/DadosApp.tsx`, só UI):** a fileira da pesquisa (+ criar
+tabela/nota) virou `sticky top-20 z-40` com fundo e blur — o pulo automático
+continua, mas o campo fica visível rolando junto. `top-20` casa com o header
+`h-20` (mesmo espaço com o zoom .75); precedente: o próprio MENU DADOS já usa
+sticky no zoom.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **294/294**;
+build único autocontido. Selo `v0.173.0`.
+
+---
 
 <a id="v17200"></a>
 ## 2026-10-23 — Limpar chamados, notas gerais e editar lembrete (v0.172.0)
