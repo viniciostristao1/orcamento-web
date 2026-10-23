@@ -19,6 +19,7 @@ import {
   atualizarContatoRevisao,
   atualizarDataPrevista,
   atualizarLembreteRevisao,
+  atualizarNotaRevisao,
   dataPtBrParaInput,
   dataPtBrParaISOManha,
   inputParaDataPtBr,
@@ -351,6 +352,17 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     expect(listarHistoricoRevisoes()[0].chamado).toBe(true);
     atualizarChamadoRevisao(criado.id, false);
     expect(listarHistoricoRevisoes()[0].chamado).toBe(false);
+  });
+
+  it('nota: salva e recolar o chassi não apaga', () => {
+    const [criado] = adicionarAhistoricoRevisoes(item('ABC123', '14/10/2027'));
+    expect(listarHistoricoRevisoes()[0].nota ?? '').toBe('');
+    atualizarNotaRevisao(criado.id, 'Trocar pastilhas na próxima');
+    expect(listarHistoricoRevisoes()[0].nota).toBe('Trocar pastilhas na próxima');
+    adicionarAhistoricoRevisoes(item('ABC123', '15/11/2027')); // mesmo chassi → atualiza
+    expect(listarHistoricoRevisoes()[0].nota).toBe('Trocar pastilhas na próxima');
+    atualizarNotaRevisao(criado.id, '');
+    expect(listarHistoricoRevisoes()[0].nota).toBe('');
   });
 
   it('ordena pela previsão (mais próxima primeiro)', () => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Copy, Eraser, Play, Plus, Trash2 } from 'lucide-react';
+import { Check, Copy, Eraser, Play, Plus, StickyNote, Trash2 } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import BotaoWhats from '../components/BotaoWhats';
@@ -23,6 +23,7 @@ import {
   atualizarContatoRevisao,
   atualizarDataPrevista,
   atualizarLembreteRevisao,
+  atualizarNotaRevisao,
   dataPtBrParaInput,
   dataPtBrParaISOManha,
   inputParaDataPtBr,
@@ -52,6 +53,10 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   const [lembreteAberto, setLembreteAberto] = useState<string | null>(null);
   const [copiadoPassagens, setCopiadoPassagens] = useState(false);
   const [copiadoLista, setCopiadoLista] = useState(false);
+  // Nota do item: editor aberto + rascunho + feedback de cópia.
+  const [notaAberta, setNotaAberta] = useState<string | null>(null);
+  const [rascunhoNota, setRascunhoNota] = useState('');
+  const [notaCopiada, setNotaCopiada] = useState<string | null>(null);
 
   useEffect(() => {
     salvarRascunhoRevisoes(texto);
@@ -413,6 +418,23 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                         </p>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNotaAberta((a) => (a === item.id ? null : item.id));
+                            setRascunhoNota(item.nota ?? '');
+                          }}
+                          aria-label={`Nota da revisão ${item.chassi}`}
+                          title="Escrever nota sobre a revisão"
+                          aria-pressed={notaAberta === item.id}
+                          className={`flex items-center justify-center p-2 rounded-lg transition-all border cursor-pointer active:scale-95 ${
+                            item.nota?.trim()
+                              ? 'bg-amber-500 hover:bg-amber-400 text-black border-amber-400'
+                              : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700'
+                          }`}
+                        >
+                          <StickyNote size={16} />
+                        </button>
                         <input
                           type="checkbox"
                           checked={!!item.chamado}
@@ -434,6 +456,76 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                     </div>
 
                     {/* Nome + WhatsApp + previsão (editável) + WhatsApp + lembrete, numa linha só. */}
+                    {notaAberta === item.id && (
+                      <div className="rounded-xl border border-slate-800 bg-slate-900 p-2 space-y-2">
+                        <textarea
+                          value={rascunhoNota}
+                          onChange={(e) => setRascunhoNota(e.target.value)}
+                          placeholder="Nota sobre a revisão…"
+                          aria-label="Texto da nota da revisão"
+                          rows={2}
+                          maxLength={500}
+                          className="w-full bg-transparent text-sm font-bold text-slate-100 outline-none resize-y placeholder:text-slate-600 min-h-[3rem]"
+                        />
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`text-[10px] font-black uppercase tracking-widest mr-auto ${rascunhoNota !== (item.nota ?? '') ? 'text-amber-400' : 'text-slate-600'}`}
+                          >
+                            {rascunhoNota !== (item.nota ?? '') ? '● não salva' : 'Salva'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setLista(atualizarNotaRevisao(item.id, rascunhoNota))}
+                            aria-label="Salvar nota"
+                            title="Salvar nota"
+                            className="p-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all cursor-pointer active:scale-95"
+                          >
+                            <Check size={14} strokeWidth={3} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!rascunhoNota.trim()) return;
+                              navigator.clipboard.writeText(rascunhoNota);
+                              setNotaCopiada(item.id);
+                              window.setTimeout(() => setNotaCopiada((c) => (c === item.id ? null : c)), 2000);
+                            }}
+                            aria-label={notaCopiada === item.id ? 'Nota copiada' : 'Copiar nota'}
+                            title={notaCopiada === item.id ? 'Nota copiada' : 'Copiar nota'}
+                            className={`p-1.5 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                              notaCopiada === item.id
+                                ? 'bg-green-600 text-white'
+                                : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800'
+                            }`}
+                          >
+                            {notaCopiada === item.id ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setRascunhoNota('')}
+                            aria-label="Limpar nota"
+                            title="Limpar nota"
+                            className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Eraser size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!window.confirm('Apagar a nota desta revisão?')) return;
+                              setLista(atualizarNotaRevisao(item.id, ''));
+                              setRascunhoNota('');
+                              setNotaAberta(null);
+                            }}
+                            aria-label="Excluir nota"
+                            title="Excluir nota"
+                            className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex flex-wrap items-center gap-2">
                       <input
                         type="text"

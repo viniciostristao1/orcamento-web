@@ -33,6 +33,8 @@ export interface RevisaoAgendada {
   lembreteEm?: string | null;
   /** Já chamei (segundo contato): caixinha da lista que acinzenta o item. */
   chamado?: boolean;
+  /** Nota sobre a revisão (texto livre do item). */
+  nota?: string;
   /** Observação do lembrete (entra na busca do sino via rótulo? fica no cartão). */
   observacao?: string;
 }
@@ -128,6 +130,7 @@ export function adicionarAhistoricoRevisoes(
       nome: novo.nome.trim() || atual.nome,
       telefone: novo.telefone.trim() || atual.telefone,
       chamado: novo.chamado ?? atual.chamado,
+      nota: novo.nota ?? atual.nota,
       id: atual.id,
       criadoEm: atual.criadoEm,
     };
@@ -228,6 +231,21 @@ export function atualizarChamadoRevisao(
 ): RevisaoAgendada[] {
   const out = listarHistoricoRevisoes(storage).map((r) =>
     r.id === id ? { ...r, chamado } : r,
+  );
+  gravar(out, storage);
+  return out;
+}
+
+/**
+ * Salva a nota sobre a revisão (texto livre, até 500 chars). Salva na hora.
+ */
+export function atualizarNotaRevisao(
+  id: string,
+  nota: string,
+  storage: Storage = localStorage,
+): RevisaoAgendada[] {
+  const out = listarHistoricoRevisoes(storage).map((r) =>
+    r.id === id ? { ...r, nota: nota.slice(0, 500) } : r,
   );
   gravar(out, storage);
   return out;

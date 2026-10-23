@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.176.0](#v17600) — 2026-10-23 — Revisões: nota por revisão (v0.176.0)
+
 - [v0.175.0](#v17500) — 2026-10-23 — Revisões: sem "+N extras" nas passagens (v0.175.0)
 
 - [v0.174.0](#v17400) — 2026-10-23 — Revisões: chamado ao lado do excluir + última busca (v0.174.0)
@@ -274,6 +276,26 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17600"></a>
+## 2026-10-23 — Revisões: nota por revisão (v0.176.0)
+
+**Pedido:** antes do "já chamei" e do excluir, um ícone de nota para escrever
+sobre a revisão — colorido com nota, fantasma sem; com limpar/editar/copiar/
+excluir.
+
+**Feito:**
+- `historicoRevisoes.ts`: campo `nota?` (dentro do item, entra no backup) +
+  `atualizarNotaRevisao` (500 chars) + preservação no recolar do chassi.
+- `RevisoesApp`: botão StickyNote no cabeçalho do item (âmbar com nota,
+  fantasma sem) + editor inline (rascunho com Salvar/Copiar/Limpar/Excluir com
+  confirmação e aviso de não salva).
+- Testes: unidade (salva + preservação) e tela (escrever/salvar/acender).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **297/297**;
+build único autocontido. Selo `v0.176.0`.
+
+---
 
 <a id="v17500"></a>
 ## 2026-10-23 — Revisões: sem "+N extras" nas passagens (v0.175.0)
