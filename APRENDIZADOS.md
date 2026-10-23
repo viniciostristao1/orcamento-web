@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.175.0](#v17500) — 2026-10-23 — Revisões: sem "+N extras" nas passagens (v0.175.0)
+
 - [v0.174.0](#v17400) — 2026-10-23 — Revisões: chamado ao lado do excluir + última busca (v0.174.0)
 
 - [v0.173.0](#v17300) — 2026-10-23 — Pesquisa dos Dados grudada no topo (v0.173.0)
@@ -272,6 +274,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17500"></a>
+## 2026-10-23 — Revisões: sem "+N extras" nas passagens (v0.175.0)
+
+**Pedido:** tirar o "+N item(ns) extra(s)" das PASSAGENS (não agrega) e com isso
+enxugar a altura das 3 linhas.
+
+**Feito (`src/revisoes/RevisoesApp.tsx`, só UI):** saiu o `span` da contagem de
+extras (os dados continuam no parse/copiar). Sem mudança de lógica ou testes.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **296/296**;
+build único autocontido. Selo `v0.175.0`.
+
+---
 
 <a id="v17400"></a>
 ## 2026-10-23 — Revisões: chamado ao lado do excluir + última busca (v0.174.0)

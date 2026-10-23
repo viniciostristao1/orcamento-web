@@ -225,9 +225,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                           <td className="px-3 py-2 text-base text-slate-400 whitespace-nowrap">{p.os}</td>
                           <td className="px-3 py-2 text-base text-slate-200">
                             {limparDescricaoRevisao(p.descricao)}
-                            {p.extras.length > 0 && (
-                              <span className="block text-xs text-slate-500">+{p.extras.length} item(ns) extra(s)</span>
-                            )}
                           </td>
                         </tr>
                       ))}
