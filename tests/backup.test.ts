@@ -12,6 +12,11 @@ import {
   registrarBackup,
   restaurarBackup,
 } from '../src/utils/backup';
+import {
+  lerOrdemListaRevisoes,
+  lerUltimaBusca,
+  listarHistoricoRevisoes,
+} from '../src/revisoes/utils/historicoRevisoes';
 
 describe('backup de tudo (Configurações)', () => {
   beforeEach(() => {
@@ -69,8 +74,48 @@ describe('backup de tudo (Configurações)', () => {
     expect(json.dados[REVISOES_HISTORICO_KEY]).toHaveLength(1);
   });
 
-  it('restaurar mescla a lista de revisões por id (sem apagar a atual)', () => {
-    localStorage.setItem(REVISOES_HISTORICO_KEY, JSON.stringify([{ id: 'r1', chassi: 'ATUAL' }]));
+  it('round-trip das revisões: lista completa + busca + ordem voltam intactas', () => {
+    const previsao = {
+      id: 'r1',
+      criadoEm: '26/10/2026 10:00:00',
+      chassi: '9BRKC9F35M8127574',
+      veiculo: 'YARIS HB XL PLUS CON AT',
+      nome: 'JOÃO DA SILVA',
+      telefone: '51 99999-9999',
+      ultimaAbertura: '14/10/2026',
+      ultimoKm: 60306,
+      kmAlvo: 70306,
+      revisaoProxima: 7,
+      dataPrevista: '14/10/2027',
+      motivoPrevisao: 'ritmo',
+      ritmoKmPorDia: 50.5,
+      lembreteEm: '2027-10-14T09:00',
+      observacao: 'ligar de manhã',
+      chamado: true,
+      nota: 'Trocar pastilhas',
+    };
+    localStorage.setItem(REVISOES_HISTORICO_KEY, JSON.stringify([previsao]));
+    localStorage.setItem('revisoes_ultima_busca_v1', '20/10/2026');
+    localStorage.setItem('revisoes_ordem_lista_v1', 'lembrete-proximo');
+    localStorage.setItem('revisoes_texto_v1', 'Chassi: 9BRK');
+    // exportar (Configurações → Exportar backup)
+    const arquivo = montarBackup();
+    const json = JSON.parse(arquivo);
+    expect(json.dados[REVISOES_HISTORICO_KEY]).toEqual([previsao]);
+    expect(json.dados.revisoes_ultima_busca_v1).toBe('20/10/2026');
+    expect(json.dados.revisoes_ordem_lista_v1).toBe('lembrete-proximo');
+    expect(json.dados.revisoes_texto_v1).toBe('Chassi: 9BRK');
+    // simula outro navegador / storage limpo + importar
+    localStorage.clear();
+    const r = restaurarBackup(arquivo);
+    expect(r.ok).toBe(true);
+    expect(listarHistoricoRevisoes()).toEqual([previsao]);
+    expect(lerUltimaBusca()).toBe('20/10/2026');
+    expect(lerOrdemListaRevisoes()).toBe('lembrete-proximo');
+    expect(localStorage.getItem('revisoes_texto_v1')).toBe('Chassi: 9BRK');
+  });
+
+  it('restaurar mescla a lista de revisões por id (sem apagar a atual)', () => {    localStorage.setItem(REVISOES_HISTORICO_KEY, JSON.stringify([{ id: 'r1', chassi: 'ATUAL' }]));
     const r = restaurarBackup(
       JSON.stringify({
         app: 'toyota-orcamentos-whats',
