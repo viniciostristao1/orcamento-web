@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowDownWideNarrow, ArrowUpNarrowWide, CalendarArrowDown, Check, ClockArrowDown, ClockArrowUp, Copy, Eraser, PhoneOff, Play, Plus, StickyNote, Trash2 } from 'lucide-react';
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, CalendarArrowDown, Check, ClockArrowDown, ClockArrowUp, Copy, Eraser, PhoneOff, Play, Plus, Search, StickyNote, Trash2, X } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import BotaoWhats from '../components/BotaoWhats';
@@ -27,6 +27,7 @@ import {
   dataPtBrParaInput,
   dataPtBrParaISOManha,
   inputParaDataPtBr,
+  filtrarListaRevisoes,
   lerOrdemListaRevisoes,
   lerUltimaBusca,
   limparChamadosRevisoes,
@@ -69,6 +70,9 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   const [lembreteAberto, setLembreteAberto] = useState<string | null>(null);
   const [copiadoPassagens, setCopiadoPassagens] = useState(false);
   const [copiadoLista, setCopiadoLista] = useState(false);
+  // Busca na lista (lupa do header): filtra por nome do cliente ou chassi.
+  const [buscaAberta, setBuscaAberta] = useState(false);
+  const [busca, setBusca] = useState('');
   // Nota do item: editor aberto + rascunho + feedback de cópia.
   const [notaAberta, setNotaAberta] = useState<string | null>(null);
   const [rascunhoNota, setRascunhoNota] = useState('');
@@ -117,6 +121,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   // Só as 3 últimas (a previsão usa o histórico completo).
   const passagensRecentes = [...passagensOrdenadas].reverse().slice(0, 3);
   const listaOrdenada = ordenarListaRevisoes(lista, ordemLista);
+  // Busca (lupa): filtra por nome do cliente ou chassi; o copiar segue o visível.
+  const listaVisivel = busca.trim() ? filtrarListaRevisoes(listaOrdenada, busca) : listaOrdenada;
 
   // Alterna a ordem da lista (previsão → lembrete próximo → distante → adição recente → antiga).
   const alternarOrdemLista = () => {
@@ -125,8 +131,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
     salvarOrdemListaRevisoes(proxima);
     setOrdemLista(proxima);
   };
-
-  // Apaga da lista os marcados como "já chamei" (segundo contato já tentado).
 
   // Colar → calcular → lista (chassi + data prevista pelo ritmo). Mesmo chassi atualiza.
   const salvarNaLista = () => {
@@ -172,10 +176,10 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
     window.setTimeout(() => setCopiadoPassagens(false), 2000);
   };
 
-  // Copia a lista para colar no Excel (TAB entre colunas, com cabeçalho).
+  // Copia a lista para colar no Excel (TAB entre colunas, com cabeçalho; segue o filtro).
   const copiarLista = () => {
-    if (listaOrdenada.length === 0) return;
-    navigator.clipboard.writeText(textoListaParaExcel(listaOrdenada));
+    if (listaVisivel.length === 0) return;
+    navigator.clipboard.writeText(textoListaParaExcel(listaVisivel));
     setCopiadoLista(true);
     window.setTimeout(() => setCopiadoLista(false), 2000);
   };
@@ -381,6 +385,20 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
         <NeonCard title={`LISTA DE PREVISÕES (${listaOrdenada.length})`} borderColor="blue-600" compact
           actions={
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setBuscaAberta((a) => !a)}
+                aria-label="Buscar na lista"
+                title="Buscar por nome do cliente ou chassi"
+                aria-pressed={buscaAberta}
+                className={`flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                  buscaAberta
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                }`}
+              >
+                <Search size={18} />
+              </button>
               {(() => {
                 const { titulo, Icone } = ORDEM_INFO[ordemLista];
                 return (
@@ -441,13 +459,47 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
             </div>
           }
         >
+          {buscaAberta && (
+            <div className="flex items-center gap-2 mb-3">
+              <div className="relative flex-1">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  autoFocus
+                  type="text"
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  placeholder="Buscar por nome ou chassi… (ex.: JOÃO, 9BRK)"
+                  aria-label="Buscar por nome ou chassi"
+                  className="w-full campo-tema border border-slate-800 rounded-xl pl-9 pr-9 py-2 text-base font-bold text-white focus:border-blue-500 outline-none"
+                />
+                {busca && (
+                  <button
+                    type="button"
+                    onClick={() => setBusca('')}
+                    aria-label="Limpar busca"
+                    title="Limpar busca"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              <span className="text-sm font-bold text-slate-500 whitespace-nowrap">
+                {listaVisivel.length} de {listaOrdenada.length}
+              </span>
+            </div>
+          )}
           {listaOrdenada.length === 0 ? (
             <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-6 text-center">
               Cole as passagens ao lado e clique em “Adicionar à lista”.
             </p>
+          ) : listaVisivel.length === 0 ? (
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-6 text-center">
+              Nenhuma previsão com “{busca.trim()}”.
+            </p>
           ) : (
             <div className="space-y-3">
-              {listaOrdenada.map((item) => {
+              {listaVisivel.map((item) => {
                 const destacado = destaqueId === item.id;
                 const lembreteTxt = formatarLembrete(item.lembreteEm);
                 return (

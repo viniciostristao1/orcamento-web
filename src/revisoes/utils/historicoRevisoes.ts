@@ -1,4 +1,5 @@
 import { avisarLembretesMudaram, formatarLembrete } from '../../utils/lembretes';
+import { normalizarBusca } from '../../utils/busca';
 import { parseDataPtBr } from './parseRevisoes';
 
 /**
@@ -97,6 +98,15 @@ function gravar(lista: RevisaoAgendada[], storage: Storage = localStorage): void
   } catch {
     /* cota/privacidade: ignora */
   }
+}
+
+/** Filtra a lista por nome do cliente ou chassi (sem acento/maiúsculas; vazio = tudo). */
+export function filtrarListaRevisoes(lista: RevisaoAgendada[], termo: string): RevisaoAgendada[] {
+  const t = normalizarBusca(termo);
+  if (!t) return lista;
+  return lista.filter(
+    (r) => normalizarBusca(r.nome).includes(t) || normalizarBusca(r.chassi).includes(t),
+  );
 }
 
 /** Ordena pela data prevista (mais próxima primeiro; sem data vai ao fim). */

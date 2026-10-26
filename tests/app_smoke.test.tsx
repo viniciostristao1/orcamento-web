@@ -2532,6 +2532,16 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Salvar nota' }));
       expect(JSON.parse(localStorage.getItem('revisoes_historico_v1') ?? '[]')[0].nota).toBe('Trocar pastilhas');
       expect(screen.getByRole('button', { name: 'Nota da revisão ABC123' }).className).toContain('bg-blue-600');
+      // busca da lista: filtra por nome ou chassi
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar na lista' }));
+      const campoBusca = screen.getByLabelText('Buscar por nome ou chassi') as HTMLInputElement;
+      fireEvent.change(campoBusca, { target: { value: 'ABC123' } });
+      expect(document.querySelector('[data-revisao="r1"]')).toBeTruthy();
+      expect(screen.getByText('1 de 1')).toBeTruthy();
+      fireEvent.change(campoBusca, { target: { value: 'ZZZ' } });
+      expect(document.querySelector('[data-revisao="r1"]')).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar busca' }));
+      expect(document.querySelector('[data-revisao="r1"]')).toBeTruthy();
     } finally {
       localStorage.removeItem('revisoes_historico_v1');
       localStorage.removeItem('revisoes_ultima_busca_v1');

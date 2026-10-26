@@ -23,6 +23,7 @@ import {
   contarChamadosRevisoes,
   dataPtBrParaInput,
   dataPtBrParaISOManha,
+  filtrarListaRevisoes,
   inputParaDataPtBr,
   isoParaDataPtBr,
   lerOrdemListaRevisoes,
@@ -442,6 +443,24 @@ describe('revisões — lista de previsões (chassi + data)', () => {
       'RECENTE',
       'SEM-DATA',
     ]);
+  });
+
+  it('busca: filtra por nome ou chassi (sem acento/maiúsculas)', () => {
+    adicionarAhistoricoRevisoes({
+      ...item('9BRKC9F35M8127574', '14/10/2027'),
+      nome: 'JOÃO DA SILVA',
+      telefone: '51 99999-9999',
+    });
+    adicionarAhistoricoRevisoes({ ...item('8AJBA3FS9R0361321', '20/12/2027'), nome: 'MARIA' });
+    const lista = listarHistoricoRevisoes();
+    expect(filtrarListaRevisoes(lista, '').map((r) => r.chassi)).toHaveLength(2);
+    expect(filtrarListaRevisoes(lista, 'joao').map((r) => r.nome)).toEqual(['JOÃO DA SILVA']);
+    expect(filtrarListaRevisoes(lista, 'MARIA')).toHaveLength(1);
+    expect(filtrarListaRevisoes(lista, '9brk')).toHaveLength(1);
+    expect(filtrarListaRevisoes(lista, '8AJBA3FS9R0361321')).toHaveLength(1);
+    // telefone não entra na busca (só nome ou chassi)
+    expect(filtrarListaRevisoes(lista, '99999')).toHaveLength(0);
+    expect(filtrarListaRevisoes(lista, 'ninguém')).toHaveLength(0);
   });
 
   it('ordem da lista: padrão é previsão, persiste e entra no backup', () => {

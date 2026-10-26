@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.180.0](#v18000) — 2026-10-26 — Revisões: busca por nome/chassi na lista (v0.180.0)
+
 - [v0.179.0](#v17900) — 2026-10-26 — Revisões: ordem da lista (previsão/lembrete/adição) (v0.179.0)
 
 - [v0.178.0](#v17800) — 2026-10-26 — Revisões: botão limpar chamados na lista (v0.178.0)
@@ -282,6 +284,30 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18000"></a>
+## 2026-10-26 — Revisões: busca por nome/chassi na lista (v0.180.0)
+
+**Pedido:** botão de lupa para procurar nome ou chassi na `LISTA DE PREVISÕES`.
+
+**Feito (mesmo padrão dos históricos):**
+- `src/revisoes/utils/historicoRevisoes.ts`: `filtrarListaRevisoes()` pura
+(nome ou chassi, via `normalizarBusca` — sem acento/maiúsculas).
+- `src/revisoes/RevisoesApp.tsx`: botão ícone-only `Buscar na lista` no header
+(azul quando aberto, como `HistoricoBase`; `aria-label` com "Buscar" para não
+colidir com os `/Pesquisar/i` das outras abas montadas) + campo com X e
+contador `N de M`; o copiar-para-Excel segue o filtro; vazio filtrado mostra
+`Nenhuma previsão com "…"`.
+- Testes: unidade do filtro + smoke da busca na tela.
+
+**Gotcha:** `aria-label` com "Pesquisar…" quebrava 2 smokes de outras abas
+(`getByRole('button', { name: /Pesquisar/i })` com todas as abas montadas) —
+por isso "Buscar na lista".
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **302/302**
+(revisões 27/27); build único autocontido com "Buscar na lista". Selo `v0.180.0`.
+
+---
 
 <a id="v17900"></a>
 ## 2026-10-26 — Revisões: ordem da lista (previsão/lembrete/adição) (v0.179.0)
