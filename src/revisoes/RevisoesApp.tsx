@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Copy, Eraser, Play, Plus, StickyNote, Trash2 } from 'lucide-react';
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, CalendarArrowDown, Check, ClockArrowDown, ClockArrowUp, Copy, Eraser, PhoneOff, Play, Plus, StickyNote, Trash2 } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import BotaoWhats from '../components/BotaoWhats';
@@ -27,14 +27,28 @@ import {
   dataPtBrParaInput,
   dataPtBrParaISOManha,
   inputParaDataPtBr,
+  lerOrdemListaRevisoes,
   lerUltimaBusca,
+  limparChamadosRevisoes,
   listarHistoricoRevisoes,
-  ordenarPorPrevisao,
+  ordenarListaRevisoes,
+  ORDENS_LISTA_REVISOES,
   removerDoHistoricoRevisoes,
+  salvarOrdemListaRevisoes,
   salvarUltimaBusca,
   textoListaParaExcel,
+  type OrdemListaRevisoes,
   type RevisaoAgendada,
 } from './utils/historicoRevisoes';
+
+/** Ícone + título do botão de ordem para cada modo (ciclo: previsão → lembretes → adição). */
+const ORDEM_INFO: Record<OrdemListaRevisoes, { titulo: string; Icone: typeof CalendarArrowDown }> = {
+  previsao: { titulo: 'Previsão próxima primeiro — clique para: lembrete mais próximo', Icone: CalendarArrowDown },
+  'lembrete-proximo': { titulo: 'Lembrete mais próximo primeiro — clique para: lembrete mais distante', Icone: ClockArrowDown },
+  'lembrete-distante': { titulo: 'Lembrete mais distante primeiro — clique para: adição mais recente', Icone: ClockArrowUp },
+  'adicao-recente': { titulo: 'Adicionados recentes primeiro — clique para: ordem de adição', Icone: ArrowDownWideNarrow },
+  'adicao-antiga': { titulo: 'Ordem de adição (antigos primeiro) — clique para: previsão próxima', Icone: ArrowUpNarrowWide },
+};
 
 const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = null }) => {
   const [texto, setTexto] = useState<string>(lerRascunhoRevisoes);
@@ -48,6 +62,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   const [salvoAgora, setSalvoAgora] = useState(false);
   // Lista de previsões (chassi + data): recarrega no sino/storage também.
   const [lista, setLista] = useState<RevisaoAgendada[]>(listarHistoricoRevisoes);
+  // Ordem da lista (botão no header: previsão → lembretes → adição; gravada no navegador).
+  const [ordemLista, setOrdemLista] = useState<OrdemListaRevisoes>(lerOrdemListaRevisoes);
   // Data da última busca de clientes para prever revisão (ao lado do copiar).
   const [ultimaBusca, setUltimaBusca] = useState<string>(lerUltimaBusca);
   const [lembreteAberto, setLembreteAberto] = useState<string | null>(null);
@@ -100,7 +116,17 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
   const passagensOrdenadas = dados ? ordenarPorData(dados.passagens) : [];
   // Só as 3 últimas (a previsão usa o histórico completo).
   const passagensRecentes = [...passagensOrdenadas].reverse().slice(0, 3);
-  const listaOrdenada = ordenarPorPrevisao(lista);
+  const listaOrdenada = ordenarListaRevisoes(lista, ordemLista);
+
+  // Alterna a ordem da lista (previsão → lembrete próximo → distante → adição recente → antiga).
+  const alternarOrdemLista = () => {
+    const idx = ORDENS_LISTA_REVISOES.indexOf(ordemLista);
+    const proxima = ORDENS_LISTA_REVISOES[(idx + 1) % ORDENS_LISTA_REVISOES.length];
+    salvarOrdemListaRevisoes(proxima);
+    setOrdemLista(proxima);
+  };
+
+  // Apaga da lista os marcados como "já chamei" (segundo contato já tentado).
 
   // Colar → calcular → lista (chassi + data prevista pelo ritmo). Mesmo chassi atualiza.
   const salvarNaLista = () => {
@@ -152,6 +178,14 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
     navigator.clipboard.writeText(textoListaParaExcel(listaOrdenada));
     setCopiadoLista(true);
     window.setTimeout(() => setCopiadoLista(false), 2000);
+  };
+
+  // Apaga da lista os marcados como "já chamei" (segundo contato já tentado).
+  const nChamados = lista.filter((r) => r.chamado).length;
+  const limparChamados = () => {
+    if (nChamados === 0) return;
+    if (!window.confirm(`Apagar da lista os ${nChamados} marcado(s) como chamado?`)) return;
+    setLista(limparChamadosRevisoes());
   };
 
   return (
@@ -347,6 +381,21 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
         <NeonCard title={`LISTA DE PREVISÕES (${listaOrdenada.length})`} borderColor="blue-600" compact
           actions={
             <div className="flex items-center gap-2">
+              {(() => {
+                const { titulo, Icone } = ORDEM_INFO[ordemLista];
+                return (
+                  <button
+                    type="button"
+                    onClick={alternarOrdemLista}
+                    disabled={listaOrdenada.length === 0}
+                    aria-label="Alternar ordem da lista"
+                    title={titulo}
+                    className="flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 border-slate-700 disabled:cursor-not-allowed"
+                  >
+                    <Icone size={18} />
+                  </button>
+                );
+              })()}
               <input
                 type="date"
                 value={dataPtBrParaInput(ultimaBusca)}
@@ -378,6 +427,16 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
               }`}
             >
               {copiadoLista ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
+              </button>
+              <button
+                type="button"
+                onClick={limparChamados}
+                disabled={nChamados === 0}
+                aria-label="Limpar chamados"
+                title={nChamados > 0 ? `Apagar os ${nChamados} marcado(s) como chamado` : 'Nenhum chamado para apagar'}
+                className="flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 bg-slate-800 hover:bg-red-600 disabled:opacity-40 text-slate-200 border-slate-700 disabled:cursor-not-allowed"
+              >
+                <PhoneOff size={18} />
               </button>
             </div>
           }

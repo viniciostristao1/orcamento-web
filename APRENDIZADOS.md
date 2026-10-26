@@ -10,6 +10,10 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.179.0](#v17900) — 2026-10-26 — Revisões: ordem da lista (previsão/lembrete/adição) (v0.179.0)
+
+- [v0.178.0](#v17800) — 2026-10-26 — Revisões: botão limpar chamados na lista (v0.178.0)
+
 - [v0.177.0](#v17700) — 2026-10-23 — Revisões: nota azul preenchida (v0.177.0)
 
 - [v0.176.0](#v17600) — 2026-10-23 — Revisões: nota por revisão (v0.176.0)
@@ -278,6 +282,50 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v17900"></a>
+## 2026-10-26 — Revisões: ordem da lista (previsão/lembrete/adição) (v0.179.0)
+
+**Pedido:** na `LISTA DE PREVISÕES`, ordenar por data do lembrete programado
+(próximo primeiro e último primeiro) e por ordem de adição (mais recentes
+primeiro e ordem de adição).
+
+**Feito:**
+- `src/revisoes/utils/historicoRevisoes.ts`: tipo `OrdemListaRevisoes`
+(5 modos) + `ordenarListaRevisoes()` pura (sem lembrete/data vai ao fim nos
+dois sentidos; `criadoEm` ilegível vai ao fim) + `tempoAdicaoRevisao()`
+(parse do `toLocaleString('pt-BR')`, com e sem vírgula) + persistência
+`revisoes_ordem_lista_v1` (`ler/salvarOrdemListaRevisoes`, padrão `previsao`).
+- `src/utils/backup.ts`: chave da ordem entra no `CHAVES_BACKUP`.
+- `src/revisoes/RevisoesApp.tsx`: botão ícone-only `Alternar ordem da lista`
+no header da lista (ícone + título por modo, desabilitado com lista vazia);
+o copiar-para-Excel já usava `listaOrdenada`, então segue a ordem visível.
+- `tests/revisoes.test.ts`: 3 testes (lembrete próx/dist + imutabilidade,
+adição recente/antiga + parse, padrão/persistência/backup).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **301/301**
+(revisões 26/26); build único autocontido com "Alternar ordem da lista". Selo `v0.179.0`.
+
+---
+
+<a id="v17800"></a>
+## 2026-10-26 — Revisões: botão limpar chamados na lista (v0.178.0)
+
+**Pedido:** na aba Revisões, `LISTA DE PREVISÕES`, não havia botão para limpar
+da lista as revisões marcadas "já chamei" (só a caixinha individual).
+
+**Feito (mesmo padrão do Tire Flyer):**
+- `src/revisoes/utils/historicoRevisoes.ts`: `limparChamadosRevisoes()` (filtra
+`!chamado`, grava e avisa o sino/popup) + `contarChamadosRevisoes()`.
+- `src/revisoes/RevisoesApp.tsx`: botão `PhoneOff` no header da
+`LISTA DE PREVISÕES` (`aria-label="Limpar chamados"`, desabilitado com 0,
+confirma `Apagar da lista os N marcado(s) como chamado?`).
+- `tests/revisoes.test.ts`: `limpar chamados apaga só os marcados`.
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **298/298**
+(revisões 23/23); build único autocontido com "Limpar chamados". Selo `v0.178.0`.
+
+---
 
 <a id="v17700"></a>
 ## 2026-10-23 — Revisões: nota azul preenchida (v0.177.0)

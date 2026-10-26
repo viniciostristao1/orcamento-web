@@ -109,6 +109,117 @@ export function ordenarPorPrevisao(lista: RevisaoAgendada[]): RevisaoAgendada[] 
   return [...lista].sort((a, b) => tempo(a) - tempo(b));
 }
 
+/** Ordens disponíveis na LISTA DE PREVISÕES (botão alterna nesta sequência). */
+export type OrdemListaRevisoes =
+  | 'previsao' // data prevista, próxima primeiro (padrão)
+  | 'lembrete-proximo' // lembrete programado, próximo primeiro
+  | 'lembrete-distante' // lembrete programado, último primeiro
+  | 'adicao-recente' // adicionados mais recentemente primeiro
+  | 'adicao-antiga'; // ordem de adição (antigos primeiro)
+
+export const ORDENS_LISTA_REVISOES: OrdemListaRevisoes[] = [
+  'previsao',
+  'lembrete-proximo',
+  'lembrete-distante',
+  'adicao-recente',
+  'adicao-antiga',
+];
+
+/** Ordem escolhida da lista (persistida; botão alterna e grava). */
+export const REVISOES_ORDEM_LISTA_KEY = 'revisoes_ordem_lista_v1';
+
+export function lerOrdemListaRevisoes(storage: Storage = localStorage): OrdemListaRevisoes {
+  try {
+    const v = storage.getItem(REVISOES_ORDEM_LISTA_KEY) ?? '';
+    return (ORDENS_LISTA_REVISOES as string[]).includes(v) ? (v as OrdemListaRevisoes) : 'previsao';
+  } catch {
+    return 'previsao';
+  }
+}
+
+export function salvarOrdemListaRevisoes(ordem: OrdemListaRevisoes, storage: Storage = localStorage): void {
+  try {
+    storage.setItem(REVISOES_ORDEM_LISTA_KEY, ordem);
+  } catch {
+    /* cota/privacidade: ignora */
+  }
+}
+
+/** ISO "YYYY-MM-DDTHH:mm" do lembrete → ms; null quando ausente/inválido. */
+function tempoLembreteRevisao(lembreteEm: string | null | undefined): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(lembreteEm ?? '');
+  if (!m) return null;
+  const t = new Date(
+    parseInt(m[1], 10),
+    parseInt(m[2], 10) - 1,
+    parseInt(m[3], 10),
+    parseInt(m[4], 10),
+    parseInt(m[5], 10),
+  ).getTime();
+  return Number.isFinite(t) ? t : null;
+}
+
+/**
+ * `criadoEm` ("dd/mm/aaaa[, ]hh:mm:ss", do `toLocaleString('pt-BR')`) → ms.
+ * 0 quando ilegível (vai para o fim nas duas direções).
+ */
+export function tempoAdicaoRevisao(criadoEm: string): number {
+  const m = (criadoEm ?? '').match(/(\d{2})\/(\d{2})\/(\d{4})(?:[,\s]+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!m) return 0;
+  const t = new Date(
+    parseInt(m[3], 10),
+    parseInt(m[2], 10) - 1,
+    parseInt(m[1], 10),
+    parseInt(m[4] ?? '0', 10),
+    parseInt(m[5] ?? '0', 10),
+    parseInt(m[6] ?? '0', 10),
+  ).getTime();
+  return Number.isFinite(t) ? t : 0;
+}
+
+/**
+ * Ordena a lista no modo escolhido (pura, não muta o original).
+ * Sem lembrete/data vai ao fim nos dois sentidos.
+ */
+export function ordenarListaRevisoes(
+  lista: RevisaoAgendada[],
+  ordem: OrdemListaRevisoes,
+): RevisaoAgendada[] {
+  if (ordem === 'previsao') return ordenarPorPrevisao(lista);
+  const copia = [...lista];
+  switch (ordem) {
+    case 'lembrete-proximo':
+      copia.sort((a, b) => {
+        const ta = tempoLembreteRevisao(a.lembreteEm) ?? Number.POSITIVE_INFINITY;
+        const tb = tempoLembreteRevisao(b.lembreteEm) ?? Number.POSITIVE_INFINITY;
+        return ta - tb;
+      });
+      break;
+    case 'lembrete-distante':
+      copia.sort((a, b) => {
+        const ta = tempoLembreteRevisao(a.lembreteEm) ?? Number.NEGATIVE_INFINITY;
+        const tb = tempoLembreteRevisao(b.lembreteEm) ?? Number.NEGATIVE_INFINITY;
+        return tb - ta;
+      });
+      break;
+    case 'adicao-recente':
+      copia.sort((a, b) => {
+        const ta = tempoAdicaoRevisao(a.criadoEm) || Number.NEGATIVE_INFINITY;
+        const tb = tempoAdicaoRevisao(b.criadoEm) || Number.NEGATIVE_INFINITY;
+        return tb - ta;
+      });
+      break;
+    case 'adicao-antiga':
+      copia.sort((a, b) => {
+        const ta = tempoAdicaoRevisao(a.criadoEm) || Number.POSITIVE_INFINITY;
+        const tb = tempoAdicaoRevisao(b.criadoEm) || Number.POSITIVE_INFINITY;
+        return ta - tb;
+      });
+      break;
+  }
+  return copia;
+}
+
 /**
  * Salva a previsão na lista. Mesmo chassi atualiza o item (não duplica —
  * um veículo = uma linha): vale o cálculo novo, mas nome/telefone digitados
@@ -156,6 +267,22 @@ export function removerDoHistoricoRevisoes(id: string, storage: Storage = localS
   gravar(out, storage);
   avisarLembretesMudaram();
   return out;
+}
+
+/**
+ * Apaga da lista os marcados como chamado (segundo contato já tentado).
+ * Retorna a lista restante.
+ */
+export function limparChamadosRevisoes(storage: Storage = localStorage): RevisaoAgendada[] {
+  const out = listarHistoricoRevisoes(storage).filter((r) => !r.chamado);
+  gravar(out, storage);
+  avisarLembretesMudaram();
+  return out;
+}
+
+/** Quantos marcados como chamado há na lista. */
+export function contarChamadosRevisoes(storage: Storage = localStorage): number {
+  return listarHistoricoRevisoes(storage).filter((r) => r.chamado).length;
 }
 
 /** Edita nome/telefone do item (sem tocar na previsão nem no lembrete). */

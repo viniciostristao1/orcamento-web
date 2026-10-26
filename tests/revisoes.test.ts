@@ -20,17 +20,24 @@ import {
   atualizarDataPrevista,
   atualizarLembreteRevisao,
   atualizarNotaRevisao,
+  contarChamadosRevisoes,
   dataPtBrParaInput,
   dataPtBrParaISOManha,
   inputParaDataPtBr,
   isoParaDataPtBr,
+  lerOrdemListaRevisoes,
   lerUltimaBusca,
+  limparChamadosRevisoes,
   listarHistoricoRevisoes,
+  ordenarListaRevisoes,
   ordenarPorPrevisao,
   removerDoHistoricoRevisoes,
+  salvarOrdemListaRevisoes,
   salvarUltimaBusca,
+  tempoAdicaoRevisao,
   textoListaParaExcel,
   REVISOES_HISTORICO_KEY,
+  REVISOES_ORDEM_LISTA_KEY,
   REVISOES_ULTIMA_BUSCA_KEY,
 } from '../src/revisoes/utils/historicoRevisoes';
 import { CHAVES_BACKUP } from '../src/utils/backup';
@@ -354,6 +361,18 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     expect(listarHistoricoRevisoes()[0].chamado).toBe(false);
   });
 
+  it('limpar chamados apaga só os marcados', () => {
+    const [a] = adicionarAhistoricoRevisoes(item('AAA111', '14/10/2027'));
+    adicionarAhistoricoRevisoes(item('BBB222', '20/12/2027'));
+    atualizarChamadoRevisao(a.id, true);
+    expect(contarChamadosRevisoes()).toBe(1);
+    const resto = limparChamadosRevisoes();
+    expect(resto).toHaveLength(1);
+    expect(resto[0].chassi).toBe('BBB222');
+    expect(contarChamadosRevisoes()).toBe(0);
+    expect(listarHistoricoRevisoes()).toHaveLength(1);
+  });
+
   it('nota: salva e recolar o chassi não apaga', () => {
     const [criado] = adicionarAhistoricoRevisoes(item('ABC123', '14/10/2027'));
     expect(listarHistoricoRevisoes()[0].nota ?? '').toBe('');
@@ -369,6 +388,70 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     adicionarAhistoricoRevisoes(item('C2', '20/12/2027'));
     adicionarAhistoricoRevisoes(item('C1', '14/10/2027'));
     expect(ordenarPorPrevisao(listarHistoricoRevisoes()).map((r) => r.chassi)).toEqual(['C1', 'C2']);
+  });
+
+  it('ordem: lembrete próximo/distante (sem lembrete vai ao fim)', () => {
+    adicionarAhistoricoRevisoes(item('MEIO', '20/12/2027', '2027-12-01T09:00'));
+    adicionarAhistoricoRevisoes(item('PROX', '14/10/2027', '2027-10-01T09:00'));
+    adicionarAhistoricoRevisoes(item('DIST', '14/11/2027', '2028-01-01T09:00'));
+    adicionarAhistoricoRevisoes(item('SEM', '15/10/2027', null));
+    const lista = listarHistoricoRevisoes();
+    expect(ordenarListaRevisoes(lista, 'lembrete-proximo').map((r) => r.chassi)).toEqual([
+      'PROX',
+      'MEIO',
+      'DIST',
+      'SEM',
+    ]);
+    expect(ordenarListaRevisoes(lista, 'lembrete-distante').map((r) => r.chassi)).toEqual([
+      'DIST',
+      'MEIO',
+      'PROX',
+      'SEM',
+    ]);
+    // modo previsão segue igual ao ordenarPorPrevisao
+    expect(ordenarListaRevisoes(lista, 'previsao').map((r) => r.chassi)).toEqual(
+      ordenarPorPrevisao(lista).map((r) => r.chassi),
+    );
+    // não muta o original
+    expect(lista.map((r) => r.chassi)).toEqual(['SEM', 'DIST', 'PROX', 'MEIO']);
+  });
+
+  it('ordem: adição recente/antiga (criadoEm ilegível vai ao fim)', () => {
+    const base = { ...item('X', '14/10/2027'), veiculo: '', nome: '', telefone: '' };
+    localStorage.setItem(
+      REVISOES_HISTORICO_KEY,
+      JSON.stringify([
+        { ...base, id: 'a', chassi: 'ANTIGA', criadoEm: '23/10/2026 10:00:00' },
+        { ...base, id: 'b', chassi: 'RECENTE', criadoEm: '24/10/2026 10:00:00' },
+        { ...base, id: 'c', chassi: 'SEM-DATA', criadoEm: 'ilegível' },
+      ]),
+    );
+    expect(tempoAdicaoRevisao('24/10/2026 10:00:00')).toBeGreaterThan(
+      tempoAdicaoRevisao('23/10/2026 10:00:00'),
+    );
+    expect(tempoAdicaoRevisao('24/10/2026, 10:00:00')).toBe(tempoAdicaoRevisao('24/10/2026 10:00:00'));
+    expect(tempoAdicaoRevisao('ilegível')).toBe(0);
+    const lista = listarHistoricoRevisoes();
+    expect(ordenarListaRevisoes(lista, 'adicao-recente').map((r) => r.chassi)).toEqual([
+      'RECENTE',
+      'ANTIGA',
+      'SEM-DATA',
+    ]);
+    expect(ordenarListaRevisoes(lista, 'adicao-antiga').map((r) => r.chassi)).toEqual([
+      'ANTIGA',
+      'RECENTE',
+      'SEM-DATA',
+    ]);
+  });
+
+  it('ordem da lista: padrão é previsão, persiste e entra no backup', () => {
+    expect(lerOrdemListaRevisoes()).toBe('previsao');
+    salvarOrdemListaRevisoes('lembrete-proximo');
+    expect(lerOrdemListaRevisoes()).toBe('lembrete-proximo');
+    expect(localStorage.getItem(REVISOES_ORDEM_LISTA_KEY)).toBe('lembrete-proximo');
+    localStorage.setItem(REVISOES_ORDEM_LISTA_KEY, 'lixo');
+    expect(lerOrdemListaRevisoes()).toBe('previsao');
+    expect(CHAVES_BACKUP).toContain(REVISOES_ORDEM_LISTA_KEY);
   });
 
   it('lembrete da revisão entra no sino global', async () => {
