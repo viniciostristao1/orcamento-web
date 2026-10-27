@@ -136,10 +136,16 @@ const DadosApp: React.FC<{
   // Se a aba ativa deixar de existir (ou nunca existiu), cai na primeira.
   const aba = dados.abas.find((a) => a.id === abaId) ?? dados.abas[0];
 
-  // Atalho vindo da aba Orçamentos: abre a sub-aba correspondente.
+  // Atalho vindo da aba Orçamentos: abre a sub-aba correspondente — SÓ quando
+  // o atalho é clicado (o `vez` muda). Sem o guarda, o `dados.abas` novo a
+  // cada tecla redispava o efeito e qualquer digitação voltava para a sub-aba
+  // do último atalho clicado. Aba inexistente cai na primeira (linha do `aba`).
+  const vezSubAbaAplicada = useRef(0);
   useEffect(() => {
-    if (subAba && dados.abas.some((a) => a.id === subAba.id)) setAbaId(subAba.id);
-  }, [subAba, dados.abas]);
+    if (!subAba || subAba.vez === vezSubAbaAplicada.current) return;
+    vezSubAbaAplicada.current = subAba.vez;
+    setAbaId(subAba.id);
+  }, [subAba]);
 
   const ocorrencias = listarOcorrencias(dados, busca);
   const buscaAtiva = busca.trim().length > 0;

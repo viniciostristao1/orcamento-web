@@ -3,7 +3,9 @@
 > **Leia este arquivo primeiro** em toda tarefa deste projeto. Ele é o harness: o que é,
 > como rodar, como entregar e o que não pode quebrar. O diário técnico/lições fica no
 > [`APRENDIZADOS.md`](APRENDIZADOS.md) — **anexe lá todo bloco de trabalho** (o que fez,
-> decisões e gotchas).
+> decisões e gotchas). Contexto de trabalho do usuário (consultores, Syonet, prospecção):
+> [`ideias/prospeccao-propria.md`](ideias/prospeccao-propria.md) — **ler só quando o assunto
+> for estratégia de vendas/prospecção, nunca para tarefas de código**.
 
 ---
 
@@ -19,7 +21,7 @@ pneus em TABs e gera um flyer de promoção **750px**, exportado em PNG),
 **Dados** (v0.15.0 — tabelas e notas de apoio: peças, O.S's etc.) e
 **Revisões** (v0.160.0 — cola as passagens do portal Toyota e projeta a próxima
 revisão: 10 mil km ou 12 meses; v0.161.0 — lista de previsões por chassi + data
-editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação); v0.168.0 — copiar passagens/lista + alvo exato +10 mil; v0.169.0 — descrição curta (sem tipo/código); v0.170.0 — "+" na nota cria outra abaixo; v0.171.0 — caixinha "já chamei" nos 3 históricos; v0.172.0 — limpar chamados, notas gerais e editar lembrete; v0.173.0 — pesquisa dos Dados grudada no topo; v0.174.0 — chamado ao lado do excluir + última busca; v0.175.0 — sem "+N extras" nas passagens; v0.176.0 — nota por revisão; v0.177.0 — nota azul preenchida; v0.178.0 — limpar chamados na lista; v0.179.0 — ordem da lista (previsão/lembrete/adição); v0.180.0 — busca por nome/chassi na lista. A aba **Whats**
+editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação); v0.168.0 — copiar passagens/lista + alvo exato +10 mil; v0.169.0 — descrição curta (sem tipo/código); v0.170.0 — "+" na nota cria outra abaixo; v0.171.0 — caixinha "já chamei" nos 3 históricos; v0.172.0 — limpar chamados, notas gerais e editar lembrete; v0.173.0 — pesquisa dos Dados grudada no topo; v0.174.0 — chamado ao lado do excluir + última busca; v0.175.0 — sem "+N extras" nas passagens; v0.176.0 — nota por revisão; v0.177.0 — nota azul preenchida; v0.178.0 — limpar chamados na lista; v0.179.0 — ordem da lista (previsão/lembrete/adição); v0.180.0 — busca por nome/chassi na lista; v0.181.0 — atalho não puxa a sub-aba a cada tecla. A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As quatro abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
 da interface. São **10 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
@@ -90,7 +92,7 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **303 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **304 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do

@@ -482,6 +482,70 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('aba Dados: digitar na célula não volta para a sub-aba do atalho (MENU DADOS)', () => {
+    localStorage.removeItem('dados_tabelas_v1');
+    localStorage.setItem(
+      'dados_tabelas_v1',
+      JSON.stringify({
+        abas: [
+          {
+            id: 'os',
+            rotulo: "O.S'S",
+            tabelas: [
+              {
+                id: 't1',
+                criadoEm: '',
+                colunas: 1,
+                titulos: ['SERVICO'],
+                linhas: [['FREIO']],
+                larguras: [170],
+                comCaixas: false,
+                marcados: [false],
+              },
+            ],
+            notas: [],
+            ordem: ['t1'],
+          },
+          {
+            id: 'senhas',
+            rotulo: 'SENHAS',
+            tabelas: [
+              {
+                id: 't2',
+                criadoEm: '',
+                colunas: 1,
+                titulos: ['SENHA'],
+                linhas: [['1234']],
+                larguras: [170],
+                comCaixas: false,
+                marcados: [false],
+              },
+            ],
+            notas: [],
+            ordem: ['t2'],
+          },
+        ],
+      }),
+    );
+    const osAtiva = () =>
+      screen
+        .getAllByRole('button', { name: "O.S'S" })
+        .find((b) => b.className.includes('bg-blue-600'));
+    try {
+      render(<App />);
+      // atalho do MENU DADOS leva a SENHAS (o prop subAba fica preso nisso)
+      fireEvent.click(screen.getByRole('button', { name: 'Ir para sub-aba SENHAS' }));
+      // volta para O.S's e digita numa célula: tem que continuar em O.S's
+      fireEvent.click(screen.getByRole('button', { name: "O.S'S" }));
+      expect(osAtiva()).toBeTruthy();
+      fireEvent.change(screen.getByDisplayValue('FREIO'), { target: { value: 'FREIO X' } });
+      expect(osAtiva()).toBeTruthy();
+      expect(screen.getByDisplayValue('FREIO X')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('dados_tabelas_v1');
+    }
+  });
+
   it('V com desmarcados salva com a marcação (vai para Não Aprovados)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     render(<App />);

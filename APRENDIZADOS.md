@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.181.0](#v18100) — 2026-10-27 — Dados: atalho não puxa a sub-aba a cada tecla (v0.181.0)
+
 - [v0.180.0](#v18000) — 2026-10-26 — Revisões: busca por nome/chassi na lista (v0.180.0)
 
 - [v0.179.0](#v17900) — 2026-10-26 — Revisões: ordem da lista (previsão/lembrete/adição) (v0.179.0)
@@ -284,6 +286,26 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18100"></a>
+## 2026-10-27 — Dados: atalho não puxa a sub-aba a cada tecla (v0.181.0)
+
+**Bug:** depois de clicar num atalho do MENU DADOS (ex.: SENHAS), qualquer letra
+digitada numa célula de outra sub-aba (O.S's, MEMÓRIA…) pulava de volta para a
+sub-aba do atalho; Enter idem.
+
+**Causa:** o `subAbaDados` do `App.tsx` nunca é limpo, e o efeito do atalho em
+`DadosApp.tsx` dependia de `[subAba, dados.abas]` — como `dados.abas` é um array
+novo a cada tecla, o efeito redispava e reaplicava `setAbaId(subAba.id)` sempre.
+
+**Feito:** efeito dispara só no clique do atalho (guarda `vez` já aplicada em
+ref; aba inexistente continua caindo na primeira pelo `aba ?? abas[0]`).
+Teste de regressão no smoke (atalho SENHAS → O.S's → digitar na célula).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **304/304**;
+build único autocontido. Selo `v0.181.0`.
+
+---
 
 <a id="v18000"></a>
 ## 2026-10-26 — Revisões: busca por nome/chassi na lista (v0.180.0)
