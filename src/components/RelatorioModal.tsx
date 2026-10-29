@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowDownWideNarrow, ArrowUpNarrowWide, Check, Copy, Trash2, X } from 'lucide-react';
 import type { OrcamentoSalvo } from '../utils/historico';
 import {
+  filtrarPorPeriodo,
   gruposPorMes,
   linhaRelatorio,
   mesAnterior,
@@ -31,9 +32,10 @@ const CABECALHO = ['DATA', 'NOME', 'TIPO', 'NÚMERO', 'APROVADO', 'RESPONSÁVEL'
  * Relatório para Excel: todos os orçamentos separados por mês, com o
  * percentual de aprovados/parcial/não aprovados no topo. O seletor de mês
  * filtra a tabela e o "Copiar" (ícone) leva só as linhas visíveis em TAB
- * (cada valor cai na sua célula ao colar). O botão de ordem alterna a data
- * entre recentes e antigos (vale para a tabela E para o copiar). Lixeira por
- * linha exclui; lixeira do topo limpa tudo.
+ * (cada valor cai na sua célula). O filtro De/Até recorta um intervalo de
+ * datas DENTRO do mês (tabela + copiar; o % e as somas seguem só o mês).
+ * O botão de ordem alterna a data entre recentes e antigos (vale para a
+ * tabela E para o copiar). Lixeira por linha exclui; lixeira do topo limpa tudo.
  */
 const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, registros, onExcluir, onLimparTudo }) => {
   const [copiado, setCopiado] = useState(false);
@@ -41,22 +43,37 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
   const [mesSel, setMesSel] = useState('todos');
   // Ordem da data: recentes (maior primeiro) ou antigos (menor primeiro).
   const [ordemData, setOrdemData] = useState<OrdemDataRelatorio>('recentes');
+  // Período opcional ("De" / "Até", formato do <input type="date">): filtra a
+  // tabela e o Copiar DENTRO do mês (E lógico) — % e somas seguem só o mês.
+  const [dataIni, setDataIni] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
   useEffect(() => {
     if (aberto) {
       setMesSel('todos');
       setOrdemData('recentes');
+      setDataIni('');
+      setDataFim('');
       setCopiado(false);
     }
   }, [aberto]);
 
   if (!aberto) return null;
 
+  const formatarISO = (iso: string): string => {
+    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+  };
+
   const grupos = gruposPorMes(registros);
   const mesEfetivo = mesSel === 'todos' || grupos.some((g) => g.mes === mesSel) ? mesSel : 'todos';
   const filtrados = mesEfetivo === 'todos' ? registros : registros.filter((r) => mesDoRegistro(r) === mesEfetivo);
+  // Período vale para a tabela E para o copiar (o % e as somas seguem o mês).
+  const periodoAtivo = dataIni !== '' || dataFim !== '';
+  const intervaloInvalido = dataIni !== '' && dataFim !== '' && dataIni > dataFim;
+  const filtradosPeriodo = intervaloInvalido ? [] : filtrarPorPeriodo(filtrados, dataIni || null, dataFim || null);
   // A ordem vale para a tabela E para o copiar (o % não depende de ordem).
-  const ordenados = ordenarPorData(filtrados, ordemData);
+  const ordenados = ordenarPorData(filtradosPeriodo, ordemData);
   const gruposVisiveis = gruposPorMes(ordenados);
   const pct = percentuaisAprovacao(filtrados);
   // Soma mensal em bruto (aprovados + parciais), no mesmo recorte do % —
@@ -98,7 +115,7 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
             <button
               type="button"
               onClick={() => setOrdemData((o) => (o === 'recentes' ? 'antigos' : 'recentes'))}
-              disabled={filtrados.length === 0}
+              disabled={filtradosPeriodo.length === 0}
               aria-label="Alternar ordem da data"
               title={
                 ordemData === 'recentes'
@@ -112,12 +129,16 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
             <button
               type="button"
               onClick={copiar}
-              disabled={filtrados.length === 0}
+              disabled={filtradosPeriodo.length === 0}
               aria-label="Copiar para Excel"
               title={
-                mesEfetivo === 'todos'
-                  ? 'Copiar para Excel (colar no Excel separa por célula)'
-                  : `Copiar só ${rotuloMes(mesEfetivo)} para Excel`
+                intervaloInvalido
+                  ? 'A data inicial está após a final — ajuste o período'
+                  : periodoAtivo
+                    ? `Copiar ${dataIni ? formatarISO(dataIni) : '…'}–${dataFim ? formatarISO(dataFim) : '…'} (${filtradosPeriodo.length} de ${filtrados.length}) para Excel`
+                    : mesEfetivo === 'todos'
+                      ? 'Copiar para Excel (colar no Excel separa por célula)'
+                      : `Copiar só ${rotuloMes(mesEfetivo)} para Excel`
               }
               className={`flex items-center justify-center p-2.5 rounded-xl transition-all border cursor-pointer active:scale-95 ${
                 copiado
@@ -151,7 +172,7 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
 
         {registros.length > 0 && (
           <>
-            <div className="flex items-center gap-3 px-6 py-3 border-b border-slate-800/60">
+            <div className="flex items-center gap-3 px-6 py-3 border-b border-slate-800/60 flex-wrap">
               <label
                 htmlFor="relatorio-mes"
                 className="text-[11px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap"
@@ -172,10 +193,63 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
                   </option>
                 ))}
               </select>
-              {mesEfetivo !== 'todos' && (
+              {mesEfetivo !== 'todos' && !periodoAtivo && (
                 <span className="text-xs font-bold text-slate-500 whitespace-nowrap">
                   copia só este mês
                 </span>
+              )}
+              <label
+                htmlFor="relatorio-de"
+                className="text-[11px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap"
+              >
+                De
+              </label>
+              <input
+                id="relatorio-de"
+                type="date"
+                aria-label="Data inicial do período"
+                title="Só copia deste dia em diante (dentro do mês)"
+                value={dataIni}
+                max={dataFim || undefined}
+                onChange={(e) => setDataIni(e.target.value)}
+                className="campo-tema border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none bg-slate-900"
+              />
+              <label
+                htmlFor="relatorio-ate"
+                className="text-[11px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap"
+              >
+                Até
+              </label>
+              <input
+                id="relatorio-ate"
+                type="date"
+                aria-label="Data final do período"
+                title="Só copia até este dia (dentro do mês)"
+                value={dataFim}
+                min={dataIni || undefined}
+                onChange={(e) => setDataFim(e.target.value)}
+                className="campo-tema border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none bg-slate-900"
+              />
+              {periodoAtivo && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDataIni('');
+                      setDataFim('');
+                    }}
+                    aria-label="Limpar período"
+                    title="Limpar período (volta a copiar o mês inteiro)"
+                    className="flex items-center justify-center p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-all border border-slate-700 cursor-pointer active:scale-95"
+                  >
+                    <X size={14} />
+                  </button>
+                  <span className="text-xs font-bold text-slate-500 whitespace-nowrap">
+                    {intervaloInvalido
+                      ? 'início após o fim — ajuste o período'
+                      : `copia ${filtradosPeriodo.length} de ${filtrados.length} no período`}
+                  </span>
+                </>
               )}
             </div>
             <div className="px-6 py-3 border-b border-slate-800/60 text-sm font-black uppercase tracking-widest">
@@ -221,9 +295,15 @@ const RelatorioModal: React.FC<RelatorioModalProps> = ({ aberto, onFechar, regis
         )}
 
         <div className="overflow-auto p-4">
-          {filtrados.length === 0 ? (
+          {filtradosPeriodo.length === 0 ? (
             <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-base">
-              {registros.length === 0 ? 'Nenhum orçamento no histórico.' : 'Nenhum orçamento neste mês.'}
+              {registros.length === 0
+                ? 'Nenhum orçamento no histórico.'
+                : intervaloInvalido
+                  ? 'Data inicial após a final — ajuste o período.'
+                  : periodoAtivo
+                    ? 'Nenhum orçamento neste período.'
+                    : 'Nenhum orçamento neste mês.'}
             </p>
           ) : (
             <table className="w-full border-collapse text-sm">

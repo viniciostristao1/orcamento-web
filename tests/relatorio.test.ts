@@ -6,7 +6,7 @@ import {
   listarHistorico,
   type OrcamentoSalvo,
 } from '../src/utils/historico';
-import { gruposPorMes, linhaRelatorio, mesAnterior, mesDoRegistro, ordenarPorData, percentuaisAprovacao, relatorioParaExcel, rotuloMes, somasAprovadasBruto, tempoDoRegistro, valorAprovadoBruto } from '../src/utils/relatorio';
+import { fimDoDiaMs, filtrarPorPeriodo, gruposPorMes, inicioDoDiaMs, linhaRelatorio, mesAnterior, mesDoRegistro, ordenarPorData, percentuaisAprovacao, relatorioParaExcel, rotuloMes, somasAprovadasBruto, tempoDoRegistro, valorAprovadoBruto } from '../src/utils/relatorio';
 
 const base = {
   descReparo: '1 X',
@@ -215,5 +215,56 @@ describe('relatório para Excel (aprovados)', () => {
     const d = { ...base, id: 'd', criadoEm: '01/08/2026 18:00:00', dataDoc: '' } as OrcamentoSalvo;
     expect(ordenarPorData([c, d], 'antigos').map((r) => r.id)).toEqual(['c', 'd']);
     expect(tempoDoRegistro({ ...base, id: 'x', dataDoc: '', criadoEm: 'sem-data' } as OrcamentoSalvo)).toBe(0);
+  });
+
+  it('filtro por período: intervalo inclusivo (dia cheio nas bordas)', () => {
+    const a = { ...base, id: 'a', criadoEm: 'x', dataDoc: '01/10/2026' } as OrcamentoSalvo;
+    const b = { ...base, id: 'b', criadoEm: 'x', dataDoc: '05/10/2026' } as OrcamentoSalvo;
+    const c = { ...base, id: 'c', criadoEm: 'x', dataDoc: '07/10/2026' } as OrcamentoSalvo;
+    expect(filtrarPorPeriodo([a, b, c], '2026-10-01', '2026-10-07').map((r) => r.id)).toEqual(['a', 'b', 'c']);
+    expect(filtrarPorPeriodo([a, b, c], '2026-10-02', '2026-10-06').map((r) => r.id)).toEqual(['b']);
+    expect(filtrarPorPeriodo([a, b, c], '2026-10-05', '2026-10-05').map((r) => r.id)).toEqual(['b']);
+  });
+
+  it('filtro por período: só início ou só fim (lado vazio = sem limite)', () => {
+    const a = { ...base, id: 'a', criadoEm: 'x', dataDoc: '01/10/2026' } as OrcamentoSalvo;
+    const b = { ...base, id: 'b', criadoEm: 'x', dataDoc: '05/10/2026' } as OrcamentoSalvo;
+    expect(filtrarPorPeriodo([a, b], '2026-10-05', null).map((r) => r.id)).toEqual(['b']);
+    expect(filtrarPorPeriodo([a, b], null, '2026-10-01').map((r) => r.id)).toEqual(['a']);
+    expect(filtrarPorPeriodo([a, b], null, null).map((r) => r.id)).toEqual(['a', 'b']);
+    expect(filtrarPorPeriodo([a, b], '', '').map((r) => r.id)).toEqual(['a', 'b']);
+  });
+
+  it('filtro por período: início após o fim = vazio; inválido = sem limite', () => {
+    const a = { ...base, id: 'a', criadoEm: 'x', dataDoc: '05/10/2026' } as OrcamentoSalvo;
+    expect(filtrarPorPeriodo([a], '2026-10-07', '2026-10-01')).toEqual([]);
+    expect(filtrarPorPeriodo([a], 'invalida', '2026-10-31').map((r) => r.id)).toEqual(['a']);
+    expect(filtrarPorPeriodo([a], '2026-02-30', null).map((r) => r.id)).toEqual(['a']);
+    expect(inicioDoDiaMs('2026-02-30')).toBeNull();
+    expect(fimDoDiaMs('2026-13-01')).toBeNull();
+  });
+
+  it('filtro por período: cai para a data de processamento e ignora sem-data', () => {
+    const proc = { ...base, id: 'p', criadoEm: '05/10/2026 18:00:00', dataDoc: '' } as OrcamentoSalvo;
+    const sem = { ...base, id: 's', criadoEm: 'sem-data', dataDoc: '' } as OrcamentoSalvo;
+    expect(filtrarPorPeriodo([proc, sem], '2026-10-01', '2026-10-31').map((r) => r.id)).toEqual(['p']);
+    expect(filtrarPorPeriodo([proc, sem], null, null).map((r) => r.id)).toEqual(['p', 's']);
+    // hora do processamento entra no dia cheio
+    const cedo = { ...base, id: 'c', criadoEm: '05/10/2026 00:00:00', dataDoc: '' } as OrcamentoSalvo;
+    const tarde = { ...base, id: 't', criadoEm: '05/10/2026 23:59:59', dataDoc: '' } as OrcamentoSalvo;
+    expect(filtrarPorPeriodo([cedo, tarde], '2026-10-05', '2026-10-05').map((r) => r.id)).toEqual(['c', 't']);
+  });
+
+  it('filtro por período: combina com o mês (E lógico) e o copiar leva só o intervalo', () => {
+    const a = { ...base, id: 'a', criadoEm: 'x', dataDoc: '28/09/2026', nome: 'SET' } as OrcamentoSalvo;
+    const b = { ...base, id: 'b', criadoEm: 'x', dataDoc: '02/10/2026', nome: 'OUT1' } as OrcamentoSalvo;
+    const c = { ...base, id: 'c', criadoEm: 'x', dataDoc: '20/10/2026', nome: 'OUT2' } as OrcamentoSalvo;
+    const soOut = [a, b, c].filter((r) => mesDoRegistro(r) === '10/2026');
+    const intervalo = filtrarPorPeriodo(soOut, '2026-10-01', '2026-10-07');
+    expect(intervalo.map((r) => r.id)).toEqual(['b']);
+    const texto = relatorioParaExcel(ordenarPorData(intervalo, 'antigos'));
+    expect(texto).toContain('OUT1');
+    expect(texto).not.toContain('OUT2');
+    expect(texto).not.toContain('SET');
   });
 });

@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.182.0](#v18200) — 2026-10-29 — Relatório: filtro De/Até copia só o intervalo de datas (v0.182.0)
+
 - [v0.181.0](#v18100) — 2026-10-27 — Dados: atalho não puxa a sub-aba a cada tecla (v0.181.0)
 
 - [v0.180.0](#v18000) — 2026-10-26 — Revisões: busca por nome/chassi na lista (v0.180.0)
@@ -286,6 +288,32 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18200"></a>
+## 2026-10-29 — Relatório: filtro De/Até copia só o intervalo de datas (v0.182.0)
+
+**Pedido:** no `Orçamentos > Histórico > Relatório para Excel`, o Copiar levava o
+mês inteiro; o usuário abastece a planilha aos poucos e quer copiar só um
+intervalo de datas.
+
+**Feito:**
+- `src/utils/relatorio.ts`: `filtrarPorPeriodo()` pura + `inicioDoDiaMs()`/
+`fimDoDiaMs()` (limites inclusivos, dia cheio local; `AAAA-MM-DD` inválido =
+sem limite; início > fim = vazio; sem-data só entra sem período). Usa a mesma
+data da ordenação (`dataDoc`, caindo para processamento).
+- `src/components/RelatorioModal.tsx`: campos `De`/`Até` (`type="date"`,
+`aria-label` "Data inicial/final do período") ao lado do seletor de mês + X
+limpa-período e contador `copia N de M no período`. Período recorta DENTRO do
+mês (E lógico) e vale para **tabela + copiar + ordem**; `%`, somas e
+comparativo seguem só o mês (decisão do usuário). Reset ao abrir; aviso
+`início após o fim`.
+- Testes: 5 casos novos (bordas inclusivas, lado aberto, inválido, fallback
+`criadoEm`/sem-data, E lógico com mês + Excel do intervalo).
+
+**Validação:** typecheck limpo; lint só warnings conhecidos; `npm test` **309/309**;
+build único autocontido. Selo `v0.182.0`.
+
+---
 
 <a id="v18100"></a>
 ## 2026-10-27 — Dados: atalho não puxa a sub-aba a cada tecla (v0.181.0)

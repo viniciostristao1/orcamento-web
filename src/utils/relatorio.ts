@@ -79,6 +79,58 @@ export function ordenarPorData(lista: OrcamentoSalvo[], ordem: OrdemDataRelatori
   return copia;
 }
 
+/** "2026-10-05" (valor do `<input type="date">`) → [ano, mês, dia] ou null se inválido. */
+function partesDataISO(iso: string | null | undefined): [number, number, number] | null {
+  if (!iso) return null;
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const ano = parseInt(m[1], 10);
+  const mes = parseInt(m[2], 10);
+  const dia = parseInt(m[3], 10);
+  if (mes < 1 || mes > 12 || dia < 1 || dia > 31) return null;
+  // Recusa datas que o Date "arredondaria" (ex.: 2026-02-30 viraria março).
+  const conf = new Date(ano, mes - 1, dia);
+  if (conf.getFullYear() !== ano || conf.getMonth() !== mes - 1 || conf.getDate() !== dia) return null;
+  return [ano, mes, dia];
+}
+
+/** Início do dia local (00:00:00.000) para o limite "De". Null = sem limite. */
+export function inicioDoDiaMs(iso: string | null | undefined): number | null {
+  const p = partesDataISO(iso);
+  return p ? new Date(p[0], p[1] - 1, p[2], 0, 0, 0, 0).getTime() : null;
+}
+
+/** Fim do dia local (23:59:59.999) para o limite "Até". Null = sem limite. */
+export function fimDoDiaMs(iso: string | null | undefined): number | null {
+  const p = partesDataISO(iso);
+  return p ? new Date(p[0], p[1] - 1, p[2], 23, 59, 59, 999).getTime() : null;
+}
+
+/**
+ * Filtra por intervalo de datas (limites inclusivos, dia cheio).
+ * Usa a mesma data da ordenação (`dataDoc`, caindo para a de processamento).
+ * Lado vazio/inválido = sem limite; sem nenhum limite devolve cópia;
+ * início > fim = lista vazia (a UI avisa "intervalo inválido").
+ * Com período ativo, registro sem data legível não entra.
+ */
+export function filtrarPorPeriodo(
+  lista: OrcamentoSalvo[],
+  inicioISO: string | null | undefined,
+  fimISO: string | null | undefined,
+): OrcamentoSalvo[] {
+  const ini = inicioDoDiaMs(inicioISO);
+  const fim = fimDoDiaMs(fimISO);
+  if (ini === null && fim === null) return [...lista];
+  if (ini !== null && fim !== null && ini > fim) return [];
+  return lista.filter((r) => {
+    const t = tempoDoRegistro(r);
+    if (t === 0) return false;
+    if (ini !== null && t < ini) return false;
+    if (fim !== null && t > fim) return false;
+    return true;
+  });
+}
+
 /** "08/2026" → "AGOSTO/2026" (rótulo do grupo no relatório). */
 export function rotuloMes(mes: string): string {
   const m = mes.match(/(\d{2})\/(\d{4})/);
