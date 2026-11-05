@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.183.0](#v18300) — 2026-11-05 — Lembretes: uma caixinha por vencido, rápido abre o sino e navegação firme (v0.183.0)
+
 - [v0.182.0](#v18200) — 2026-10-29 — Relatório: filtro De/Até copia só o intervalo de datas (v0.182.0)
 
 - [v0.181.0](#v18100) — 2026-10-27 — Dados: atalho não puxa a sub-aba a cada tecla (v0.181.0)
@@ -288,6 +290,42 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18300"></a>
+## 2026-11-05 — Lembretes: uma caixinha por vencido, rápido abre o sino e navegação firme (v0.183.0)
+
+**Pedido:** clicar no lembrete (ex. aba Revisões) fazia ele sumir — não estava
+mais no sino — então o clique = perda. Com 2 lembretes, vinham juntos na mesma
+caixinha. Sugestão: levar até o local do lembrete para poder reprogramar/vê-lo.
+
+**Feito:**
+- `LembreteHistorico.tsx` virou **uma caixinha por vencido** (prop `item` único;
+  saiu o `role="button"` externo + `irPrimeiro`, que concluía o 1º ao clicar no
+  vão). Cada caixa tem: botão principal Ir, relógio Reprogramar (abre o sino sem
+  concluir) e X que dispensa **só ela** + hora formatada e selo da origem.
+- `App.tsx`: pilha `lembretesVisiveis.map()` com `dispensados: string[]` por chave
+  `origem:id:quando` (volta se a lista mudar); `irParaLembrete` mantém
+  navegar+concluir nos históricos (decisão do usuário) e avisa o sino via
+  `avisarLembretesMudaram()`; **rápido não conclui mais** — abre o sino no item
+  (`sinoAbertura {vez, chave, modo}`), pois não tem cartão para abrir.
+- `SinoLembretes.tsx`: prop `aberturaExterna` — abre, destaca em âmbar
+  (`data-sino-id` + `data-destaque` + scroll) e, no modo `reprogramar`, já abre o
+  editor de data/hora com a data atual.
+- Navegação firme: `HistoryModal`/`FlyerHistoryModal` recarregam a lista, limpam
+  busca/cor e rolam de novo (novo `destaqueVez`, vale p/ re-clique no mesmo id);
+  `RevisoesApp` limpa a busca (item filtrado sumia), recarrega e ganha
+  `data-destaque`; `OrcamentosApp`/`TireFlyerApp` repassam o `vez`.
+- Testes (`app_smoke`): atualizados p/ 1 botão por caixa e rápido-que-abre-o-sino
+  + novo teste "2 vencidos = 2 caixinhas, X individual, relógio abre reprogramação".
+
+**Decisões:** mantido concluir-no-clique nos históricos (escolha do usuário) — a
+recuperação é pelo relógio do cartão de destino, que agora sempre abre destacado;
+rápido é exceção (sem local, o sino É o local).
+
+**Gotchas:** `CSS.escape` evitado no sino (jsdom pode não ter) — busca por
+`getAttribute` em `[data-sino-id]`; `TireFlyerApp abrirHistorico` cria objeto novo
+a cada render (efeito roda sempre, inofensivo); dispensados guarda `quando` junto
+para o item reprogramado voltar a aparecer.
 
 <a id="v18200"></a>
 ## 2026-10-29 — Relatório: filtro De/Até copia só o intervalo de datas (v0.182.0)

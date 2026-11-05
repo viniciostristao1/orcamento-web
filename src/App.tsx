@@ -12,9 +12,9 @@ import LembreteHistorico from './components/LembreteHistorico';
 import { atualizarLembreteHistorico } from './utils/historico';
 import { atualizarLembreteFlyer } from './tire/utils/historicoFlyer';
 import { atualizarLembreteRevisao } from './revisoes/utils/historicoRevisoes';
-import { removerRapido } from './utils/lembretesRapidos';
 import {
   LEMBRETES_EVENTO,
+  avisarLembretesMudaram,
   listarLembretesVencidos,
   type LembreteVencido,
   type OrigemLembrete,
@@ -40,12 +40,15 @@ const AppInterno: React.FC = () => {
   const { rotulos, renomearAba } = useRotulos();
   const [abaEditando, setAbaEditando] = useState<string | null>(null);
   const [nomeAba, setNomeAba] = useState('');
-  // Lembretes vencidos dos históricos (orçamentos + tire flyer): aviso que pisca
-  // no canto inferior direito; o clique abre o orçamento e conclui o lembrete.
+  // Lembretes vencidos dos históricos (orçamentos + flyer + revisões) e
+  // rápidos: uma caixinha por vencido no canto inferior direito.
   const [lembretes, setLembretes] = useState<LembreteVencido[]>(() => listarLembretesVencidos());
-  const [lembretesDisp, setLembretesDisp] = useState('');
+  // Caixinhas dispensadas no X (só escondem; voltam se a lista mudar).
+  const [dispensados, setDispensados] = useState<string[]>([]);
   // Clique no aviso: abre o histórico no cartão em questão (não gera na tela).
   const [irParaHistorico, setIrParaHistorico] = useState<{ origem: OrigemLembrete; id: string; vez: number } | null>(null);
+  // Pedido de abertura do sino vindo das caixinhas (rápido = ver; relógio = reprogramar).
+  const [sinoAbertura, setSinoAbertura] = useState<{ vez: number; chave: string; modo: 'ver' | 'reprogramar' } | null>(null);
 
   useEffect(() => {
     const recarregar = () => {
@@ -65,15 +68,36 @@ const AppInterno: React.FC = () => {
     };
   }, []);
 
-  const chaveLembretes = lembretes.map((l) => `${l.origem}:${l.id}:${l.quando}`).join(',');
-  const mostrarLembretes = lembretes.length > 0 && lembretesDisp !== chaveLembretes;
+  const chaveLembrete = (l: LembreteVencido): string => `${l.origem}:${l.id}:${l.quando}`;
+  const lembretesVisiveis = lembretes.filter((l) => !dispensados.includes(chaveLembrete(l)));
+  const mostrarLembretes = lembretesVisiveis.length > 0;
 
-  // Clique no aviso: troca para a aba certa, abre o histórico no cartão e
-  // conclui o lembrete. Rápido não tem histórico: só conclui.
+  const dispensarLembrete = (item: LembreteVencido): void => {
+    const chave = chaveLembrete(item);
+    setDispensados((antes) => (antes.includes(chave) ? antes : [...antes, chave]));
+  };
+
+  // Relógio da caixinha: abre o sino com a reprogramação (sem concluir).
+  const reprogramarViaSino = (item: LembreteVencido): void => {
+    setSinoAbertura((s) => ({
+      vez: (s?.vez ?? 0) + 1,
+      chave: `${item.origem}:${item.id}`,
+      modo: 'reprogramar',
+    }));
+  };
+
+  // Clique no botão principal da caixinha: históricos trocam para a aba certa,
+  // abrem o histórico no cartão e concluem o lembrete. Rápido não tem cartão:
+  // abre o sino no item (sem concluir, para poder reprogramar/vê-lo).
   const [flyerHistVez, setFlyerHistVez] = useState(0);
   const irParaLembrete = (item: LembreteVencido) => {
     if (item.origem === 'rapido') {
-      removerRapido(item.id);
+      setSinoAbertura((s) => ({
+        vez: (s?.vez ?? 0) + 1,
+        chave: `${item.origem}:${item.id}`,
+        modo: 'ver',
+      }));
+      return;
     } else if (item.origem === 'revisao') {
       setAba('revisoes');
       setIrParaHistorico((d) => ({
@@ -98,6 +122,7 @@ const AppInterno: React.FC = () => {
       }
     }
     setLembretes(listarLembretesVencidos());
+    avisarLembretesMudaram();
   };
   // Cadeado: cobre a tela com a senha, sem desmontar o app.
   const [bloqueado, setBloqueado] = useState(false);
@@ -206,7 +231,7 @@ const AppInterno: React.FC = () => {
             >
               <Lock size={18} />
             </button>
-            <SinoLembretes />
+            <SinoLembretes aberturaExterna={sinoAbertura} />
             <NotasGerais />
             <ConfiguracoesTema tema={tema} onChange={setTema} />
           </div>
@@ -222,30 +247,39 @@ const AppInterno: React.FC = () => {
             onIrParaSubAba={irParaSubAbaDados}
             onBuscarNosDados={buscarNosDados}
             destaqueHistoricoId={irParaHistorico?.origem === 'orcamento' ? irParaHistorico.id : null}
+            destaqueHistoricoVez={irParaHistorico?.origem === 'orcamento' ? irParaHistorico.vez : 0}
           />
         </div>
         <div className={aba === 'pneus' ? '' : 'hidden'}>
           <TireFlyerApp
             abrirHistorico={flyerHistVez > 0 ? { vez: flyerHistVez } : null}
             destaqueId={irParaHistorico?.origem === 'flyer' ? irParaHistorico.id : null}
+            destaqueVez={irParaHistorico?.origem === 'flyer' ? irParaHistorico.vez : 0}
           />
         </div>
         <div className={aba === 'dados' ? '' : 'hidden'}>
           <DadosApp subAba={subAbaDados} buscaDados={buscaDados} />
         </div>
         <div className={aba === 'revisoes' ? '' : 'hidden'}>
-          <RevisoesApp destaqueId={irParaHistorico?.origem === 'revisao' ? irParaHistorico.id : null} />
+          <RevisoesApp
+            destaqueId={irParaHistorico?.origem === 'revisao' ? irParaHistorico.id : null}
+            destaqueVez={irParaHistorico?.origem === 'revisao' ? irParaHistorico.vez : 0}
+          />
         </div>
       </main>
 
-      {/* Aviso global (todas as abas) no canto inferior direito. */}
+      {/* Avisos globais (todas as abas) no canto inferior direito: uma caixinha por vencido. */}
       {mostrarLembretes && (
         <div className="fixed bottom-8 right-8 z-[300] flex flex-col items-end gap-3 print:hidden">
-          <LembreteHistorico
-            itens={lembretes}
-            onIrPara={irParaLembrete}
-            onDispensar={() => setLembretesDisp(chaveLembretes)}
-          />
+          {lembretesVisiveis.map((item) => (
+            <LembreteHistorico
+              key={chaveLembrete(item)}
+              item={item}
+              onIrPara={irParaLembrete}
+              onReprogramar={reprogramarViaSino}
+              onDispensar={dispensarLembrete}
+            />
+          ))}
         </div>
       )}
 

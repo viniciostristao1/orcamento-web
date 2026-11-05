@@ -22,9 +22,18 @@ import { atualizarLembreteRevisao } from '../revisoes/utils/historicoRevisoes';
 /**
  * Sino do header (entre o cadeado e as configurações): cria lembretes rápidos
  * (texto + data/hora) e lista TODOS os lembretes — rápidos + históricos de
- * orçamentos e tire flyer — cada um com excluir. O selo mostra quantos há.
+ * orçamentos, flyer e revisões — cada um com reprogramar/editar/excluir.
+ * O selo mostra quantos estão vencidos.
  */
-const SinoLembretes: React.FC = () => {
+interface SinoAberturaExterna {
+  vez: number;
+  /** Chave `origem:id` para destacar (e rolar até). */
+  chave: string;
+  /** `ver` só abre e destaca; `reprogramar` abre ainda o editor de data/hora. */
+  modo: 'ver' | 'reprogramar';
+}
+
+const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> = ({ aberturaExterna = null }) => {
   const [aberto, setAberto] = useState(false);
   const [texto, setTexto] = useState('');
   const [quando, setQuando] = useState('');
@@ -36,9 +45,38 @@ const SinoLembretes: React.FC = () => {
   /** Chave `origem:id` do lembrete com o editor de texto aberto. */
   const [editandoTexto, setEditandoTexto] = useState<string | null>(null);
   const [novoTexto, setNovoTexto] = useState('');
+  /** Chave `origem:id` destacada em âmbar (pedido externo das caixinhas). */
+  const [destaque, setDestaque] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   const recarregar = () => setItens(listarTodosLembretes());
+
+  // Abertura externa (caixinhas do popup): rápido abre o sino no item;
+  // relógio abre direto a reprogramação — sem concluir nada.
+  const aberturaVez = aberturaExterna?.vez ?? 0;
+  useEffect(() => {
+    if (!aberturaExterna || aberturaVez <= 0) return;
+    recarregar();
+    setQuando((q) => q || hojeHoraInput());
+    setAberto(true);
+    const chave = aberturaExterna.chave;
+    setDestaque(chave);
+    if (aberturaExterna.modo === 'reprogramar') {
+      const achado = listarTodosLembretes().find((i) => `${i.origem}:${i.id}` === chave);
+      if (achado) {
+        setReprogramando(chave);
+        setNovoQuando(paraInputDatetime(achado.quando));
+      }
+    }
+    const t = window.setTimeout(() => {
+      const alvo = Array.from(ref.current?.querySelectorAll('[data-sino-id]') ?? []).find(
+        (el) => el.getAttribute('data-sino-id') === chave,
+      );
+      alvo?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 80);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aberturaVez]);
 
   // Fechar (por qualquer caminho) limpa o que estava sendo escrito.
   const fechar = () => {
@@ -49,6 +87,7 @@ const SinoLembretes: React.FC = () => {
     setNovoQuando('');
     setEditandoTexto(null);
     setNovoTexto('');
+    setDestaque(null);
     setAberto(false);
   };
 
@@ -233,11 +272,18 @@ const SinoLembretes: React.FC = () => {
               {itens.map((item) => {
                 const chave = `${item.origem}:${item.id}`;
                 const editando = reprogramando === chave;
+                const destacado = destaque === chave;
                 return (
                   <div
                     key={chave}
-                    className={`rounded-xl border ${
-                      item.vencido ? 'bg-amber-500/10 border-amber-500/40' : 'bg-slate-900 border-slate-800'
+                    data-sino-id={chave}
+                    data-destaque={destacado ? '1' : undefined}
+                    className={`rounded-xl border transition-colors ${
+                      destacado
+                        ? 'bg-amber-500/10 border-amber-400 ring-2 ring-amber-400/60'
+                        : item.vencido
+                          ? 'bg-amber-500/10 border-amber-500/40'
+                          : 'bg-slate-900 border-slate-800'
                     }`}
                   >
                     <div className="flex items-center gap-2 px-2.5 py-2">

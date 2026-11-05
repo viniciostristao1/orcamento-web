@@ -24,9 +24,11 @@ interface OrcamentosAppProps {
   onBuscarNosDados: (termo: string, passo: 1 | -1, repor: boolean) => void;
   /** Vindo do clique no aviso: abre o histórico destacando o cartão. */
   destaqueHistoricoId?: string | null;
+  /** Vez do destaque (re-clique no mesmo id rola de novo). */
+  destaqueHistoricoVez?: number;
 }
 
-const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados, destaqueHistoricoId = null }) => {
+const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados, destaqueHistoricoId = null, destaqueHistoricoVez = 0 }) => {
   // Último orçamento em edição (localStorage local). Sem rascunho, cai no exemplo.
   const [rascunho] = useState(lerRascunho);
   const [descReparo, setDescReparo] = useState<string>(() => rascunho?.descReparo ?? EXEMPLO_DESC);
@@ -547,6 +549,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         onFechar={onFecharHistorico}
         onAbrir={abrirDoHistorico}
         destaqueId={destaqueHistoricoId}
+        destaqueVez={destaqueHistoricoVez}
       />
     </>
   );

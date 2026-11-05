@@ -26,7 +26,9 @@ const TireFlyerApp: React.FC<{
   /** Vindo do clique no aviso: abre o histórico destacando o cartão. */
   abrirHistorico?: { vez: number } | null;
   destaqueId?: string | null;
-}> = ({ abrirHistorico = null, destaqueId = null }) => {
+  /** Vez do destaque (re-clique no mesmo id rola de novo). */
+  destaqueVez?: number;
+}> = ({ abrirHistorico = null, destaqueId = null, destaqueVez = 0 }) => {
   const [inputText, setInputText] = useState(DEFAULT_INPUT);
   const [promoData, setPromoData] = useState<PromoInfo>(parseInput(DEFAULT_INPUT));
   const [contato, setContato] = useState('');
@@ -298,6 +300,7 @@ const TireFlyerApp: React.FC<{
       onFechar={() => setHistoricoAberto(false)}
       onAbrir={abrirDoHistorico}
       destaqueId={destaqueId}
+      destaqueVez={destaqueVez}
     />
     </>
   );

@@ -51,7 +51,7 @@ const ORDEM_INFO: Record<OrdemListaRevisoes, { titulo: string; Icone: typeof Cal
   'adicao-antiga': { titulo: 'Ordem de adição (antigos primeiro) — clique para: previsão próxima', Icone: ArrowUpNarrowWide },
 };
 
-const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = null }) => {
+const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }> = ({ destaqueId = null, destaqueVez = 0 }) => {
   const [texto, setTexto] = useState<string>(lerRascunhoRevisoes);
   const [dados, setDados] = useState<DadosRevisoes | null>(() => {
     const inicial = lerRascunhoRevisoes();
@@ -95,14 +95,18 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
     };
   }, []);
 
-  // Clique no aviso/sino: destaca o item da lista e rola até ele.
+  // Clique no aviso/sino: limpa a busca (o item filtrado some da lista),
+  // recarrega (o clique conclui e muda o salvo) e rola até ele em âmbar.
   useEffect(() => {
     if (!destaqueId) return;
+    setBusca('');
+    setBuscaAberta(false);
+    setLista(listarHistoricoRevisoes());
     const t = window.setTimeout(() => {
       document.querySelector(`[data-revisao="${destaqueId}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 80);
     return () => window.clearTimeout(t);
-  }, [destaqueId]);
+  }, [destaqueId, destaqueVez]);
 
   const processar = () => {
     if (!texto.trim()) {
@@ -506,6 +510,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null }> = ({ destaqueId = nu
                   <div
                     key={item.id}
                     data-revisao={item.id}
+                    data-destaque={destacado ? '1' : undefined}
                     className={`bg-slate-950/60 border rounded-2xl p-3 space-y-2 transition-colors ${
                       destacado ? 'border-amber-400 ring-2 ring-amber-400/60' : 'border-slate-800'
                     } ${item.chamado ? 'opacity-50 saturate-50' : ''}`}

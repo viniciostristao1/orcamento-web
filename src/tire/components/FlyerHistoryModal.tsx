@@ -26,9 +26,11 @@ interface FlyerHistoryModalProps {
   onAbrir: (registro: FlyerSalvo) => void;
   /** Vindo do clique no aviso: destaca o cartão e rola até ele. */
   destaqueId?: string | null;
+  /** Vez do destaque (re-clique no mesmo id rola de novo). */
+  destaqueVez?: number;
 }
 
-const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar, onAbrir, destaqueId = null }) => {
+const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar, onAbrir, destaqueId = null, destaqueVez = 0 }) => {
   const [lista, setLista] = useState<FlyerSalvo[]>([]);
   const [msg, setMsg] = useState('');
   const [buscaAberta, setBuscaAberta] = useState(false);
@@ -51,16 +53,21 @@ const FlyerHistoryModal: React.FC<FlyerHistoryModalProps> = ({ aberto, onFechar,
     }
   }, [aberto]);
 
-  // Destaque vindo do aviso: rola até o cartão e o acende em âmbar.
+  // Destaque vindo do aviso: recarrega (o clique conclui e muda o salvo),
+  // limpa filtros para o cartão aparecer e rola até ele em âmbar.
   useEffect(() => {
     if (!aberto || !destaqueId) return;
+    setLista(listarFlyerHistorico());
+    setBusca('');
+    setBuscaAberta(false);
+    setFiltroCor('todas');
     const t = window.setTimeout(() => {
       document
         .querySelector(`[data-hist-id="${destaqueId}"]`)
         ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 80);
     return () => window.clearTimeout(t);
-  }, [aberto, destaqueId]);
+  }, [aberto, destaqueId, destaqueVez]);
 
   // Marcas e preços do registro aberto em "Ver detalhes" (recalculado do texto salvo).
   const detalhesInfo: PromoInfo | null = useMemo(

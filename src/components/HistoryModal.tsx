@@ -36,9 +36,11 @@ interface HistoryModalProps {
   onAbrir: (rec: OrcamentoSalvo) => void;
   /** Vindo do clique no aviso: destaca o cartão e rola até ele. */
   destaqueId?: string | null;
+  /** Vez do destaque (re-clique no mesmo id rola de novo). */
+  destaqueVez?: number;
 }
 
-const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, destaqueId = null }) => {
+const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, destaqueId = null, destaqueVez = 0 }) => {
   const [lista, setLista] = useState<OrcamentoSalvo[]>([]);
   const [msg, setMsg] = useState('');
   const [buscaAberta, setBuscaAberta] = useState(false);
@@ -72,16 +74,22 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
     }
   }, [aberto]);
 
-  // Destaque vindo do aviso: rola até o cartão e o acende em âmbar.
+  // Destaque vindo do aviso: recarrega (o clique conclui e muda o salvo),
+  // limpa filtros para o cartão aparecer e rola até ele em âmbar.
   useEffect(() => {
     if (!aberto || !destaqueId) return;
+    setLista(listarHistorico());
+    setBusca('');
+    setBuscaAberta(false);
+    setAba('todos');
+    setFiltroCor('todas');
     const t = window.setTimeout(() => {
       document
         .querySelector(`[data-hist-id="${destaqueId}"]`)
         ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 80);
     return () => window.clearTimeout(t);
-  }, [aberto, destaqueId]);
+  }, [aberto, destaqueId, destaqueVez]);
 
   // Valores do registro aberto em "Ver itens" + resumo de aprovação (o
   // orçamento é recalculado a partir dos textos salvos, como ao abrir).

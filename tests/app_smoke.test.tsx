@@ -1808,10 +1808,10 @@ describe('App — smoke test (render + processar)', () => {
       JSON.stringify([{ ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), lembreteEm: '2020-01-01T09:00', observacao: 'VERMELHO' }]),
     );
     render(<App />);
-    // área + botão do item têm o mesmo nome com 1 vencido (padrão do lembrete)
-    expect(screen.getAllByRole('button', { name: 'Ir para orçamento ABC1D23' })).toHaveLength(2);
+    // uma caixinha por vencido (sem área clicável dupla)
+    expect(screen.getAllByRole('button', { name: 'Ir para orçamento ABC1D23' })).toHaveLength(1);
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Ir para orçamento ABC1D23' })[1]);
+    fireEvent.click(screen.getByRole('button', { name: 'Ir para orçamento ABC1D23' }));
     // abriu o histórico com o cartão destacado (não gera na tela)
     expect(screen.getByText('HISTÓRICO')).toBeTruthy();
     expect(document.querySelector('[data-destaque="1"]')?.textContent).toContain('ABC1D23');
@@ -1830,9 +1830,9 @@ describe('App — smoke test (render + processar)', () => {
     );
     render(<App />);
     fireEvent.click(screen.getByText('Tire Flyer'));
-    expect(screen.getAllByRole('button', { name: 'Ir para orçamento MARIA' })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: 'Ir para orçamento MARIA' })).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Dispensar lembretes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Dispensar lembrete MARIA' }));
     expect(screen.queryByRole('button', { name: 'Ir para orçamento MARIA' })).toBeNull();
     // dispensar esconde; o lembrete continua salvo
     expect(JSON.parse(localStorage.getItem('flyer_historico_v1') ?? '[]')[0].lembreteEm).toBe('2020-01-01T09:00');
@@ -1849,7 +1849,7 @@ describe('App — smoke test (render + processar)', () => {
     );
     try {
       render(<App />);
-      fireEvent.click(screen.getAllByRole('button', { name: 'Ir para orçamento MARIA' })[1]);
+      fireEvent.click(screen.getByRole('button', { name: 'Ir para orçamento MARIA' }));
       // trocou para a aba e abriu o histórico com o cartão destacado
       expect(screen.getByText('HISTÓRICO — TIRE FLYER')).toBeTruthy();
       expect(document.querySelector('[data-destaque="1"]')?.textContent).toContain('MARIA');
@@ -1942,7 +1942,7 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('sino: rápido vencido pisca e o clique conclui', () => {
+  it('sino: rápido vencido pisca e o clique abre o sino sem concluir', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     localStorage.removeItem('flyer_historico_v1');
     localStorage.setItem(
@@ -1951,12 +1951,43 @@ describe('App — smoke test (render + processar)', () => {
     );
     try {
       render(<App />);
-      expect(screen.getAllByRole('button', { name: 'Concluir lembrete Buscar peças' })).toHaveLength(2);
-      fireEvent.click(screen.getAllByRole('button', { name: 'Concluir lembrete Buscar peças' })[1]);
-      expect(screen.queryByRole('button', { name: 'Concluir lembrete Buscar peças' })).toBeNull();
-      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')).toHaveLength(0);
+      expect(screen.getAllByRole('button', { name: 'Ver lembrete Buscar peças no sino' })).toHaveLength(1);
+      fireEvent.click(screen.getByRole('button', { name: 'Ver lembrete Buscar peças no sino' }));
+      // abriu o sino no item (destaque), sem apagar: dá para reprogramar/vê-lo
+      expect(screen.getByText('Todos os lembretes (1)')).toBeTruthy();
+      expect(document.querySelector('[data-sino-id="rapido:q1"]')).toBeTruthy();
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')).toHaveLength(1);
     } finally {
       localStorage.removeItem('lembretes_rapidos_v1');
+    }
+  });
+
+  it('lembretes: 2 vencidos viram 2 caixinhas (cada X dispensa só a sua)', () => {
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.removeItem('lembretes_rapidos_v1');
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        { ...registro('1', 'AAA1111', '24/09/2026 12:30:00'), lembreteEm: '2020-01-01T09:00' },
+        { ...registro('2', 'BBB2222', '24/09/2026 12:30:00'), lembreteEm: '2020-01-02T09:00' },
+      ]),
+    );
+    try {
+      render(<App />);
+      expect(screen.getByRole('button', { name: 'Ir para orçamento AAA1111' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Ir para orçamento BBB2222' })).toBeTruthy();
+      expect(document.querySelectorAll('[data-lembrete]')).toHaveLength(2);
+      // X de uma não esconde a outra
+      fireEvent.click(screen.getByRole('button', { name: 'Dispensar lembrete AAA1111' }));
+      expect(screen.queryByRole('button', { name: 'Ir para orçamento AAA1111' })).toBeNull();
+      expect(screen.getByRole('button', { name: 'Ir para orçamento BBB2222' })).toBeTruthy();
+      // relógio da que sobrou abre o sino com a reprogramação (sem concluir)
+      fireEvent.click(screen.getByRole('button', { name: 'Reprogramar lembrete BBB2222' }));
+      expect(screen.getByText('Todos os lembretes (2)')).toBeTruthy();
+      expect(screen.getByLabelText('Nova data e hora do lembrete')).toBeTruthy();
+      expect(JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]').filter((r: { lembreteEm: string | null }) => r.lembreteEm)).toHaveLength(2);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
     }
   });
 
