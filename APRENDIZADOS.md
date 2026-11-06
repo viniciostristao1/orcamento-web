@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.184.0](#v18400) — 2026-11-06 — Temas: saem Técnico/Terracota/Chocolate, Papel vira Papel e entra Creme (v0.184.0)
+
 - [v0.183.0](#v18300) — 2026-11-05 — Lembretes: uma caixinha por vencido, rápido abre o sino e navegação firme (v0.183.0)
 
 - [v0.182.0](#v18200) — 2026-10-29 — Relatório: filtro De/Até copia só o intervalo de datas (v0.182.0)
@@ -290,6 +292,31 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18400"></a>
+## 2026-11-06 — Temas: saem Técnico/Terracota/Chocolate, Papel vira Papel e entra Creme (v0.184.0)
+
+**Pedido:** remover Monocromático Técnico, Terracota (Claude) e Chocolate & Caramelo;
+acrescentar Papel e Creme como nos outros apps (Nestwallet/Taskix).
+
+**Feito:**
+- Removidos `tecnico`/`grafiteterra`/`chocolate` (`tema.ts`, seletor, blocos e regras
+  do `index.css`, `@fontsource/chivo` fora do bundle); salvos caem em `azul`
+  (padrão das remoções v0.29.0/v0.119.0).
+- `papel` virou o Papel novo (off-white + botões pretos + detalhe verde,
+  Space Grotesk; rótulo "Claro" → "Papel") + `creme` (bege + botões pretos +
+  terracota, Fraunces) — acento PRETO = branco do primário segue legível, sem
+  override; terracota/verde vão no `--tema-ambar` (traço da aba, sino, lembrete).
+  Pastéis do histórico/relatório e chapado herdados do Latte; logo escurecido.
+- `App.tsx`: `claro` (texto escuro) passa a incluir `creme`.
+- Testes: rótulo Claro→Papel, removidos na lista de nulos, migração
+  tecnico/grafiteterra/chocolate→azul + teste novo do Creme (311 passando).
+
+**Decisões:** reaproveitar o id `papel` (decisão do usuário) em vez de 12 temas;
+Chivo sai do bundle (~100KB a menos no html único).
+
+**Gotchas:** `queryByText('Terracota')` nunca casava 'Terracota (Claude)' (igualdade
+exata) — os nulos novos checam o nome cheio.
 
 <a id="v18300"></a>
 ## 2026-11-05 — Lembretes: uma caixinha por vencido, rápido abre o sino e navegação firme (v0.183.0)

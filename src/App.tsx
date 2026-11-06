@@ -159,10 +159,10 @@ const AppInterno: React.FC = () => {
   };
 
   // Ideia 01 (sublinhado): só texto, ativa com traço âmbar embaixo.
-  // No claro (papel) o texto é preto: os tons slate são remapeados pelo tema
+  // Nos claros (papel/creme/latte) o texto é preto: os tons slate são remapeados pelo tema
   // (`@theme inline`), então aqui vão hex literais (não remapeiam e não somem).
   // Latte idem, no seu tom mais escuro (igual aos campos Nº/DATA).
-  const claro = tema === 'papel' || tema === 'latte';
+  const claro = tema === 'papel' || tema === 'latte' || tema === 'creme';
   const abaAtiva = tema === 'latte' ? 'text-[#2a1d12]' : claro ? 'text-[#0f172a]' : 'text-white';
   const abaNormal = tema === 'latte'
     ? 'text-[#8b7558] hover:text-[#2a1d12]'

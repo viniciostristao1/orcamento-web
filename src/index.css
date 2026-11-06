@@ -8,19 +8,17 @@
 @import "@fontsource/inter/latin-900.css";
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-700.css";
-/* Fontes dos temas (Papel, WhatsApp, Técnico, Grafite).
+/* Fontes dos temas (Papel, WhatsApp, Grafite).
    Todas @fontsource → embutidas em base64 no build (abrem offline). */
 @import "@fontsource/space-grotesk/latin-500.css";
 @import "@fontsource/space-grotesk/latin-700.css";
 @import "@fontsource/poppins/latin-500.css";
 @import "@fontsource/poppins/latin-700.css";
-@import "@fontsource/chivo/latin-400.css";
-@import "@fontsource/chivo/latin-700.css";
 /* Grafite (estilo tabela do Claude.ai): sans humanista limpa. */
 @import "@fontsource/plus-jakarta-sans/latin-400.css";
 @import "@fontsource/plus-jakarta-sans/latin-500.css";
 @import "@fontsource/plus-jakarta-sans/latin-700.css";
-/* Serifada sofisticada (temas Azul-meia-noite, Terracota, Chocolate, Latte). */
+/* Serifada sofisticada (temas Azul-meia-noite, Latte, Creme). */
 @import "@fontsource/fraunces/latin-400.css";
 @import "@fontsource/fraunces/latin-500.css";
 @import "@fontsource/fraunces/latin-600.css";
@@ -106,58 +104,55 @@
    continuam resetadas mais abaixo, então o PNG do cliente não muda).
    ========================================================================== */
 
-/* Claro = modo claro, fundo papel, azul. Space Grotesk + Inter. */
+/* Papel = off-white + botões pretos + detalhe verde. Space Grotesk + Inter. */
 [data-tema='papel'] {
-  --tema-fundo: #eef0f3;
-  --tema-campo: #e4e9ef;
+  --tema-fundo: #FAF8F5;
+  --tema-campo: #f0ebe4;
   --tema-painel: #ffffff;
-  --tema-borda-forte: #cfd6de;
-  --tema-borda-media: #cbd5e1;
-  --tema-texto-fraco: #94a3b8;
-  --tema-texto-suave: #64748b;
-  --tema-texto-medio: #475569;
-  --tema-texto-medio2: #334155;
-  --tema-texto: #1e293b;
-  --tema-titulo: #0f172a;
-  --tema-acento: #2563eb;
-  --tema-acento-2: #2563eb;
-  --tema-acento-claro: #3b82f6;
-  --tema-acento-clarissimo: #93c5fd;
-  --tema-acento-escuro: #1d4ed8;
-  --tema-acento-texto: #1e3a8a;
-  --tema-sucesso: #16a34a;
-  --tema-sucesso-2: #22c55e;
-  --tema-sucesso-claro: #16a34a;
-  --tema-sucesso-escuro: #bbf7d0;
-  --tema-ambar: #d97706;
-  --tema-ambar-claro: #b45309;
-  --tema-sombra-sucesso: #86efac;
-  --tema-tracking-widest: 0.1em;
+  --tema-borda-forte: #ddd5c9;
+  --tema-borda-media: #e2dacd;
+  --tema-texto-fraco: #a09a90;
+  --tema-texto-suave: #7d776e;
+  --tema-texto-medio: #57524a;
+  --tema-texto-medio2: #3a352e;
+  --tema-texto: #24211c;
+  --tema-titulo: #1A1A1A;
+  --tema-acento: #1B1B1B;
+  --tema-acento-2: #2e2e2e;
+  --tema-acento-claro: #4a4a4a;
+  --tema-acento-clarissimo: #8a8a8a;
+  --tema-acento-escuro: #000000;
+  --tema-acento-texto: #3d3d3d;
+  --tema-sucesso: #15924A;
+  --tema-sucesso-2: #1E9E6A;
+  --tema-sucesso-claro: #3fbf8c;
+  --tema-sucesso-escuro: #bbe4c9;
+  --tema-ambar: #1E9E6A;
+  --tema-ambar-claro: #7ed3ac;
+  --tema-sombra-sucesso: #bbe4c9;
+  --tema-tracking-widest: 0.08em;
   --tema-fonte-titulo: 'Space Grotesk', sans-serif;
   --tema-fonte-conteudo: 'Inter', sans-serif;
 }
 
-/* Papel: campos um tom abaixo do branco (o card é branco, senão somem) e com
-   letra escura (os preenchimentos usam branco, que some no claro). Saídas
-   (`#printable-quote`, flyer) não usam `.campo-tema`, então o PNG não muda. */
+/* Papel CLARO: campos com letra escura + sub-aba fechada em verde + logo
+   escuro (mesmo tratamento do Latte/Creme — preenchimentos brancos somem). */
 [data-tema='papel'] .campo-tema {
-  border-color: #c3ccd6;
-  color: #0f172a;
+  border-color: #d8d0c2;
+  color: #24211c;
 }
 
-/* Papel: sub-aba fechada em azul escuro (o azul-claro some no fundo claro). */
+/* Papel: sub-aba fechada em verde claro (detalhe do tema). */
 [data-tema='papel'] .subaba-fechada {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  background-color: #d5edde;
+  color: #14714b;
 }
 [data-tema='papel'] .subaba-fechada:hover {
-  background-color: #bfdbfe;
+  background-color: #c2e4d2;
 }
-/* Papel: o logo Toyota é branco puro (some no fundo papel) — tinge de azul
-   (o acento #2563eb) só neste tema. O filtro parte do branco: brightness(0)
-   vira preto e o resto mapeia preto → #2563eb (exato, calculado). */
+/* Papel: o logo Toyota é branco puro (some no fundo claro) — escurece. */
 [data-tema='papel'] .logo-toyota {
-  filter: brightness(0) invert(31.8%) sepia(92.9%) saturate(489%) hue-rotate(183.3deg) brightness(104.9%) contrast(126.4%);
+  filter: brightness(0) opacity(0.82);
 }
 
 /* Verde WhatsApp = escuro com verde do Zap. Poppins + Inter. */
@@ -189,37 +184,6 @@
   --tema-tracking-widest: 0.08em;
   --tema-fonte-titulo: 'Poppins', sans-serif;
   --tema-fonte-conteudo: 'Inter', sans-serif;
-}
-
-/* Monocromático Técnico = cinza + laranja, chapado. Space Grotesk + Chivo. */
-[data-tema='tecnico'] {
-  --tema-fundo: #101012;
-  --tema-campo: #101012;
-  --tema-painel: #1a1a1d;
-  --tema-borda-forte: #2d2d31;
-  --tema-borda-media: #3a3a3f;
-  --tema-texto-fraco: #6f6f72;
-  --tema-texto-suave: #8a8a8a;
-  --tema-texto-medio: #adadad;
-  --tema-texto-medio2: #d0d0d0;
-  --tema-texto: #f5f5f5;
-  --tema-titulo: #ffffff;
-  --tema-acento: #ff6a00;
-  --tema-acento-2: #ff7a1a;
-  --tema-acento-claro: #ff8a3d;
-  --tema-acento-clarissimo: #ffab6e;
-  --tema-acento-escuro: #d95700;
-  --tema-acento-texto: #2a1200;
-  --tema-sucesso: #ff6a00;
-  --tema-sucesso-2: #ff7a1a;
-  --tema-sucesso-claro: #ff8a3d;
-  --tema-sucesso-escuro: #3a1c08;
-  --tema-ambar: #ffab00;
-  --tema-ambar-claro: #ffc74d;
-  --tema-sombra-sucesso: #3a1c08;
-  --tema-tracking-widest: 0.1em;
-  --tema-fonte-titulo: 'Space Grotesk', sans-serif;
-  --tema-fonte-conteudo: 'Chivo', sans-serif;
 }
 
 /* Grafite = estilo das TABELAS do Claude.ai: quase-preto, cabeçalho um tom mais
@@ -296,10 +260,11 @@
 }
 
 /* ============================================================================
-   TEMAS SOFISTICADOS (galeria 10/2026) — só paleta + fonte da INTERFACE.
-   As saídas (#printable-quote / flyer) resetam tudo mais abaixo → o PNG do
-   cliente NÃO muda. Acentos claros (bege/caramelo/cobre/terracota) ganham
-   texto ESCURO no botão primário logo adiante.
+   TEMAS SOFISTICADOS (galeria 10/2026) + CLAROS NOVOS — só paleta + fonte da
+   INTERFACE. As saídas (#printable-quote / flyer) resetam tudo mais abaixo →
+   o PNG do cliente NÃO muda. Acentos claros (bege/cobre) ganham texto ESCURO
+   no botão primário logo adiante. Creme/Papel têm acento PRETO: o branco do
+   botão segue legível, sem override.
    ========================================================================== */
 
 /* 01 · Azul-meia-noite & Bege — navy escuro, botão bege, títulos serifados. */
@@ -312,34 +277,6 @@
   --tema-acento-clarissimo: #f3ecdb; --tema-acento-escuro: #c9b890; --tema-acento-texto: #1a2740;
   --tema-sucesso: #5b9e73; --tema-sucesso-2: #6fb187; --tema-sucesso-claro: #8fc4a1; --tema-sucesso-escuro: #14321f;
   --tema-ambar: #d9b84a; --tema-ambar-claro: #e8ce78; --tema-sombra-sucesso: #14321f;
-  --tema-tracking-widest: 0.08em;
-  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Plus Jakarta Sans', sans-serif;
-}
-
-/* 02 · Grafite & Terracota (Claude) — grafite quente, acento terracota, Fraunces + Inter. */
-[data-tema='grafiteterra'] {
-  --tema-fundo: #1b1d21; --tema-campo: #1b1d21; --tema-painel: #242730;
-  --tema-borda-forte: #33363f; --tema-borda-media: #40434d;
-  --tema-texto-fraco: #6e6a64; --tema-texto-suave: #8b867e; --tema-texto-medio: #a9a49b;
-  --tema-texto-medio2: #cbc6bd; --tema-texto: #eceae6; --tema-titulo: #f6f4f0;
-  --tema-acento: #cc785c; --tema-acento-2: #d4866c; --tema-acento-claro: #dd9a82;
-  --tema-acento-clarissimo: #e8bba9; --tema-acento-escuro: #b5634a; --tema-acento-texto: #2a140c;
-  --tema-sucesso: #5b9e73; --tema-sucesso-2: #6fb187; --tema-sucesso-claro: #8fc4a1; --tema-sucesso-escuro: #14321f;
-  --tema-ambar: #d9a441; --tema-ambar-claro: #ecc677; --tema-sombra-sucesso: #14321f;
-  --tema-tracking-widest: 0.06em;
-  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Inter', sans-serif;
-}
-
-/* 06 · Chocolate & Caramelo — marrom espresso, acento caramelo, Fraunces + Plus Jakarta. */
-[data-tema='chocolate'] {
-  --tema-fundo: #241812; --tema-campo: #241812; --tema-painel: #2f2019;
-  --tema-borda-forte: #3d2a20; --tema-borda-media: #4a3425;
-  --tema-texto-fraco: #7a6354; --tema-texto-suave: #9a8270; --tema-texto-medio: #b8a18d;
-  --tema-texto-medio2: #d4c4b2; --tema-texto: #efe3d6; --tema-titulo: #f7eee2;
-  --tema-acento: #c98a4b; --tema-acento-2: #d39a60; --tema-acento-claro: #ddae7d;
-  --tema-acento-clarissimo: #e9cba8; --tema-acento-escuro: #b0733a; --tema-acento-texto: #241812;
-  --tema-sucesso: #6a9e6e; --tema-sucesso-2: #7cb180; --tema-sucesso-claro: #97c49a; --tema-sucesso-escuro: #1e2a16;
-  --tema-ambar: #d9a441; --tema-ambar-claro: #ecc677; --tema-sombra-sucesso: #1e2a16;
   --tema-tracking-widest: 0.08em;
   --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Plus Jakarta Sans', sans-serif;
 }
@@ -372,36 +309,36 @@
   --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Inter', sans-serif;
 }
 
-/* Chapado (sem neon/sombra) nos 5 temas novos — estilo sóbrio da galeria. */
-[data-tema='meianoite'] button, [data-tema='grafiteterra'] button,
-[data-tema='chocolate'] button, [data-tema='cobre'] button, [data-tema='latte'] button {
+/* Chapado (sem neon/sombra) nos temas sofisticados + claros novos — estilo
+   sóbrio da galeria. */
+[data-tema='meianoite'] button,
+[data-tema='cobre'] button, [data-tema='latte'] button,
+[data-tema='creme'] button {
   box-shadow: none;
 }
-[data-tema='meianoite'] [data-neon-glow], [data-tema='grafiteterra'] [data-neon-glow],
-[data-tema='chocolate'] [data-neon-glow], [data-tema='cobre'] [data-neon-glow],
-[data-tema='latte'] [data-neon-glow] {
+[data-tema='meianoite'] [data-neon-glow],
+[data-tema='cobre'] [data-neon-glow],
+[data-tema='latte'] [data-neon-glow], [data-tema='creme'] [data-neon-glow] {
   display: none !important;
 }
-[data-tema='meianoite'] [data-neon-dot], [data-tema='grafiteterra'] [data-neon-dot],
-[data-tema='chocolate'] [data-neon-dot], [data-tema='cobre'] [data-neon-dot],
-[data-tema='latte'] [data-neon-dot] {
+[data-tema='meianoite'] [data-neon-dot],
+[data-tema='cobre'] [data-neon-dot],
+[data-tema='latte'] [data-neon-dot], [data-tema='creme'] [data-neon-dot] {
   background-color: var(--tema-acento) !important;
   box-shadow: none !important;
 }
-[data-tema='meianoite'] [data-neon-box], [data-tema='grafiteterra'] [data-neon-box],
-[data-tema='chocolate'] [data-neon-box], [data-tema='cobre'] [data-neon-box],
-[data-tema='latte'] [data-neon-box] {
+[data-tema='meianoite'] [data-neon-box],
+[data-tema='cobre'] [data-neon-box],
+[data-tema='latte'] [data-neon-box], [data-tema='creme'] [data-neon-box] {
   box-shadow: none !important;
 }
 
 /* Acento CLARO → o botão primário (bg-blue-600 text-white) ganha texto ESCURO
-   (senão o branco some sobre bege/caramelo/cobre/terracota). O latte tem acento
-   escuro, então mantém o texto branco padrão.
+   (senão o branco some sobre bege/cobre). Creme/Papel têm acento PRETO, então
+   mantêm o texto branco padrão.
    Escopo em `button`: o `tr` do cabeçalho ITEM/DESCRIÇÃO/VALOR (R$) usa as MESMAS
    classes e precisa continuar BRANCO (pedido do usuário no meianoite). */
 [data-tema='meianoite'] button.bg-blue-600.text-white,
-[data-tema='grafiteterra'] button.bg-blue-600.text-white,
-[data-tema='chocolate'] button.bg-blue-600.text-white,
 [data-tema='cobre'] button.bg-blue-600.text-white {
   color: var(--tema-acento-texto);
 }
@@ -456,34 +393,78 @@
 [data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300 { color: #3a2a1c; }
 [data-tema='latte'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200 { color: #3a2a1c; }
 
+/* Creme (claro) = bege + botões pretos + detalhe terracota. Fraunces + Inter. */
+[data-tema='creme'] {
+  --tema-fundo: #F5F0E6; --tema-campo: #ece3d2; --tema-painel: #fffdf9;
+  --tema-borda-forte: #d9cbae; --tema-borda-media: #e0d3b8;
+  --tema-texto-fraco: #a89a80; --tema-texto-suave: #8b7c62; --tema-texto-medio: #6e604a;
+  --tema-texto-medio2: #544832; --tema-texto: #3a3128; --tema-titulo: #2a2118;
+  --tema-acento: #1B1B1B; --tema-acento-2: #2e2e2e; --tema-acento-claro: #4a4a4a;
+  --tema-acento-clarissimo: #8f8a80; --tema-acento-escuro: #000000; --tema-acento-texto: #333333;
+  --tema-sucesso: #2e7d4f; --tema-sucesso-2: #389659; --tema-sucesso-claro: #4caf6e; --tema-sucesso-escuro: #bbe4c9;
+  --tema-ambar: #C96F4A; --tema-ambar-claro: #dd9a82; --tema-sombra-sucesso: #bbe4c9;
+  --tema-tracking-widest: 0.08em;
+  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* Creme CLARO: campos com letra escura + sub-aba em terracota + logo escuro
+   (mesmo tratamento do Latte/Papel). */
+[data-tema='creme'] .campo-tema {
+  border-color: #d9cbae;
+  color: #2a2118;
+}
+[data-tema='creme'] .subaba-fechada {
+  background-color: #ecd9c8;
+  color: #8a4a2e;
+}
+[data-tema='creme'] .subaba-fechada:hover {
+  background-color: #e2c9b2;
+}
+[data-tema='creme'] .logo-toyota {
+  filter: brightness(0) opacity(0.82);
+}
+
+/* Papel/Creme CLAROS: pastéis dos cartões do histórico somem no fundo claro.
+   Mesmos escuros do Latte (só dentro do histórico). */
+[data-tema='papel'] [data-historico] .text-sky-300, [data-tema='creme'] [data-historico] .text-sky-300 { color: #1c4e80; }
+[data-tema='papel'] [data-historico] .text-blue-300, [data-tema='creme'] [data-historico] .text-blue-300 { color: #1d4e9e; }
+[data-tema='papel'] [data-historico] .text-amber-300, [data-tema='creme'] [data-historico] .text-amber-300 { color: #8a5a00; }
+[data-tema='papel'] [data-historico] .text-teal-300, [data-tema='creme'] [data-historico] .text-teal-300 { color: #0b6b5f; }
+[data-tema='papel'] [data-historico] .text-green-300, [data-tema='creme'] [data-historico] .text-green-300 { color: #1e7a45; }
+[data-tema='papel'] [data-historico] .text-violet-300, [data-tema='creme'] [data-historico] .text-violet-300 { color: #5b3fa8; }
+[data-tema='papel'] [data-historico] .text-red-300, [data-tema='creme'] [data-historico] .text-red-300 { color: #b3352b; }
+[data-tema='papel'] [data-historico] .text-slate-400, [data-tema='creme'] [data-historico] .text-slate-400 { color: #5b4a38; }
+[data-tema='papel'] [data-historico] .text-slate-500, [data-tema='creme'] [data-historico] .text-slate-500 { color: #6e5b42; }
+[data-tema='papel'] [data-historico] .text-slate-600, [data-tema='creme'] [data-historico] .text-slate-600 { color: #6e5b42; }
+
+/* Papel/Creme CLAROS: % do relatório + Sim/Não da coluna APROVADO (idem Latte). */
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-green-400, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-green-400 { color: #1e7a45; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-amber-300, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-amber-300 { color: #8a5a00; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-red-400, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-red-400 { color: #b3352b; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-blue-300, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-blue-300 { color: #1d4e9e; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-400, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-400 { color: #5b4a38; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-500, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-500 { color: #6e5b42; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600 { color: #6e5b42; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300 { color: #3a2a1c; }
+[data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200 { color: #3a2a1c; }
+
 /* Interface chapada nos temas (sem brilho neon, sem sombra nos botões). */
 [data-tema='papel'] button,
-[data-tema='whatsapp'] button,
-[data-tema='tecnico'] button {
+[data-tema='whatsapp'] button {
   box-shadow: none;
 }
 [data-tema='papel'] [data-neon-glow],
-[data-tema='whatsapp'] [data-neon-glow],
-[data-tema='tecnico'] [data-neon-glow] {
+[data-tema='whatsapp'] [data-neon-glow] {
   display: none !important;
 }
 [data-tema='papel'] [data-neon-dot],
-[data-tema='whatsapp'] [data-neon-dot],
-[data-tema='tecnico'] [data-neon-dot] {
+[data-tema='whatsapp'] [data-neon-dot] {
   background-color: var(--tema-acento) !important;
   box-shadow: none !important;
 }
 [data-tema='papel'] [data-neon-box],
-[data-tema='whatsapp'] [data-neon-box],
-[data-tema='tecnico'] [data-neon-box] {
+[data-tema='whatsapp'] [data-neon-box] {
   box-shadow: none !important;
-}
-
-/* Técnico: o conteúdo digitado nas células (aba Dados) fica SEM negrito.
-   Vale também para o overlay do grifo (mesmo motivo do Grafite acima). */
-[data-tema='tecnico'] tbody td input[type='text'],
-[data-tema='tecnico'] tbody td [data-grifo] {
-  font-weight: 400;
 }
 
 /* Azul: idem — conteúdo das células da aba Dados sem negrito (input + grifo
@@ -499,12 +480,6 @@
 [data-tema='meianoite'] tbody td input[type='text'],
 [data-tema='meianoite'] tbody td [data-grifo] {
   font-weight: 400;
-}
-
-/* Técnico = cantos retos. */
-[data-tema='tecnico'] [data-neon-card],
-[data-tema='tecnico'] [data-neon-box] {
-  border-radius: 0.375rem !important;
 }
 
 /* O texto digitado/colado usa a fonte de conteúdo do tema. Os campos de dados

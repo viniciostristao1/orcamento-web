@@ -24,14 +24,15 @@ revisão: 10 mil km ou 12 meses; v0.161.0 — lista de previsões por chassi + d
 editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação); v0.168.0 — copiar passagens/lista + alvo exato +10 mil; v0.169.0 — descrição curta (sem tipo/código); v0.170.0 — "+" na nota cria outra abaixo; v0.171.0 — caixinha "já chamei" nos 3 históricos; v0.172.0 — limpar chamados, notas gerais e editar lembrete; v0.173.0 — pesquisa dos Dados grudada no topo; v0.174.0 — chamado ao lado do excluir + última busca; v0.175.0 — sem "+N extras" nas passagens; v0.176.0 — nota por revisão; v0.177.0 — nota azul preenchida; v0.178.0 — limpar chamados na lista; v0.179.0 — ordem da lista (previsão/lembrete/adição); v0.180.0 — busca por nome/chassi na lista; v0.181.0 — atalho não puxa a sub-aba a cada tecla. A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As quatro abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
-da interface. São **10 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
-a v0.119.0 removeu o Suave Arredondado; a v0.135.0 somou 5 "sofisticados" escolhidos na galeria):
-**Azul** (padrão, era "Original"), **Claro** (modo claro, era "Claro Papel"), **Verde WhatsApp**,
-**Monocromático Técnico** (cinza + laranja), **Grafite**
+da interface. São **8 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
+a v0.119.0 removeu o Suave Arredondado; a v0.135.0 somou 5 "sofisticados" escolhidos na galeria;
+a v0.184.0 removeu o Monocromático Técnico, o Terracota (Claude) e o Chocolate & Caramelo):
+**Azul** (padrão, era "Original"), **Papel** (off-white + botões pretos + verde),
+**Verde WhatsApp**, **Grafite**
 (v0.19.0 — estilo das tabelas do Claude.ai: quase-preto, cabeçalho mais claro, grade sutil,
-fonte Plus Jakarta Sans) **e os 5 da v0.135.0:** **Azul-meia-noite** (navy + bege), **Terracota
-(Claude)** (grafite + terracota), **Chocolate & Caramelo**, **Grafite & Cobre** e **Latte** (modo
-claro, café). O tema vale **só para a interface** — o PNG do cliente não muda.
+fonte Plus Jakarta Sans)**, Azul-meia-noite** (navy + bege), **Grafite & Cobre** e **Latte** (modo
+claro, café) **+ o Creme da v0.184.0** (bege + botões pretos + terracota, Fraunces).
+O tema vale **só para a interface** — o PNG do cliente não muda.
 
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
 - **Uso local no PC**: o app final é **UM arquivo `.html`** aberto com duplo clique no Chrome,
@@ -140,29 +141,29 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   (`components/ConfiguracoesTema.tsx`). Logo Toyota transparente no header
   (`src/assets/logo_toyota.png`). **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
-  - **10 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`;
-    v0.119.0 removeu `suave`; v0.135.0 +5 sofisticados da galeria):**
+  - **8 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`;
+    v0.119.0 removeu `suave`; v0.135.0 +5 sofisticados da galeria; v0.184.0 removeu
+    `tecnico`, `grafiteterra` e `chocolate`):**
     `claude`/`original` antigos caem em `azul` (`lerTemaSalvo` **migra**/descarta os nomes antigos,
-    inclusive quem tinha `terracota`/`executivo`/`suave` salvo). Temas = `azul`, `papel` (modo **claro**),
-    `whatsapp` (verde), `tecnico` (cinza+laranja), **`grafite`**
+    inclusive quem tinha `terracota`/`executivo`/`suave`/`tecnico`/`grafiteterra`/`chocolate`
+    salvo). Temas = `azul`, `papel` (off-white + botões pretos + verde, Space Grotesk),
+    `whatsapp` (verde), **`grafite`**
     (estilo tabela do Claude.ai: `#0c0c0c`, cabeçalho `#161616`, grade `#242424`, Plus Jakarta
     Sans, acento azul) **+ (v0.135.0, escolha do usuário na galeria de layouts):** `meianoite`
-    (navy `#0e1b30` + bege `#e4d5b7`, Fraunces), `grafiteterra` (grafite + terracota do Claude
-    `#cc785c`, Fraunces), `chocolate` (espresso `#241812` + caramelo `#c98a4b`, Fraunces), `cobre`
+    (navy `#0e1b30` + bege `#e4d5b7`, Fraunces), `cobre`
     (grafite + cobre `#b87333`, Space Grotesk) e `latte` (modo **claro**: latte `#dbc9b0` + café
-    `#6e4a2e`, Fraunces). Cada um é um bloco `[data-tema='x']` com os ~26 tokens `--tema-*` +
-    fontes `@fontsource` (space-grotesk, poppins, chivo, **plus-jakarta-sans**, **fraunces**).
-    ⚠️ Acento CLARO (bege/caramelo/cobre/terracota): o botão primário (`.bg-blue-600.text-white`)
+    `#6e4a2e`, Fraunces) **+ (v0.184.0, dos outros apps):** `creme` (bege `#F5F0E6` + botões
+    pretos + terracota `#C96F4A`, Fraunces). Cada um é um bloco `[data-tema='x']` com os ~26 tokens `--tema-*` +
+    fontes `@fontsource` (space-grotesk, poppins, **plus-jakarta-sans**, **fraunces**).
+    ⚠️ Acento CLARO (bege/cobre): o botão primário (`.bg-blue-600.text-white`)
     leva texto ESCURO (`var(--tema-acento-texto)`) — senão o branco some. `latte` (acento escuro)
     mantém branco e, por ser claro, reusa os overrides do `papel` (`.campo-tema`, `.subaba-fechada`,
-    `.logo-toyota`). As saídas resetam tudo → o **PNG do cliente não muda** (fontes voltam a Inter).
+    `.logo-toyota`, pastéis do histórico/relatório — `creme`/`papel` têm os mesmos). As saídas resetam tudo → o **PNG do cliente não muda** (fontes voltam a Inter).
     ⚠️ Ao mexer em modo claro: literais **não** remapeados pelo `@theme inline` (ex.:
     `text-emerald-100`) não seguem o tema e podem sumir no fundo branco — usar tokens (600/500/400/900).
     ⚠️ Estilo de tabela por tema: as células da aba Dados usam `border-slate-800`
     (`--tema-borda-forte`) = grade; `[data-tema='grafite'] thead th{...}` deixa o cabeçalho mais
-    claro, títulos em **negrito** e o corpo em peso normal (v0.19.1); no **técnico** o conteúdo
-    digitado nas células também fica **sem negrito** (`[data-tema='tecnico'] tbody td input[type='text']`,
-    v0.29.0). NÃO usar `[data-tema='x'] textarea{font}` (quebra o mono dos dados).
+    claro, títulos em **negrito** e o corpo em peso normal (v0.19.1). NÃO usar `[data-tema='x'] textarea{font}` (quebra o mono dos dados).
     "Adicionar linha" = só um "+".
     O seletor tem mini-amostra de cor + rolagem e fica escondido atrás de uma seta
     (abre só no clique). Validado por screenshot headless do `dist`.
@@ -327,8 +328,7 @@ claro, café). O tema vale **só para a interface** — o PNG do cliente não mu
   **ícone de lista** (`List`): a bolinha `• ` entra **na linha do cursor/seleção** (v0.37.0; antes
   criava uma linha nova embaixo) e, no modo lista, **Enter cria o próximo item** (Enter num item
   vazio remove a bolinha e encerra a lista; clicar de novo numa linha que já é item **remove a
-  bolinha** e desliga o modo — v0.38.0); o texto da nota é **sem negrito** (leitura e edição),
-  como as células do tema Técnico;
+  bolinha** e desliga o modo — v0.38.0); o texto da nota é **sem negrito** (leitura e edição);
   **busca que abre a sub-aba e grifa o termo** — e desde
   a v0.27.0 **Enter/Shift+Enter percorrem as ocorrências** com contador `N de M · X em ABA`
   (`listarOcorrencias`, índice modular) e **destaque forte** (`data-atual`, âmbar cheio) na
@@ -632,9 +632,10 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Segunda aba "Tire Flyer"** (v0.4.0), no header ao lado da marca, para o gerador de promoção
   de pneus; as duas abas ficam montadas para não perder o que foi digitado.
 - **Temas** (v0.5.0): escolhidos em **Configurações** (lista escondida atrás de seta
-  desde a v0.119.0); o tema vale só para a interface (PNGs iguais). Hoje são 5 (Azul padrão,
-  Papel, WhatsApp, Técnico e Grafite) — Terracota e Executivo saíram na v0.29.0, Suave na
-  v0.119.0. As abas no mesmo estilo e só o logo Toyota no header (título e "Gestão de
+  desde a v0.119.0); o tema vale só para a interface (PNGs iguais). Hoje são 8 (Azul padrão,
+  Papel, WhatsApp, Grafite, Azul-meia-noite, Grafite & Cobre, Latte e Creme) — Terracota e
+  Executivo saíram na v0.29.0, Suave na v0.119.0, Monocromático Técnico, Terracota (Claude) e
+  Chocolate & Caramelo na v0.184.0. As abas no mesmo estilo e só o logo Toyota no header (título e "Gestão de
   Vendas" saíram na v0.119.0).
 - **Layout do flyer de pneus** (v0.20.0; cores na v0.21.0): além do **clássico** (mantido como
   padrão), o "Tabela de ofertas" e o "Etiqueta de preço" (ideias 4 e 7 de

@@ -2,13 +2,11 @@ export type Tema =
   | 'azul'
   | 'papel'
   | 'whatsapp'
-  | 'tecnico'
   | 'grafite'
   | 'meianoite'
-  | 'grafiteterra'
-  | 'chocolate'
   | 'cobre'
-  | 'latte';
+  | 'latte'
+  | 'creme';
 
 export const TEMA_KEY = 'orcamentos_tema_v1';
 
@@ -16,19 +14,18 @@ const TEMAS_VALIDOS: readonly Tema[] = [
   'azul',
   'papel',
   'whatsapp',
-  'tecnico',
   'grafite',
   'meianoite',
-  'grafiteterra',
-  'chocolate',
   'cobre',
   'latte',
+  'creme',
 ];
 
 /**
  * Nomes antigos → novos (usuários que já tinham um tema salvo não perdem nada).
- * Temas removidos (`terracota`, `executivo` na v0.29.0; `suave` na v0.119.0)
- * caem no padrão `azul` pela validação de `TEMAS_VALIDOS`.
+ * Temas removidos (`terracota`, `executivo` na v0.29.0; `suave` na v0.119.0;
+ * `tecnico`, `grafiteterra`, `chocolate` na v0.184.0) caem no padrão `azul`
+ * pela validação de `TEMAS_VALIDOS`.
  */
 const LEGADO: Record<string, Tema> = {
   original: 'azul',

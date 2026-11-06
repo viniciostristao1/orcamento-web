@@ -12,15 +12,13 @@ interface ConfiguracoesTemaProps {
 // `fundo`/`acento` alimentam a mini-amostra de cor ao lado de cada tema.
 const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento: string }[] = [
   { id: 'azul', nome: 'Azul', descricao: 'Visual clássico (azul e cinza-escuro)', fundo: '#0f172a', acento: '#3b82f6' },
-  { id: 'papel', nome: 'Claro', descricao: 'Modo claro, fundo papel', fundo: '#eef0f3', acento: '#2563eb' },
+  { id: 'papel', nome: 'Papel', descricao: 'Off-white + botões pretos + verde', fundo: '#FAF8F5', acento: '#1B1B1B' },
   { id: 'whatsapp', nome: 'Verde WhatsApp', descricao: 'Escuro com o verde do Zap', fundo: '#0b141a', acento: '#25d366' },
-  { id: 'tecnico', nome: 'Monocromático Técnico', descricao: 'Cinza com laranja, bem sóbrio', fundo: '#101012', acento: '#ff6a00' },
   { id: 'grafite', nome: 'Grafite', descricao: 'Tabelas estilo Claude — quase-preto, grade sutil', fundo: '#0c0c0c', acento: '#4c7ef3' },
   { id: 'meianoite', nome: 'Azul-meia-noite', descricao: 'Navy escuro + bege, títulos serifados', fundo: '#0e1b30', acento: '#e4d5b7' },
-  { id: 'grafiteterra', nome: 'Terracota (Claude)', descricao: 'Grafite + terracota, serifada', fundo: '#1b1d21', acento: '#cc785c' },
-  { id: 'chocolate', nome: 'Chocolate & Caramelo', descricao: 'Marrom espresso + caramelo, serifada', fundo: '#241812', acento: '#c98a4b' },
   { id: 'cobre', nome: 'Grafite & Cobre', descricao: 'Grafite frio + cobre, Space Grotesk', fundo: '#1f2124', acento: '#b87333' },
   { id: 'latte', nome: 'Latte (claro)', descricao: 'Fundo latte + marrom-escuro, serifada', fundo: '#dbc9b0', acento: '#6e4a2e' },
+  { id: 'creme', nome: 'Creme (claro)', descricao: 'Bege + botões pretos + terracota, serifada', fundo: '#F5F0E6', acento: '#1B1B1B' },
 ];
 
 const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange }) => {

@@ -160,17 +160,20 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByRole('button', { name: /Exportar backup/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Importar backup/i })).toBeTruthy();
 
-    // temas removidos não aparecem mais (v0.29.0 + suave na v0.119.0)
+    // temas removidos não aparecem mais (v0.29.0 + suave na v0.119.0 + técnico/terracota/chocolate na v0.184.0)
     expect(screen.queryByText('Terracota')).toBeNull();
+    expect(screen.queryByText('Terracota (Claude)')).toBeNull();
+    expect(screen.queryByText('Chocolate & Caramelo')).toBeNull();
+    expect(screen.queryByText('Monocromático Técnico')).toBeNull();
     expect(screen.queryByText('Executivo Premium')).toBeNull();
     expect(screen.queryByText('Suave Arredondado')).toBeNull();
 
     // temas escondidos atrás da seta: abre só no clique
-    expect(screen.queryByText('Claro')).toBeNull();
+    expect(screen.queryByText('Papel')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
-    expect(screen.getByText('Claro')).toBeTruthy();
+    expect(screen.getByText('Papel')).toBeTruthy();
 
-    fireEvent.click(screen.getByText('Claro'));
+    fireEvent.click(screen.getByText('Papel'));
     expect(document.documentElement.dataset.tema).toBe('papel');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('papel');
 
@@ -214,9 +217,19 @@ describe('App — smoke test (render + processar)', () => {
     // tema claro: ativa preta (branco sumiria no fundo papel)
     fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
-    fireEvent.click(screen.getByText('Claro'));
+    fireEvent.click(screen.getByText('Papel'));
     expect(abaDados().className).toContain('text-[#0f172a]');
     expect(sublinhados()).toHaveLength(1);
+  });
+
+  it('temas novos: Creme entra com fundo bege e acento preto', () => {
+    localStorage.removeItem('orcamentos_tema_v1');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
+    fireEvent.click(screen.getByText('Creme (claro)'));
+    expect(document.documentElement.dataset.tema).toBe('creme');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('creme');
   });
 
   it('logo Toyota tem classe própria (o tema claro o tinge de azul via CSS)', () => {
@@ -225,8 +238,8 @@ describe('App — smoke test (render + processar)', () => {
     expect(logo.className).toContain('logo-toyota');
   });
 
-  it('migra nomes antigos e descarta os temas removidos (claude/terracota/executivo/suave → azul)', () => {
-    for (const antigo of ['claude', 'terracota', 'executivo', 'suave']) {
+  it('migra nomes antigos e descarta os temas removidos (claude/terracota/executivo/suave/tecnico/grafiteterra/chocolate → azul)', () => {
+    for (const antigo of ['claude', 'terracota', 'executivo', 'suave', 'tecnico', 'grafiteterra', 'chocolate']) {
       localStorage.setItem('orcamentos_tema_v1', antigo);
       const { unmount } = render(<App />);
       expect(document.documentElement.dataset.tema).toBe('azul');
