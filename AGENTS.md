@@ -530,6 +530,8 @@ orcamento_web/
                              nome/WhatsApp, data editável, lembrete e WhatsApp)
     revisoes/utils/parseRevisoes.ts puro: chassi/veículo/Toyota10 + passagens +
                              projeção (próx. múltiplo 10k ou +12 meses) + rascunho
+                             (+ item com sufixo "1/SPP" e contagem de linhas
+                             ignoradas com aviso na tela, v0.186.0)
     revisoes/utils/historicoRevisoes.ts lista `revisoes_historico_v1` (um item por
                              chassi; data editável move o lembrete; entra no sino/popup;
                              ordem da lista: previsão/lembrete/adição em `revisoes_ordem_lista_v1`)

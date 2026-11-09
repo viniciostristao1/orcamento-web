@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.186.0](#v18600) — 2026-11-09 — Revisões: item "1/SPP" entra na conta + aviso de linhas ignoradas (v0.186.0)
+
 - [v0.185.0](#v18500) — 2026-11-06 — Tema Dark tipo Taskix + células sem negrito no Creme (v0.185.0)
 
 - [v0.184.0](#v18400) — 2026-11-06 — Temas: saem Técnico/Terracota/Chocolate, Papel vira Papel e entra Creme (v0.184.0)
@@ -294,6 +296,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18600"></a>
+## 2026-11-09 — Revisões: item "1/SPP" entra na conta + aviso de linhas ignoradas (v0.186.0)
+
+**Pedido:** previsão errada na Hilux 8AJBA3CD7S7950001 — alvo 40.714 em vez de
+51.077. Causa: a linha do 06/10/2026 traz o item como `1/SPP` e o molde rígido
+(`(\d+)\s+([A-Za-z]{2,4})`) descartava a linha inteira em silêncio; a base caía
+para 15/05/2026 e tudo (alvo, limite, ritmo, previsão) seguia da base errada.
+
+**Feito:**
+- Item aceita sufixo com barra (`(\d+)(?:\/[A-Za-z0-9-]+)?` — vale o número;
+  grupos de captura intactos).
+- `DadosRevisoes.ignoradas`: linhas com cara de passagem fora do molde contam
+  (cabeçalho e "Outros" não contam) e a tela mostra "⚠ N linha(s) ignoradas".
+- Testes: caso real 06/10 (base/alvo/limite) + contagem de ignoradas (314 passando).
 
 <a id="v18500"></a>
 ## 2026-11-06 — Tema Dark tipo Taskix + células sem negrito no Creme (v0.185.0)

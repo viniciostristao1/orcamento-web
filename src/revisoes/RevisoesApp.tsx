@@ -321,6 +321,11 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
                     </span>
                   </div>
                 </div>
+                {dados && dados.ignoradas > 0 && (
+                  <p className="mt-2 text-[11px] font-bold text-amber-300">
+                    ⚠ {dados.ignoradas} linha(s) da tabela fora do padrão foram ignoradas — confira se alguma revisão ficou de fora.
+                  </p>
+                )}
                 {/* Nome + WhatsApp do cliente: entram na lista ao salvar. */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                   <div className="relative">

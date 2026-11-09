@@ -48,6 +48,9 @@ export interface DadosRevisoes {
   distribuidorVenda: string;
   toyota10: Toyota10Info | null;
   passagens: PassagemRevisao[];
+  /** Linhas com cara de passagem (posição + data) que não casaram no molde
+   * (ex.: item "1/SPP") — a tela avisa em vez de sumir calada. */
+  ignoradas: number;
 }
 
 export interface ProjecaoRevisao {
@@ -154,9 +157,11 @@ export function extrairNumeroRevisao(descricao: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Linha principal de passagem: "2 14/10/2026 60306 1421420 - ... 172129 F 1 CSP REVISAO..." */
+/** Linha principal de passagem: "2 14/10/2026 60306 1421420 - ... 172129 F 1 CSP REVISAO..."
+ * O item aceita sufixo com barra ("1/SPP" — vale o número; v0.186.0, era
+ * descartada e a projeção usava a passagem anterior sem avisar). */
 const LINHA_PASSAGEM_RE =
-  /^\s*(\d+)\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{4,7})\s+(.+?)\s+(\d{3,})\s+([A-Za-z])\s+(\d+)\s+([A-Za-z]{2,4})\s+(.+?)\s*$/;
+  /^\s*(\d+)\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{4,7})\s+(.+?)\s+(\d{3,})\s+([A-Za-z])\s+(\d+)(?:\/[A-Za-z0-9-]+)?\s+([A-Za-z]{2,4})\s+(.+?)\s*$/;
 
 export function parseTextoRevisoes(texto: string): DadosRevisoes {
   const chassi = primeiraCaptura(texto, /Chassi:\s*([A-Za-z0-9]{10,20})/);
@@ -183,6 +188,7 @@ export function parseTextoRevisoes(texto: string): DadosRevisoes {
   }
 
   const passagens: PassagemRevisao[] = [];
+  let ignoradas = 0;
   for (const linhaBruta of texto.split(/\r?\n/)) {
     const linha = linhaBruta.trim();
     if (!linha) continue;
@@ -190,7 +196,11 @@ export function parseTextoRevisoes(texto: string): DadosRevisoes {
     if (m) {
       const aberturaValida = parseDataPtBr(m[2]) !== null;
       // Cabeçalho ("Posição Abertura KM...") não tem data válida — ignora.
-      if (!aberturaValida) continue;
+      // Linha com cara de passagem mas data inválida conta como ignorada.
+      if (!aberturaValida) {
+        if (/^\s*\d+\s+\d{2}\/\d{2}\/\d{4}\b/.test(linha)) ignoradas++;
+        continue;
+      }
       passagens.push({
         posicao: m[1],
         abertura: m[2],
@@ -207,7 +217,11 @@ export function parseTextoRevisoes(texto: string): DadosRevisoes {
     if (/^outros\b/i.test(linha) && passagens.length > 0) {
       const semPrefixo = linha.replace(/^outros\b\s*/i, '').replace(/\s+/g, ' ').trim();
       if (semPrefixo) passagens[passagens.length - 1].extras.push(semPrefixo);
+      continue;
     }
+    // Com cara de passagem (posição + data) mas fora do molde: conta para
+    // avisar na tela em vez de distorcer a projeção em silêncio.
+    if (/^\s*\d+\s+\d{2}\/\d{2}\/\d{4}\b/.test(linha)) ignoradas++;
   }
 
   return {
@@ -222,6 +236,7 @@ export function parseTextoRevisoes(texto: string): DadosRevisoes {
     distribuidorVenda: distribuidorVenda.replace(/\s+/g, ' ').trim(),
     toyota10,
     passagens,
+    ignoradas,
   };
 }
 

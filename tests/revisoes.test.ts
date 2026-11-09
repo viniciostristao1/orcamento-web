@@ -198,6 +198,40 @@ describe('revisões — parse do portal Toyota', () => {
     expect(projetarProxima(sw4.passagens)!.kmAlvo).toBe(70805 + 10000);
   });
 
+  it('item com sufixo "1/SPP" entra na conta (caso Hilux 06/10/2026)', () => {
+    const texto = `Chassi: 8AJBA3CD7S7950001
+Veículo: HILUX CD DSL 4X4 SRV AT\tKatashiki: GUN126L-DGTHXG
+Posição
+Abertura
+KM
+Distribuidor
+OS
+Sts
+Item
+Tipo
+Descrição
+2\t15/05/2026\t30714\t1421420 - WEIAND VEICULOS LTDA\t168254\tF\t1\tCSP\t3 REVISAO 30 000 GUN12640B1B73
+1\t06/10/2026\t41077\tOutros\t2618\tF\t1/SPP\tCSP\tREVISAO 04`;
+    const d = parseTextoRevisoes(texto);
+    expect(d.passagens).toHaveLength(2);
+    expect(d.ignoradas).toBe(0);
+    const p = projetarProxima(d.passagens);
+    expect(p!.baseAbertura).toBe('06/10/2026');
+    expect(p!.baseKm).toBe(41077);
+    expect(p!.kmAlvo).toBe(51077);
+    expect(p!.dataLimite).toBe('06/10/2027');
+  });
+
+  it('linha com cara de passagem fora do molde conta como ignorada', () => {
+    const texto = `Chassi: X
+1\t06/10/2026\t41077\tOutros\t2618\tF\t??\tCSP\tREVISAO 04
+2\t15/05/2026\t30714\t1421420 - WEIAND\t168254\tF\t1\tCSP\tREVISAO`;
+    const d = parseTextoRevisoes(texto);
+    expect(d.passagens).toHaveLength(1);
+    expect(d.ignoradas).toBe(1);
+    expect(parseTextoRevisoes(EXEMPLO).ignoradas).toBe(0);
+  });
+
   it('copiar passagens: "DATA - KM km - REVISÃO", sem OS e sem extras', () => {
     const d = parseTextoRevisoes(EXEMPLO_SW4);
     const texto = textoPassagensParaCopiar(ordenarPorData(d.passagens).reverse());
