@@ -313,32 +313,36 @@
    sóbrio da galeria. */
 [data-tema='meianoite'] button,
 [data-tema='cobre'] button, [data-tema='latte'] button,
-[data-tema='creme'] button {
+[data-tema='creme'] button, [data-tema='dark'] button {
   box-shadow: none;
 }
 [data-tema='meianoite'] [data-neon-glow],
 [data-tema='cobre'] [data-neon-glow],
-[data-tema='latte'] [data-neon-glow], [data-tema='creme'] [data-neon-glow] {
+[data-tema='latte'] [data-neon-glow], [data-tema='creme'] [data-neon-glow],
+[data-tema='dark'] [data-neon-glow] {
   display: none !important;
 }
 [data-tema='meianoite'] [data-neon-dot],
 [data-tema='cobre'] [data-neon-dot],
-[data-tema='latte'] [data-neon-dot], [data-tema='creme'] [data-neon-dot] {
+[data-tema='latte'] [data-neon-dot], [data-tema='creme'] [data-neon-dot],
+[data-tema='dark'] [data-neon-dot] {
   background-color: var(--tema-acento) !important;
   box-shadow: none !important;
 }
 [data-tema='meianoite'] [data-neon-box],
 [data-tema='cobre'] [data-neon-box],
-[data-tema='latte'] [data-neon-box], [data-tema='creme'] [data-neon-box] {
+[data-tema='latte'] [data-neon-box], [data-tema='creme'] [data-neon-box],
+[data-tema='dark'] [data-neon-box] {
   box-shadow: none !important;
 }
 
 /* Acento CLARO → o botão primário (bg-blue-600 text-white) ganha texto ESCURO
-   (senão o branco some sobre bege/cobre). Creme/Papel têm acento PRETO, então
-   mantêm o texto branco padrão.
+   (senão o branco some sobre bege/cobre). Terracota do dark também pede texto
+   escuro. Creme/Papel têm acento PRETO, então mantêm o texto branco padrão.
    Escopo em `button`: o `tr` do cabeçalho ITEM/DESCRIÇÃO/VALOR (R$) usa as MESMAS
    classes e precisa continuar BRANCO (pedido do usuário no meianoite). */
 [data-tema='meianoite'] button.bg-blue-600.text-white,
+[data-tema='dark'] button.bg-blue-600.text-white,
 [data-tema='cobre'] button.bg-blue-600.text-white {
   color: var(--tema-acento-texto);
 }
@@ -447,6 +451,27 @@
 [data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600 { color: #6e5b42; }
 [data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300 { color: #3a2a1c; }
 [data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200 { color: #3a2a1c; }
+
+/* Dark (tipo Taskix) = preto quente + terracota + serifada. Fraunces + Inter. */
+[data-tema='dark'] {
+  --tema-fundo: #1E1D1C; --tema-campo: #1E1D1C; --tema-painel: #262524;
+  --tema-borda-forte: #3A3836; --tema-borda-media: #2e2d2c;
+  --tema-texto-fraco: #6e6a64; --tema-texto-suave: #8b867e; --tema-texto-medio: #a9a49b;
+  --tema-texto-medio2: #cfc9be; --tema-texto: #eceae6; --tema-titulo: #f6f4f0;
+  --tema-acento: #D97757; --tema-acento-2: #dd8a6c; --tema-acento-claro: #e5a088;
+  --tema-acento-clarissimo: #f0c4b2; --tema-acento-escuro: #b5634a; --tema-acento-texto: #2a140c;
+  --tema-sucesso: #5b9e73; --tema-sucesso-2: #6fb187; --tema-sucesso-claro: #8fc4a1; --tema-sucesso-escuro: #14321f;
+  --tema-ambar: #d9a441; --tema-ambar-claro: #ecc677; --tema-sombra-sucesso: #14321f;
+  --tema-tracking-widest: 0.06em;
+  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* Creme: conteúdo das células (aba Dados) sem negrito (input + grifo juntos,
+   senão as larguras divergem e o destaque desalinha). Cabeçalho segue bold. */
+[data-tema='creme'] tbody td input[type='text'],
+[data-tema='creme'] tbody td [data-grifo] {
+  font-weight: 400;
+}
 
 /* Interface chapada nos temas (sem brilho neon, sem sombra nos botões). */
 [data-tema='papel'] button,

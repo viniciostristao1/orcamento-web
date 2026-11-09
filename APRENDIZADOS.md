@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.185.0](#v18500) — 2026-11-06 — Tema Dark tipo Taskix + células sem negrito no Creme (v0.185.0)
+
 - [v0.184.0](#v18400) — 2026-11-06 — Temas: saem Técnico/Terracota/Chocolate, Papel vira Papel e entra Creme (v0.184.0)
 
 - [v0.183.0](#v18300) — 2026-11-05 — Lembretes: uma caixinha por vencido, rápido abre o sino e navegação firme (v0.183.0)
@@ -292,6 +294,18 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18500"></a>
+## 2026-11-06 — Tema Dark tipo Taskix + células sem negrito no Creme (v0.185.0)
+
+**Pedido:** tema Dark como o do Taskix; no Creme, conteúdo das células sem negrito.
+
+**Feito:**
+- `dark` novo (preto quente `#1E1D1C` + terracota `#D97757`, Fraunces; chapado +
+  texto escuro no primário, como meianoite/cobre).
+- Creme: `tbody td input/[data-grifo]` em peso normal (cabeçalho segue bold;
+  input + grifo juntos p/ não desalinçar).
+- Testes: seleção do Dark + migração intacta (312 passando).
 
 <a id="v18400"></a>
 ## 2026-11-06 — Temas: saem Técnico/Terracota/Chocolate, Papel vira Papel e entra Creme (v0.184.0)

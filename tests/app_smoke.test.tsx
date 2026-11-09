@@ -232,6 +232,16 @@ describe('App — smoke test (render + processar)', () => {
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('creme');
   });
 
+  it('temas novos: Dark entra com fundo quente e terracota', () => {
+    localStorage.removeItem('orcamentos_tema_v1');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar temas' }));
+    fireEvent.click(screen.getByText('Dark'));
+    expect(document.documentElement.dataset.tema).toBe('dark');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('dark');
+  });
+
   it('logo Toyota tem classe própria (o tema claro o tinge de azul via CSS)', () => {
     render(<App />);
     const logo = screen.getByAltText('Toyota');

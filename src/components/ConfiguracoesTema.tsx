@@ -15,6 +15,7 @@ const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento
   { id: 'papel', nome: 'Papel', descricao: 'Off-white + botões pretos + verde', fundo: '#FAF8F5', acento: '#1B1B1B' },
   { id: 'whatsapp', nome: 'Verde WhatsApp', descricao: 'Escuro com o verde do Zap', fundo: '#0b141a', acento: '#25d366' },
   { id: 'grafite', nome: 'Grafite', descricao: 'Tabelas estilo Claude — quase-preto, grade sutil', fundo: '#0c0c0c', acento: '#4c7ef3' },
+  { id: 'dark', nome: 'Dark', descricao: 'Preto quente + terracota, serifada', fundo: '#1E1D1C', acento: '#D97757' },
   { id: 'meianoite', nome: 'Azul-meia-noite', descricao: 'Navy escuro + bege, títulos serifados', fundo: '#0e1b30', acento: '#e4d5b7' },
   { id: 'cobre', nome: 'Grafite & Cobre', descricao: 'Grafite frio + cobre, Space Grotesk', fundo: '#1f2124', acento: '#b87333' },
   { id: 'latte', nome: 'Latte (claro)', descricao: 'Fundo latte + marrom-escuro, serifada', fundo: '#dbc9b0', acento: '#6e4a2e' },

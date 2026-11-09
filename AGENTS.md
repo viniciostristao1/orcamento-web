@@ -24,14 +24,15 @@ revisão: 10 mil km ou 12 meses; v0.161.0 — lista de previsões por chassi + d
 editável, nome/WhatsApp, lembrete global e botão WhatsApp; v0.162.0 — previsão pelo ritmo (km/dia); v0.163.0 — lista enxuta (1 data editável, modelo ao lado do chassi, 1 linha, só horário); v0.164.0 — 2 colunas (lista ao lado do colar), sem DADOS DO VEÍCULO; v0.165.0 — aba larga + PASSAGENS e PRÓXIMA lado a lado; v0.166.0 — pilha esquerda, 3 últimas, campo menor + backup de revisões; v0.167.0 — PRÓXIMA sem textos (só quadros + ação); v0.168.0 — copiar passagens/lista + alvo exato +10 mil; v0.169.0 — descrição curta (sem tipo/código); v0.170.0 — "+" na nota cria outra abaixo; v0.171.0 — caixinha "já chamei" nos 3 históricos; v0.172.0 — limpar chamados, notas gerais e editar lembrete; v0.173.0 — pesquisa dos Dados grudada no topo; v0.174.0 — chamado ao lado do excluir + última busca; v0.175.0 — sem "+N extras" nas passagens; v0.176.0 — nota por revisão; v0.177.0 — nota azul preenchida; v0.178.0 — limpar chamados na lista; v0.179.0 — ordem da lista (previsão/lembrete/adição); v0.180.0 — busca por nome/chassi na lista; v0.181.0 — atalho não puxa a sub-aba a cada tecla. A aba **Whats**
 saiu na v0.117.0 (os lembretes de orçamentos, flyer e rápidos cobrem o uso).
 As quatro abas compartilham o mesmo estilo e há um **botão de configurações** (v0.5.0) para alternar o tema
-da interface. São **8 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
+da interface. São **9 temas** (a v0.29.0 removeu o Terracota e o Executivo Premium;
 a v0.119.0 removeu o Suave Arredondado; a v0.135.0 somou 5 "sofisticados" escolhidos na galeria;
 a v0.184.0 removeu o Monocromático Técnico, o Terracota (Claude) e o Chocolate & Caramelo):
 **Azul** (padrão, era "Original"), **Papel** (off-white + botões pretos + verde),
 **Verde WhatsApp**, **Grafite**
 (v0.19.0 — estilo das tabelas do Claude.ai: quase-preto, cabeçalho mais claro, grade sutil,
 fonte Plus Jakarta Sans)**, Azul-meia-noite** (navy + bege), **Grafite & Cobre** e **Latte** (modo
-claro, café) **+ o Creme da v0.184.0** (bege + botões pretos + terracota, Fraunces).
+claro, café) **+ o Creme da v0.184.0** (bege + botões pretos + terracota, Fraunces)
+**+ o Dark da v0.185.0** (preto quente + terracota, Fraunces, tipo Taskix).
 O tema vale **só para a interface** — o PNG do cliente não muda.
 
 - **Sem IA / sem backend**: é só lógica determinística em JS (parse + agrupamento + soma).
@@ -141,7 +142,7 @@ O tema vale **só para a interface** — o PNG do cliente não muda.
   (`components/ConfiguracoesTema.tsx`). Logo Toyota transparente no header
   (`src/assets/logo_toyota.png`). **As saídas não seguem o tema** — `#printable-quote` e o flyer (`data-saida="flyer"`)
   resetam as variáveis; validado pixel a pixel contra a v0.4.2 (0 diferenças nos PNGs).
-  - **8 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`;
+  - **9 temas (v0.18.0 + Grafite na v0.19.0; v0.29.0 removeu `terracota` e `executivo`;
     v0.119.0 removeu `suave`; v0.135.0 +5 sofisticados da galeria; v0.184.0 removeu
     `tecnico`, `grafiteterra` e `chocolate`):**
     `claude`/`original` antigos caem em `azul` (`lerTemaSalvo` **migra**/descarta os nomes antigos,
@@ -632,8 +633,8 @@ npm run build        # gera dist/index.html (arquivo único)
 - **Segunda aba "Tire Flyer"** (v0.4.0), no header ao lado da marca, para o gerador de promoção
   de pneus; as duas abas ficam montadas para não perder o que foi digitado.
 - **Temas** (v0.5.0): escolhidos em **Configurações** (lista escondida atrás de seta
-  desde a v0.119.0); o tema vale só para a interface (PNGs iguais). Hoje são 8 (Azul padrão,
-  Papel, WhatsApp, Grafite, Azul-meia-noite, Grafite & Cobre, Latte e Creme) — Terracota e
+  desde a v0.119.0); o tema vale só para a interface (PNGs iguais). Hoje são 9 (Azul padrão,
+  Papel, WhatsApp, Grafite, Azul-meia-noite, Grafite & Cobre, Latte, Creme e Dark) — Terracota e
   Executivo saíram na v0.29.0, Suave na v0.119.0, Monocromático Técnico, Terracota (Claude) e
   Chocolate & Caramelo na v0.184.0. As abas no mesmo estilo e só o logo Toyota no header (título e "Gestão de
   Vendas" saíram na v0.119.0).
