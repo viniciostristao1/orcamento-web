@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.187.0](#v18700) — 2026-11-09 — Revisões: lista de previsões até 300 (v0.187.0)
+
 - [v0.186.0](#v18600) — 2026-11-09 — Revisões: item "1/SPP" entra na conta + aviso de linhas ignoradas (v0.186.0)
 
 - [v0.185.0](#v18500) — 2026-11-06 — Tema Dark tipo Taskix + células sem negrito no Creme (v0.185.0)
@@ -296,6 +298,13 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18700"></a>
+## 2026-11-09 — Revisões: lista de previsões até 300 (v0.187.0)
+
+**Pedido:** aumentar o teto da lista de 200 para 300.
+
+**Feito:** `MAX = 300` em `historicoRevisoes.ts` + teste do teto (315 passando).
 
 <a id="v18600"></a>
 ## 2026-11-09 — Revisões: item "1/SPP" entra na conta + aviso de linhas ignoradas (v0.186.0)

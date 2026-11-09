@@ -43,7 +43,7 @@ export interface RevisaoAgendada {
 export const REVISOES_HISTORICO_KEY = 'revisoes_historico_v1';
 /** Data da última busca de clientes para prever revisão (dd/mm/aaaa). */
 export const REVISOES_ULTIMA_BUSCA_KEY = 'revisoes_ultima_busca_v1';
-const MAX = 200;
+const MAX = 300;
 
 /** dd/mm/aaaa → yyyy-mm-dd (para `<input type="date">`). Vazio se inválida. */
 export function dataPtBrParaInput(data: string): string {

@@ -352,8 +352,17 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     expect(JSON.parse(localStorage.getItem(REVISOES_HISTORICO_KEY) ?? '[]')).toHaveLength(1);
   });
 
-  it('mesmo chassi atualiza em vez de duplicar (nome vazio mantém)', () => {
-    adicionarAhistoricoRevisoes({ ...item('ABC123', '14/10/2027'), nome: 'JOAO', telefone: '51 1111-1111' });
+  it('lista guarda até 300 previsões (a mais antiga sai)', () => {
+    for (let i = 0; i < 301; i++) {
+      adicionarAhistoricoRevisoes(item(`CHASSI${String(i).padStart(4, '0')}`, '14/10/2027'));
+    }
+    const lista = listarHistoricoRevisoes();
+    expect(lista).toHaveLength(300);
+    expect(lista[0].chassi).toBe('CHASSI0300');
+    expect(lista.map((r) => r.chassi)).not.toContain('CHASSI0000');
+  });
+
+  it('mesmo chassi atualiza em vez de duplicar (nome vazio mantém)', () => {    adicionarAhistoricoRevisoes({ ...item('ABC123', '14/10/2027'), nome: 'JOAO', telefone: '51 1111-1111' });
     const out = adicionarAhistoricoRevisoes({ ...item('abc123', '15/11/2027'), nome: '', telefone: '' });
     expect(out).toHaveLength(1);
     expect(out[0].dataPrevista).toBe('15/11/2027');
