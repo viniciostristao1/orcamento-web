@@ -109,7 +109,7 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
                 onBlur={() => setBuscando(false)}
                 placeholder="Buscar…"
                 aria-label="Buscar nas tabelas"
-                className="w-full border border-amber-500/60 rounded-xl pl-3 pr-8 py-2 text-sm font-bold text-[#e8edf5] outline-none bg-[#131c30]"
+                className="menu-dados-busca w-full border border-amber-500/60 rounded-xl pl-3 pr-8 py-2 text-sm font-bold text-[#e8edf5] outline-none"
               />
               {termo ? (
                 <button

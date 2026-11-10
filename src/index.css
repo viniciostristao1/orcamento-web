@@ -507,20 +507,41 @@
   font-weight: 400;
 }
 
-/* MENU DADOS: o fundo acompanha a cor ESCURA de cada tema (igual aos botões
-   de play) — nos temas claros, o preto/castanho dos botões; nos escuros, o
-   padrão. Letras claras (hex literais no componente) valem em todos. */
+/* MENU DADOS: o fundo é a cor MAIS ESCURA de cada tema (nada de azul fora de
+   lugar). Borda e campo de busca em branco translúcido (valem em todos).
+   Letras claras (hex literais no componente) valem em todos. */
+nav.menu-dados {
+  border-color: rgb(255 255 255 / 0.12);
+}
+nav.menu-dados .menu-dados-busca {
+  background-color: rgb(255 255 255 / 0.06);
+}
+[data-tema='azul'] nav.menu-dados {
+  background-color: #0A0F1C;
+}
 [data-tema='papel'] nav.menu-dados {
   background-color: #1B1B1B;
-  border-color: #2e2e2e;
 }
-[data-tema='creme'] nav.menu-dados {
-  background-color: #1B1B1B;
-  border-color: #2e2e2e;
+[data-tema='whatsapp'] nav.menu-dados {
+  background-color: #0B141A;
+}
+[data-tema='grafite'] nav.menu-dados {
+  background-color: #0C0C0C;
+}
+[data-tema='meianoite'] nav.menu-dados {
+  background-color: #0E1B30;
+}
+[data-tema='cobre'] nav.menu-dados {
+  background-color: #1F2124;
 }
 [data-tema='latte'] nav.menu-dados {
   background-color: #553720;
-  border-color: #6e4a2e;
+}
+[data-tema='creme'] nav.menu-dados {
+  background-color: #1B1B1B;
+}
+[data-tema='dark'] nav.menu-dados {
+  background-color: #1E1D1C;
 }
 
 /* O texto digitado/colado usa a fonte de conteúdo do tema. Os campos de dados

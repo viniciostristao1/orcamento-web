@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.191.0](#v19100) — 2026-11-10 — MENU DADOS no escuro exato de cada tema (v0.191.0)
+
 - [v0.190.0](#v19000) — 2026-11-10 — MENU DADOS no escuro de cada tema (v0.190.0)
 
 - [v0.189.0](#v18900) — 2026-11-10 — MENU DADOS sempre escuro com letras claras (v0.189.0)
@@ -304,6 +306,16 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19100"></a>
+## 2026-11-10 — MENU DADOS no escuro exato de cada tema (v0.191.0)
+
+**Pedido (correção da v0.190.0):** os escuros ficaram no azul fixo — cada tema
+tem seu escuro explícito, sem azul fora de lugar.
+
+**Feito:** fundo por tema (azul `#0A0F1C`, papel/creme `#1B1B1B`, whatsapp
+`#0B141A`, grafite `#0C0C0C`, meianoite `#0E1B30`, cobre `#1F2124`, latte
+`#553720`, dark `#1E1D1C`); borda e busca em branco translúcido (valem em todos).
 
 <a id="v19000"></a>
 ## 2026-11-10 — MENU DADOS no escuro de cada tema (v0.190.0)
