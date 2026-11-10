@@ -2669,4 +2669,47 @@ describe('App — smoke test (render + processar)', () => {
       localStorage.removeItem('revisoes_ultima_busca_v1');
     }
   });
+
+  it('revisões: ordenar abre seleção direta (sem ciclo)', () => {
+    localStorage.setItem(
+      'revisoes_historico_v1',
+      JSON.stringify([
+        {
+          id: 'r1', criadoEm: '23/10/2026 10:00:00', chassi: 'AAA111', veiculo: '',
+          nome: '', telefone: '', ultimaAbertura: '11/06/2026', ultimoKm: 10000,
+          kmAlvo: 20000, revisaoProxima: 2, dataPrevista: '04/09/2026',
+          lembreteEm: '2027-01-10T09:00',
+        },
+        {
+          id: 'r2', criadoEm: '24/10/2026 10:00:00', chassi: 'BBB222', veiculo: '',
+          nome: '', telefone: '', ultimaAbertura: '11/06/2026', ultimoKm: 10000,
+          kmAlvo: 20000, revisaoProxima: 2, dataPrevista: '20/12/2026',
+          lembreteEm: '2026-12-01T09:00',
+        },
+      ]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByText('Revisões'));
+      const ordem = () =>
+        Array.from(document.querySelectorAll('[data-revisao]')).map((el) =>
+          el.getAttribute('data-revisao'),
+        );
+      // padrão: previsão próxima (AAA antes de BBB)
+      expect(ordem()).toEqual(['r1', 'r2']);
+      // abre o menu com as 5 opções (sem ciclar)
+      fireEvent.click(screen.getByRole('button', { name: 'Ordenar lista' }));
+      expect(screen.getByRole('button', { name: 'Ordenar por Lembrete mais próximo' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Ordenar por Adição antiga' })).toBeTruthy();
+      // escolha direta: BBB (dez) passa na frente de AAA (jan)
+      fireEvent.click(screen.getByRole('button', { name: 'Ordenar por Lembrete mais próximo' }));
+      expect(ordem()).toEqual(['r2', 'r1']);
+      expect(localStorage.getItem('revisoes_ordem_lista_v1')).toBe('lembrete-proximo');
+      // menu fechou após escolher
+      expect(screen.queryByRole('button', { name: 'Ordenar por Lembrete mais próximo' })).toBeNull();
+    } finally {
+      localStorage.removeItem('revisoes_historico_v1');
+      localStorage.removeItem('revisoes_ordem_lista_v1');
+    }
+  });
 });

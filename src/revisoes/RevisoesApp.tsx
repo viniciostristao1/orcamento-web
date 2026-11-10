@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDownWideNarrow, ArrowUpNarrowWide, CalendarArrowDown, Check, ClockArrowDown, ClockArrowUp, Copy, Eraser, PhoneOff, Play, Plus, Search, StickyNote, Trash2, X } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
@@ -43,13 +43,13 @@ import {
   type RevisaoAgendada,
 } from './utils/historicoRevisoes';
 
-/** Ícone + título do botão de ordem para cada modo (ciclo: previsão → lembretes → adição). */
-const ORDEM_INFO: Record<OrdemListaRevisoes, { titulo: string; Icone: typeof CalendarArrowDown }> = {
-  previsao: { titulo: 'Previsão próxima primeiro — clique para: lembrete mais próximo', Icone: CalendarArrowDown },
-  'lembrete-proximo': { titulo: 'Lembrete mais próximo primeiro — clique para: lembrete mais distante', Icone: ClockArrowDown },
-  'lembrete-distante': { titulo: 'Lembrete mais distante primeiro — clique para: adição mais recente', Icone: ClockArrowUp },
-  'adicao-recente': { titulo: 'Adicionados recentes primeiro — clique para: ordem de adição', Icone: ArrowDownWideNarrow },
-  'adicao-antiga': { titulo: 'Ordem de adição (antigos primeiro) — clique para: previsão próxima', Icone: ArrowUpNarrowWide },
+/** Ícone + nomes de cada ordenação (menu de seleção direta, sem ciclo). */
+const ORDEM_INFO: Record<OrdemListaRevisoes, { nome: string; titulo: string; Icone: typeof CalendarArrowDown }> = {
+  previsao: { nome: 'Previsão próxima', titulo: 'Previsão próxima primeiro', Icone: CalendarArrowDown },
+  'lembrete-proximo': { nome: 'Lembrete mais próximo', titulo: 'Lembrete mais próximo primeiro', Icone: ClockArrowDown },
+  'lembrete-distante': { nome: 'Lembrete mais distante', titulo: 'Lembrete mais distante primeiro', Icone: ClockArrowUp },
+  'adicao-recente': { nome: 'Adição mais recente', titulo: 'Adicionados recentes primeiro', Icone: ArrowDownWideNarrow },
+  'adicao-antiga': { nome: 'Adição antiga', titulo: 'Ordem de adição (antigos primeiro)', Icone: ArrowUpNarrowWide },
 };
 
 const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }> = ({ destaqueId = null, destaqueVez = 0 }) => {
@@ -64,8 +64,11 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   const [salvoAgora, setSalvoAgora] = useState(false);
   // Lista de previsões (chassi + data): recarrega no sino/storage também.
   const [lista, setLista] = useState<RevisaoAgendada[]>(listarHistoricoRevisoes);
-  // Ordem da lista (botão no header: previsão → lembretes → adição; gravada no navegador).
+  // Ordem da lista (menu no header: escolha direta; gravada no navegador).
   const [ordemLista, setOrdemLista] = useState<OrdemListaRevisoes>(lerOrdemListaRevisoes);
+  // Menu de ordenação aberto/fechado (fecha clicando fora ou com Escape).
+  const [ordemAberta, setOrdemAberta] = useState(false);
+  const ordemRef = useRef<HTMLDivElement>(null);
   // Data da última busca de clientes para prever revisão (ao lado do copiar).
   const [ultimaBusca, setUltimaBusca] = useState<string>(lerUltimaBusca);
   const [lembreteAberto, setLembreteAberto] = useState<string | null>(null);
@@ -135,12 +138,27 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   const listaVisivel = busca.trim() ? filtrarListaRevisoes(listaPorAba, busca) : listaPorAba;
 
   // Alterna a ordem da lista (previsão → lembrete próximo → distante → adição recente → antiga).
-  const alternarOrdemLista = () => {
-    const idx = ORDENS_LISTA_REVISOES.indexOf(ordemLista);
-    const proxima = ORDENS_LISTA_REVISOES[(idx + 1) % ORDENS_LISTA_REVISOES.length];
-    salvarOrdemListaRevisoes(proxima);
-    setOrdemLista(proxima);
+  const escolherOrdemLista = (ordem: OrdemListaRevisoes) => {
+    salvarOrdemListaRevisoes(ordem);
+    setOrdemLista(ordem);
+    setOrdemAberta(false);
   };
+
+  useEffect(() => {
+    if (!ordemAberta) return;
+    const aoClicarFora = (e: MouseEvent) => {
+      if (ordemRef.current && !ordemRef.current.contains(e.target as Node)) setOrdemAberta(false);
+    };
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOrdemAberta(false);
+    };
+    document.addEventListener('mousedown', aoClicarFora);
+    document.addEventListener('keydown', aoTeclar);
+    return () => {
+      document.removeEventListener('mousedown', aoClicarFora);
+      document.removeEventListener('keydown', aoTeclar);
+    };
+  }, [ordemAberta]);
 
   // Colar → calcular → lista (chassi + data prevista pelo ritmo). Mesmo chassi atualiza.
   const salvarNaLista = () => {
@@ -417,16 +435,56 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
               {(() => {
                 const { titulo, Icone } = ORDEM_INFO[ordemLista];
                 return (
-                  <button
-                    type="button"
-                    onClick={alternarOrdemLista}
-                    disabled={listaOrdenada.length === 0}
-                    aria-label="Alternar ordem da lista"
-                    title={titulo}
-                    className="flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 border-slate-700 disabled:cursor-not-allowed"
-                  >
-                    <Icone size={18} />
-                  </button>
+                  <div className="relative" ref={ordemRef}>
+                    <button
+                      type="button"
+                      onClick={() => setOrdemAberta((a) => !a)}
+                      disabled={listaOrdenada.length === 0}
+                      aria-label="Ordenar lista"
+                      aria-expanded={ordemAberta}
+                      title={`Ordenar lista: ${titulo}`}
+                      className={`flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer active:scale-95 disabled:opacity-40 text-slate-200 border-slate-700 disabled:cursor-not-allowed ${
+                        ordemAberta ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-800 hover:bg-slate-700'
+                      }`}
+                    >
+                      <Icone size={18} />
+                    </button>
+                    {ordemAberta && (
+                      <div className="absolute right-0 top-full mt-2 w-64 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-2 z-[120]">
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-3 pt-2 pb-2">
+                          Ordenar lista
+                        </p>
+                        {ORDENS_LISTA_REVISOES.map((id) => {
+                          const info = ORDEM_INFO[id];
+                          const ativo = ordemLista === id;
+                          const ItemIcone = info.Icone;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => escolherOrdemLista(id)}
+                              aria-label={`Ordenar por ${info.nome}`}
+                              aria-pressed={ativo}
+                              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left border transition-colors cursor-pointer ${
+                                ativo
+                                  ? 'bg-blue-600/10 border-blue-500/40'
+                                  : 'border-transparent hover:bg-slate-900'
+                              }`}
+                            >
+                              <span
+                                className={`p-1.5 transition-colors shrink-0 ${
+                                  ativo ? 'text-amber-400' : 'text-slate-500'
+                                }`}
+                              >
+                                <ItemIcone size={16} />
+                              </span>
+                              <span className="text-sm font-bold text-slate-100">{info.nome}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               })()}
               <input

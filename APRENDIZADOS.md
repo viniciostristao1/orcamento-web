@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.194.0](#v19400) — 2026-11-10 — Revisões: ordenar por menu direto, sem ciclo (v0.194.0)
+
 - [v0.193.0](#v19300) — 2026-11-10 — Cabeçalho repetido do PDF não vira item (ITE-8995, v0.193.0)
 
 - [v0.192.0](#v19200) — 2026-11-10 — Sub-abas com azul que segue o tema (v0.192.0)
@@ -310,6 +312,14 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19400"></a>
+## 2026-11-10 — Revisões: ordenar por menu direto, sem ciclo (v0.194.0)
+
+**Pedido:** o botão de ordem ciclava a cada clique; abrir seleção direta.
+
+**Feito:** dropdown (padrão do sino/flyer: fora/Escape fecham) com as 5 ordens
+nomeadas; escolha salva e fecha; teste de ponta a ponta (320 passando).
 
 <a id="v19300"></a>
 ## 2026-11-10 — Cabeçalho repetido do PDF não vira item (ITE-8995, v0.193.0)
