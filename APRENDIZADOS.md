@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.190.0](#v19000) — 2026-11-10 — MENU DADOS no escuro de cada tema (v0.190.0)
+
 - [v0.189.0](#v18900) — 2026-11-10 — MENU DADOS sempre escuro com letras claras (v0.189.0)
 
 - [v0.188.0](#v18800) — 2026-11-10 — Revisões: sub-abas Próximas/Contatados na lista (v0.188.0)
@@ -302,6 +304,15 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19000"></a>
+## 2026-11-10 — MENU DADOS no escuro de cada tema (v0.190.0)
+
+**Pedido (correção da v0.189.0):** fundo fixo não servia — o box deve acompanhar
+a cor escura de cada tema, igual aos botões de play.
+
+**Feito:** classe `menu-dados` + regras no index.css — Papel/Creme no preto dos
+botões (`#1B1B1B`), Latte no castanho (`#553720`); demais temas mantêm o padrão.
 
 <a id="v18900"></a>
 ## 2026-11-10 — MENU DADOS sempre escuro com letras claras (v0.189.0)

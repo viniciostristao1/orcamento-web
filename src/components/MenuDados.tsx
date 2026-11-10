@@ -23,8 +23,9 @@ interface MenuDadosProps {
 
 /**
  * "MENU DADOS": menu lateral das sub-abas da aba Dados (ideia 03 — barra âmbar
- * no item sob o mouse). Painel SEMPRE escuro (hex literais, fora do remapeamento
- * do tema) com letras claras — dashboard escuro em qualquer tema. A lista
+ * no item sob o mouse). Painel escuro com letras claras em qualquer tema — o
+ * fundo acompanha a cor escura de cada tema (igual aos botões de play; ver
+ * regras `nav.menu-dados` no index.css). A lista
  * acompanha criações/exclusões/renomeações na hora (evento próprio + `storage`
  * entre janelas). Inclui a lupa de pesquisa nas tabelas.
  */
@@ -86,7 +87,7 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
     .join(' · ');
 
   return (
-    <nav aria-label="Menu Dados" className="rounded-2xl border border-[#2a3348] bg-[#0d1524] p-3">
+    <nav aria-label="Menu Dados" className="menu-dados rounded-2xl border border-[#2a3348] bg-[#0d1524] p-3">
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8fa0b8] px-3 pt-1 pb-2">
         Menu Dados
       </p>

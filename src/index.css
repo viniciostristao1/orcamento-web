@@ -507,6 +507,22 @@
   font-weight: 400;
 }
 
+/* MENU DADOS: o fundo acompanha a cor ESCURA de cada tema (igual aos botões
+   de play) — nos temas claros, o preto/castanho dos botões; nos escuros, o
+   padrão. Letras claras (hex literais no componente) valem em todos. */
+[data-tema='papel'] nav.menu-dados {
+  background-color: #1B1B1B;
+  border-color: #2e2e2e;
+}
+[data-tema='creme'] nav.menu-dados {
+  background-color: #1B1B1B;
+  border-color: #2e2e2e;
+}
+[data-tema='latte'] nav.menu-dados {
+  background-color: #553720;
+  border-color: #6e4a2e;
+}
+
 /* O texto digitado/colado usa a fonte de conteúdo do tema. Os campos de dados
    mono continuam mono (.font-mono-data tem prioridade), e as saídas resetam a
    fonte logo abaixo — o PNG do cliente segue em Inter. */
