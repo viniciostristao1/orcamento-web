@@ -2631,10 +2631,14 @@ describe('App — smoke test (render + processar)', () => {
       const check = screen.getByRole('checkbox', { name: 'Marcar como chamado' });
       const excluir = screen.getByRole('button', { name: 'Excluir previsão ABC123' });
       expect(excluir.parentElement).toBe(check.parentElement);
-      // marcar acinzenta o item e salva
+      // marcar move o item para a sub-aba Contatados e salva
       fireEvent.click(check);
-      expect(document.querySelector('[data-revisao="r1"]')?.className).toContain('opacity-50');
       expect(JSON.parse(localStorage.getItem('revisoes_historico_v1') ?? '[]')[0].chamado).toBe(true);
+      expect(screen.getByRole('tab', { name: 'Próximas (0)' })).toBeTruthy();
+      expect(screen.getByRole('tab', { name: 'Contatados (1)' })).toBeTruthy();
+      expect(document.querySelector('[data-revisao="r1"]')).toBeNull();
+      fireEvent.click(screen.getByRole('tab', { name: 'Contatados (1)' }));
+      expect(document.querySelector('[data-revisao="r1"]')?.className).toContain('opacity-50');
       // campo da última busca salva a data
       const busca = screen.getByLabelText('Data da última busca de clientes') as HTMLInputElement;
       expect(busca.value).toBe('');

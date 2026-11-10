@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.188.0](#v18800) — 2026-11-10 — Revisões: sub-abas Próximas/Contatados na lista (v0.188.0)
+
 - [v0.187.0](#v18700) — 2026-11-09 — Revisões: lista de previsões até 300 (v0.187.0)
 
 - [v0.186.0](#v18600) — 2026-11-09 — Revisões: item "1/SPP" entra na conta + aviso de linhas ignoradas (v0.186.0)
@@ -298,6 +300,17 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18800"></a>
+## 2026-11-10 — Revisões: sub-abas Próximas/Contatados na lista (v0.188.0)
+
+**Pedido:** duas sub-abas abaixo do título — check vai para Contatados, sem
+check fica em Próximas.
+
+**Feito:**
+- `filtrarPorChamado` puro em `historicoRevisoes.ts` + sub-abas com contadores
+  (`Próximas (N)`/`Contatados (M)`); busca, ordem e copiar seguem a sub-aba.
+- Teste do helper + ajuste do smoke (marcar move de aba).
 
 <a id="v18700"></a>
 ## 2026-11-09 — Revisões: lista de previsões até 300 (v0.187.0)

@@ -109,6 +109,11 @@ export function filtrarListaRevisoes(lista: RevisaoAgendada[], termo: string): R
   );
 }
 
+/** Filtra a lista por chamado (true = Contatados, false = Próximas). */
+export function filtrarPorChamado(lista: RevisaoAgendada[], chamados: boolean): RevisaoAgendada[] {
+  return lista.filter((r) => !!r.chamado === chamados);
+}
+
 /** Ordena pela data prevista (mais próxima primeiro; sem data vai ao fim). */
 export function ordenarPorPrevisao(lista: RevisaoAgendada[]): RevisaoAgendada[] {
   const tempo = (r: RevisaoAgendada): number => {

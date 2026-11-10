@@ -28,6 +28,7 @@ import {
   dataPtBrParaISOManha,
   inputParaDataPtBr,
   filtrarListaRevisoes,
+  filtrarPorChamado,
   lerOrdemListaRevisoes,
   lerUltimaBusca,
   limparChamadosRevisoes,
@@ -73,6 +74,8 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   // Busca na lista (lupa do header): filtra por nome do cliente ou chassi.
   const [buscaAberta, setBuscaAberta] = useState(false);
   const [busca, setBusca] = useState('');
+  // Sub-abas da lista: Próximas (sem check) ou Contatados (com check).
+  const [abaLista, setAbaLista] = useState<'proximas' | 'contatados'>('proximas');
   // Nota do item: editor aberto + rascunho + feedback de cópia.
   const [notaAberta, setNotaAberta] = useState<string | null>(null);
   const [rascunhoNota, setRascunhoNota] = useState('');
@@ -125,8 +128,11 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   // Só as 3 últimas (a previsão usa o histórico completo).
   const passagensRecentes = [...passagensOrdenadas].reverse().slice(0, 3);
   const listaOrdenada = ordenarListaRevisoes(lista, ordemLista);
+  // Sub-aba: Contatados = com check, Próximas = sem check; busca e copiar
+  // seguem o visível da sub-aba aberta.
+  const listaPorAba = filtrarPorChamado(listaOrdenada, abaLista === 'contatados');
   // Busca (lupa): filtra por nome do cliente ou chassi; o copiar segue o visível.
-  const listaVisivel = busca.trim() ? filtrarListaRevisoes(listaOrdenada, busca) : listaOrdenada;
+  const listaVisivel = busca.trim() ? filtrarListaRevisoes(listaPorAba, busca) : listaPorAba;
 
   // Alterna a ordem da lista (previsão → lembrete próximo → distante → adição recente → antiga).
   const alternarOrdemLista = () => {
@@ -468,6 +474,31 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
             </div>
           }
         >
+          {/* Sub-abas: Próximas (sem check) e Contatados (com check). */}
+          <div className="flex items-center gap-2 mb-3" role="tablist" aria-label="Filtrar por contato">
+            {([
+              ['proximas', `Próximas (${lista.length - nChamados})`],
+              ['contatados', `Contatados (${nChamados})`],
+            ] as const).map(([id, rotulo]) => {
+              const ativa = abaLista === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={ativa}
+                  onClick={() => setAbaLista(id)}
+                  className={`px-4 py-1.5 rounded-xl text-base font-black uppercase tracking-wide transition-all cursor-pointer active:scale-95 ${
+                    ativa
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-blue-500/10 text-blue-200 hover:bg-blue-500/20'
+                  }`}
+                >
+                  {rotulo}
+                </button>
+              );
+            })}
+          </div>
           {buscaAberta && (
             <div className="flex items-center gap-2 mb-3">
               <div className="relative flex-1">
@@ -494,7 +525,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
                 )}
               </div>
               <span className="text-sm font-bold text-slate-500 whitespace-nowrap">
-                {listaVisivel.length} de {listaOrdenada.length}
+                {listaVisivel.length} de {listaPorAba.length}
               </span>
             </div>
           )}
@@ -504,7 +535,11 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
             </p>
           ) : listaVisivel.length === 0 ? (
             <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-6 text-center">
-              Nenhuma previsão com “{busca.trim()}”.
+              {busca.trim()
+                ? `Nenhuma previsão com “${busca.trim()}”.`
+                : abaLista === 'contatados'
+                  ? 'Nenhum chamado ainda — marque a caixinha de um item.'
+                  : 'Nenhuma previsão aqui — desmarque a caixinha para trazê-la.'}
             </p>
           ) : (
             <div className="space-y-3">

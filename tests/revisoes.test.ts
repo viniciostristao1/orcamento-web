@@ -24,6 +24,7 @@ import {
   dataPtBrParaInput,
   dataPtBrParaISOManha,
   filtrarListaRevisoes,
+  filtrarPorChamado,
   inputParaDataPtBr,
   isoParaDataPtBr,
   lerOrdemListaRevisoes,
@@ -506,8 +507,17 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     expect(filtrarListaRevisoes(lista, 'ninguém')).toHaveLength(0);
   });
 
-  it('ordem da lista: padrão é previsão, persiste e entra no backup', () => {
-    expect(lerOrdemListaRevisoes()).toBe('previsao');
+  it('sub-abas: Contatados só com check, Próximas sem check', () => {
+    adicionarAhistoricoRevisoes(item('AAA111', '14/10/2027'));
+    adicionarAhistoricoRevisoes(item('BBB222', '15/10/2027'));
+    const [a] = listarHistoricoRevisoes().filter((r) => r.chassi === 'AAA111');
+    atualizarChamadoRevisao(a.id, true);
+    const lista = listarHistoricoRevisoes();
+    expect(filtrarPorChamado(lista, true).map((r) => r.chassi)).toEqual(['AAA111']);
+    expect(filtrarPorChamado(lista, false).map((r) => r.chassi)).toEqual(['BBB222']);
+  });
+
+  it('ordem da lista: padrão é previsão, persiste e entra no backup', () => {    expect(lerOrdemListaRevisoes()).toBe('previsao');
     salvarOrdemListaRevisoes('lembrete-proximo');
     expect(lerOrdemListaRevisoes()).toBe('lembrete-proximo');
     expect(localStorage.getItem(REVISOES_ORDEM_LISTA_KEY)).toBe('lembrete-proximo');
