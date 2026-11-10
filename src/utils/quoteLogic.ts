@@ -92,8 +92,14 @@ export const processQuote = (
     const parts = line.trim().split(/\s+/);
     const id = parseInt(parts[0], 10);
     if (isNaN(id)) return;
+    // Lixo de cabeçalho do PDF (ITE repete empresa/CEP/endereço em toda página
+    // e a extração por seção pode trazer junto): linha só com número ("20723")
+    // ou id gigante ("95913000 ... RODOVIA...") nunca é reclamação real (são
+    // "NN texto", ids pequenos) — ignora em vez de virar item 0,00.
+    if (id > 9999) return;
     
     let desc = parts.slice(1).join(" ");
+    if (!desc.trim()) return;
     desc = substituicoesCondicionais(removerPalavras(desc));
     
     const data = valoresPorItem[id.toString()] || { pecas: 0, servicos: 0 };

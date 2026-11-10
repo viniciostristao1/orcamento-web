@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.193.0](#v19300) — 2026-11-10 — Cabeçalho repetido do PDF não vira item (ITE-8995, v0.193.0)
+
 - [v0.192.0](#v19200) — 2026-11-10 — Sub-abas com azul que segue o tema (v0.192.0)
 
 - [v0.191.0](#v19100) — 2026-11-10 — MENU DADOS no escuro exato de cada tema (v0.191.0)
@@ -308,6 +310,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19300"></a>
+## 2026-11-10 — Cabeçalho repetido do PDF não vira item (ITE-8995, v0.193.0)
+
+**Pedido:** no ITE-8995 apareceram os itens `20723` e `95913000` (endereço) com
+0,00 — primeira vez que um orçamento deu erro assim.
+
+**Causa:** o ITE repete empresa/CEP/endereço em toda página e a extração por
+seção trouxe o cabeçalho da pág. 2 para a descrição (colado por Y:
+`RSSAO CRISTOVAOBAIRRO`); o `processQuote` criava item p/ toda linha com nº na
+frente, mesmo sem descrição ou com id gigante. Totais intactos (soma zero).
+
+**Feito:** descrição sem texto ou id > 9999 não vira item (vale p/ colado
+manual também) + 3 testes do caso real (319 passando).
 
 <a id="v19200"></a>
 ## 2026-11-10 — Sub-abas com azul que segue o tema (v0.192.0)

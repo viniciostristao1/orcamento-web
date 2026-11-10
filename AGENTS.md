@@ -446,6 +446,8 @@ orcamento_web/
                              (todas montadas, a inativa com `hidden`) + lembrete global
     types.ts                 tipos (QuoteSummary, QuoteItem)
     utils/quoteLogic.ts      LÓGICA PURA: parse do texto, agrupar, somar, descontos
+                             (descrição sem texto ou id > 9999 não vira item —
+                             cabeçalho repetido do PDF, v0.193.0)
     utils/historico.ts       HISTÓRICO orçamentos (localStorage) + backup/restaurar JSON
                              (+ `atualizarNaoRealizadosHistorico`: parcial inline sem mudar a data;
                              `temParcial` estrito: misto, não tudo riscado;

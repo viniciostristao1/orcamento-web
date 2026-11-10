@@ -123,8 +123,33 @@ describe('processQuote — texto do sistema (PDF/print, sem acento)', () => {
   });
 });
 
-describe('processQuote — ajustes manuais e descrição solta', () => {
-  it('ajuste manual soma em peças do ID', () => {
+describe('processQuote — lixo de cabeçalho do PDF (ITE-8995)', () => {
+  // O ITE repete empresa/CEP/endereço em toda página; a extração por seção
+  // pode trazer "20723" e "95913000 ..." para a descrição — nunca viram item.
+  const desc = [
+    '01 TR PALHETAS DO LIMPADOR COMPLETAS',
+    '20723',
+    '95913000 - RIO GRANDE DO SUL - RSSAO CRISTOVAOBAIRRO:RODOVIA ERS 130 KM 72,8, 2388',
+  ].join('\n');
+  const raw = '1 Peça X 1 100,00';
+  const s = processQuote(desc, raw, 0, 0, 0, 1);
+
+  it('linha só com número não vira item', () => {
+    expect(s.items.some((i) => i.id === 20723)).toBe(false);
+  });
+
+  it('id gigante com endereço não vira item', () => {
+    expect(s.items.some((i) => i.id === 95913000)).toBe(false);
+  });
+
+  it('itens reais continuam intactos', () => {
+    expect(s.items).toHaveLength(1);
+    expect(s.items[0].id).toBe(1);
+    expect(s.items[0].value).toBeCloseTo(100, 2);
+  });
+});
+
+describe('processQuote — ajustes manuais e descrição solta', () => {  it('ajuste manual soma em peças do ID', () => {
     const s = processQuote('1 DISCO', '1 Peça X 1 100,00', 0, 0, 0, 1, '1 50,00');
     expect(s.items[0].pecasValue).toBeCloseTo(150, 2);
     expect(s.totalPecasGeral).toBeCloseTo(150, 2);
