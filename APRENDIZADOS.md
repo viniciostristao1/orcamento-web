@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.192.0](#v19200) — 2026-11-10 — Sub-abas com azul que segue o tema (v0.192.0)
+
 - [v0.191.0](#v19100) — 2026-11-10 — MENU DADOS no escuro exato de cada tema (v0.191.0)
 
 - [v0.190.0](#v19000) — 2026-11-10 — MENU DADOS no escuro de cada tema (v0.190.0)
@@ -306,6 +308,18 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19200"></a>
+## 2026-11-10 — Sub-abas com azul que segue o tema (v0.192.0)
+
+**Pedido:** fonte azul clara em Contatados não combinava com nenhum tema.
+
+**Causa:** `text-blue-200` não está no remapeamento `@theme inline` (só
+blue-300/400/500/600/700/900) — ficava o azul claro padrão em todos os temas,
+invisível no creme.
+
+**Feito:** `text-blue-200` → `text-blue-300` (remapeado por tema) nas sub-abas
+de Revisões e de Dados (mesmo defeito).
 
 <a id="v19100"></a>
 ## 2026-11-10 — MENU DADOS no escuro exato de cada tema (v0.191.0)

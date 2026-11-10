@@ -491,7 +491,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
                   className={`px-4 py-1.5 rounded-xl text-base font-black uppercase tracking-wide transition-all cursor-pointer active:scale-95 ${
                     ativa
                       ? 'bg-blue-600 text-white'
-                      : 'bg-blue-500/10 text-blue-200 hover:bg-blue-500/20'
+                      : 'bg-blue-500/10 text-blue-300 hover:bg-blue-500/20'
                   }`}
                 >
                   {rotulo}
