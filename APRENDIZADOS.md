@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.189.0](#v18900) — 2026-11-10 — MENU DADOS sempre escuro com letras claras (v0.189.0)
+
 - [v0.188.0](#v18800) — 2026-11-10 — Revisões: sub-abas Próximas/Contatados na lista (v0.188.0)
 
 - [v0.187.0](#v18700) — 2026-11-09 — Revisões: lista de previsões até 300 (v0.187.0)
@@ -300,6 +302,16 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v18900"></a>
+## 2026-11-10 — MENU DADOS sempre escuro com letras claras (v0.189.0)
+
+**Pedido:** o quadrado do MENU DADOS com fundo escuro e letras claras em
+qualquer tema.
+
+**Feito:** cores fixas em hex literais (fora do remapeamento — tokens slate
+clareavam nos temas claros): painel `#0d1524`, campo `#131c30`, letras
+`#e8edf5`/`#8fa0b8`; barra âmbar mantida.
 
 <a id="v18800"></a>
 ## 2026-11-10 — Revisões: sub-abas Próximas/Contatados na lista (v0.188.0)

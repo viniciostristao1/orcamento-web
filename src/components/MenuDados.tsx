@@ -23,7 +23,8 @@ interface MenuDadosProps {
 
 /**
  * "MENU DADOS": menu lateral das sub-abas da aba Dados (ideia 03 — barra âmbar
- * no item sob o mouse, quase-preto como o fundo, sem botões cinza). A lista
+ * no item sob o mouse). Painel SEMPRE escuro (hex literais, fora do remapeamento
+ * do tema) com letras claras — dashboard escuro em qualquer tema. A lista
  * acompanha criações/exclusões/renomeações na hora (evento próprio + `storage`
  * entre janelas). Inclui a lupa de pesquisa nas tabelas.
  */
@@ -85,8 +86,8 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
     .join(' · ');
 
   return (
-    <nav aria-label="Menu Dados" className="rounded-2xl border border-slate-800/60 bg-slate-950/60 p-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-3 pt-1 pb-2">
+    <nav aria-label="Menu Dados" className="rounded-2xl border border-[#2a3348] bg-[#0d1524] p-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8fa0b8] px-3 pt-1 pb-2">
         Menu Dados
       </p>
       <div className="flex flex-col gap-1">
@@ -107,7 +108,7 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
                 onBlur={() => setBuscando(false)}
                 placeholder="Buscar…"
                 aria-label="Buscar nas tabelas"
-                className="w-full campo-tema border border-amber-500/60 rounded-xl pl-3 pr-8 py-2 text-sm font-bold text-slate-100 outline-none bg-transparent"
+                className="w-full border border-amber-500/60 rounded-xl pl-3 pr-8 py-2 text-sm font-bold text-[#e8edf5] outline-none bg-[#131c30]"
               />
               {termo ? (
                 <button
@@ -116,21 +117,21 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
                   onClick={() => setTermo('')}
                   aria-label="Limpar busca do atalho"
                   title="Limpar"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#8fa0b8] hover:text-white cursor-pointer"
                 >
                   <X size={14} />
                 </button>
               ) : (
                 <Search
                   size={14}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8fa0b8] pointer-events-none"
                 />
               )}
             </div>
             {temTermo && (
               <p
                 className={`mt-1 ml-1 text-[10px] font-black uppercase tracking-widest leading-tight ${
-                  ocorrencias.length > 0 ? 'text-green-500' : 'text-slate-500'
+                  ocorrencias.length > 0 ? 'text-green-500' : 'text-[#8fa0b8]'
                 }`}
               >
                 {ocorrencias.length > 0
@@ -149,12 +150,12 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
           >
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span
-              className="text-base font-normal uppercase tracking-wide text-slate-100 group-hover:text-white transition-colors"
+              className="text-base font-normal uppercase tracking-wide text-[#e8edf5] group-hover:text-white transition-colors"
               style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
             >
               Buscar
             </span>
-            <Search size={14} className="ml-auto shrink-0 text-slate-600 group-hover:text-amber-400 transition-colors" />
+            <Search size={14} className="ml-auto shrink-0 text-[#6b7a90] group-hover:text-amber-400 transition-colors" />
           </button>
         )}
         {dados.abas.map((a) => (
@@ -168,7 +169,7 @@ const MenuDados: React.FC<MenuDadosProps> = ({ onIr, onBuscar }) => {
           >
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span
-              className="truncate text-sm font-normal uppercase tracking-wide text-slate-100 group-hover:text-white transition-colors"
+              className="truncate text-sm font-normal uppercase tracking-wide text-[#e8edf5] group-hover:text-white transition-colors"
               style={{ fontFamily: 'var(--tema-fonte-conteudo)' }}
             >
               {a.rotulo}
