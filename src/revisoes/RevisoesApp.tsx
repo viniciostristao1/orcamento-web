@@ -29,15 +29,14 @@ import {
   inputParaDataPtBr,
   filtrarListaRevisoes,
   filtrarPorChamado,
+  filtrarPorPeriodo,
   lerOrdemListaRevisoes,
-  lerUltimaBusca,
   limparChamadosRevisoes,
   listarHistoricoRevisoes,
   ordenarListaRevisoes,
   ORDENS_LISTA_REVISOES,
   removerDoHistoricoRevisoes,
   salvarOrdemListaRevisoes,
-  salvarUltimaBusca,
   textoListaParaExcel,
   type OrdemListaRevisoes,
   type RevisaoAgendada,
@@ -69,8 +68,11 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   // Menu de ordenação aberto/fechado (fecha clicando fora ou com Escape).
   const [ordemAberta, setOrdemAberta] = useState(false);
   const ordemRef = useRef<HTMLDivElement>(null);
-  // Data da última busca de clientes para prever revisão (ao lado do copiar).
-  const [ultimaBusca, setUltimaBusca] = useState<string>(lerUltimaBusca);
+  // Intervalo de datas previstas (dois campos lado a lado, mesma linha dos
+  // botões; vazio = sem limite). Cada um edita sozinho; se cruzar, o outro
+  // acompanha para inicial nunca passar da final.
+  const [dataIni, setDataIni] = useState('');
+  const [dataFim, setDataFim] = useState('');
   const [lembreteAberto, setLembreteAberto] = useState<string | null>(null);
   const [copiadoPassagens, setCopiadoPassagens] = useState(false);
   const [copiadoLista, setCopiadoLista] = useState(false);
@@ -91,7 +93,6 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   useEffect(() => {
     const recarregar = () => {
       setLista(listarHistoricoRevisoes());
-      setUltimaBusca(lerUltimaBusca());
     };
     window.addEventListener(LEMBRETES_EVENTO, recarregar);
     window.addEventListener('storage', recarregar);
@@ -101,12 +102,14 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
     };
   }, []);
 
-  // Clique no aviso/sino: limpa a busca (o item filtrado some da lista),
-  // recarrega (o clique conclui e muda o salvo) e rola até ele em âmbar.
+  // Clique no aviso/sino: limpa busca e período (o item filtrado some da
+  // lista), recarrega (o clique conclui e muda o salvo) e rola até ele em âmbar.
   useEffect(() => {
     if (!destaqueId) return;
     setBusca('');
     setBuscaAberta(false);
+    setDataIni('');
+    setDataFim('');
     setLista(listarHistoricoRevisoes());
     const t = window.setTimeout(() => {
       document.querySelector(`[data-revisao="${destaqueId}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -134,8 +137,29 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   // Sub-aba: Contatados = com check, Próximas = sem check; busca e copiar
   // seguem o visível da sub-aba aberta.
   const listaPorAba = filtrarPorChamado(listaOrdenada, abaLista === 'contatados');
+  // Período (datas inicial/final): filtra por data prevista; busca e copiar
+  // seguem o visível do período.
+  const listaPorPeriodo = filtrarPorPeriodo(listaPorAba, dataIni, dataFim);
   // Busca (lupa): filtra por nome do cliente ou chassi; o copiar segue o visível.
-  const listaVisivel = busca.trim() ? filtrarListaRevisoes(listaPorAba, busca) : listaPorAba;
+  const listaVisivel = busca.trim() ? filtrarListaRevisoes(listaPorPeriodo, busca) : listaPorPeriodo;
+
+  // Troca um lado do período (pt-BR); se cruzar, o outro acompanha para a
+  // inicial nunca passar da final (compara em yyyy-mm-dd). Vazio limpa o
+  // lado (sem limite).
+  const trocarDataIni = (iso: string) => {
+    const pt = inputParaDataPtBr(iso);
+    if (!iso || pt) {
+      setDataIni(pt);
+      if (pt && dataFim && dataPtBrParaInput(pt) > dataPtBrParaInput(dataFim)) setDataFim(pt);
+    }
+  };
+  const trocarDataFim = (iso: string) => {
+    const pt = inputParaDataPtBr(iso);
+    if (!iso || pt) {
+      setDataFim(pt);
+      if (pt && dataIni && dataPtBrParaInput(pt) < dataPtBrParaInput(dataIni)) setDataIni(pt);
+    }
+  };
 
   // Alterna a ordem da lista (previsão → lembrete próximo → distante → adição recente → antiga).
   const escolherOrdemLista = (ordem: OrdemListaRevisoes) => {
@@ -489,22 +513,19 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
               })()}
               <input
                 type="date"
-                value={dataPtBrParaInput(ultimaBusca)}
-                onChange={(e) => {
-                  if (!e.target.value) {
-                    salvarUltimaBusca('');
-                    setUltimaBusca('');
-                    return;
-                  }
-                  const pt = inputParaDataPtBr(e.target.value);
-                  if (pt) {
-                    salvarUltimaBusca(pt);
-                    setUltimaBusca(pt);
-                  }
-                }}
-                aria-label="Data da última busca de clientes"
-                title="Data da última busca de clientes para prever revisão"
-                className="campo-tema border border-slate-800 rounded-lg px-2 py-1.5 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none [color-scheme:dark]"
+                value={dataPtBrParaInput(dataIni)}
+                onChange={(e) => trocarDataIni(e.target.value)}
+                aria-label="Data inicial"
+                title="Data inicial do intervalo (filtra por data prevista)"
+                className="campo-tema border border-slate-800 rounded-lg px-1.5 py-1.5 text-xs font-bold text-slate-200 focus:border-blue-500 outline-none [color-scheme:dark] w-[112px] shrink-0"
+              />
+              <input
+                type="date"
+                value={dataPtBrParaInput(dataFim)}
+                onChange={(e) => trocarDataFim(e.target.value)}
+                aria-label="Data final"
+                title="Data final do intervalo (filtra por data prevista)"
+                className="campo-tema border border-slate-800 rounded-lg px-1.5 py-1.5 text-xs font-bold text-slate-200 focus:border-blue-500 outline-none [color-scheme:dark] w-[112px] shrink-0"
               />
               <button
                 type="button"
@@ -583,7 +604,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
                 )}
               </div>
               <span className="text-sm font-bold text-slate-500 whitespace-nowrap">
-                {listaVisivel.length} de {listaPorAba.length}
+                {listaVisivel.length} de {listaPorPeriodo.length}
               </span>
             </div>
           )}
@@ -595,9 +616,17 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
             <p className="text-sm text-slate-500 font-bold uppercase tracking-widest py-6 text-center">
               {busca.trim()
                 ? `Nenhuma previsão com “${busca.trim()}”.`
-                : abaLista === 'contatados'
-                  ? 'Nenhum chamado ainda — marque a caixinha de um item.'
-                  : 'Nenhuma previsão aqui — desmarque a caixinha para trazê-la.'}
+                : dataIni.trim() || dataFim.trim()
+                  ? `Nenhuma previsão ${
+                      dataIni.trim() && dataFim.trim()
+                        ? `de ${dataIni.trim()} a ${dataFim.trim()}`
+                        : dataIni.trim()
+                          ? `a partir de ${dataIni.trim()}`
+                          : `até ${dataFim.trim()}`
+                    }.`
+                  : abaLista === 'contatados'
+                    ? 'Nenhum chamado ainda — marque a caixinha de um item.'
+                    : 'Nenhuma previsão aqui — desmarque a caixinha para trazê-la.'}
             </p>
           ) : (
             <div className="space-y-3">

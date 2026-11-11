@@ -25,6 +25,7 @@ import {
   dataPtBrParaISOManha,
   filtrarListaRevisoes,
   filtrarPorChamado,
+  filtrarPorPeriodo,
   inputParaDataPtBr,
   isoParaDataPtBr,
   lerOrdemListaRevisoes,
@@ -515,6 +516,20 @@ describe('revisões — lista de previsões (chassi + data)', () => {
     const lista = listarHistoricoRevisoes();
     expect(filtrarPorChamado(lista, true).map((r) => r.chassi)).toEqual(['AAA111']);
     expect(filtrarPorChamado(lista, false).map((r) => r.chassi)).toEqual(['BBB222']);
+  });
+
+  it('período: filtra por data prevista com limites inclusivos', () => {
+    adicionarAhistoricoRevisoes(item('AAA111', '10/09/2026'));
+    adicionarAhistoricoRevisoes(item('BBB222', '20/09/2026'));
+    adicionarAhistoricoRevisoes(item('CCC333', '05/10/2026'));
+    const lista = listarHistoricoRevisoes();
+    expect(filtrarPorPeriodo(lista, '', '').map((r) => r.chassi)).toHaveLength(3);
+    expect(filtrarPorPeriodo(lista, '10/09/2026', '20/09/2026').map((r) => r.chassi).sort())
+      .toEqual(['AAA111', 'BBB222']);
+    expect(filtrarPorPeriodo(lista, '15/09/2026', '').map((r) => r.chassi).sort())
+      .toEqual(['BBB222', 'CCC333']);
+    expect(filtrarPorPeriodo(lista, '', '15/09/2026').map((r) => r.chassi)).toEqual(['AAA111']);
+    expect(filtrarPorPeriodo(lista, '01/01/2027', '31/01/2027')).toHaveLength(0);
   });
 
   it('ordem da lista: padrão é previsão, persiste e entra no backup', () => {    expect(lerOrdemListaRevisoes()).toBe('previsao');

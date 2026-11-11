@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.195.0](#v19500) — 2026-11-10 — Revisões: filtro por intervalo de datas na lista (v0.195.0)
+
 - [v0.194.0](#v19400) — 2026-11-10 — Revisões: ordenar por menu direto, sem ciclo (v0.194.0)
 
 - [v0.193.0](#v19300) — 2026-11-10 — Cabeçalho repetido do PDF não vira item (ITE-8995, v0.193.0)
@@ -312,6 +314,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19500"></a>
+## 2026-11-10 — Revisões: filtro por intervalo de datas na lista (v0.195.0)
+
+**Pedido:** trocar a data única por DATA INICIAL + DATA FINAL na mesma linha,
+filtrando por data prevista, sem crescer nada.
+
+**Feito:**
+- Dois `type=date` compactos (`w-[112px] text-xs`) no lugar do memo; fileira
+  flex sem wrap (linha única estrutural) + botões intactos.
+- `filtrarPorPeriodo` puro (limites inclusivos, vazio = sem limite); cada lado
+  edita sozinho e o outro acompanha se cruzar (compara em yyyy-mm-dd).
+- Contador, copiar, busca, sub-abas e sino seguem o visível; lembrete clicado
+  limpa o período. Memo antigo sai da tela (funções/backup seguem p/ restauros).
+- Testes: unidade do intervalo + smoke da UI (321 passando).
 
 <a id="v19400"></a>
 ## 2026-11-10 — Revisões: ordenar por menu direto, sem ciclo (v0.194.0)

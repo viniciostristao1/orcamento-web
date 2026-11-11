@@ -114,6 +114,22 @@ export function filtrarPorChamado(lista: RevisaoAgendada[], chamados: boolean): 
   return lista.filter((r) => !!r.chamado === chamados);
 }
 
+/** Filtra por intervalo de DATAS PREVISTAS (dd/mm/aaaa; vazio = sem limite).
+ * Sem limite nos dois lados devolve tudo; com algum limite, item sem data
+ * válida sai. Limites inclusivos. */
+export function filtrarPorPeriodo(lista: RevisaoAgendada[], ini: string, fim: string): RevisaoAgendada[] {
+  const tIni = ini.trim() ? parseDataPtBr(ini.trim())?.getTime() ?? null : null;
+  const tFim = fim.trim() ? parseDataPtBr(fim.trim())?.getTime() ?? null : null;
+  if (tIni == null && tFim == null) return lista;
+  return lista.filter((r) => {
+    const t = parseDataPtBr((r.dataPrevista ?? '').trim())?.getTime() ?? null;
+    if (t == null) return false;
+    if (tIni != null && t < tIni) return false;
+    if (tFim != null && t > tFim) return false;
+    return true;
+  });
+}
+
 /** Ordena pela data prevista (mais próxima primeiro; sem data vai ao fim). */
 export function ordenarPorPrevisao(lista: RevisaoAgendada[]): RevisaoAgendada[] {
   const tempo = (r: RevisaoAgendada): number => {

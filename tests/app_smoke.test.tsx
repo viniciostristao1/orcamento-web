@@ -2605,7 +2605,7 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('revisões: caixinha ao lado do excluir + campo última busca', () => {
+  it('revisões: caixinha ao lado do excluir + intervalo de datas', () => {
     localStorage.setItem(
       'revisoes_historico_v1',
       JSON.stringify([
@@ -2639,12 +2639,24 @@ describe('App — smoke test (render + processar)', () => {
       expect(document.querySelector('[data-revisao="r1"]')).toBeNull();
       fireEvent.click(screen.getByRole('tab', { name: 'Contatados (1)' }));
       expect(document.querySelector('[data-revisao="r1"]')?.className).toContain('opacity-50');
-      // campo da última busca salva a data
-      const busca = screen.getByLabelText('Data da última busca de clientes') as HTMLInputElement;
-      expect(busca.value).toBe('');
-      fireEvent.change(busca, { target: { value: '2026-10-20' } });
-      expect(busca.value).toBe('2026-10-20');
-      expect(localStorage.getItem('revisoes_ultima_busca_v1')).toBe('20/10/2026');
+      // intervalo de datas filtra por data prevista (04/09 dentro de setembro)
+      const ini = screen.getByLabelText('Data inicial') as HTMLInputElement;
+      const fim = screen.getByLabelText('Data final') as HTMLInputElement;
+      expect(ini.value).toBe('');
+      expect(fim.value).toBe('');
+      fireEvent.change(fim, { target: { value: '2026-09-30' } });
+      fireEvent.change(ini, { target: { value: '2026-09-01' } });
+      expect(ini.value).toBe('2026-09-01');
+      expect(fim.value).toBe('2026-09-30');
+      expect(document.querySelector('[data-revisao="r1"]')).toBeTruthy();
+      // inicial além da final puxa a final junto (nunca inverte)
+      fireEvent.change(ini, { target: { value: '2026-10-01' } });
+      expect(fim.value).toBe('2026-10-01');
+      expect(document.querySelector('[data-revisao="r1"]')).toBeNull();
+      expect(screen.getByText('Nenhuma previsão de 01/10/2026 a 01/10/2026.')).toBeTruthy();
+      // limpar a inicial deixa só o teto: 04/09 volta a aparecer
+      fireEvent.change(ini, { target: { value: '' } });
+      expect(document.querySelector('[data-revisao="r1"]')).toBeTruthy();
       // nota da revisão: escreve, salva e o ícone acende em azul
       const notaBtn = screen.getByRole('button', { name: 'Nota da revisão ABC123' });
       expect(notaBtn.className).not.toContain('bg-blue-600');
