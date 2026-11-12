@@ -2605,7 +2605,8 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('revisões: caixinha ao lado do excluir + intervalo de datas', () => {
+  it('revisões: caixinha ao lado do excluir + data inicial (a partir de)', () => {
+    localStorage.removeItem('revisoes_ultima_busca_v1');
     localStorage.setItem(
       'revisoes_historico_v1',
       JSON.stringify([
@@ -2639,23 +2640,22 @@ describe('App — smoke test (render + processar)', () => {
       expect(document.querySelector('[data-revisao="r1"]')).toBeNull();
       fireEvent.click(screen.getByRole('tab', { name: 'Contatados (1)' }));
       expect(document.querySelector('[data-revisao="r1"]')?.className).toContain('opacity-50');
-      // intervalo de datas filtra por data prevista (04/09 dentro de setembro)
+      // data inicial filtra por data prevista (04/09 a partir de setembro)
       const ini = screen.getByLabelText('Data inicial') as HTMLInputElement;
-      const fim = screen.getByLabelText('Data final') as HTMLInputElement;
+      expect(screen.queryByLabelText('Data final')).toBeNull();
       expect(ini.value).toBe('');
-      expect(fim.value).toBe('');
-      fireEvent.change(fim, { target: { value: '2026-09-30' } });
       fireEvent.change(ini, { target: { value: '2026-09-01' } });
       expect(ini.value).toBe('2026-09-01');
-      expect(fim.value).toBe('2026-09-30');
+      expect(localStorage.getItem('revisoes_ultima_busca_v1')).toBe('01/09/2026');
       expect(document.querySelector('[data-revisao="r1"]')).toBeTruthy();
-      // inicial além da final puxa a final junto (nunca inverte)
+      // inicial além da previsão esconde o item (sem limite final)
       fireEvent.change(ini, { target: { value: '2026-10-01' } });
-      expect(fim.value).toBe('2026-10-01');
+      expect(localStorage.getItem('revisoes_ultima_busca_v1')).toBe('01/10/2026');
       expect(document.querySelector('[data-revisao="r1"]')).toBeNull();
-      expect(screen.getByText('Nenhuma previsão de 01/10/2026 a 01/10/2026.')).toBeTruthy();
-      // limpar a inicial deixa só o teto: 04/09 volta a aparecer
+      expect(screen.getByText('Nenhuma previsão a partir de 01/10/2026.')).toBeTruthy();
+      // limpar a inicial mostra tudo de novo e apaga o salvo
       fireEvent.change(ini, { target: { value: '' } });
+      expect(localStorage.getItem('revisoes_ultima_busca_v1')).toBeNull();
       expect(document.querySelector('[data-revisao="r1"]')).toBeTruthy();
       // nota da revisão: escreve, salva e o ícone acende em azul
       const notaBtn = screen.getByRole('button', { name: 'Nota da revisão ABC123' });

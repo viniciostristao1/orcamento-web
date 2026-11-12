@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.196.0](#v19600) — 2026-11-12 — Revisões: volta a 1 data inicial persistida (v0.196.0)
+
 - [v0.195.0](#v19500) — 2026-11-10 — Revisões: filtro por intervalo de datas na lista (v0.195.0)
 
 - [v0.194.0](#v19400) — 2026-11-10 — Revisões: ordenar por menu direto, sem ciclo (v0.194.0)
@@ -314,6 +316,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19600"></a>
+## 2026-11-12 — Revisões: volta a 1 data inicial persistida (v0.196.0)
+
+**Pedido:** voltar a uma data só na lista de previsões (varredura dia a dia
+até hoje, sem duplicar por veículo) e garantir que a data fique salva.
+
+**Feito:**
+- Sai a Data final: 1 `type=date` ("Data inicial") que filtra por data
+  prevista a partir dela, sem teto (`filtrarPorPeriodo(lista, dataIni, '')`).
+  Repetir o chassi continua atualizando (upsert em `historicoRevisoes`).
+- Data persiste em `revisoes_ultima_busca_v1` (lê ao abrir, salva ao trocar,
+  limpa junto; recarrega via sino/storage; já entrava no backup).
+- Testes: smoke da UI virou "a partir de" + persistência (321 passando).
 
 <a id="v19500"></a>
 ## 2026-11-10 — Revisões: filtro por intervalo de datas na lista (v0.195.0)
