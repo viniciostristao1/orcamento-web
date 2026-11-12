@@ -277,7 +277,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
             )}
 
             {passagensRecentes.length > 0 && (
-              <NeonCard title={passagensOrdenadas.length > 3 ? `PASSAGENS (ÚLTIMAS 3 DE ${passagensOrdenadas.length})` : `PASSAGENS (${passagensOrdenadas.length})`} borderColor="#f59e0b" compact
+              <NeonCard title={passagensOrdenadas.length > 3 ? `PASSAGENS (ÚLTIMAS 3 DE ${passagensOrdenadas.length})` : `PASSAGENS (${passagensOrdenadas.length})`} borderColor="#f59e0b" compact collapsible defaultOpen={false}
                 actions={
                   <button
                     type="button"
@@ -511,7 +511,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
                 onChange={(e) => trocarDataIni(e.target.value)}
                 aria-label="Data inicial"
                 title="Data inicial (mostra previsões a partir desta data)"
-                className="campo-tema border border-slate-800 rounded-lg px-1.5 py-1.5 text-xs font-bold text-slate-200 focus:border-blue-500 outline-none [color-scheme:dark] w-[112px] shrink-0"
+                className="campo-tema border border-slate-800 rounded-lg px-2 py-2 text-sm font-bold text-slate-200 focus:border-blue-500 outline-none [color-scheme:dark] w-[140px] shrink-0"
               />
               <button
                 type="button"

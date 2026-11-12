@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.197.0](#v19700) — 2026-11-12 — Revisões: passagens minimizadas com seta (v0.197.0)
+
 - [v0.196.0](#v19600) — 2026-11-12 — Revisões: volta a 1 data inicial persistida (v0.196.0)
 
 - [v0.195.0](#v19500) — 2026-11-10 — Revisões: filtro por intervalo de datas na lista (v0.195.0)
@@ -316,6 +318,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19700"></a>
+## 2026-11-12 — Revisões: passagens minimizadas com seta (v0.197.0)
+
+**Pedido:** "PASSAGENS (ÚLTIMAS 3 DE 4)" minimizado, com botão de seta para
+baixo na mesma linha ao lado do copiar para abrir e ler datas/KM.
+
+**Feito:**
+- Card PASSAGENS com `collapsible defaultOpen={false}` (padrão do NeonCard:
+  seta `ChevronDown` no cabeçalho, antes do copiar, mesma linha).
+- Data inicial da lista maior (`w-[140px] text-sm`, era `w-[112px] text-xs`
+  do tempo das duas datas).
+- Teste de ponta a ponta: começa fechado, seta abre/mostra as linhas e fecha
+  de novo (322 passando).
 
 <a id="v19600"></a>
 ## 2026-11-12 — Revisões: volta a 1 data inicial persistida (v0.196.0)

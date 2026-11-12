@@ -2682,6 +2682,46 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('revisões: passagens começam minimizadas e a seta abre/fecha', () => {
+    const texto = [
+      'Chassi: 8AJBA3FS9R0361321',
+      'Veículo: SW4 SUV HIGH + Diamond\tKatashiki: GUN156L-SGTHXG',
+      'Posição',
+      'Abertura',
+      'KM',
+      'Distribuidor',
+      'OS',
+      'Sts',
+      'Item',
+      'Tipo',
+      'Descrição',
+      '2\t11/06/2026\t70805\t1421420 - WEIAND VEICULOS LTDA\t168948\tF\t1\tCSP\t6 REVISAO 60 000 GUN15640B1D33',
+    ].join('\n');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByText('Revisões'));
+      fireEvent.change(screen.getByLabelText('Texto das passagens do portal Toyota'), {
+        target: { value: texto },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Processar revisões' }));
+      // minimizado: título aparece, linhas não
+      expect(screen.getByText('PASSAGENS (1)')).toBeTruthy();
+      expect(screen.queryByText('168948')).toBeNull();
+      const mostrar = screen.getByRole('button', { name: 'Mostrar PASSAGENS (1)' });
+      // seta na mesma linha do copiar (mesmo cabeçalho do card)
+      const copiar = screen.getByRole('button', { name: 'Copiar passagens' });
+      expect(mostrar.parentElement?.contains(copiar)).toBe(true);
+      fireEvent.click(mostrar);
+      expect(screen.getByRole('button', { name: 'Ocultar PASSAGENS (1)' })).toBeTruthy();
+      expect(screen.getByText('168948')).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Ocultar PASSAGENS (1)' }));
+      expect(screen.queryByText('168948')).toBeNull();
+    } finally {
+      localStorage.removeItem('revisoes_texto_v1');
+      localStorage.removeItem('revisoes_ultima_busca_v1');
+    }
+  });
+
   it('revisões: ordenar abre seleção direta (sem ciclo)', () => {
     localStorage.setItem(
       'revisoes_historico_v1',
