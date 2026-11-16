@@ -62,71 +62,69 @@ const CalendarioApp: React.FC = () => {
 
   return (
     <div data-calendario>
-      <div className="flex items-end justify-between gap-3 mb-3">
-        <div>
-          <h2 className="titulo-tema text-2xl font-black uppercase tracking-wide">
+      <div className="flex items-center justify-center gap-2 mb-2">
+        <button
+          type="button"
+          onClick={() => irPara(-1)}
+          aria-label="Mês anterior"
+          title="Mês anterior"
+          className={botaoNavegar}
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <div className="text-center min-w-52">
+          <h2 className="titulo-tema text-xl font-black uppercase tracking-wide">
             {tituloMes(referencia.ano, referencia.mes)}
           </h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
             {textoContador(total)}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => irPara(-1)}
-            aria-label="Mês anterior"
-            title="Mês anterior"
-            className={botaoNavegar}
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            type="button"
-            onClick={() => irPara(1)}
-            aria-label="Próximo mês"
-            title="Próximo mês"
-            className={botaoNavegar}
-          >
-            <ChevronRight size={18} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setReferencia(agora())}
-            aria-label="Voltar ao mês atual"
-            title="Voltar ao mês atual"
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95 text-xs font-black uppercase tracking-widest"
-          >
-            Hoje
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => irPara(1)}
+          aria-label="Próximo mês"
+          title="Próximo mês"
+          className={botaoNavegar}
+        >
+          <ChevronRight size={18} />
+        </button>
+        <button
+          type="button"
+          onClick={() => setReferencia(agora())}
+          aria-label="Voltar ao mês atual"
+          title="Voltar ao mês atual"
+          className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95 text-xs font-black uppercase tracking-widest"
+        >
+          Hoje
+        </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 gap-1">
         {DIAS_SEMANA.map((d) => (
           <div
             key={d}
-            className="text-[11px] font-black uppercase tracking-widest text-slate-500 text-center py-1"
+            className="text-[10px] font-black uppercase tracking-widest text-slate-500 text-center py-0.5"
           >
             {d}
           </div>
         ))}
         {semanas.flat().map((celula, i) =>
           celula === null ? (
-            <div key={`vazio-${i}`} className="min-h-[86px]" />
+            <div key={`vazio-${i}`} className="min-h-[58px]" />
           ) : (
             <div
               key={`${referencia.ano}-${referencia.mes}-${celula.dia}`}
-              className="min-h-[86px] border border-slate-800 rounded-xl p-1.5 bg-slate-900/40"
+              className="min-h-[58px] border border-slate-800 rounded-lg p-1 bg-slate-900/40"
             >
               <div
-                className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold ${
+                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                   celula.hoje ? 'bg-slate-800 text-slate-100 font-black' : 'text-slate-300'
                 }`}
               >
                 {celula.dia}
               </div>
-              <div className="mt-1 space-y-1">
+              <div className="mt-0.5 space-y-0.5">
                 {(() => {
                   const { visiveis, extras } = fatiaDia(porDia.get(celula.dia) ?? []);
                   return (
@@ -137,14 +135,14 @@ const CalendarioApp: React.FC = () => {
                           <span
                             key={`${l.tipo}:${l.id}`}
                             title={`${NOME_TIPO[l.tipo]} — ${texto}`}
-                            className={`block w-full truncate rounded-md px-1.5 py-0.5 text-[11px] font-bold text-left ${CLASSE_TIPO[l.tipo]}`}
+                            className={`block w-full truncate rounded px-1 py-px text-[10px] font-bold text-left ${CLASSE_TIPO[l.tipo]}`}
                           >
                             {texto}
                           </span>
                         );
                       })}
                       {extras > 0 && (
-                        <span className="block text-[11px] font-bold text-slate-500 pl-1">
+                        <span className="block text-[10px] font-bold text-slate-500 pl-1">
                           +{extras}
                         </span>
                       )}
@@ -157,7 +155,7 @@ const CalendarioApp: React.FC = () => {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 mt-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+      <div className="flex flex-wrap items-center justify-center gap-4 mt-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
         {ORDEM_TIPOS.map((t) => (
           <span key={t} className="inline-flex items-center gap-1.5">
             <span className={`inline-block w-3 h-3 rounded-sm ${CLASSE_TIPO[t]}`} aria-hidden="true" />

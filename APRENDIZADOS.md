@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.200.0](#v20000) — 2026-11-16 — Calendário compacto: mês centralizado com setas ao lado (v0.200.0)
+
 - [v0.199.0](#v19900) — 2026-11-16 — Aba Calendário: grade do mês com os lembretes dos 3 históricos (v0.199.0)
 
 - [v0.198.0](#v19800) — 2026-11-16 — Orçamento: cabeçalho ITEM/DESCRIÇÃO/VALOR azul-escuro em todos os temas (v0.198.0)
@@ -322,6 +324,18 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20000"></a>
+## 2026-11-16 — Calendário compacto: mês centralizado com setas ao lado (v0.200.0)
+
+**Pedido:** mês inteiro visível sem rolar (células menores) + setas ao lado
+do nome do mês/ano, com o nome centralizado.
+
+**Feito:** cabeçalho virou linha única centralizada `‹ [Mês Ano + contador]
+› [Hoje]`; células `min-h-[86px]` → `min-h-[58px]` (cantos `rounded-lg`,
+padding e textos `10px`, número `w-6 h-6 text-xs`, legenda centralizada).
+Só classes do Tailwind — lógica, dados e testes intactos (332 passando).
+`dist/index.html` autocontido.
 
 <a id="v19900"></a>
 ## 2026-11-16 — Aba Calendário: grade do mês com os lembretes dos 3 históricos (v0.199.0)
