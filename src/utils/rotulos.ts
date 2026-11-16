@@ -13,12 +13,14 @@ export const ROTULOS_PADRAO: Rotulos = {
     pneus: 'Tire Flyer',
     dados: 'Dados',
     revisoes: 'Revisões',
+    calendario: 'Calendário',
   },
   titulos: {
     orcamentos: 'ORÇAMENTOS',
     pneus: 'TIRE FLYER',
     dados: 'DADOS',
     revisoes: 'REVISÕES',
+    calendario: 'CALENDÁRIO',
   },
 };
 

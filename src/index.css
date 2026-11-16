@@ -352,6 +352,14 @@
 [data-tema='meianoite'] thead tr.bg-blue-600 th {
   color: #fff !important;
 }
+/* Calendário: o bloco de Orçamento (bg-blue-600 text-white) não é <button>,
+   então a regra do botão primário acima não o alcança — repete o texto
+   ESCURO no acento claro (bege/cobre/terracota) para seguir legível. */
+[data-tema='meianoite'] [data-calendario] .cal-orcamento,
+[data-tema='dark'] [data-calendario] .cal-orcamento,
+[data-tema='cobre'] [data-calendario] .cal-orcamento {
+  color: var(--tema-acento-texto);
+}
 
 /* Latte é CLARO: campos com letra escura (os preenchimentos usam branco, que
    some no claro) e sub-aba fechada em marrom (mesmo tratamento do tema Papel).

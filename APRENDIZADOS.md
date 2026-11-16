@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.199.0](#v19900) — 2026-11-16 — Aba Calendário: grade do mês com os lembretes dos 3 históricos (v0.199.0)
+
 - [v0.198.0](#v19800) — 2026-11-16 — Orçamento: cabeçalho ITEM/DESCRIÇÃO/VALOR azul-escuro em todos os temas (v0.198.0)
 
 - [v0.197.0](#v19700) — 2026-11-12 — Revisões: passagens minimizadas com seta (v0.197.0)
@@ -320,6 +322,46 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19900"></a>
+## 2026-11-16 — Aba Calendário: grade do mês com os lembretes dos 3 históricos (v0.199.0)
+
+**Pedido:** aba "Calendário" no menu (sem mexer nas abas atuais): mês/ano +
+contador, setas ‹ › + "Hoje", grade de segunda a domingo com o dia de hoje
+discreto, blocos por tipo com cor própria, "+N" quando estoura, legenda;
+dados = `lembreteEm` que o app já guarda (sem cadastro novo, sem mudar
+chaves); cores da paleta atual, sem cor nova.
+
+**Checagem das fontes (antes de criar):** os três tipos TÊM data guardada —
+`orcamentos_historico_v1`, `flyer_historico_v1` e `revisoes_historico_v1`
+trazem `lembreteEm` (botão relógio), e `listarTodosLembretes`
+(utils/lembretes) já agrega os três com rótulo — nenhum tipo faltando.
+
+**Feito:**
+- `src/calendario/calendario.ts` (puro): `partesData` (parse manual do ISO,
+  sem fuso — `new Date` em data pura cai em UTC e mudaria o dia),
+  `listarLembretesCalendario` (reusa `listarTodosLembretes`, descarta
+  rápidos), `gradeMes` (semana começa na segunda, fora do mês = vazio),
+  `avancarMes` (atravessa o ano), `agruparPorDia`, `textoContador`
+  ("1 lembrete"/"N lembretes"), `fatiaDia` (3 visíveis + "+N").
+- `src/calendario/CalendarioApp.tsx` (só leitura; atualiza via
+  `LEMBRETES_EVENTO` + `storage`, igual ao sino): título "Novembro 2026" em
+  `.titulo-tema`, setas ícone-only com aria-label/title (padrão do app),
+  botão "Hoje", hoje com círculo discreto, blocos truncados com hora +
+  rótulo, legenda Revisão/Pneus/Orçamento.
+- Cores (existentes, texto legível): Orçamento `bg-blue-600 text-white`
+  (primária), Pneus `bg-amber-500 text-black` (igual ao quadrado do sino),
+  Revisão `bg-green-600 text-white` (igual ao botão WhatsApp). Exceção:
+  bloco azul-escuro em acento claro (bege/cobre/terracota) ganha texto
+  escuro via `[data-calendario] .cal-orcamento` no index.css — mesmo
+  tratamento do botão primário (que é escopado em `button` e não alcançava
+  o bloco).
+- Fiação no padrão: `Aba` + `ABAS` + div `hidden` em `App.tsx`, rótulos
+  padrão em `utils/rotulos.ts` (renomear por duplo clique continua valendo).
+- Testes: `tests/calendario.test.ts` (10: parse, segunda-feira, virada de
+  ano, agregação dos 3 históricos sem rápidos, contador, +N, fiação da tela
+  com troca de mês/"Hoje"/legenda). Suite: 332 passando.
+- `dist/index.html` autocontido (sem script/link externos).
 
 <a id="v19800"></a>
 ## 2026-11-16 — Orçamento: cabeçalho ITEM/DESCRIÇÃO/VALOR azul-escuro em todos os temas (v0.198.0)
