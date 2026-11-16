@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.198.0](#v19800) — 2026-11-16 — Orçamento: cabeçalho ITEM/DESCRIÇÃO/VALOR azul-escuro em todos os temas (v0.198.0)
+
 - [v0.197.0](#v19700) — 2026-11-12 — Revisões: passagens minimizadas com seta (v0.197.0)
 
 - [v0.196.0](#v19600) — 2026-11-12 — Revisões: volta a 1 data inicial persistida (v0.196.0)
@@ -318,6 +320,29 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v19800"></a>
+## 2026-11-16 — Orçamento: cabeçalho ITEM/DESCRIÇÃO/VALOR azul-escuro em todos os temas (v0.198.0)
+
+**Pedido:** no tema grafite a linha de títulos ITEM/DESCRIÇÃO/VALOR (R$) sai
+azul-escura, nos outros temas sai azul-clara; padronizar tudo no azul-escuro.
+
+**Causa:** o `tr` usa `bg-blue-600` (= `--tema-acento`, varia por tema), mas a
+saída (`#printable-quote`) reseta as variáveis — o `tr` seria `#2563eb` em todo
+tema. Porém as regras `[data-tema='grafite'] thead th` e
+`[data-tema='meianoite'] thead th` (`index.css`) forçam o fundo de cada `th` com
+`!important`, e o `th` pinta por cima do `tr`. Na saída, `--tema-painel`
+resetado = marinho `#1e293b` → só grafite/meia-noite saiam escuros.
+
+**Feito:**
+- `QuoteTable.tsx`: `tr` com literal fixo `bg-[#1e293b]` (= tom do grafite =
+  slate-900 original) + divisórias `border-[#334155]` (era `border-blue-500`).
+  Literal não é remapeado por tema: preview e PNG ficam iguais em todos; nos
+  temas grafite/meia-noite o override do `th` resolve para o mesmo `#1e293b`
+  via reset — sem mexer no CSS.
+- Rodapé "Valor Total Adicional", título e botões intactos (fora do pedido).
+- `typecheck` limpo, `lint` só warnings conhecidos, 322 testes passando,
+  `dist/index.html` autocontido com o marinho no bundle.
 
 <a id="v19700"></a>
 ## 2026-11-12 — Revisões: passagens minimizadas com seta (v0.197.0)

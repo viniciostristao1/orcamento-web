@@ -221,9 +221,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
           <div className="overflow-hidden border-2 border-slate-300 rounded-2xl mb-2">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-blue-600 text-white">
-                  <th className="py-2 px-6 text-center w-20 font-bold uppercase text-xl border-r border-blue-500">Item</th>
-                  <th className="py-2 px-6 text-left font-bold uppercase text-xl border-r border-blue-500">Descrição</th>
+                <tr className="bg-[#1e293b] text-white">
+                  <th className="py-2 px-6 text-center w-20 font-bold uppercase text-xl border-r border-[#334155]">Item</th>
+                  <th className="py-2 px-6 text-left font-bold uppercase text-xl border-r border-[#334155]">Descrição</th>
                   <th className="py-2 px-6 text-right w-44 font-bold uppercase text-xl">Valor (R$)</th>
                 </tr>
               </thead>
