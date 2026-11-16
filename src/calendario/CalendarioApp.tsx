@@ -61,7 +61,7 @@ const CalendarioApp: React.FC = () => {
     'flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95';
 
   return (
-    <div data-calendario>
+    <div data-calendario className="w-[80%] mx-auto">
       <div className="flex items-center justify-center gap-2 mb-2">
         <button
           type="button"

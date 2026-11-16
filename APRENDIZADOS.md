@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.201.0](#v20100) — 2026-11-16 — Calendário a 80% da largura, centralizado (v0.201.0)
+
 - [v0.200.0](#v20000) — 2026-11-16 — Calendário compacto: mês centralizado com setas ao lado (v0.200.0)
 
 - [v0.199.0](#v19900) — 2026-11-16 — Aba Calendário: grade do mês com os lembretes dos 3 históricos (v0.199.0)
@@ -324,6 +326,15 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20100"></a>
+## 2026-11-16 — Calendário a 80% da largura, centralizado (v0.201.0)
+
+**Pedido:** calendário ainda mais estreito, 80% da largura atual.
+
+**Feito:** raiz do CalendarioApp com `w-[80%] mx-auto` (só classe, sem
+lógica). Testes do calendário intactos (10 passando). `dist/index.html`
+autocontido.
 
 <a id="v20000"></a>
 ## 2026-11-16 — Calendário compacto: mês centralizado com setas ao lado (v0.200.0)
