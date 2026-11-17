@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.202.0](#v20200) — 2026-11-17 — Botão + complementar (novo layout de entrada, mesma saída) (v0.202.0)
+
 - [v0.201.0](#v20100) — 2026-11-16 — Calendário a 80% da largura, centralizado (v0.201.0)
 
 - [v0.200.0](#v20000) — 2026-11-16 — Calendário compacto: mês centralizado com setas ao lado (v0.200.0)
@@ -326,6 +328,41 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20200"></a>
+## 2026-11-17 — Botão + complementar (novo layout de entrada, mesma saída) (v0.202.0)
+
+**Pedido:** no card ORÇAMENTO DO SISTEMA, um 2º botão **+** (cor mais forte do tema) para
+anexar o PDF do **novo layout** (`JBG-6E46.pdf`, ORÇAMENTO DE SERVIÇOS COMPLEMENTARES);
+a saída gerada continua a mesma de hoje.
+
+**Feito:**
+- `src/sistema/extracao.ts`: `ehLayoutComplementar()` (ORÇAMENTO DE SERVIÇOS
+  COMPLEMENTARES + `Total do Serviço`) + `extrairComplementar()` puro — cada bloco
+  (título solto antes de `Código Peça` + linha `Total Peças | Total MO | Total do Serviço`)
+  vira **1 linha de Serviço** (`N Serviço COD_MO TITULO TOTAL`) e a DESCRIÇÃO ganha
+  `01..05` na ordem do PDF (Bucha da barra, Bateria, Oxi, Limpeza bico dpf, Borachinha do
+  limpador). `orçamento inicial R$` → `revisaoInicial`; Nº/Placa/Nome via rótulos;
+  **Data de Criação** (escolha do usuário); telefone mascarado `******` não extrai.
+- `src/sistema/SistemaCard.tsx`: 2º `+` em `bg-blue-600` (= `var(--tema-acento)`, segue os
+  10 temas) com `aria-label="Anexar complementar (novo layout)"` + `input file` próprio;
+  mesmo pipeline pdf.js/OCR; complementar cai em `aplicarTextoComplementar()`
+  (com fallback para o normal + aviso se não parecer complementar). Substitui, nunca soma.
+- `src/components/OrcamentosApp.tsx`: `onRevisaoInicial` preenche **só o Total Revisão**
+  via `formatarValorInput` (Peças na Revisão intacta, a pedido).
+- `tests/sistema_extracao.test.ts`: +6 casos (detecção, cabeçalho, 5 itens, totais
+  `2.568,44 + 3.040,92 = 5.609,36` do rodapé, e texto cru com rótulo/valor em linhas
+  separadas). `typecheck` limpo, `lint` só warnings conhecidos.
+
+**Gotchas:**
+- O `pdftotext` sem `-layout` quebra cabeçalho/MO em linhas isoladas (`Código MO` /
+  `Descrição` / `GUN…`) — o buscador do `codigoMO` varre até o `Total do Serviço`
+  pulando `Descrição/Tempo/Custo/...`, então vale nos dois extratores (pdf.js junta,
+  OCR/cru separa).
+- `processQuote` não mudou: tudo cai em `servicosValue` (desconto de peças não incide —
+  decisão do usuário: 1 linha de Serviço por item).
+- Base mudou no meio do trabalho (remoto foi de v0.135.0 a v0.201.0 + upload do
+  JBG-6E46.pdf): rebaseado em `origin/main`, versão republicada como v0.202.0.
 
 <a id="v20100"></a>
 ## 2026-11-16 — Calendário a 80% da largura, centralizado (v0.201.0)

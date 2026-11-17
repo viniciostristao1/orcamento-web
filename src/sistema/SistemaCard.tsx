@@ -3,7 +3,9 @@ import { ClipboardPaste, History, Plus } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import {
+  ehLayoutComplementar,
   extrairCabecalho,
+  extrairComplementar,
   extrairSistemaToyota,
   normalizarTextoExtraido,
   type CabecalhoOrcamento,
@@ -39,6 +41,8 @@ interface SistemaCardProps {
   onRevDados: (v: string) => void;
   /** Avisa que chegou extração nova (revisão fresca de novo). */
   onExtraido: () => void;
+  /** Preenche o Total Revisão com o "orçamento inicial" do complementar. */
+  onRevisaoInicial?: (v: string) => void;
   /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
   onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
 }
@@ -75,12 +79,14 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onRevDesc,
   onRevDados,
   onExtraido,
+  onRevisaoInicial,
   onUsarTextos,
-}) => {
+}: SistemaCardProps) => {
   const [estado, setEstado] = useState('');
   const [ocupado, setOcupado] = useState(false);
   const [msg, setMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+  const fileRefCompl = useRef<HTMLInputElement>(null);
 
   const temTexto = revDesc.trim() || revDados.trim();
 
@@ -114,7 +120,32 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     onExtraido();
   };
 
-  const extrairArquivos = async (arquivos: File[]) => {
+  /** Layout complementar: 1 Serviço por item + inicial aprovado + cabeçalho. */
+  const aplicarTextoComplementar = (texto: string) => {
+    const limpo = normalizarTextoExtraido(texto);
+    if (!ehLayoutComplementar(limpo)) {
+      aplicarTexto(texto);
+      setMsg('Não parecia o complementar — li como orçamento normal. Confira.');
+      return;
+    }
+    const comp = extrairComplementar(limpo);
+    const cab = extrairCabecalho(limpo);
+    if (comp.dados || comp.descReparo) {
+      onRevDados(comp.dados);
+      onRevDesc(comp.descReparo);
+    } else {
+      onRevDados(limpo);
+      onRevDesc('');
+    }
+    const numeroDoc = comp.numero || cab.numero;
+    onNumero(numeroDoc.trim());
+    onDataDoc(comp.data.trim());
+    onCabecalho({ numero: numeroDoc, placa: comp.placa || cab.placa, nome: comp.cliente || cab.nome, data: comp.data, telefone: cab.telefone, chassi: cab.chassi });
+    if (comp.revisaoInicial.trim()) onRevisaoInicial?.(comp.revisaoInicial.trim());
+    onExtraido();
+  };
+
+  const extrairArquivos = async (arquivos: File[], complementar = false) => {
     if (arquivos.length === 0 || ocupado) return;
     setOcupado(true);
     setMsg('');
@@ -133,7 +164,8 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         );
         partes.push(texto);
       }
-      aplicarTexto(partes.join('\n'));
+      if (complementar) aplicarTextoComplementar(partes.join('\n'));
+      else aplicarTexto(partes.join('\n'));
       setMsg(
         imagens.length > 0
           ? 'Texto lido e separado — confira com atenção (OCR pode errar).'
@@ -151,7 +183,14 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     const arquivos = Array.from(e.target.files ?? []);
     e.target.value = '';
     if (arquivos.length === 0) return;
-    void extrairArquivos(arquivos);
+    void extrairArquivos(arquivos, false);
+  };
+
+  const escolherCompl = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const arquivos = Array.from(e.target.files ?? []);
+    e.target.value = '';
+    if (arquivos.length === 0) return;
+    void extrairArquivos(arquivos, true);
   };
 
   return (
@@ -178,6 +217,24 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
             multiple
             className="hidden"
             onChange={escolher}
+          />
+          <button
+            type="button"
+            onClick={() => fileRefCompl.current?.click()}
+            disabled={ocupado}
+            aria-label="Anexar complementar (novo layout)"
+            title="Anexar complementar (novo layout)"
+            className="flex items-center justify-center p-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-xl transition-all shadow-2xl cursor-pointer active:scale-95"
+          >
+            <Plus size={18} />
+          </button>
+          <input
+            ref={fileRefCompl}
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg"
+            multiple
+            className="hidden"
+            onChange={escolherCompl}
           />
           <button
             type="button"

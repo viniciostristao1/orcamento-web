@@ -322,6 +322,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               revDados={revDados}
               onRevDesc={setRevDesc}
               onRevDados={setRevDados}
+              onRevisaoInicial={(v) => setRevAprovadaInput(formatarValorInput(v))}
               onExtraido={() => {
                 // Extração nova: revisão fresca e campos intactos de novo.
                 revNonce.current += 1;

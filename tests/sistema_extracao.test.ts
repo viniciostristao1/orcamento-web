@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   agruparLinhasPdf,
   decidirFontePlay,
+  ehLayoutComplementar,
   extrairCabecalho,
+  extrairComplementar,
   extrairSistemaToyota,
   normalizarTextoExtraido,
   vinDigitoOk,
@@ -254,5 +256,128 @@ describe('extrairSistemaToyota — PDF real do sistema', () => {
     expect(sis.cliente).toBe('CLACI ZANONI RUTHNER');
     expect(sis.numero).toBe('20234');
     expect(sis.data).toBe('05/10/2026');
+  });
+});
+
+describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E46)', () => {
+  // Trecho normalizado do PDF real (JBG-6E46.pdf): 5 blocos + inicial aprovado.
+  const TEXTO_COMPL = [
+    'TOYOTA WEIAND LAJEADO',
+    'ORÇAMENTO DE SERVIÇOS COMPLEMENTARES',
+    'Nº: 19384736944',
+    'Nome Cliente: LISANDRA CRISTINE FRANCK HARRES',
+    'Placa: JBG-6E46 KM: 65330 Data Aprovação: 17/11/2026 15:47:51',
+    'Data de Criação: 17/11/2026 15:13:47',
+    'Serviços contratados inicialmente e aprovados pelo orçamento inicial R$ 3.040,92',
+    'Serviços Complementares Aprovados',
+    'Bucha da barra',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    '488150K090|1 BUCHA BARRA ESTABILI 2 R$ 155,00 Sim R$ 310,00',
+    'Código MO Descrição Tempo MO Custo MO',
+    'GUN126L43021 BUCHA DA BARRA ESTABILIZADORA DIANTEIRA 0.50/h R$ 114,75',
+    'Total Peças: R$ 310,00 | Total MO: R$ 114,75 | Total do Serviço: R$ 424,75',
+    'Bateria',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    '388000M475|1 BATERIA 12V / 75AH, 1 R$ 856,70 Sim R$ 856,70',
+    'Código MO Descrição Tempo MO Custo MO',
+    'GUN126L19001 BATERIA UMA 0.10/h R$ 4,59',
+    'Total Peças: R$ 856,70 | Total MO: R$ 4,59 | Total do Serviço: R$ 861,29',
+    'Oxi',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    'CARE010701 OXY-SANITIZATION APP 1 R$ 115,00 Sim R$ 115,00',
+    'CARE040703 AUTO AIR CLEANER (GRANADA) 1 R$ 109,73 Sim R$ 109,73',
+    'Código MO Descrição Tempo MO Custo MO',
+    'HIGMOTO HIGIENIZACAO AR CONDICIONADO 0.05/h R$ 22,95',
+    'Total Peças: R$ 224,73 | Total MO: R$ 22,95 | Total do Serviço: R$ 247,68',
+    'Limpeza bico dpf',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    'CARE040501 LIMPADOR DPF TUNAP 1 R$ 309,47 Sim R$ 309,47',
+    'Código MO Descrição Tempo MO Custo MO',
+    'LIMPDPF LIMPEZA DO DPF 1.00/h R$ 459,00',
+    'Total Peças: R$ 423,13 | Total MO: R$ 459,00 | Total do Serviço: R$ 882,13',
+    'Borachinha do limpador',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    '8521428090|1 BORRACHA LIMPADOR DI 1 R$ 69,00 Sim R$ 69,00',
+    'Código MO Descrição Tempo MO Custo MO',
+    'GUN156L85009 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0.10/h R$ 4,59',
+    'Total Peças: R$ 148,00 | Total MO: R$ 4,59 | Total do Serviço: R$ 152,59',
+    'Total Orçamento Inicial + Serviços Complementares Aprovados',
+    '1 x R$ 5.609,36',
+  ].join('\n');
+
+  it('detecta o layout complementar (e não o Toyota antigo)', () => {
+    expect(ehLayoutComplementar(TEXTO_COMPL)).toBe(true);
+    expect(ehLayoutComplementar('It Tipo Código Descrição\n1 Peça X 1 10,00')).toBe(false);
+  });
+
+  it('inicial aprovado, número, placa, cliente e data de criação', () => {
+    const c = extrairComplementar(TEXTO_COMPL);
+    expect(c.revisaoInicial).toBe('3.040,92');
+    expect(c.numero).toBe('19384736944');
+    expect(c.placa).toBe('JBG-6E46');
+    expect(c.cliente).toBe('LISANDRA CRISTINE FRANCK HARRES');
+    expect(c.data).toBe('17/11/2026');
+  });
+
+  it('DESCRIÇÃO numerada na ordem do PDF (layout novo não numera)', () => {
+    const c = extrairComplementar(TEXTO_COMPL);
+    expect(c.descReparo.split('\n')).toEqual([
+      '01 Bucha da barra',
+      '02 Bateria',
+      '03 Oxi',
+      '04 Limpeza bico dpf',
+      '05 Borachinha do limpador',
+    ]);
+  });
+
+  it('DADOS com 1 Serviço por item usando o Total do Serviço', () => {
+    const c = extrairComplementar(TEXTO_COMPL);
+    const linhas = c.dados.split('\n');
+    expect(linhas).toHaveLength(5);
+    expect(linhas[0]).toContain('424,75');
+    expect(linhas[1]).toContain('861,29');
+    expect(linhas[2]).toContain('247,68');
+    expect(linhas[3]).toContain('882,13');
+    expect(linhas[4]).toContain('152,59');
+    expect(linhas[0]).toMatch(/^1 Serviço /);
+    expect(linhas[4]).toMatch(/^5 Serviço /);
+  });
+
+  it('soma dos 5 Serviços + inicial = total do rodapé', () => {
+    const c = extrairComplementar(TEXTO_COMPL);
+    const totais = c.dados
+      .split('\n')
+      .map((l) => l.trim().split(/\s+/).pop() ?? '0');
+    const soma = totais.reduce((acc, v) => acc + parseFloat(v.replace(/\./g, '').replace(',', '.')), 0);
+    expect(soma).toBeCloseTo(2568.44, 2);
+    expect(soma + 3040.92).toBeCloseTo(5609.36, 2);
+  });
+
+  it('aguenta o texto cru (rótulo e valor em linhas separadas)', () => {
+    const CRU = [
+      'ORÇAMENTO DE SERVIÇOS COMPLEMENTARES',
+      'Nº: 19384736944',
+      'Nome Cliente:',
+      'LISANDRA CRISTINE FRANCK HARRES',
+      'Placa: JBG-6E46',
+      'Data de Criação: 17/11/2026 15:13:47',
+      'Serviços contratados inicialmente e aprovados pelo orçamento inicial R$ 3.040,92',
+      'Serviços Complementares Aprovados',
+      'Bucha da barra',
+      'Código Peça',
+      'Descrição',
+      '488150K090|1',
+      'BUCHA BARRA ESTABILI',
+      'Código MO',
+      'Descrição',
+      'GUN126L43021',
+      'BUCHA DA BARRA ESTABILIZADORA DIANTEIRA',
+      'Total Peças: R$ 310,00 | Total MO: R$ 114,75 | Total do Serviço: R$ 424,75',
+    ].join('\n');
+    expect(ehLayoutComplementar(CRU)).toBe(true);
+    const c = extrairComplementar(CRU);
+    expect(c.cliente).toBe('LISANDRA CRISTINE FRANCK HARRES');
+    expect(c.descReparo).toBe('01 Bucha da barra');
+    expect(c.dados).toMatch(/^1 Serviço GUN126L43021 Bucha da barra 424,75$/);
   });
 });

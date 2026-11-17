@@ -94,7 +94,7 @@ O tema vale **só para a interface** — o PNG do cliente não muda.
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **304 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **338 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -733,6 +733,16 @@ npm run build        # gera dist/index.html (arquivo único)
   DESCRIÇÃO (entre "Reclamações Originais…" e "Sugestão"), cliente após "Cliente
   Cadastro", número = 1º do documento e o resto é ignorado — o card mostra as duas
   partes para revisão e preenche os campos 1 e 2.
+- **Orçamento complementar em PDF/print (novo layout)** (v0.202.0): segundo botão **+**
+  no card SISTEMA (azul `bg-blue-600` = cor mais forte do tema, ao lado do + cinza), com
+  `aria-label="Anexar complementar (novo layout)"`. Extração própria em
+  `sistema/extracao.ts` (`ehLayoutComplementar` + `extrairComplementar`): cada bloco
+  (título antes de "Código Peça" + `Total do Serviço`) vira **1 linha de Serviço**
+  (`N Serviço COD TITULO VALOR`) e a DESCRIÇÃO ganha `01..N` na ordem do PDF
+  (o layout novo não numera). "Orçamento inicial R$" preenche **só o Total Revisão**
+  (`onRevisaoInicial`, Peças na Revisão intacta); Nº, Placa, Nome e **Data de Criação**
+  vão para o cabeçalho (telefone mascarado `******` não extrai). Saída idêntica —
+  a soma usa o mesmo `processQuote`.
 - **Card 3 automático** (v0.87.0): anexar já extrai sozinho (sem botão extrair);
   botão único **"Novo arquivo"**; novo anexo **substitui** o anterior (nunca soma).
 - **Card do sistema redondo** (v0.92.0): botão **+** (ícone) no lugar do "Novo arquivo",

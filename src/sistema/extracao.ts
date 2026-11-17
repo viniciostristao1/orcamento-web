@@ -128,6 +128,138 @@ export function extrairSistemaToyota(texto: string): SistemaToyota {
   return out;
 }
 
+/** Resultado do orçamento complementar (novo layout de entrada). */
+export interface SistemaComplementar {
+  /** Uma linha de Serviço por item: `N Serviço COD TITULO VALOR`. */
+  dados: string;
+  /** Títulos numerados: `01 TITULO`. */
+  descReparo: string;
+  cliente: string;
+  numero: string;
+  placa: string;
+  /** Data de Criação do documento. */
+  data: string;
+  /** Valor do "orçamento inicial" (ex.: "3.040,92") ou '' quando não achou. */
+  revisaoInicial: string;
+}
+
+/**
+ * Detecta o novo layout de entrada: ORÇAMENTO DE SERVIÇOS COMPLEMENTARES
+ * com "Total do Serviço" por item. Usado para escolher o parser.
+ */
+export function ehLayoutComplementar(texto: string): boolean {
+  return (
+    /OR[CÇ]AMENTO DE SERVI[CÇ]OS COMPLEMENTARES/i.test(texto) &&
+    /Total do Servi[cç]o/i.test(texto)
+  );
+}
+
+const TITULO_INVALIDO = /^(Servi[cç]os Complementares Aprovados|OR[CÇ]AMENTO|TOYOTA|P[aá]gina|Total Or[cç]amento|Assinatura|Observa[cç][aã]o|Modelo Ve[ií]culo|Nº:|Placa:|C[oó]digo|Consultor|Mec[aâ]nico)$/i;
+
+/**
+ * Extrai o layout complementar (ex.: JBG-6E46.pdf) — função PURA.
+ * Cada bloco = título solto antes de "Código Peça" + linha
+ * "Total Peças: R$ X | Total MO: R$ Y | Total do Serviço: R$ Z".
+ * Gera 1 linha de Serviço por item (com o Total do Serviço) e numera os
+ * títulos (01, 02, ...) para a DESCRIÇÃO. A saída (soma) usa a mesma lógica.
+ */
+export function extrairComplementar(texto: string): SistemaComplementar {
+  const out: SistemaComplementar = {
+    dados: '',
+    descReparo: '',
+    cliente: '',
+    numero: '',
+    placa: '',
+    data: '',
+    revisaoInicial: '',
+  };
+  const linhas = texto.split('\n');
+
+  const mRev = texto.match(/or[cç]amento inicial\s+R\$\s*([\d.,]+)/i);
+  if (mRev) out.revisaoInicial = mRev[1].trim();
+
+  const mNum = texto.match(/Nº:\s*(\d{4,})/);
+  if (mNum) out.numero = mNum[1];
+  const mCli = texto.match(/Nome Cliente:\s*([A-ZÀ-Ú0-9 .&'/-]{3,60})/i);
+  if (mCli && mCli[1].trim()) out.cliente = mCli[1].trim().replace(/\s+/g, ' ');
+  if (!out.cliente) {
+    // PDF cru quebra rótulo e valor em linhas ("Nome Cliente:" / "FULANO").
+    for (let i = 0; i < linhas.length; i++) {
+      if (/^\s*Nome Cliente:\s*$/.test(linhas[i])) {
+        for (let j = i + 1; j < Math.min(i + 4, linhas.length); j++) {
+          const t = linhas[j].trim();
+          if (t && /[A-ZÀ-Ú]/.test(t) && !/^(Telefone|E-mail|Modelo|Placa|OS:|Data)/i.test(t)) {
+            out.cliente = t.replace(/\s+/g, ' ');
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+  const mData = texto.match(/Data de Cria[cç][aã]o:\s*(\d{2}\/\d{2}\/\d{4})/i);
+  if (mData) out.data = mData[1];
+
+  // Placa reaproveita a lógica geral (rotulada ou avulsa).
+  const cab = extrairCabecalho(texto);
+  if (!out.numero && cab.numero) out.numero = cab.numero;
+  if (cab.placa) out.placa = cab.placa;
+  if (!out.cliente && cab.nome) out.cliente = cab.nome;
+  if (!out.data && cab.data) out.data = cab.data;
+
+  const blocos: { titulo: string; codigoMO: string; total: string }[] = [];
+  for (let i = 0; i < linhas.length; i++) {
+    if (!/^\s*Código Peça\b/i.test(linhas[i])) continue;
+    // Título: primeira linha não-vazia acima que não seja cabeçalho conhecido.
+    let titulo = '';
+    for (let j = i - 1; j >= 0; j--) {
+      const t = linhas[j].trim();
+      if (!t) continue;
+      if (TITULO_INVALIDO.test(t)) break;
+      if (/^(Código|Total|Página|Rodovia|\(51\)|94\.674|Consultor|Mecânico|Placa:|Modelo|OS:|Nº:)/i.test(t)) break;
+      titulo = t.replace(/\s+/g, ' ').trim();
+      break;
+    }
+    if (!titulo) continue;
+    // Total do Serviço + código MO: procura à frente até o próximo bloco.
+    // O cabeçalho pode vir junto ("Código MO Descrição …") ou quebrado em
+    // linhas ("Código MO" / "Descrição" / … / "GUN…"), conforme o extrator.
+    let total = '';
+    let codigoMO = '';
+    let viuCodigoMO = false;
+    const IGNORAR_MO = /^(Descrição|Descricao|Tempo|Custo|Qtd|Preço|Preco|Unit|Estoque|Total|Peças|Pecas|MO|Código|Codigo)$/i;
+    for (let k = i + 1; k < linhas.length; k++) {
+      if (/^\s*Código Peça\b/i.test(linhas[k])) break;
+      const mTot = linhas[k].match(/Total do Servi[cç]o:\s*R\$\s*([\d.,]+)/i);
+      if (mTot && !total) total = mTot[1].trim();
+      if (/^\s*Código MO\b/i.test(linhas[k])) {
+        viuCodigoMO = true;
+        continue;
+      }
+      if (viuCodigoMO && !codigoMO) {
+        const t = linhas[k].trim();
+        if (!t || IGNORAR_MO.test(t)) continue;
+        const mCod = t.match(/^([A-Z0-9]{3,})/);
+        if (mCod && /[A-Z]/.test(mCod[1])) {
+          codigoMO = mCod[1];
+        }
+      }
+      if (total && codigoMO) break;
+    }
+    if (titulo && total) {
+      blocos.push({ titulo, codigoMO: codigoMO || 'COMPL', total });
+    }
+  }
+
+  out.dados = blocos
+    .map((b, idx) => `${idx + 1} Serviço ${b.codigoMO} ${b.titulo} ${b.total}`)
+    .join('\n');
+  out.descReparo = blocos
+    .map((b, idx) => `${String(idx + 1).padStart(2, '0')} ${b.titulo}`)
+    .join('\n');
+  return out;
+}
+
 /** Entrada da escolha de fonte do play (tudo já trimado fora, compara-se aqui). */
 export interface EstadoFontePlay {
   descCampo: string;
