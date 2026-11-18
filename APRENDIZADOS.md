@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.203.0](#v20300) — 2026-11-18 — Complementar: bloco sem Total do Serviço vale Peças+MO (4376) (v0.203.0)
+
 - [v0.202.0](#v20200) — 2026-11-17 — Botão + complementar (novo layout de entrada, mesma saída) (v0.202.0)
 
 - [v0.201.0](#v20100) — 2026-11-16 — Calendário a 80% da largura, centralizado (v0.201.0)
@@ -328,6 +330,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20300"></a>
+## 2026-11-18 — Complementar: bloco sem Total do Serviço vale Peças+MO (4376) (v0.203.0)
+
+**Bug:** o `4376.pdf` gerou só o 1º item. O 2º bloco (VIA TANQUE, MO zerada) não traz
+`Total do Serviço` — só `Total Peças: R$ 209,89` — e o parser exigia o Serviço,
+descartando o bloco em silêncio. (A Revisão 903,45 do print era valor antigo digitado;
+o complementar preenche 1.065,45 ao anexar pelo botão azul.)
+
+**Feito:** em `extrairComplementar`, cada bloco agora guarda `totalServico`, `totalPecas`
+e `totalMO`; o total vale `totalServico || (totalPecas + totalMO)` via `somarBR`
+(`209,89 + 0,00 → 209,89`). `ehLayoutComplementar` aceita `Total Peças` como sinal
+alternativo, e `TITULO_INVALIDO` generalizou `Serviços Complementares Aprovados` →
+`Serviços Complementares` (4376 usa "Orçados"). Validado contra o PDF real nos dois
+extratores (layout e cru): 2 itens, `247,68 + 209,89 = 457,57`, geral `1.523,02` = rodapé.
++1 teste fixo (texto 4376). **339 passam**; `typecheck` limpo, `lint` só warnings
+conhecidos, `dist/index.html` autocontido.
 
 <a id="v20200"></a>
 ## 2026-11-17 — Botão + complementar (novo layout de entrada, mesma saída) (v0.202.0)

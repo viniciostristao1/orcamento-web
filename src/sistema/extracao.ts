@@ -145,21 +145,34 @@ export interface SistemaComplementar {
 
 /**
  * Detecta o novo layout de entrada: ORÇAMENTO DE SERVIÇOS COMPLEMENTARES
- * com "Total do Serviço" por item. Usado para escolher o parser.
+ * com totais por item ("Total do Serviço" ou ao menos "Total Peças").
+ * Usado para escolher o parser.
  */
 export function ehLayoutComplementar(texto: string): boolean {
   return (
     /OR[CÇ]AMENTO DE SERVI[CÇ]OS COMPLEMENTARES/i.test(texto) &&
-    /Total do Servi[cç]o/i.test(texto)
+    (/Total do Servi[cç]o/i.test(texto) || /Total Pe[cç]as/i.test(texto))
   );
 }
 
-const TITULO_INVALIDO = /^(Servi[cç]os Complementares Aprovados|OR[CÇ]AMENTO|TOYOTA|P[aá]gina|Total Or[cç]amento|Assinatura|Observa[cç][aã]o|Modelo Ve[ií]culo|Nº:|Placa:|C[oó]digo|Consultor|Mec[aâ]nico)$/i;
+const TITULO_INVALIDO = /^(Servi[cç]os Complementares|OR[CÇ]AMENTO|TOYOTA|P[aá]gina|Total Or[cç]amento|Assinatura|Observa[cç][aã]o|Modelo Ve[ií]culo|Nº:|Placa:|C[oó]digo|Consultor|Mec[aâ]nico)$/i;
+
+/** Soma dois valores BR ("209,89" + "0,00" → "209,89"). */
+const somarBR = (a: string, b: string): string => {
+  const n = (v: string): number => {
+    const f = parseFloat(v.replace(/\./g, '').replace(',', '.'));
+    return isNaN(f) ? 0 : f;
+  };
+  return (n(a) + n(b)).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
 
 /**
- * Extrai o layout complementar (ex.: JBG-6E46.pdf) — função PURA.
- * Cada bloco = título solto antes de "Código Peça" + linha
- * "Total Peças: R$ X | Total MO: R$ Y | Total do Serviço: R$ Z".
+ * Extrai o layout complementar (ex.: JBG-6E46.pdf, 4376.pdf) — função PURA.
+ * Cada bloco = título solto antes de "Código Peça" + linha de totais
+ * ("Total Peças: R$ X | Total MO: R$ Y | Total do Serviço: R$ Z").
  * Gera 1 linha de Serviço por item (com o Total do Serviço) e numera os
  * títulos (01, 02, ...) para a DESCRIÇÃO. A saída (soma) usa a mesma lógica.
  */
@@ -221,17 +234,26 @@ export function extrairComplementar(texto: string): SistemaComplementar {
       break;
     }
     if (!titulo) continue;
-    // Total do Serviço + código MO: procura à frente até o próximo bloco.
+    // Totais + código MO: procura à frente até o próximo bloco.
     // O cabeçalho pode vir junto ("Código MO Descrição …") ou quebrado em
     // linhas ("Código MO" / "Descrição" / … / "GUN…"), conforme o extrator.
-    let total = '';
+    // Nem todo bloco traz "Total do Serviço" (ex.: 4376.pdf, bloco VIA TANQUE
+    // com MO zerada mostra só "Total Peças: R$ 209,89") — aí vale
+    // Total Peças + Total MO.
+    let totalServico = '';
+    let totalPecas = '';
+    let totalMO = '';
     let codigoMO = '';
     let viuCodigoMO = false;
     const IGNORAR_MO = /^(Descrição|Descricao|Tempo|Custo|Qtd|Preço|Preco|Unit|Estoque|Total|Peças|Pecas|MO|Código|Codigo)$/i;
     for (let k = i + 1; k < linhas.length; k++) {
       if (/^\s*Código Peça\b/i.test(linhas[k])) break;
-      const mTot = linhas[k].match(/Total do Servi[cç]o:\s*R\$\s*([\d.,]+)/i);
-      if (mTot && !total) total = mTot[1].trim();
+      const mTotS = linhas[k].match(/Total do Servi[cç]o:\s*R\$\s*([\d.,]+)/i);
+      if (mTotS && !totalServico) totalServico = mTotS[1].trim();
+      const mTotP = linhas[k].match(/Total Pe[cç]as:\s*R\$\s*([\d.,]+)/i);
+      if (mTotP && !totalPecas) totalPecas = mTotP[1].trim();
+      const mTotM = linhas[k].match(/Total MO:\s*R\$\s*([\d.,]+)/i);
+      if (mTotM && !totalMO) totalMO = mTotM[1].trim();
       if (/^\s*Código MO\b/i.test(linhas[k])) {
         viuCodigoMO = true;
         continue;
@@ -244,8 +266,9 @@ export function extrairComplementar(texto: string): SistemaComplementar {
           codigoMO = mCod[1];
         }
       }
-      if (total && codigoMO) break;
+      if (totalServico && codigoMO) break;
     }
+    const total = totalServico || (totalPecas ? somarBR(totalPecas, totalMO || '0,00') : '');
     if (titulo && total) {
       blocos.push({ titulo, codigoMO: codigoMO || 'COMPL', total });
     }

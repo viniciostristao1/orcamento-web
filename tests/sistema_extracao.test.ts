@@ -380,4 +380,45 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
     expect(c.descReparo).toBe('01 Bucha da barra');
     expect(c.dados).toMatch(/^1 Serviço GUN126L43021 Bucha da barra 424,75$/);
   });
+
+  it('4376: bloco sem "Total do Serviço" vale Total Peças + Total MO', () => {
+    // 2º bloco (VIA TANQUE, MO zerada) traz só "Total Peças: R$ 209,89".
+    const TEXTO_4376 = [
+      'TOYOTA WEIAND LAJEADO',
+      'ORÇAMENTO DE SERVIÇOS COMPLEMENTARES',
+      'Nº: 19384739535',
+      'Nome Cliente: SALETE POZZEBON SCHOTT',
+      'Placa: KM: 4375 Data de Criação: 18/11/2026 09:07:07',
+      'Serviços contratados inicialmente e aprovados pelo orçamento inicial R$ 1.065,45',
+      'Serviços Complementares Orçados',
+      'Oxi, granada e via tanque',
+      'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+      'CARE010701|1 OXY-SANITIZATION APP 1 R$ 115,00 Sim R$ 115,00',
+      'Código MO Descrição Tempo MO Custo MO',
+      'HIGMOTO HIGIENIZACAO AR CONDICIONADO 0.05/h R$ 22,95',
+      'Total Peças: R$ 224,73 | Total MO: R$ 22,95 | Total do Serviço: R$ 247,68',
+      'VIA TANQUE',
+      'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+      'CARE042501|1 LIMPADOR SISTEMA GASOLINA TUNAP 1 R$ 209,89 Sim R$ 209,89',
+      'Código MO Descrição Tempo MO Custo MO',
+      'REQ REQUISICAO DE PECAS 0.00/h R$ 0,00',
+      'Total Peças: R$ 209,89',
+      'Total Orçamento Inicial + Serviços Complementares Aprovados',
+      '1 x R$ 1.523,02',
+    ].join('\n');
+    expect(ehLayoutComplementar(TEXTO_4376)).toBe(true);
+    const c = extrairComplementar(TEXTO_4376);
+    expect(c.revisaoInicial).toBe('1.065,45');
+    expect(c.numero).toBe('19384739535');
+    expect(c.cliente).toBe('SALETE POZZEBON SCHOTT');
+    expect(c.data).toBe('18/11/2026');
+    expect(c.descReparo.split('\n')).toEqual([
+      '01 Oxi, granada e via tanque',
+      '02 VIA TANQUE',
+    ]);
+    const linhas = c.dados.split('\n');
+    expect(linhas).toHaveLength(2);
+    expect(linhas[0]).toContain('247,68');
+    expect(linhas[1]).toMatch(/^2 Serviço REQ VIA TANQUE 209,89$/);
+  });
 });
