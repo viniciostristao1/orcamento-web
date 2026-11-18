@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.204.0](#v20400) — 2026-11-18 — Contato não vaza entre anexos + botões invertidos (v0.204.0)
+
 - [v0.203.0](#v20300) — 2026-11-18 — Complementar: bloco sem Total do Serviço vale Peças+MO (4376) (v0.203.0)
 
 - [v0.202.0](#v20200) — 2026-11-17 — Botão + complementar (novo layout de entrada, mesma saída) (v0.202.0)
@@ -330,6 +332,31 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20400"></a>
+## 2026-11-18 — Contato não vaza entre anexos + botões invertidos (v0.204.0)
+
+**Causa do telefone/placa repetidos:** `aplicarCabecalho` só sobrescrevia campo com
+conteúdo (`if (c.telefone.trim()) setTelefone(...)`). Anexando um PDF sem telefone/placa
+(ex.: complementar com `******` e sem placa, como o 4376), os campos mantinham os valores
+do orçamento anterior — e o "Processar Tudo" salvava esses valores velhos no novo
+registro do histórico (o rascunho ainda persistia tudo entre sessões). Por isso o
+`5551984579790` (17/11) e o `TQW-0F85` (18/11) se repetiam nos cartões seguintes. O
+histórico em si gravava por registro (`r.telefone`/`r.placa`) — a poluição era na origem.
+
+**Feito:**
+- `src/sistema/SistemaCard.tsx`: `aplicarTexto` e `aplicarTextoComplementar` chamam
+  `onLimparContato()` antes de preencher (placa/nome/chassi/telefone do documento novo;
+  vazio no documento = campo zerado, igual a Nº/Data que já zeravam). Complementar:
+  `onRevisaoInicial` incondicional (sem a linha do inicial, zera o Total Revisão).
+- Botões do card invertidos a pedido: complementar (azul) à esquerda, antigo (cinza)
+  ao lado (histórico e borracha inalterados).
+- `tests/sistema_card.test.tsx` (novo, App real + `pdf` mockado): ordem dos botões;
+  anexo complementar com tela "suja" zera telefone/placa, preenche `1.065,45` e 2 itens;
+  idem no layout antigo. **342 passam**; `typecheck` limpo, `lint` sem erros.
+
+**Nota:** cartões já salvos com telefone/placa errados continuam como estão (o dado já
+está no navegador) — me peça uma correção inline por cartão se quiser ajustá-los.
 
 <a id="v20300"></a>
 ## 2026-11-18 — Complementar: bloco sem Total do Serviço vale Peças+MO (4376) (v0.203.0)

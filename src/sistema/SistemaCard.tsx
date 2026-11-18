@@ -105,6 +105,9 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     const limpo = normalizarTextoExtraido(texto);
     const sis = extrairSistemaToyota(limpo);
     const cab = extrairCabecalho(limpo);
+    // Novo anexo substitui o anterior: limpa o contato antes de preencher —
+    // senão telefone/placa do orçamento passado vazam para o novo registro.
+    onLimparContato();
     if (sis.dados || sis.descReparo) {
       onRevDados(sis.dados);
       onRevDesc(sis.descReparo);
@@ -130,6 +133,9 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     }
     const comp = extrairComplementar(limpo);
     const cab = extrairCabecalho(limpo);
+    // Novo anexo substitui o anterior: limpa o contato antes de preencher —
+    // senão telefone/placa do orçamento passado vazam para o novo registro.
+    onLimparContato();
     if (comp.dados || comp.descReparo) {
       onRevDados(comp.dados);
       onRevDesc(comp.descReparo);
@@ -141,7 +147,8 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
     onNumero(numeroDoc.trim());
     onDataDoc(comp.data.trim());
     onCabecalho({ numero: numeroDoc, placa: comp.placa || cab.placa, nome: comp.cliente || cab.nome, data: comp.data, telefone: cab.telefone, chassi: cab.chassi });
-    if (comp.revisaoInicial.trim()) onRevisaoInicial?.(comp.revisaoInicial.trim());
+    // Sem a linha do inicial, limpa o Total Revisão (não herda o anterior).
+    onRevisaoInicial?.(comp.revisaoInicial.trim());
     onExtraido();
   };
 
@@ -202,24 +209,6 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={ocupado}
-            aria-label="Novo arquivo"
-            title="Novo arquivo (extrai na hora)"
-            className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
-          >
-            <Plus size={18} />
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pdf,.png,.jpg,.jpeg"
-            multiple
-            className="hidden"
-            onChange={escolher}
-          />
-          <button
-            type="button"
             onClick={() => fileRefCompl.current?.click()}
             disabled={ocupado}
             aria-label="Anexar complementar (novo layout)"
@@ -235,6 +224,24 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
             multiple
             className="hidden"
             onChange={escolherCompl}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={ocupado}
+            aria-label="Novo arquivo"
+            title="Novo arquivo (extrai na hora)"
+            className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 rounded-xl transition-all border border-slate-700 cursor-pointer active:scale-95"
+          >
+            <Plus size={18} />
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg"
+            multiple
+            className="hidden"
+            onChange={escolher}
           />
           <button
             type="button"

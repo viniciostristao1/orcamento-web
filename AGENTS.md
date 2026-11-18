@@ -94,7 +94,7 @@ O tema vale **só para a interface** — o PNG do cliente não muda.
   100% da largura** (`.area-impressao` só no `@media print`; o documento ao vivo fica
   `display:none` via `[data-impressao='imagem']`) — assim as quebras/proporções são as do PNG.
   `.min-h-screen` precisa virar branco no print (senão o fundo do app pinta a folha).
-- Testes: **339 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
+- Testes: **342 passando** (`npm test` = `vitest run`) — lógica (`tests/quote_logic.test.ts`),
   histórico (`tests/historico.test.ts`), telefone (`tests/telefone.test.ts`), selo de versão
   (`tests/versao.test.ts`), sistema (`tests/sistema_extracao.test.ts`), export PNG (`tests/export_image.test.ts`), pneus
   (`tests/tire_flyer.test.ts`), layout do flyer (`tests/flyer_layout.test.ts`), histórico do
@@ -743,8 +743,12 @@ npm run build        # gera dist/index.html (arquivo único)
   (`onRevisaoInicial`, Peças na Revisão intacta); Nº, Placa, Nome e **Data de Criação**
   vão para o cabeçalho (telefone mascarado `******` não extrai). Desde a v0.203.0,
   bloco sem "Total do Serviço" (ex.: 4376.pdf, VIA TANQUE com MO zerada e só
-  "Total Peças") vale **Total Peças + Total MO** — antes o item sumia. Saída idêntica —
-  a soma usa o mesmo `processQuote`.
+  "Total Peças") vale **Total Peças + Total MO** — antes o item sumia. Desde a v0.204.0
+  o **complementar vem à esquerda** (ordem: novo, antigo, histórico, borracha) e todo
+  anexo **limpa o contato antes de preencher** (placa/nome/chassi/telefone vazios no
+  documento zeram o campo — antes o valor do orçamento anterior vazava para o novo
+  registro; o Total Revisão do complementar também zera sem a linha do inicial).
+  Saída idêntica — a soma usa o mesmo `processQuote`.
 - **Card 3 automático** (v0.87.0): anexar já extrai sozinho (sem botão extrair);
   botão único **"Novo arquivo"**; novo anexo **substitui** o anterior (nunca soma).
 - **Card do sistema redondo** (v0.92.0): botão **+** (ícone) no lugar do "Novo arquivo",
