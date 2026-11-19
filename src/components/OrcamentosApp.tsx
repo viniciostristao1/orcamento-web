@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { processQuote, formatCurrency, formatarValorInput, parseBrazilianNumber, recalcularComSelecao } from '../utils/quoteLogic';
+import { processQuote, formatCurrency, formatarValorInput, normalizarOxi, parseBrazilianNumber, recalcularComSelecao } from '../utils/quoteLogic';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable, { type AprovacaoVoto } from './QuoteTable';
@@ -98,22 +98,29 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       );
       return;
     }
+    // "Oxi" (qualquer caixa) vira a higienização na descrição manual, no PNG
+    // e no registro do Histórico — antes de somar e de salvar.
+    const descNorm = normalizarOxi(fonte.desc);
+    const dadosNorm = normalizarOxi(fonte.dados);
     if (fonte.usouRevisao) {
       // Alinha os campos com o que foi somado (a próxima vez vale o campo).
-      setDescReparo(fonte.desc);
-      setOrcamentoRaw(fonte.dados);
+      setDescReparo(descNorm);
+      setOrcamentoRaw(dadosNorm);
       revNonceUsed.current = revNonce.current;
       camposSujos.current = false;
+    } else {
+      setDescReparo(descNorm);
+      setOrcamentoRaw(dadosNorm);
     }
     const finalRevAprovada = parseBrazilianNumber(revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(revPecasInput);
-    
-    const result = processQuote(fonte.desc, fonte.dados, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
+
+    const result = processQuote(descNorm, dadosNorm, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
 
     // Histórico local (localStorage): salva a cada "Processar Tudo".
     const novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> = {
-      descReparo: fonte.desc,
-      orcamentoRaw: fonte.dados,
+      descReparo: descNorm,
+      orcamentoRaw: dadosNorm,
       ajustesManuais,
       revAprovadaInput,
       revPecasInput,
@@ -237,8 +244,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       v === 'naoAprovado' ? new Set<number>() : sel,
     );
     const salvos = adicionarAoHistorico({
-      descReparo,
-      orcamentoRaw,
+      descReparo: normalizarOxi(descReparo),
+      orcamentoRaw: normalizarOxi(orcamentoRaw),
       ajustesManuais,
       revAprovadaInput,
       revPecasInput,
@@ -345,11 +352,12 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}
             >
               {/* Altura medida para terminar junto da DESCRIÇÃO (ver SistemaCard). */}
-              <textarea 
-                className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide" 
-                value={orcamentoRaw} 
-                onChange={(e) => { setOrcamentoRaw(e.target.value); camposSujos.current = true; }} 
-                wrap="off" 
+              <textarea
+                aria-label="Dados manuais"
+                className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+                value={orcamentoRaw}
+                onChange={(e) => { setOrcamentoRaw(e.target.value); camposSujos.current = true; }}
+                wrap="off"
               />
             </NeonCard>
 
@@ -520,10 +528,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               defaultOpen={false}
               actions={<ClearButton onClick={() => setDescReparo('')} />}
             >
-              <textarea 
-                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide" 
-                value={descReparo} 
-                onChange={(e) => { setDescReparo(e.target.value); camposSujos.current = true; }} 
+              <textarea
+                aria-label="Descrição manual"
+                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide"
+                value={descReparo}
+                onChange={(e) => { setDescReparo(e.target.value); camposSujos.current = true; }}
               />
             </NeonCard>
             </div>

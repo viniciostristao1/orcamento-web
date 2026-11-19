@@ -9,9 +9,17 @@ const removerPalavras = (descricao: string): string => {
   return result;
 };
 
+/**
+ * "OXI" (palavra inteira, qualquer caixa) vira a higienização; dentro de
+ * outra palavra (ex.: "OXIDAÇÃO", "OXY") não troca.
+ */
+export const normalizarOxi = (texto: string): string =>
+  texto.replace(/\bOXI\b/gi, 'HIGIENIZAÇÃO DO AR CONDICIONADO');
+
 const substituicoesCondicionais = (descricao: string): string => {
   const d = descricao.trim();
-  if (d === "OXI") return "HIGIENIZAÇÃO DO AR CONDICIONADO";
+  const comOxi = normalizarOxi(d);
+  if (comOxi !== d) return comOxi;
   if (d.includes("PASTILHA DE FREIO Diant + RETIFICA")) return "PASTILHA DE FREIO DIANT + RETIFICA DOS DISCOS";
   if (d.includes("PASTILHA DE FREIO Diant + RET")) return "PASTILHA DE FREIO DIANT + RETIFICA DOS DISCOS";
   if (d.includes("PASTILHA DE FREIO TRAS + RET")) return "PASTILHA DE FREIO TRAS + RETIFICA DOS DISCOS";

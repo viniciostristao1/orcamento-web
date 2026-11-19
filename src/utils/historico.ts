@@ -97,26 +97,46 @@ const mesmosDados = (a: OrcamentoSalvo, b: Omit<OrcamentoSalvo, 'id' | 'criadoEm
   (a.chassi ?? '').toUpperCase() === (b.chassi ?? '').toUpperCase();
 
 /**
- * Salva um orçamento. Se o mais recente tiver os MESMOS dados, substitui
- * (evita duplicar a cada clique em "Processar Tudo").
+ * Junta o conteúdo novo ao registro existente, preservando id, data de
+ * criação e as marcações posteriores (cor, chamado, lembrete, aprovação).
+ */
+const fundirRegistro = (
+  existente: OrcamentoSalvo,
+  novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'>,
+): OrcamentoSalvo => ({
+  ...existente,
+  ...novo,
+  cor: novo.cor ?? existente.cor,
+  chamado: novo.chamado ?? existente.chamado,
+  lembreteEm: novo.lembreteEm ?? existente.lembreteEm,
+  aprovacao: novo.aprovacao ?? existente.aprovacao,
+  id: existente.id,
+  criadoEm: existente.criadoEm,
+});
+
+/**
+ * Salva um orçamento. Com Nº preenchido, ele é a chave única: editar um item
+ * manual ou regerar substitui o registro de mesmo Nº (vai para o topo, sem
+ * mudar id/data) em vez de criar outro. Sem Nº, vale o anti-duplicado antigo
+ * (o mais recente com os MESMOS dados é substituído).
  */
 export function adicionarAoHistorico(
   novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'>,
 ): OrcamentoSalvo[] {
   const lista = listarHistorico();
-  if (lista.length > 0 && mesmosDados(lista[0], novo)) {
+  const chave = (novo.numeroOrcamento ?? '').trim();
+  if (chave) {
     // Cor, lembrete, aprovação e chamado são marcações posteriores (não entram no
     // anti-duplicado): reprocessar o mesmo orçamento não pode apagá-las.
-    lista[0] = {
-      ...lista[0],
-      ...novo,
-      cor: novo.cor ?? lista[0].cor,
-      chamado: novo.chamado ?? lista[0].chamado,
-      lembreteEm: novo.lembreteEm ?? lista[0].lembreteEm,
-      aprovacao: novo.aprovacao ?? lista[0].aprovacao,
-      id: lista[0].id,
-      criadoEm: lista[0].criadoEm,
-    };
+    const idx = lista.findIndex((r) => (r.numeroOrcamento ?? '').trim() === chave);
+    if (idx >= 0) {
+      const fundido = fundirRegistro(lista[idx], novo);
+      const out = [fundido, ...lista.slice(0, idx), ...lista.slice(idx + 1)];
+      gravar(out);
+      return out;
+    }
+  } else if (lista.length > 0 && mesmosDados(lista[0], novo)) {
+    lista[0] = fundirRegistro(lista[0], novo);
     gravar(lista);
     return lista;
   }

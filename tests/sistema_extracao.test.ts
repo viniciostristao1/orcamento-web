@@ -324,7 +324,7 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
     expect(c.descReparo.split('\n')).toEqual([
       '01 Bucha da barra',
       '02 Bateria',
-      '03 Oxi',
+      '03 HIGIENIZAÇÃO DO AR CONDICIONADO',
       '04 Limpeza bico dpf',
       '05 Borachinha do limpador',
     ]);
@@ -413,7 +413,7 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
     expect(c.cliente).toBe('SALETE POZZEBON SCHOTT');
     expect(c.data).toBe('18/11/2026');
     expect(c.descReparo.split('\n')).toEqual([
-      '01 Oxi, granada e via tanque',
+      '01 HIGIENIZAÇÃO DO AR CONDICIONADO, granada e via tanque',
       '02 VIA TANQUE',
     ]);
     const linhas = c.dados.split('\n');

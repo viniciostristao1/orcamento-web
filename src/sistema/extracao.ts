@@ -5,6 +5,7 @@
  */
 
 import { normalizarTelefoneParaWhats, temTelefoneValido } from '../utils/telefone';
+import { normalizarOxi } from '../utils/quoteLogic';
 
 /** Um fragmento de texto do pdf.js (str + posição + quebra de linha). */
 export interface FragmentoPdf {
@@ -230,7 +231,8 @@ export function extrairComplementar(texto: string): SistemaComplementar {
       if (!t) continue;
       if (TITULO_INVALIDO.test(t)) break;
       if (/^(Código|Total|Página|Rodovia|\(51\)|94\.674|Consultor|Mecânico|Placa:|Modelo|OS:|Nº:)/i.test(t)) break;
-      titulo = t.replace(/\s+/g, ' ').trim();
+      // "Oxi" do PDF vira a higienização (palavra inteira, qualquer caixa).
+      titulo = normalizarOxi(t.replace(/\s+/g, ' ').trim());
       break;
     }
     if (!titulo) continue;

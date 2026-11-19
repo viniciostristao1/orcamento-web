@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.207.0](#v20700) — 2026-11-19 — OXI vira higienização (qualquer caixa) + Nº é chave única no histórico (v0.207.0)
+
 - [v0.206.0](#v20600) — 2026-11-19 — Sino: edição do lembrete direto no texto (v0.206.0)
 
 - [v0.205.0](#v20500) — 2026-11-19 — Chassi só com formato VIN (sem I/O/Q); telefone mascarado fica vazio (v0.205.0)
@@ -336,6 +338,30 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20700"></a>
+## 2026-11-19 — OXI vira higienização (qualquer caixa) + Nº é chave única no histórico (v0.207.0)
+
+**Causa da duplicação (DELCIO 19384751778):** `adicionarAoHistorico` só substituía quando
+o registro NOVO era igual em tudo ao MAIS RECENTE (`mesmosDados(lista[0], novo)`) —
+qualquer edição manual mudava `descReparo`/`orcamentoRaw` e criava outro registro, mesmo
+com o mesmo Nº. A chave Nº existia no registro mas nunca era usada na atualização.
+
+**Feito:**
+- OXI: `normalizarOxi` (`quoteLogic`, `\bOXI\b` + `gi` — "Oxi"/"oxi" valem, "OXIDAÇÃO" e
+  "OXY" não) aplicado em 3 pontos: `substituicoesCondicionais` (PNG/itens, cobre
+  reabertura de salvos), título do `extrairComplementar` (revisão do 18503: item 3 sai
+  "HIGIENIZAÇÃO DO AR CONDICIONADO") e `processar`/`votarAprovacao` (descrição manual e
+  registro do Histórico). Cálculos intactos.
+- Nº único: `adicionarAoHistorico` com Nº preenchido substitui o registro de mesmo Nº
+  (conteúdo novo, id/data/marcações preservados, vai ao topo) — sem Nº, vale o
+  anti-duplicado antigo. `fundirRegistro` extraído (mesma regra de preservação).
+  Duplicados antigos continuam lá (sem apagar sem confirmação).
+- Testes: +1 quote_logic (caixas + OXIDAÇÃO/OXY), +3 histórico (substitui por Nº,
+  topo, marcações), +1 smoke (editar manual + regerar = 1 registro; 18503-like sai
+  higienização) e 3 smokes migrados para os `aria-label`s novos dos campos manuais
+  (sem mudança visual). **357 passam** (352 + 5); `typecheck` limpo, `lint` sem erros.
+  Selo `v0.207.0`.
 
 <a id="v20600"></a>
 ## 2026-11-19 — Sino: edição do lembrete direto no texto (v0.206.0)

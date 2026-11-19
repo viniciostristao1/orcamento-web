@@ -94,6 +94,33 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].placa).toBe('ABC1D23');
   });
 
+  it('editar item manual e regerar não duplica o Nº (OXI vira higienização)', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    localStorage.removeItem(RASCUNHO_KEY);
+    try {
+      render(<App />);
+      fireEvent.change(screen.getByPlaceholderText('Ex.: 4471'), { target: { value: '19384751778' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
+      fireEvent.change(screen.getByLabelText('Descrição manual'), { target: { value: '01 OXY' } });
+      fireEvent.change(screen.getByLabelText('Dados manuais'), { target: { value: '1 Serviço X 1 10,00' } });
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      let salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      // edita o item manual e regenera: substitui o registro de mesmo Nº
+      fireEvent.change(screen.getByLabelText('Descrição manual'), { target: { value: '01 Oxi' } });
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      expect(salvos[0].descReparo).toBe('01 HIGIENIZAÇÃO DO AR CONDICIONADO');
+      // o documento (base do PNG) mostra a descrição tratada
+      expect(screen.getByText('HIGIENIZAÇÃO DO AR CONDICIONADO')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+      localStorage.removeItem(RASCUNHO_KEY);
+    }
+  });
+
   it('caixinhas: desmarcar um item recalcula os totais', () => {
     const { container } = render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
@@ -1704,7 +1731,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const livres = Array.from(container.querySelectorAll('textarea')).filter(
-      (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
+      (t) => t.getAttribute('aria-label') === 'Dados manuais' || t.getAttribute('aria-label') === 'Descrição manual',
     );
     expect(livres.map((t) => t.value)).toEqual(['', '']);
   });
@@ -1744,7 +1771,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const livres = Array.from(container.querySelectorAll('textarea')).filter(
-      (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
+      (t) => t.getAttribute('aria-label') === 'Dados manuais' || t.getAttribute('aria-label') === 'Descrição manual',
     );
     expect(livres).toHaveLength(2); // DESCRIÇÃO e DADOS
     fireEvent.change(livres[0], { target: { value: '' } });
@@ -1764,7 +1791,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
     const livres = Array.from(container.querySelectorAll('textarea')).filter(
-      (t) => !t.getAttribute('placeholder') && !t.getAttribute('aria-label'),
+      (t) => t.getAttribute('aria-label') === 'Dados manuais' || t.getAttribute('aria-label') === 'Descrição manual',
     );
     fireEvent.change(livres[0], { target: { value: '' } });
     fireEvent.change(livres[1], { target: { value: '' } });

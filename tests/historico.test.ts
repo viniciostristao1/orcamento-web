@@ -208,6 +208,44 @@ describe('histórico (localStorage)', () => {
     expect(filtrarHistorico(lista, '4472').length).toBe(1);
   });
 
+  it('nº é a chave única: editar/regenerar substitui, sem duplicar', () => {
+    adicionarAoHistorico({ ...base, numeroOrcamento: '19384751778', descReparo: '01 OXY' });
+    const antes = listarHistorico();
+    expect(antes).toHaveLength(1);
+    // Edita o item manual e processa de novo: substitui o de mesmo Nº.
+    const depois = adicionarAoHistorico({
+      ...base,
+      numeroOrcamento: '19384751778',
+      descReparo: '01 HIGIENIZAÇÃO DO AR CONDICIONADO',
+    });
+    expect(depois).toHaveLength(1);
+    expect(depois[0].id).toBe(antes[0].id); // mesmo registro
+    expect(depois[0].criadoEm).toBe(antes[0].criadoEm); // sem mudar a data
+    expect(depois[0].descReparo).toBe('01 HIGIENIZAÇÃO DO AR CONDICIONADO');
+  });
+
+  it('regenerar leva o registro para o topo, sem copiar', () => {
+    adicionarAoHistorico({ ...base, numeroOrcamento: '111', descReparo: '01 A' });
+    adicionarAoHistorico({ ...base, numeroOrcamento: '222', descReparo: '01 B' });
+    const out = adicionarAoHistorico({ ...base, numeroOrcamento: '111', descReparo: '01 A2' });
+    expect(out).toHaveLength(2);
+    expect(out[0].numeroOrcamento).toBe('111');
+    expect(out[0].descReparo).toBe('01 A2');
+    expect(out[1].numeroOrcamento).toBe('222');
+  });
+
+  it('nº repetido preserva marcações posteriores (cor, lembrete, aprovação)', () => {
+    adicionarAoHistorico({ ...base, numeroOrcamento: '4471' });
+    const id = listarHistorico()[0].id;
+    atualizarCorHistorico(id, 'verde');
+    atualizarAprovacaoHistorico(id, 'aprovado');
+    const out = adicionarAoHistorico({ ...base, numeroOrcamento: '4471', desconto: 10 });
+    expect(out).toHaveLength(1);
+    expect(out[0].cor).toBe('verde');
+    expect(out[0].aprovacao).toBe('aprovado');
+    expect(out[0].desconto).toBe(10);
+  });
+
   it('conta os itens da descrição (linhas que começam com número)', () => {
     expect(contarItensDaDescricao('01 TR PASTILHAS\n02 OXI\n03 TR BORRACHA')).toBe(3);
     expect(contarItensDaDescricao('sem numero\n\n 4 COM ESPACO')).toBe(1);

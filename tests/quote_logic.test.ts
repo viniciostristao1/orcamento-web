@@ -160,6 +160,14 @@ describe('processQuote — ajustes manuais e descrição solta', () => {  it('aj
     expect(s.items[0].description).toBe('RETIFICA DOS DISCOS');
     expect(s.items[1].description).toBe('HIGIENIZAÇÃO DO AR CONDICIONADO');
   });
+
+  it('oxi em qualquer caixa vira higienização; dentro de palavra não', () => {
+    const s = processQuote('1 oxi\n2 Oxi, granada\n3 OXIDAÇÃO\n4 OXY', '', 0, 0, 0, 1);
+    expect(s.items[0].description).toBe('HIGIENIZAÇÃO DO AR CONDICIONADO');
+    expect(s.items[1].description).toBe('HIGIENIZAÇÃO DO AR CONDICIONADO, GRANADA');
+    expect(s.items[2].description).toBe('OXIDAÇÃO');
+    expect(s.items[3].description).toBe('OXY');
+  });
 });
 
 describe('recalcularComSelecao — caixinhas por item', () => {
