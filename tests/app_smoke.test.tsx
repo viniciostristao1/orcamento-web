@@ -1942,6 +1942,127 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('sino: edita o texto do lembrete direto no lugar (Enter e botão verde)', () => {
+    localStorage.removeItem('lembretes_rapidos_v1');
+    localStorage.removeItem('orcamentos_historico_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'lembretes_rapidos_v1',
+      JSON.stringify([{ id: 'q1', texto: 'Pagar pneus', quando: '2999-01-01T09:00', criadoEm: 'x' }]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      // clique no texto vira campo editável no mesmo lugar, já preenchido
+      fireEvent.click(screen.getByText('Pagar pneus'));
+      const campo = screen.getByLabelText('Editar texto do lembrete') as HTMLInputElement;
+      expect(campo.value).toBe('Pagar pneus');
+      // Enter salva
+      fireEvent.change(campo, { target: { value: 'Pagar pneus hoje' } });
+      fireEvent.keyDown(campo, { key: 'Enter' });
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')[0].texto).toBe(
+        'Pagar pneus hoje',
+      );
+      expect(screen.getByText('Pagar pneus hoje')).toBeTruthy();
+      expect(screen.queryByLabelText('Editar texto do lembrete')).toBeNull();
+
+      // lápis abre de novo; o botão verde confirma (sem reabrir o editor)
+      fireEvent.click(screen.getByRole('button', { name: 'Editar texto do lembrete Pagar pneus hoje' }));
+      const campo2 = screen.getByLabelText('Editar texto do lembrete') as HTMLInputElement;
+      fireEvent.change(campo2, { target: { value: 'Pagar pneus amanhã' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Confirmar edição' }));
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')[0].texto).toBe(
+        'Pagar pneus amanhã',
+      );
+      expect(screen.queryByLabelText('Editar texto do lembrete')).toBeNull();
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
+    }
+  });
+
+  it('sino: Esc cancela a edição sem alterar (sino continua aberto)', () => {
+    localStorage.removeItem('lembretes_rapidos_v1');
+    localStorage.removeItem('orcamentos_historico_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'lembretes_rapidos_v1',
+      JSON.stringify([{ id: 'q1', texto: 'Pagar pneus', quando: '2999-01-01T09:00', criadoEm: 'x' }]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      fireEvent.click(screen.getByText('Pagar pneus'));
+      const campo = screen.getByLabelText('Editar texto do lembrete') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: 'RASCUNHO PERDIDO' } });
+      fireEvent.keyDown(campo, { key: 'Escape' });
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')[0].texto).toBe(
+        'Pagar pneus',
+      );
+      expect(screen.queryByLabelText('Editar texto do lembrete')).toBeNull();
+      expect(screen.getByText('Todos os lembretes (1)')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
+    }
+  });
+
+  it('sino: sair do campo com alteração salva; sem alteração cancela', () => {
+    localStorage.removeItem('lembretes_rapidos_v1');
+    localStorage.removeItem('orcamentos_historico_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'lembretes_rapidos_v1',
+      JSON.stringify([{ id: 'q1', texto: 'Pagar pneus', quando: '2999-01-01T09:00', criadoEm: 'x' }]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      // com alteração: o blur salva
+      fireEvent.click(screen.getByText('Pagar pneus'));
+      const campo = screen.getByLabelText('Editar texto do lembrete') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: 'Pagar pneus hoje' } });
+      fireEvent.blur(campo);
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')[0].texto).toBe(
+        'Pagar pneus hoje',
+      );
+      expect(screen.queryByLabelText('Editar texto do lembrete')).toBeNull();
+      // sem alteração: o blur só fecha
+      fireEvent.click(screen.getByText('Pagar pneus hoje'));
+      fireEvent.blur(screen.getByLabelText('Editar texto do lembrete'));
+      expect(JSON.parse(localStorage.getItem('lembretes_rapidos_v1') ?? '[]')[0].texto).toBe(
+        'Pagar pneus hoje',
+      );
+      expect(screen.queryByLabelText('Editar texto do lembrete')).toBeNull();
+    } finally {
+      localStorage.removeItem('lembretes_rapidos_v1');
+    }
+  });
+
+  it('sino: edição direta vale para lembrete de orçamento (observação)', () => {
+    localStorage.removeItem('lembretes_rapidos_v1');
+    localStorage.removeItem('flyer_historico_v1');
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([
+        { ...registro('1', 'ABC1D23', '24/09/2026 12:30:00'), lembreteEm: '2999-01-01T09:00', observacao: 'ligar antes' },
+      ]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Lembretes' }));
+      fireEvent.click(screen.getByText('ABC1D23'));
+      const campo = screen.getByLabelText('Editar texto do lembrete') as HTMLInputElement;
+      expect(campo.value).toBe('ligar antes');
+      fireEvent.change(campo, { target: { value: 'ligar antes das 10h' } });
+      fireEvent.keyDown(campo, { key: 'Enter' });
+      expect(
+        (JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]') as { observacao: string }[])[0]
+          .observacao,
+      ).toBe('ligar antes das 10h');
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
   it('sino: fechar limpa o que estava escrevendo', () => {
     localStorage.removeItem('lembretes_rapidos_v1');
     try {

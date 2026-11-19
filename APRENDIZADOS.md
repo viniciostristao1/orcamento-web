@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.206.0](#v20600) — 2026-11-19 — Sino: edição do lembrete direto no texto (v0.206.0)
+
 - [v0.205.0](#v20500) — 2026-11-19 — Chassi só com formato VIN (sem I/O/Q); telefone mascarado fica vazio (v0.205.0)
 
 - [v0.204.0](#v20400) — 2026-11-18 — Contato não vaza entre anexos + botões invertidos (v0.204.0)
@@ -334,6 +336,27 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20600"></a>
+## 2026-11-19 — Sino: edição do lembrete direto no texto (v0.206.0)
+
+**Pedido:** na lista TODOS OS LEMBRETES, o clique no texto (e no lápis) vira campo editável
+no mesmo lugar, já preenchido — sem a caixa separada de antes.
+
+**Feito (`src/components/SinoLembretes.tsx`):**
+- O rótulo virou clicável (`cursor-text`); clicando (ou no lápis), ele é trocado por um
+  `<input>` no mesmo lugar, com foco e cursor no fim (`setSelectionRange`). Data e ícones
+  (relógio, X) ficam onde estão; o lápis vira o verde de confirmar (mesma posição).
+  Item em edição ganha o anel âmbar (mesmo do destaque externo).
+- Salvar: Enter, botão verde ou sair do campo com alteração (`onBlur` compara com o
+  original; sem alteração só fecha). Cancelar: Esc (`stopPropagation` para o sino não
+  fechar) ou lápis de novo. `editOrigem` (ref) trava o duplo disparo (Enter+blur,
+  blur+fechar); o `fechar` do sino salva a edição pendente alterada antes de limpar.
+  Confirmar usa `onMouseDown preventDefault` para o blur não reabrir o editor.
+- Vale para os 4 tipos (rápido edita o texto; flyer/orçamento/revisão, a observação);
+  criação ("O que lembrar?"/SALVAR), relógio, X, ordenação e localStorage intactos.
+- Testes: +4 smokes (Enter+verde, Esc, blur com/sem alteração, observação de orçamento).
+  **352 passam** (348 + 4); `typecheck` limpo, `lint` só warnings conhecidos. Selo `v0.206.0`.
 
 <a id="v20500"></a>
 ## 2026-11-19 — Chassi só com formato VIN (sem I/O/Q); telefone mascarado fica vazio (v0.205.0)

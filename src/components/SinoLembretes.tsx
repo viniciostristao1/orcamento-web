@@ -45,6 +45,8 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
   /** Chave `origem:id` do lembrete com o editor de texto aberto. */
   const [editandoTexto, setEditandoTexto] = useState<string | null>(null);
   const [novoTexto, setNovoTexto] = useState('');
+  /** Original em edição (para salvar no blur só quando mudou; evita duplo save). */
+  const editOrigem = useRef<{ chave: string; original: string; item: LembreteAgendado } | null>(null);
   /** Chave `origem:id` destacada em âmbar (pedido externo das caixinhas). */
   const [destaque, setDestaque] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -79,7 +81,11 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
   }, [aberturaVez]);
 
   // Fechar (por qualquer caminho) limpa o que estava sendo escrito.
+  // Com edição de texto pendente e alterada, salva antes (não perde o digitado).
   const fechar = () => {
+    if (editOrigem.current) {
+      finalizarEdicao(editOrigem.current.item, novoTexto, true);
+    }
     setTexto('');
     setQuando('');
     setErro('');
@@ -87,6 +93,7 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
     setNovoQuando('');
     setEditandoTexto(null);
     setNovoTexto('');
+    editOrigem.current = null;
     setDestaque(null);
     setAberto(false);
   };
@@ -166,27 +173,47 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
     avisarLembretesMudaram();
   };
 
-  /** Abre/fecha o editor de texto (rápido: o texto; históricos: a observação). */
+  /** Texto editável do item (rápido: o texto; históricos: a observação). */
+  const textoEditavel = (item: LembreteAgendado): string =>
+    item.origem === 'rapido' ? item.rotulo : (item.obs ?? '');
+
+  /** Abre/fecha a edição direta no texto (o lápis alterna; o clique no texto abre). */
   const abrirEdicao = (item: LembreteAgendado) => {
     const chave = `${item.origem}:${item.id}`;
     if (editandoTexto === chave) {
-      setEditandoTexto(null);
+      finalizarEdicao(item, novoTexto, false);
       return;
     }
+    const original = textoEditavel(item);
+    editOrigem.current = { chave, original, item };
     setEditandoTexto(chave);
-    setNovoTexto(item.origem === 'rapido' ? item.rotulo : (item.obs ?? ''));
+    setNovoTexto(original);
   };
 
-  /** Salva o texto editado sem mexer na data/hora. Vazio não salva. */
-  const salvarEdicao = (item: LembreteAgendado) => {
-    if (!novoTexto.trim()) return;
-    if (item.origem === 'rapido') atualizarTextoRapido(item.id, novoTexto);
-    else if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, item.quando, novoTexto);
-    else if (item.origem === 'revisao') atualizarLembreteRevisao(item.id, item.quando, novoTexto);
-    else atualizarLembreteHistorico(item.id, item.quando, novoTexto);
-    setEditandoTexto(null);
+  /** Grava o texto editado sem mexer na data/hora. Vazio não salva. */
+  const persistirTexto = (item: LembreteAgendado, texto: string) => {
+    if (!texto.trim()) return;
+    if (item.origem === 'rapido') atualizarTextoRapido(item.id, texto);
+    else if (item.origem === 'flyer') atualizarLembreteFlyer(item.id, item.quando, texto);
+    else if (item.origem === 'revisao') atualizarLembreteRevisao(item.id, item.quando, texto);
+    else atualizarLembreteHistorico(item.id, item.quando, texto);
     recarregar();
     avisarLembretesMudaram();
+  };
+
+  /**
+   * Encerra a edição direta: com `salvar` e texto alterado, grava; sem alteração
+   * (ou cancelada), só fecha. O `editOrigem` nulo trava o duplo disparo
+   * (Enter + blur, blur + fechar pelo clique fora).
+   */
+  const finalizarEdicao = (item: LembreteAgendado, texto: string, salvar: boolean) => {
+    const pendente = editOrigem.current;
+    if (!pendente) return;
+    editOrigem.current = null;
+    setEditandoTexto(null);
+    if (salvar && texto.trim() && texto !== pendente.original) {
+      persistirTexto(item, texto);
+    }
   };
 
   const nomeOrigem =
@@ -272,6 +299,7 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
               {itens.map((item) => {
                 const chave = `${item.origem}:${item.id}`;
                 const editando = reprogramando === chave;
+                const editandoTxt = editandoTexto === chave;
                 const destacado = destaque === chave;
                 return (
                   <div
@@ -279,7 +307,7 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
                     data-sino-id={chave}
                     data-destaque={destacado ? '1' : undefined}
                     className={`rounded-xl border transition-colors ${
-                      destacado
+                      destacado || editandoTxt
                         ? 'bg-amber-500/10 border-amber-400 ring-2 ring-amber-400/60'
                         : item.vencido
                           ? 'bg-amber-500/10 border-amber-500/40'
@@ -291,7 +319,40 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
                         {nomeOrigem(item.origem)}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-bold text-slate-100 break-words line-clamp-2" title={item.rotulo}>{item.rotulo}</span>
+                        {editandoTxt ? (
+                          <input
+                            type="text"
+                            value={novoTexto}
+                            onChange={(e) => setNovoTexto(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') finalizarEdicao(item, novoTexto, true);
+                              else if (e.key === 'Escape') {
+                                e.stopPropagation();
+                                finalizarEdicao(item, novoTexto, false);
+                              }
+                            }}
+                            onBlur={() => finalizarEdicao(item, novoTexto, true)}
+                            ref={(el) => {
+                              if (el) {
+                                el.focus();
+                                const fim = el.value.length;
+                                el.setSelectionRange(fim, fim);
+                              }
+                            }}
+                            placeholder={item.origem === 'rapido' ? 'Texto do lembrete' : 'Observação do lembrete'}
+                            aria-label="Editar texto do lembrete"
+                            maxLength={120}
+                            className="block w-full campo-tema border border-amber-500/60 rounded-lg px-2 py-0.5 text-sm font-bold text-slate-100 focus:border-amber-400 outline-none"
+                          />
+                        ) : (
+                          <span
+                            onClick={() => abrirEdicao(item)}
+                            className="block text-sm font-bold text-slate-100 break-words line-clamp-2 cursor-text"
+                            title={item.rotulo}
+                          >
+                            {item.rotulo}
+                          </span>
+                        )}
                         <span className={`block text-[11px] font-bold ${item.vencido ? 'text-amber-300' : 'text-slate-500'}`}>
                           {formatarLembrete(item.quando) ?? item.quando}
                         </span>
@@ -308,18 +369,28 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
                       >
                         <Clock size={14} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => abrirEdicao(item)}
-                        aria-label={`Editar texto do lembrete ${item.rotulo}`}
-                        title={item.origem === 'rapido' ? 'Editar o texto' : 'Editar a observação'}
-                        aria-pressed={editandoTexto === chave}
-                        className={`p-1.5 transition-colors cursor-pointer shrink-0 ${
-                          editandoTexto === chave ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'
-                        }`}
-                      >
-                        <Pencil size={14} />
-                      </button>
+                      {editandoTxt ? (
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => finalizarEdicao(item, novoTexto, true)}
+                          aria-label="Confirmar edição"
+                          title="Confirmar edição"
+                          className="p-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all cursor-pointer active:scale-95 shrink-0"
+                        >
+                          <Check size={14} strokeWidth={3} />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => abrirEdicao(item)}
+                          aria-label={`Editar texto do lembrete ${item.rotulo}`}
+                          title={item.origem === 'rapido' ? 'Editar o texto' : 'Editar a observação'}
+                          className="p-1.5 transition-colors cursor-pointer shrink-0 text-slate-500 hover:text-amber-400"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => excluir(item)}
@@ -364,40 +435,6 @@ const SinoLembretes: React.FC<{ aberturaExterna?: SinoAberturaExterna | null }> 
                       </div>
                     )}
 
-                    {editandoTexto === chave && (
-                      <div className="flex flex-wrap items-center gap-2 px-2.5 pb-2.5">
-                        <Pencil size={14} className="text-amber-400 shrink-0" />
-                        <input
-                          autoFocus
-                          type="text"
-                          value={novoTexto}
-                          onChange={(e) => setNovoTexto(e.target.value)}
-                          placeholder={item.origem === 'rapido' ? 'Texto do lembrete' : 'Observação do lembrete'}
-                          aria-label="Texto do lembrete"
-                          maxLength={120}
-                          className="flex-1 min-w-[140px] campo-tema border border-slate-800 rounded-lg px-3 py-2 text-base font-bold text-slate-200 focus:border-amber-500 outline-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => salvarEdicao(item)}
-                          disabled={!novoTexto.trim()}
-                          aria-label="Confirmar edição"
-                          title="Confirmar edição"
-                          className="p-2 bg-green-600 hover:bg-green-500 disabled:opacity-40 text-white rounded-lg transition-all cursor-pointer active:scale-95"
-                        >
-                          <Check size={14} strokeWidth={3} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEditandoTexto(null)}
-                          aria-label="Cancelar edição"
-                          title="Cancelar"
-                          className="p-2 text-slate-500 hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    )}
                   </div>
                 );
               })}
