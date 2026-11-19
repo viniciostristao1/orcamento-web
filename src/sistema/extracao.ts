@@ -353,13 +353,16 @@ export function vinDigitoOk(vin: string): boolean {
   return vin[8] === (resto === 10 ? 'X' : String(resto));
 }
 
-// Chassi/VIN: 17 caracteres. Vale rotulado (CHASSI, Nr.Fab etc., no texto todo)
-// ou avulso no CABEÇALHO (primeiras linhas, fora das linhas de item — código de
-// peça + palavras ("CARE040703 AUTO AIR") também somam 17 e não são chassi).
+// Chassi/VIN: 17 caracteres do alfabeto VIN (sem I, O e Q — nunca existem em
+// VIN real). Vale rotulado (CHASSI, Nr.Fab etc., no texto todo) ou avulso no
+// CABEÇALHO (primeiras linhas, fora das linhas de item — código de peça +
+// palavras ("CARE040703 AUTO AIR") também somam 17 e não são chassi).
 // Todo VIN real tem letra E dígito — palavra comum de 17 letras (ex. o
-// "RESPONSABILIZAMOS" do termo de garantia) não vale; 17 só-dígitos também não.
+// "RESPONSABILIZAMOS" da garantia vinha antes do VIN no texto e era pego
+// pela busca avulsa). Sem o formato VIN, o campo fica vazio (nunca se
+// preenche com outro dado, ex.: Nº do orçamento + marca "19384747853TOYOTA").
 const ehVin = (t: string): boolean =>
-  /^[A-Z0-9]{17}$/.test(t) && /[A-Z]/.test(t) && /\d/.test(t);
+  /^[A-HJ-NPR-Z0-9]{17}$/.test(t) && /[A-HJ-NPR-Z]/.test(t) && /\d/.test(t);
 
 /** Um candidato só vence; vários, só com dígito único válido (senão em branco). */
 const escolherVin = (candidatos: string[]): string | undefined => {

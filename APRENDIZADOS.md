@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.205.0](#v20500) — 2026-11-19 — Chassi só com formato VIN (sem I/O/Q); telefone mascarado fica vazio (v0.205.0)
+
 - [v0.204.0](#v20400) — 2026-11-18 — Contato não vaza entre anexos + botões invertidos (v0.204.0)
 
 - [v0.203.0](#v20300) — 2026-11-18 — Complementar: bloco sem Total do Serviço vale Peças+MO (4376) (v0.203.0)
@@ -332,6 +334,37 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20500"></a>
+## 2026-11-19 — Chassi só com formato VIN (sem I/O/Q); telefone mascarado fica vazio (v0.205.0)
+
+**Causa raiz (18503.pdf, GIORDANO, Nº 19384747853):** no texto do pdf.js o rótulo e o
+valor do telefone saem na mesma linha (`Telefone: (51) *******-0333`, mascarado por
+LGPD) e o Nº e a marca em linhas seguidas (`Nº: 19384747853` / `TOYOTA WEIAND LAJEADO`).
+Telefone vazio: a regex só aceita `[\d\s().-]` após o rótulo — os `*` quebram a captura
+(`(51) ` tem 5 chars, mínimo 8) e o único outro número do cabeçalho (`(51) 99743-0519`)
+é o da loja, sem rótulo, e não deve virar telefone do cliente. Chassi
+`19384747853TOYOTA`: a passada "VIN partido em DUAS LINHAS" (`extrairCabecalho`)
+juntava o fim de `Nº: 19384747853` (`19384747853`, 11 dígitos) com o começo da linha
+seguinte (`TOYOTA`, 6 letras) = 17 chars com letra+dígito, que passava no `ehVin`
+frouxo (`/^[A-Z0-9]{17}$/`).
+
+**Feito:**
+- `src/sistema/extracao.ts`: `ehVin` agora exige o alfabeto VIN real
+  (`/^[A-HJ-NPR-Z0-9]{17}$/` + letra + dígito, sem I/O/Q) — vale nos 4 caminhos
+  (rotulado, janelas, quebrados, partidos). `19384747853TOYOTA` tem `O` → chassi vazio;
+  telefone mascarado continua vazio (sem preencher com outro campo). Sem regra por
+  cliente; Revisão/Peças/Serviços/Bruto, filtros, botões e layout dos cards intactos.
+- `tests/sistema_extracao.test.ts`: +6 (cabeçalho real do 18503: chassi/telefone vazios
+  + número/placa/data; rotulado com `O` rejeitado; VIN real rotulado/avulso mantido;
+  combinado antigo Celular+VIN estilo Cleides/ITE/Print). **348 passam** (342 + 6);
+  `typecheck` limpo, `lint` só warnings conhecidos.
+- Regressão nos 5 PDFs da raiz (texto via pdf.js/pymupdf + regra estrita): 18503/4376/JBG
+  sem VIN → vazio; ITE-8995 (`8AJFY29G0C8504809`) e Print-5 (`9BRBY3BE1T4079731`) mantidos.
+
+**Nota:** o 18503.pdf NÃO traz telefone válido (mascarado) nem chassi — o correto após o
+fix é telefone e chassi vazios (WhatsApp só ativa digitando o número à mão). Cartões já
+salvos não foram tocados (ver perguntas ao usuário).
 
 <a id="v20400"></a>
 ## 2026-11-18 — Contato não vaza entre anexos + botões invertidos (v0.204.0)

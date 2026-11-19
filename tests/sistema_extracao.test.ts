@@ -422,3 +422,72 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
     expect(linhas[1]).toMatch(/^2 Serviço REQ VIA TANQUE 209,89$/);
   });
 });
+
+describe('18503 Giordano — complementar com telefone mascarado e sem VIN', () => {
+  // Cabeçalho real do 18503.pdf como sai do pdf.js (rótulo e valor do
+  // telefone na mesma linha; Nº e marca em linhas seguidas).
+  const TEXTO_18503 = [
+    'ORÇAMENTO DE SERVIÇOS COMPLEMENTARES',
+    'Nº: 19384747853',
+    'TOYOTA WEIAND LAJEADO',
+    '94.674.934/0001-52',
+    'Rodovia ERS-130, São Cristóvão N*2388 - KM72,8',
+    '(51) 99743-0519',
+    'Nome Cliente: GIORDANO WAGNER BRANDELLI',
+    'Telefone: (51) *******-0333',
+    'E-mail: gio*********@***mail.com',
+    'Modelo Veículo: COROLLA - FLEX 2023 - 2023 OS: 173057',
+    'Placa: JCH-1B08 KM: 18503 Data de Criação: 19/11/2026 09:15:53',
+    'Consultor: Vinicios Tristão Mecânico: Arthur Delavy Nyland',
+  ].join('\n');
+
+  it('não junta Nº + marca no chassi (sem VIN → vazio)', () => {
+    expect(extrairCabecalho(TEXTO_18503).chassi).toBe('');
+  });
+
+  it('telefone mascarado não vale (nem o da loja, sem rótulo)', () => {
+    expect(extrairCabecalho(TEXTO_18503).telefone).toBe('');
+    expect(extrairCabecalho('Telefone: (51) ******-9538').telefone).toBe('');
+  });
+
+  it('número, placa e data do complementar continuam', () => {
+    const cab = extrairCabecalho(TEXTO_18503);
+    expect(cab.numero).toBe('19384747853');
+    expect(cab.placa).toBe('JCH-1B08');
+    expect(cab.data).toBe('19/11/2026');
+  });
+});
+
+describe('chassi só com formato VIN (17, sem I/O/Q)', () => {
+  it('rotulado com O (ex.: Nº + marca) não vale', () => {
+    expect(extrairCabecalho('CHASSI: 19384747853TOYOTA').chassi).toBe('');
+    expect(extrairCabecalho('CHASSI: 19384736944TOYOTA').chassi).toBe('');
+  });
+
+  it('VIN real sem I/O/Q continua valendo (rotulado e avulso)', () => {
+    expect(extrairCabecalho('CHASSI: 9BRBY3BE1T4079731').chassi).toBe('9BRBY3BE1T4079731');
+    const cab = extrairCabecalho(
+      [
+        'Celular: 51-997831108',
+        'Veículo Produto/Modelo: COROLLA / COROLLA ALTIS Nr.Fab Cor Externa: Linha: Placa: Ano/Modelo: KM: Hr:',
+        '25/26 TRD0I70 9677 0 9BRBY3BE1T4079731',
+        '2 Peça CARE042501 LIMPADOR SISTEMA GASOLINA TUNAP 1 199,89',
+      ].join('\n'),
+    );
+    expect(cab.chassi).toBe('9BRBY3BE1T4079731');
+    expect(cab.telefone).toBe('5551997831108');
+  });
+
+  it('layout antigo com Celular + VIN (caso Cleides) segue intacto', () => {
+    const cab = extrairCabecalho(
+      [
+        'Fone: 51-37411469',
+        'Celular: 51-999960699',
+        'Veículo Produto/Modelo: TOY HILUX Nr.Fab Cor Externa: Linha: Placa: Ano/Modelo: KM: Hr:',
+        '12/12 ITE-8995 100099 0 8AJFY29G0C8504809',
+      ].join('\n'),
+    );
+    expect(cab.telefone).toBe('5551999960699');
+    expect(cab.chassi).toBe('8AJFY29G0C8504809');
+  });
+});
