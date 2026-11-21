@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { processQuote, formatCurrency, formatarValorInput, normalizarOxi, parseBrazilianNumber, recalcularComSelecao } from '../utils/quoteLogic';
+import { aplicarPrevia, calcularPrevia, construirPrevia, previaComOriginal, processQuote, formatCurrency, formatarValorInput, normalizarOxi, parseBrazilianNumber, recalcularComSelecao, type PreviaOrcamento } from '../utils/quoteLogic';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable, { type AprovacaoVoto } from './QuoteTable';
@@ -7,7 +7,7 @@ import { Play, Percent, Eraser } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import MenuDados from './MenuDados';
-import { adicionarAoHistorico, atualizarAprovacaoHistorico, atualizarChassiHistorico, listarHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
+import { adicionarAoHistorico, atualizarAprovacaoHistorico, atualizarChassiHistorico, atualizarPreviaHistorico, listarHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import SistemaCard from '../sistema/SistemaCard';
 import { decidirFontePlay, type CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
@@ -57,6 +57,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const [ultimo] = useState(lerUltimoOrcamento);
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
   const [selecionados, setSelecionados] = useState<Set<number>>(() => new Set(ultimo?.selecionados ?? []));
+  // Prévia interativa do documento (edição direta: textos, valores, linhas
+  // excluídas/adicionadas, revisão + a versão original do PDF para o voltar).
+  const [previa, setPrevia] = useState<PreviaOrcamento | null>(() => ultimo?.previa ?? null);
   // Registro aberto do histórico (id + data + retrato do conteúdo): regerar
   // mudando SÓ o chassi atualiza o registro no lugar (sem mudar a data);
   // qualquer outra mudança segue o fluxo normal (novo registro).
@@ -73,10 +76,18 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi });
   }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi]);
 
-  // Mantém o último documento gerado salvo (inclusive a marcação dos itens).
+  // Mantém o último documento gerado salvo (inclusive a marcação dos itens e a prévia).
   useEffect(() => {
-    if (summary) salvarUltimoOrcamento({ summary, selecionados: [...selecionados] });
-  }, [summary, selecionados]);
+    if (summary) salvarUltimoOrcamento({ summary, selecionados: [...selecionados], previa: previa ?? undefined });
+  }, [summary, selecionados, previa]);
+
+  // Sem prévia com documento (último antigo): a 1ª geração é a atual.
+  useEffect(() => {
+    if (summary && !previa) {
+      setPrevia(previaComOriginal(construirPrevia(summary.items, summary.revisaoAprovada)));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary]);
 
   const handleGenerate = () => {
     // Fonte do play (decidirFontePlay): revisão fresca + campos intactos = vale
@@ -151,17 +162,27 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         setAprovacao(listarHistorico().find((r) => r.id === aberto.id)?.aprovacao ?? null);
       }
       // O documento mostra a data/hora do registro (não a de agora) e mantém
-      // a marcação de itens atual (não zera os desmarcados).
-      setSummary({ ...result, currentTime: aberto.criadoEm });
+      // a marcação de itens atual (não zera os desmarcados). A prévia segue
+      // valendo (mesmos textos do PDF) sobre o resultado recalculado.
+      if (previa) {
+        const sincronizado = aplicarPrevia({ ...result, currentTime: aberto.criadoEm }, previa);
+        setSummary(sincronizado);
+      } else {
+        setSummary({ ...result, currentTime: aberto.criadoEm });
+      }
       setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
       return;
     }
 
     setSummary(result);
     setSelecionados(new Set(result.items.map((i) => i.id))); // começa com todos marcados
+    // 1ª geração: a prévia interativa nasce do PDF (original guardado p/ voltar).
+    const fresca = previaComOriginal(construirPrevia(result.items, result.revisaoAprovada));
+    setPrevia(fresca);
 
     const salvos = adicionarAoHistorico(novo);
     registroAbertoRef.current = { id: salvos[0].id, criadoEm: salvos[0].criadoEm, base: { ...novo } };
+    atualizarPreviaHistorico(salvos[0].id, fresca, retratoDoResumo(result));
     // Reprocessou registro já marcado? Mostra a marca de volta.
     setAprovacao(salvos[0].aprovacao ?? null);    
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
@@ -192,6 +213,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
     const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
     const result = processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais);
+    // Prévia salva (edições diretas). Sem ela é registro antigo: monta a
+    // partir do recálculo, mas SEM original (voltar desabilitado, sem quebrar).
+    const aberta: PreviaOrcamento =
+      r.previa ?? { ...construirPrevia(result.items, result.revisaoAprovada), original: null };
+    setPrevia(aberta);
     // Foto do conteúdo (para a regeração só-com-chassi não mudar a data).
     registroAbertoRef.current = {
       id: r.id,
@@ -214,11 +240,20 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       },
     };
     // O documento mostra a data/hora de quando o orçamento foi criado
-    // (a do histórico), não a de agora.
-    setSummary({ ...result, currentTime: r.criadoEm });
-    // Restaura a marcação salva (registros da aba "Não Realizados").
+    // (a do histórico), não a de agora — a prévia editada vale sobre ele.
+    const comData = { ...result, currentTime: r.criadoEm };
+    setSummary(aplicarPrevia(comData, aberta));
+    // Restaura a marcação salva (registros da aba "Não Realizados"); linhas
+    // excluídas na prévia ficam fora da marcação.
+    const excluidos = new Set(aberta.itens.filter((i) => i.excluido).map((i) => i.id));
     const desmarcados = new Set(r.naoRealizados ?? []);
-    setSelecionados(new Set(result.items.map((i) => i.id).filter((id) => !desmarcados.has(id))));
+    setSelecionados(
+      new Set(
+        aplicarPrevia(comData, aberta).items
+          .map((i) => i.id)
+          .filter((id) => !desmarcados.has(id) && !excluidos.has(id)),
+      ),
+    );
     setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
   };
 
@@ -261,19 +296,137 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       ...retratoDoResumo(base),
     });
     atualizarAprovacaoHistorico(salvos[0].id, v);
+    // O voto também carrega a prévia atual (edições não se perdem no V/X).
+    if (previa) {
+      atualizarPreviaHistorico(salvos[0].id, previa, retratoDoResumo(base));
+    }
   };
 
   // Marca/desmarca um item: os totais refletem só os marcados.
   const alternarItem = (id: number) => {
-    setSelecionados((prev) => {
-      const s = new Set(prev);
-      if (s.has(id)) {
-        s.delete(id);
-      } else {
-        s.add(id);
-      }
-      return s;
+    const s = new Set(selecionados);
+    if (s.has(id)) {
+      s.delete(id);
+    } else {
+      s.add(id);
+    }
+    if (previa && summary) {
+      persistirPrevia(previa, summary, s);
+    } else {
+      setSelecionados(s);
+    }
+  };
+
+  /**
+   * Grava uma edição da prévia: atualiza o estado, sincroniza o resumo (para o
+   * RESUMO LÍQUIDO, o relatório e o V/X continuarem coerentes) e salva no
+   * histórico SÓ o registro desse orçamento (id/data intactos + retrato novo).
+   */
+  const persistirPrevia = (
+    nova: PreviaOrcamento,
+    baseSummary: QuoteSummary,
+    sel: Set<number>,
+  ) => {
+    const sincronizado = aplicarPrevia(baseSummary, nova);
+    const calc = calcularPrevia(nova, sel);
+    const retrato = {
+      ...retratoDoResumo(recalcularComSelecao(sincronizado, sel)),
+      totalGeral: calc.totalGeralPrevia,
+      numItens: nova.itens.filter((i) => !i.excluido).length,
+    };
+    setPrevia(nova);
+    setSummary(sincronizado);
+    setSelecionados(sel);
+    const id = registroAbertoRef.current?.id;
+    if (id) atualizarPreviaHistorico(id, nova, retrato);
+  };
+
+  /** Edição direta na prévia (descrição, valor ou revisão): salva na hora. */
+  const editarPrevia = (fn: (p: PreviaOrcamento) => PreviaOrcamento) => {
+    if (!previa || !summary) return;
+    const nova: PreviaOrcamento = {
+      ...previa,
+      itens: previa.itens.map((i) => ({ ...i })),
+      original: previa.original,
+    };
+    persistirPrevia(fn(nova), summary, selecionados);
+  };
+
+  const editarDescricaoPrevia = (id: number, descricao: string) => {
+    editarPrevia((p) => {
+      const item = p.itens.find((i) => i.id === id);
+      if (item) item.descricao = descricao;
+      return p;
     });
+  };
+
+  const editarValorPrevia = (id: number, valor: number) => {
+    editarPrevia((p) => {
+      const item = p.itens.find((i) => i.id === id);
+      if (item) item.valor = valor;
+      return p;
+    });
+  };
+
+  const editarRevisaoPrevia = (valor: number) => {
+    editarPrevia((p) => ({ ...p, revisaoAprovada: valor }));
+  };
+
+  const excluirLinhaPrevia = (id: number) => {
+    if (!previa || !summary) return;
+    const nova: PreviaOrcamento = {
+      ...previa,
+      itens: previa.itens.map((i) => (i.id === id ? { ...i, excluido: true } : { ...i })),
+      original: previa.original,
+    };
+    const sel = new Set(selecionados);
+    sel.delete(id);
+    persistirPrevia(nova, summary, sel);
+  };
+
+  const restaurarLinhaPrevia = (id: number) => {
+    if (!previa || !summary) return;
+    const nova: PreviaOrcamento = {
+      ...previa,
+      itens: previa.itens.map((i) => (i.id === id ? { ...i, excluido: false } : { ...i })),
+      original: previa.original,
+    };
+    const sel = new Set(selecionados);
+    sel.add(id);
+    persistirPrevia(nova, summary, sel);
+  };
+
+  const adicionarLinhaPrevia = () => {
+    if (!previa || !summary) return;
+    const proximoId = previa.itens.reduce((m, i) => Math.max(m, i.id), 0) + 1;
+    const nova: PreviaOrcamento = {
+      ...previa,
+      itens: [...previa.itens.map((i) => ({ ...i })), { id: proximoId, descricao: '', valor: 0, excluido: false }],
+      original: previa.original,
+    };
+    const sel = new Set(selecionados);
+    sel.add(proximoId);
+    persistirPrevia(nova, summary, sel);
+  };
+
+  /** Volta à 1ª versão gerada do PDF (textos, valores, linhas, caixinhas, revisão). */
+  const voltarOriginalPrevia = () => {
+    if (!previa?.original || !summary) return;
+    if (!window.confirm('Desfazer todas as edições manuais desse orçamento e voltar à versão gerada do PDF?')) return;
+    const orig = previa.original;
+    const ids = new Set(orig.itens.map((i) => i.id));
+    const nova: PreviaOrcamento = {
+      itens: orig.itens.map((i) => ({ ...i })),
+      revisaoAprovada: orig.revisaoAprovada,
+      original: previa.original,
+    };
+    // Linhas adicionadas pelo "+" saem junto (não existiam no PDF).
+    const sincronizado = {
+      ...aplicarPrevia(summary, nova),
+      items: aplicarPrevia(summary, nova).items.filter((i) => ids.has(i.id)),
+    };
+    const sel = new Set(orig.itens.map((i) => i.id));
+    persistirPrevia(nova, sincronizado, sel);
   };
 
   const visivel = summary ? recalcularComSelecao(summary, selecionados) : null;
@@ -544,11 +697,20 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             <div className="max-w-4xl mx-auto">
               <QuoteTable
                 summary={visivel}
+                previa={previa}
                 selecionados={selecionados}
                 onToggleItem={alternarItem}
+                onEditarDescricao={editarDescricaoPrevia}
+                onEditarValor={editarValorPrevia}
+                onEditarRevisao={editarRevisaoPrevia}
+                onExcluirItem={excluirLinhaPrevia}
+                onRestaurarItem={restaurarLinhaPrevia}
+                onAdicionarItem={adicionarLinhaPrevia}
+                onVoltarOriginal={voltarOriginalPrevia}
                 aprovacao={aprovacao}
                 onMarcarAprovacao={votarAprovacao}
                 telefone={telefone}
+                nomeCliente={nome}
               />
             </div>
           )}

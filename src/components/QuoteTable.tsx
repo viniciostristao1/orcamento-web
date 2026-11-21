@@ -1,26 +1,141 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QuoteSummary } from '../types';
-import { formatCurrency, itensNaoRealizados } from '../utils/quoteLogic';
-import { Printer, Image as ImageIcon, Check, Minus, X } from 'lucide-react';
+import { calcularPrevia, construirPrevia, formatCurrency, numeroExibicaoPrevia, parseBrazilianNumber, type PreviaOrcamento } from '../utils/quoteLogic';
+import { Printer, Image as ImageIcon, Check, Minus, X, Plus, RotateCcw } from 'lucide-react';
 import { exportarPng } from '../utils/exportImage';
 import { abrirWhats, temTelefoneValido } from '../utils/telefone';
 import { IconeWhatsApp } from './BotaoWhats';
 
 export type AprovacaoVoto = 'aprovado' | 'parcial' | 'naoAprovado';
 
+/** Texto clicável que vira campo editável no lugar (Enter/blur confirma, Esc cancela). */
+const CelulaTexto: React.FC<{
+  value: string;
+  onCommit: (v: string) => void;
+  className?: string;
+  ariaLabel: string;
+}> = ({ value, onCommit, className = '', ariaLabel }) => {
+  const [editando, setEditando] = useState(false);
+  const [rascunho, setRascunho] = useState(value);
+  // Valor de abertura: o commit é imediato, então o Esc volta para ele.
+  const originalRef = useRef(value);
+  if (!editando) {
+    return (
+      <span onClick={() => { originalRef.current = value; setRascunho(value); setEditando(true); }} title="Clique para editar" className={`${className} cursor-text`}>
+        {value}
+      </span>
+    );
+  }
+  return (
+    <input
+      type="text"
+      value={rascunho}
+      onChange={(e) => { setRascunho(e.target.value); onCommit(e.target.value); }}
+      onBlur={() => setEditando(false)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+        else if (e.key === 'Escape') { onCommit(originalRef.current); setEditando(false); }
+      }}
+      ref={(el) => {
+        if (el) {
+          el.focus();
+          const fim = el.value.length;
+          el.setSelectionRange(fim, fim);
+        }
+      }}
+      aria-label={ariaLabel}
+      className={`${className} w-full bg-transparent border-b-2 border-blue-400 outline-none`}
+    />
+  );
+};
+
+/** Valor clicável com commit imediato (calculadora): digitar já atualiza os totais. */
+const CelulaValor: React.FC<{
+  value: number;
+  onCommit: (v: number) => void;
+  className?: string;
+  ariaLabel: string;
+}> = ({ value, onCommit, className = '', ariaLabel }) => {
+  const [editando, setEditando] = useState(false);
+  const [rascunho, setRascunho] = useState<string | null>(null);
+  const texto = rascunho ?? formatCurrency(value);
+  // Valor de abertura: o commit é imediato, então o Esc volta para ele.
+  const originalRef = useRef(value);
+  if (!editando) {
+    return (
+      <span onClick={() => { originalRef.current = value; setRascunho(formatCurrency(value)); setEditando(true); }} title="Clique para editar" className={`${className} cursor-text`}>
+        {formatCurrency(value)}
+      </span>
+    );
+  }
+  const confirmarTexto = (t: string) => {
+    const n = parseBrazilianNumber(t);
+    onCommit(Number.isFinite(n) ? n : 0);
+  };
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={texto}
+      onChange={(e) => { setRascunho(e.target.value); confirmarTexto(e.target.value); }}
+      onBlur={() => { setRascunho(null); setEditando(false); }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+        else if (e.key === 'Escape') { onCommit(originalRef.current); setRascunho(null); setEditando(false); }
+      }}
+      ref={(el) => {
+        if (el) {
+          el.focus();
+          const fim = el.value.length;
+          el.setSelectionRange(fim, fim);
+        }
+      }}
+      aria-label={ariaLabel}
+      className={`${className} w-full bg-transparent border-b-2 border-blue-400 outline-none`}
+    />
+  );
+};
+
 interface QuoteTableProps {
   summary: QuoteSummary;
+  /** Prévia interativa (null = 1ª geração ainda não montada; cai no resumo). */
+  previa: PreviaOrcamento | null;
   selecionados: Set<number>;
   onToggleItem: (id: number) => void;
+  onEditarDescricao: (id: number, descricao: string) => void;
+  onEditarValor: (id: number, valor: number) => void;
+  onEditarRevisao: (valor: number) => void;
+  onExcluirItem: (id: number) => void;
+  onRestaurarItem: (id: number) => void;
+  onAdicionarItem: () => void;
+  onVoltarOriginal: () => void;
   /** Aprovação atual do orçamento em tela (V/X). */
   aprovacao?: AprovacaoVoto | null;
   /** Marca/desmarca (clicar no mesmo limpa; sempre salva no histórico). */
   onMarcarAprovacao?: (v: AprovacaoVoto | undefined) => void;
   /** Telefone do cliente (só abre a conversa, sem texto pronto). */
   telefone?: string;
+  /** Nome do cliente (vai para o PNG, junto da data). */
+  nomeCliente?: string;
 }
 
-const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggleItem, aprovacao = null, onMarcarAprovacao, telefone = '' }) => {
+const QuoteTable: React.FC<QuoteTableProps> = ({
+  summary,
+  previa,
+  selecionados,
+  onToggleItem,
+  onEditarDescricao,
+  onEditarValor,
+  onEditarRevisao,
+  onExcluirItem,
+  onRestaurarItem,
+  onAdicionarItem,
+  onVoltarOriginal,
+  aprovacao = null,
+  onMarcarAprovacao,
+  telefone = '',
+  nomeCliente = '',
+}) => {
   const printableRef = useRef<HTMLDivElement>(null);
   const [alturaDocumento, setAlturaDocumento] = useState(0);
 
@@ -37,14 +152,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
     return () => observer.disconnect();
   }, []);
 
-  // Itens desmarcados (não realizados) e a soma — a caixa só aparece se houver algum.
-  const naoRealizados = itensNaoRealizados(summary, selecionados);
-
-  // Valores do documento: "TOTAL" = itens marcados + revisão aprovada;
-  // "TOTAL GERAL" (só com algum desmarcado) = todos os itens + revisão.
-  const totalSelecionado = summary.revisaoAprovada + summary.totalOrcamento;
-  const totalCompleto = summary.revisaoAprovada + summary.items.reduce((acc, i) => acc + i.value, 0);
-  const parcelaSelecionada = totalSelecionado / summary.numParcelas;
+  // Prévia interativa: sem ela (1ª montagem), cai no resumo recalculado.
+  const prev: PreviaOrcamento =
+    previa ?? { ...construirPrevia(summary.items, summary.revisaoAprovada), original: null };
+  // Calculadora da prévia (3X fixo): adicional = marcados não excluídos;
+  // total = revisão + adicional; centavos da parcela na última.
+  const calc = calcularPrevia(prev, selecionados);
 
   // Impressão: em vez de re-renderizar o HTML na largura do papel (o que mudava
   // a proporção das colunas e quebrava linhas diferentes), geramos a MESMA
@@ -60,9 +173,17 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
     filter: (node: Node) => !(node as HTMLElement).dataset?.ui,
   };
 
+  // Confirma a edição em curso (o PNG sai exatamente como está na prévia,
+  // sem rascunho de campo aberto): o blur dispara o commit das células.
+  const confirmarEdicaoAberta = async () => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    await new Promise((r) => setTimeout(r, 60));
+  };
+
   const handlePrint = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!printableRef.current) return;
+    await confirmarEdicaoAberta();
     try {
       const dataUrl = await exportarPng(printableRef.current, opcoesPng);
       setImagemImpressao(dataUrl);
@@ -94,7 +215,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
   const handleDownloadImage = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!printableRef.current) return;
-    
+    await confirmarEdicaoAberta();
+
     try {
       // Gera a imagem em alta definição, com as fontes no tamanho real
       // (o exportarPng desfaz a redução de 0.1px do html-to-image)
@@ -197,6 +319,22 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
         >
           <X size={24} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
         </button>
+
+        {/* Voltar à 1ª versão gerada do PDF (desfaz as edições da prévia). */}
+        <button
+          type="button"
+          onClick={onVoltarOriginal}
+          disabled={!prev?.original}
+          aria-label="Voltar à versão original"
+          title={
+            prev?.original
+              ? 'Desfazer todas as edições manuais e voltar à versão gerada do PDF'
+              : 'Sem a versão original guardada (orçamento antigo): a prévia atual é a referência'
+          }
+          className="flex items-center justify-center bg-slate-600 hover:bg-slate-500 disabled:opacity-40 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer disabled:cursor-not-allowed"
+        >
+          <RotateCcw size={24} className="group-hover:scale-110 transition-transform" />
+        </button>
       </div>
 
       {/* Printable Document Context */}
@@ -228,8 +366,30 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-slate-200">
-                {summary.items.map((item) => {
-                  const marcado = selecionados.has(item.id);
+                {prev.itens.map((item) => {
+                  const marcado = selecionados.has(item.id) && !item.excluido;
+                  const numero = numeroExibicaoPrevia(prev.itens, item.id);
+                  if (item.excluido) {
+                    // Linha excluída: riscada e fraca na tela (toque restaura),
+                    // fora do PNG (data-ui) e da impressão.
+                    return (
+                      <tr
+                        key={item.id}
+                        data-ui="1"
+                        onClick={() => onRestaurarItem(item.id)}
+                        title="Toque para restaurar a linha na posição original"
+                        className="bg-slate-100/60 cursor-pointer print:hidden"
+                      >
+                        <td className="py-2 px-6 text-center font-bold text-slate-400 text-2xl border-r-2 border-slate-200">
+                          <span>–</span>
+                        </td>
+                        <td className="py-2 px-6 font-bold text-2xl uppercase leading-none text-slate-400 line-through">{item.descricao || '(sem descrição)'}</td>
+                        <td className="py-2 px-6 text-right font-bold text-2xl border-l-2 border-slate-200 text-slate-400 line-through">
+                          {formatCurrency(item.valor)}
+                        </td>
+                      </tr>
+                    );
+                  }
                   return (
                   <tr
                     key={item.id}
@@ -245,12 +405,32 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
                           title="Incluir este item no orçamento"
                           className="w-5 h-5 accent-blue-600 cursor-pointer print:hidden"
                         />
-                        <span>{item.id}</span>
+                        <span>{numero}</span>
+                        <button
+                          type="button"
+                          data-ui="1"
+                          onClick={() => onExcluirItem(item.id)}
+                          aria-label={`Excluir linha ${numero}`}
+                          title="Excluir a linha (restaura com um toque)"
+                          className="print:hidden text-slate-300 hover:text-red-500 transition-colors cursor-pointer"
+                        >
+                          <X size={16} strokeWidth={3} />
+                        </button>
                       </span>
                     </td>
-                    <td className={`py-2 px-6 font-bold text-2xl uppercase leading-none ${marcado ? 'text-slate-900' : 'text-slate-400 line-through'}`}>{item.description}</td>
+                    <td className={`py-2 px-6 font-bold text-2xl uppercase leading-none ${marcado ? 'text-slate-900' : 'text-slate-400 line-through'}`}>
+                      <CelulaTexto
+                        value={item.descricao}
+                        onCommit={(v) => onEditarDescricao(item.id, v)}
+                        ariaLabel={`Descrição do item ${numero}`}
+                      />
+                    </td>
                     <td className={`py-2 px-6 text-right font-bold text-2xl border-l-2 border-slate-200 bg-slate-50/30 ${marcado ? 'text-slate-950' : 'text-slate-400 line-through'}`}>
-                      {formatCurrency(item.value)}
+                      <CelulaValor
+                        value={item.valor}
+                        onCommit={(v) => onEditarValor(item.id, v)}
+                        ariaLabel={`Valor do item ${numero}`}
+                      />
                     </td>
                   </tr>
                   );
@@ -259,16 +439,30 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
               <tfoot className="border-t-2 border-blue-600">
                 <tr className="bg-blue-50/50 text-blue-900">
                   <td colSpan={2} className="py-3 px-6 text-right uppercase tracking-wider text-2xl font-bold">Valor Total Adicional:</td>
-                  <td className="py-3 px-6 text-right text-2xl font-bold border-l-2 border-blue-100 bg-blue-100/20">{formatCurrency(summary.totalOrcamento)}</td>
+                  <td className="py-3 px-6 text-right text-2xl font-bold border-l-2 border-blue-100 bg-blue-100/20">{formatCurrency(calc.adicional)}</td>
                 </tr>
               </tfoot>
             </table>
+          </div>
+
+          {/* Adicionar linha: só na tela (fora do PNG e da impressão). */}
+          <div data-ui="1" className="print:hidden flex justify-center mt-2">
+            <button
+              type="button"
+              onClick={onAdicionarItem}
+              aria-label="Adicionar linha"
+              title="Adicionar linha no fim (aprovada, vazia)"
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-lg transition-all active:scale-95 cursor-pointer"
+            >
+              <Plus size={18} strokeWidth={3} />
+            </button>
           </div>
 
           {/* Document Info - Space Further Reduced */}
           <div className="text-center text-[10px] text-slate-400 mb-2 uppercase tracking-[0.2em] font-medium leading-[1.1]">
             <p>Data: <span className="text-slate-900">{summary.currentTime}</span></p>
             <p>Orçamento sujeito a alterações. Validade: 10 dias.</p>
+            {nomeCliente.trim() && <p>Cliente: <span className="text-slate-900 font-bold">{nomeCliente.trim().toUpperCase()}</span></p>}
             <p className="text-blue-600 font-bold">Toyota Weiand Lajeado</p>
           </div>
 
@@ -283,35 +477,42 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
             <div className="space-y-0.5 max-w-xl mx-auto">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-500 uppercase tracking-tight text-2xl">Revisão Aprovada:</span>
-                <span className="text-slate-950 font-bold text-2xl">{formatCurrency(summary.revisaoAprovada)}</span>
+                <span className="text-slate-950 font-bold text-2xl text-right">
+                  <CelulaValor
+                    value={prev.revisaoAprovada}
+                    onCommit={onEditarRevisao}
+                    ariaLabel="Revisão aprovada"
+                  />
+                </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-500 uppercase tracking-tight text-2xl">Orçamento Adicional:</span>
-                <span className="text-slate-950 font-bold text-2xl">{formatCurrency(summary.totalOrcamento)}</span>
+                <span className="text-slate-950 font-bold text-2xl">{formatCurrency(calc.adicional)}</span>
               </div>
-              
+
               <div className="flex justify-between items-center text-slate-400">
-                <span className="font-bold uppercase tracking-wide text-2xl">Parcelamento ({summary.numParcelas}x):</span>
-                <span className="font-bold text-2xl">{summary.numParcelas} x {formatCurrency(parcelaSelecionada)}</span>
+                <span className="font-bold uppercase tracking-wide text-2xl">Parcelamento (3x):</span>
+                <span className="font-bold text-2xl">3x: {formatCurrency(calc.parcelas[0])} + {formatCurrency(calc.parcelas[1])} + {formatCurrency(calc.parcelas[2])}</span>
               </div>
 
               <div className="h-px bg-blue-600 my-2 opacity-40"></div>
-              
+
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-none">Total:</span>
                   <span className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Revisão + Adicional</span>
                 </div>
                 <span className="text-2xl font-bold text-slate-950">
-                  {formatCurrency(totalSelecionado)}
+                  {formatCurrency(calc.total)}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Itens Não Aprovados — caixa separada, só quando há itens desmarcados */}
-          {naoRealizados.itens.length > 0 && (
+          {/* Itens Não Aprovados — caixa separada, só quando há itens marcados
+              como não aprovados (excluídos não entram: saíram do orçamento). */}
+          {calc.naoAprovados.length > 0 && (
             <div className="mt-3 bg-red-50/70 border-2 border-red-200 rounded-[2rem] px-6 py-3 sm:px-10 sm:py-4">
               <div className="flex items-center justify-center gap-4 mb-2">
                 <div className="h-px w-10 bg-red-200"></div>
@@ -320,13 +521,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
               </div>
 
               <div className="space-y-0.5 max-w-xl mx-auto">
-                {naoRealizados.itens.map((item) => (
+                {calc.naoAprovados.map((item) => (
                   <div key={item.id} className="flex justify-between items-start gap-6">
                     <span className="font-bold uppercase tracking-tight text-slate-500 text-2xl line-through">
-                      {item.id} · {item.description}
+                      {numeroExibicaoPrevia(prev.itens, item.id)} · {item.descricao}
                     </span>
                     <span className="font-bold text-slate-400 text-2xl line-through whitespace-nowrap">
-                      {formatCurrency(item.value)}
+                      {formatCurrency(item.valor)}
                     </span>
                   </div>
                 ))}
@@ -334,23 +535,23 @@ const QuoteTable: React.FC<QuoteTableProps> = ({ summary, selecionados, onToggle
                 <div className="h-px bg-red-300 my-2 opacity-60"></div>
 
                 <div className="flex justify-between items-center">
-                    <span className="font-bold uppercase tracking-widest text-2xl text-red-800 leading-none">Total Não Aprovado:</span>
+                  <span className="font-bold uppercase tracking-widest text-2xl text-red-800 leading-none">Total Não Aprovado:</span>
                   <span className="text-2xl font-bold text-red-700">
-                    {formatCurrency(naoRealizados.total)}
+                    {formatCurrency(calc.totalNaoAprovado)}
                   </span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TOTAL GERAL — tudo (itens marcados + não realizados + revisão).
+          {/* TOTAL GERAL — revisão + tudo não excluído (marcados + não aprovados).
               Só aparece quando há algum item desmarcado. */}
-          {naoRealizados.itens.length > 0 && (
+          {calc.naoAprovados.length > 0 && (
             <div className="mt-3 bg-slate-50 border-2 border-slate-300 rounded-[2rem] px-6 py-4 sm:px-10">
               <div className="flex justify-between items-center max-w-xl mx-auto">
                 <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-none">Total Geral:</span>
                 <span className="text-3xl font-bold text-slate-950">
-                  {formatCurrency(totalCompleto)}
+                  {formatCurrency(calc.totalGeralPrevia)}
                 </span>
               </div>
             </div>

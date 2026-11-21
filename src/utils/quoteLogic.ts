@@ -214,6 +214,138 @@ export const resumoAprovacao = (
  * `items` continua com todos (a tabela mostra as desmarcadas riscadas); os
  * totais, o desconto e o líquido refletem apenas as marcadas.
  */
+/**
+ * Prévia interativa do documento (edição direta no PNG): os itens guardam a
+ * descrição/valor editados e se estão excluídos (riscados na tela, fora do
+ * PNG). A APROVAÇÃO continua no `selecionados` de sempre (caixinhas) — aqui
+ * só o conteúdo editável. `original` é a 1ª versão gerada do PDF (botão voltar).
+ */
+export interface ItemPrevia {
+  id: number;
+  descricao: string;
+  valor: number;
+  excluido: boolean;
+}
+
+export interface PreviaOrcamento {
+  itens: ItemPrevia[];
+  revisaoAprovada: number;
+  /** 1ª versão gerada (null em orçamentos antigos, sem o botão voltar). */
+  original: PreviaOrcamentoSemOriginal | null;
+}
+
+export interface PreviaOrcamentoSemOriginal {
+  itens: ItemPrevia[];
+  revisaoAprovada: number;
+}
+
+/** Foto da 1ª geração a partir do resultado (tudo aprovado, nada excluído). */
+export const construirPrevia = (
+  items: { id: number; description: string; value: number }[],
+  revisaoAprovada: number,
+): PreviaOrcamentoSemOriginal => ({
+  itens: items.map((i) => ({ id: i.id, descricao: i.description, valor: i.value, excluido: false })),
+  revisaoAprovada,
+});
+
+const clonarPrevia = (p: PreviaOrcamentoSemOriginal): PreviaOrcamentoSemOriginal => ({
+  itens: p.itens.map((i) => ({ ...i })),
+  revisaoAprovada: p.revisaoAprovada,
+});
+
+/** Nova prévia com o `original` guardado (chamar uma vez, na 1ª geração). */
+export const previaComOriginal = (p: PreviaOrcamentoSemOriginal): PreviaOrcamento => ({
+  ...clonarPrevia(p),
+  original: clonarPrevia(p),
+});
+
+/**
+ * Calculadora da prévia (3X fixo): ADICIONAL = soma dos NÃO excluídos e
+ * marcados; TOTAL = revisão + adicional; parcelas dividem os centavos com a
+ * diferença na ÚLTIMA (ex.: 100,00 → 33,33 + 33,33 + 33,34).
+ */
+export const calcularPrevia = (
+  previa: PreviaOrcamentoSemOriginal,
+  selecionados: Set<number>,
+): {
+  adicional: number;
+  total: number;
+  parcelas: [number, number, number];
+  naoAprovados: ItemPrevia[];
+  totalNaoAprovado: number;
+  /** Tudo (revisão + itens não excluídos): base do "Total Geral". */
+  totalGeralPrevia: number;
+} => {
+  const visiveis = previa.itens.filter((i) => !i.excluido);
+  const marcados = visiveis.filter((i) => selecionados.has(i.id));
+  const adicional = marcados.reduce((acc, i) => acc + i.valor, 0);
+  const total = previa.revisaoAprovada + adicional;
+  const centavos = Math.round(total * 100);
+  const base = Math.floor(centavos / 3);
+  const parcelas: [number, number, number] = [
+    base / 100,
+    base / 100,
+    (centavos - 2 * base) / 100,
+  ];
+  const naoAprovados = visiveis.filter((i) => !selecionados.has(i.id));
+  return {
+    adicional,
+    total,
+    parcelas,
+    naoAprovados,
+    totalNaoAprovado: naoAprovados.reduce((acc, i) => acc + i.valor, 0),
+    totalGeralPrevia: previa.revisaoAprovada + visiveis.reduce((acc, i) => acc + i.valor, 0),
+  };
+};
+
+/** Posição de exibição (1, 2, …) entre os NÃO excluídos; excluído não numera. */
+export const numeroExibicaoPrevia = (itens: ItemPrevia[], id: number): number | null => {
+  let n = 0;
+  for (const i of itens) {
+    if (i.excluido) {
+      if (i.id === id) return null;
+      continue;
+    }
+    n += 1;
+    if (i.id === id) return n;
+  }
+  return null;
+};
+
+/**
+ * Aplica a prévia sobre o resumo (mantém RESUMO LÍQUIDO, relatório, V/X e
+ * último orçamento coerentes com o editado): descrições/valores por id,
+ * linhas novas anexadas, revisão sobrescrita. A composição peças/serviços de
+ * um valor editado acompanha a proporção original (soma continua exata).
+ */
+export const aplicarPrevia = (
+  summary: QuoteSummary,
+  previa: PreviaOrcamentoSemOriginal,
+): QuoteSummary => {
+  const porId = new Map(previa.itens.map((i) => [i.id, i]));
+  const items = summary.items.map((item) => {
+    const edit = porId.get(item.id);
+    if (!edit) return item;
+    if (edit.valor === item.value) return { ...item, description: edit.descricao };
+    const proporcao = item.value !== 0 ? edit.valor / item.value : 0;
+    return {
+      ...item,
+      description: edit.descricao,
+      value: edit.valor,
+      pecasValue: item.value !== 0 ? item.pecasValue * proporcao : 0,
+      servicosValue: item.value !== 0 ? item.servicosValue * proporcao : edit.valor,
+    };
+  });
+  const idsBase = new Set(summary.items.map((i) => i.id));
+  for (const edit of previa.itens) {
+    if (!idsBase.has(edit.id)) {
+      // Linha adicionada pelo "+": valor integral como serviços (é mão de obra avulsa).
+      items.push({ id: edit.id, description: edit.descricao, value: edit.valor, pecasValue: 0, servicosValue: edit.valor });
+    }
+  }
+  return { ...summary, items, revisaoAprovada: previa.revisaoAprovada };
+};
+
 export const recalcularComSelecao = (
   summary: QuoteSummary,
   selecionados: Set<number>

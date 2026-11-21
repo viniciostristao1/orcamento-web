@@ -1,8 +1,10 @@
 import type { QuoteSummary } from '../types';
+import type { PreviaOrcamento } from './quoteLogic';
 
 export interface UltimoOrcamento {
   summary: QuoteSummary;
   selecionados: number[];
+  previa?: PreviaOrcamento;
 }
 
 export const ULTIMO_KEY = 'orcamento_ultimo_v1';

@@ -1,4 +1,5 @@
 import type { QuoteSummary } from '../types';
+import type { PreviaOrcamento } from './quoteLogic';
 import { somenteDigitos } from './telefone';
 import { normalizarBusca } from './busca';
 import { avisarLembretesMudaram } from './lembretes';
@@ -51,6 +52,9 @@ export interface OrcamentoSalvo {
   // IDs dos itens desmarcados no momento em que foi salvo (botão próprio).
   // Opcional: registros comuns não têm — só entram na aba "Não Realizados".
   naoRealizados?: number[];
+  // Prévia interativa do documento (edições diretas no PNG: textos, valores,
+  // linhas excluídas/adicionadas, revisão). Opcional: registros antigos não têm.
+  previa?: PreviaOrcamento;
   // Retrato do resultado no momento (só para a lista; ao abrir, é recalculado).
   totalPecasGeral: number;
   totalServicosGeral: number;
@@ -218,6 +222,24 @@ export function atualizarNaoRealizadosHistorico(
   const out = listarHistorico().map((r) =>
     r.id === id ? { ...r, naoRealizados, ...(totais ?? {}) } : r,
   );
+  gravar(out);
+  return out;
+}
+
+/**
+ * Salva a prévia interativa do registro (edições diretas no documento) + o
+ * retrato recalculado. Só o registro desse orçamento muda (`id`/`criadoEm`
+ * intactos).
+ */
+export function atualizarPreviaHistorico(
+  id: string,
+  previa: PreviaOrcamento,
+  totais: Pick<
+    OrcamentoSalvo,
+    'totalPecasGeral' | 'totalServicosGeral' | 'valorDescontoTotal' | 'valorLiquidoFinal' | 'totalGeral' | 'numItens'
+  >,
+): OrcamentoSalvo[] {
+  const out = listarHistorico().map((r) => (r.id === id ? { ...r, previa, ...totais } : r));
   gravar(out);
   return out;
 }

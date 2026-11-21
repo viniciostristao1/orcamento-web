@@ -121,6 +121,148 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
+  it('prévia: editar valor atualiza adicional, parcelas e total na hora', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
+      expect(doc().getAllByText('2.629,64')).toHaveLength(2); // tabela + resumo
+      const dataAntes = doc().getByText(/^\d{2}\/\d{2}\/\d{4}/).textContent;
+      // edita o valor do item 1 (2.203,04 → 100,00)
+      fireEvent.click(doc().getByText('2.203,04'));
+      const campo = doc().getByLabelText('Valor do item 1') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: '100,00' } });
+      fireEvent.blur(campo);
+      expect(doc().getAllByText('526,60')).toHaveLength(2); // 100 + 209,60 + 217,00
+      expect(doc().getByText('2.292,83')).toBeTruthy(); // 1.766,23 + 526,60
+      expect(doc().getByText('3x: 764,27 + 764,27 + 764,29')).toBeTruthy();
+      expect(doc().getByText(/^\d{2}\/\d{2}\/\d{4}/).textContent).toBe(dataAntes); // data mantida
+      // edição salva no histórico, só nesse registro
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos).toHaveLength(1);
+      expect(salvos[0].previa.itens[0].valor).toBe(100);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('prévia: editar descrição e revisão; Esc cancela', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
+      fireEvent.click(doc().getByText('PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS'));
+      const campoDesc = doc().getByLabelText('Descrição do item 1') as HTMLInputElement;
+      fireEvent.change(campoDesc, { target: { value: 'PASTILHAS EDITADAS' } });
+      fireEvent.blur(campoDesc);
+      expect(doc().getByText('PASTILHAS EDITADAS')).toBeTruthy();
+      // revisão 1.766,23 → 2.000,00: total 4.629,64, centavos na última
+      fireEvent.click(doc().getByText('1.766,23'));
+      const campoRev = doc().getByLabelText('Revisão aprovada') as HTMLInputElement;
+      fireEvent.change(campoRev, { target: { value: '2.000,00' } });
+      fireEvent.blur(campoRev);
+      expect(doc().getByText('4.629,64')).toBeTruthy();
+      expect(doc().getByText('3x: 1.543,21 + 1.543,21 + 1.543,22')).toBeTruthy();
+      // Esc descarta o rascunho do campo
+      fireEvent.click(doc().getByText('PASTILHAS EDITADAS'));
+      const campo2 = doc().getByLabelText('Descrição do item 1') as HTMLInputElement;
+      fireEvent.change(campo2, { target: { value: 'RASCUNHO' } });
+      fireEvent.keyDown(campo2, { key: 'Escape' });
+      expect(doc().getByText('PASTILHAS EDITADAS')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('prévia: excluir o item 2 renumera, risca e restaura na posição', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir linha 2' }));
+      // excluída some dos totais e aparece riscada (fora do PNG: data-ui)
+      expect(doc().getAllByText('2.420,04')).toHaveLength(2); // 2.203,04 + 217,00
+      const linhas = document.querySelectorAll('#printable-quote tbody tr');
+      expect(linhas).toHaveLength(3);
+      expect(linhas[1].getAttribute('data-ui')).toBe('1');
+      expect(linhas[1].textContent).toContain('HIGIENIZAÇÃO DO AR CONDICIONADO');
+      // antigo item 3 virou o 2
+      expect(linhas[2].querySelector('td')?.textContent).toContain('2');
+      expect(linhas[2].textContent).toContain('BORRACHA');
+      fireEvent.click(linhas[1] as HTMLElement); // toque restaura
+      expect(document.querySelector('#printable-quote tr[data-ui]')).toBeNull();
+      expect(doc().getAllByText('2.629,64')).toHaveLength(2);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('prévia: botão + adiciona linha aprovada no fim e entra no total', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
+      fireEvent.click(screen.getByRole('button', { name: 'Adicionar linha' }));
+      fireEvent.click(doc().getAllByText('0,00')[0]);
+      const campo = doc().getByLabelText('Valor do item 4') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: '50,00' } });
+      fireEvent.blur(campo);
+      expect(doc().getAllByText('2.679,64')).toHaveLength(2);
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].previa.itens).toHaveLength(4);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('prévia: voltar restaura a versão do PDF (com confirmação)', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    const confirmar = vi.spyOn(window, 'confirm');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
+      fireEvent.click(doc().getByText('2.203,04'));
+      const campo = doc().getByLabelText('Valor do item 1') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: '100,00' } });
+      fireEvent.blur(campo);
+      expect(doc().getAllByText('526,60')).toHaveLength(2);
+      confirmar.mockReturnValue(false);
+      fireEvent.click(screen.getByRole('button', { name: 'Voltar à versão original' }));
+      expect(doc().getAllByText('526,60')).toHaveLength(2); // sem confirmar, mantém
+      confirmar.mockReturnValue(true);
+      fireEvent.click(screen.getByRole('button', { name: 'Voltar à versão original' }));
+      expect(doc().getByText('2.203,04')).toBeTruthy();
+      expect(doc().getAllByText('2.629,64')).toHaveLength(2);
+    } finally {
+      confirmar.mockRestore();
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('prévia: registro antigo sem original deixa o voltar desabilitado', () => {
+    localStorage.setItem(
+      'orcamentos_historico_v1',
+      JSON.stringify([registro('9', 'ABC1D23', '01/08/2026 09:00:00')]),
+    );
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir orçamento' }));
+      const voltar = screen.getByRole('button', { name: 'Voltar à versão original' }) as HTMLButtonElement;
+      expect(voltar.disabled).toBe(true);
+      expect(voltar.title).toContain('orçamento antigo');
+      // a tela não quebra: o documento abre normalmente
+      expect(document.querySelector('#printable-quote')).toBeTruthy();
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
   it('caixinhas: desmarcar um item recalcula os totais', () => {
     const { container } = render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
@@ -372,7 +514,8 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
       // telefone aparece no cartão + botão habilitado abre a conversa (sem texto)
       expect(screen.getByText('51 99999-9999')).toBeTruthy();
-      expect(screen.getByText('JOAO')).toBeTruthy();
+      // nome no cartão do histórico e no documento (Cliente:)
+      expect(screen.getAllByText('JOAO')).toHaveLength(2);
       const botao = screen.getByRole('button', { name: 'Chamar no WhatsApp' });
       expect((botao as HTMLButtonElement).disabled).toBe(false);
       fireEvent.click(botao);

@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.208.0](#v20800) — 2026-11-19 — Prévia interativa do PNG (editar, excluir/adicionar linha, voltar ao PDF) (v0.208.0)
+
 - [v0.207.0](#v20700) — 2026-11-19 — OXI vira higienização (qualquer caixa) + Nº é chave única no histórico (v0.207.0)
 
 - [v0.206.0](#v20600) — 2026-11-19 — Sino: edição do lembrete direto no texto (v0.206.0)
@@ -338,6 +340,36 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20800"></a>
+## 2026-11-19 — Prévia interativa do PNG (v0.208.0)
+
+**Ideia:** o PNG é capturado do nó `#printable-quote` (`exportarPng` + `data-ui` fora da
+captura) — a prévia virou esse nó editável, então o PNG sai idêntico à tela.
+
+**Feito:**
+- `quoteLogic`: `ItemPrevia`/`PreviaOrcamento` (itens + revisão + `original` do PDF),
+  `construirPrevia`/`previaComOriginal`, `calcularPrevia` (adicional = marcados não
+  excluídos; total = revisão + adicional; 3x com centavos na ÚLTIMA:
+  100,00 → 33,33 + 33,33 + 33,34), `numeroExibicaoPrevia` (renumera por posição;
+  excluído não numera), `aplicarPrevia` (sincroniza o resumo: RESUMO, relatório, V/X
+  e último orçamento seguem o editado; valor editado reparte peças/serviços na
+  proporção original; linha nova entra como serviços).
+- `OrcamentosApp`: estado `previa` (gera na 1ª geração com `original`, restaura do
+  registro ao abrir, sem `original` em registro antigo); toda edição persiste no
+  histórico SÓ desse registro (`atualizarPreviaHistorico` + retrato novo, id/data
+  intactos); voltar com `confirm()` restaura PDF (linhas + sumem) ou fica
+  desabilitado com explicação quando sem original.
+- `QuoteTable`: descrição/valor/revisão clicáveis (input no lugar, Enter/blur
+  confirma, Esc volta ao valor de abertura); totais ao vivo; `x` por linha, `+`
+  no fim (nova aprovada, vazia); excluída riscada/fraca, fora do PNG/impressão
+  (`data-ui` + `print:hidden`), toque restaura na posição; nome do cliente no bloco
+  de data; parcelas `3x: p1 + p2 + p3`. Export dá `blur` antes de capturar (sem
+  rascunho no PNG). Caixinhas, V/X, filtros, layout e cálculos-base intactos.
+- Testes: `previa.test.ts` (+8: totais, uncheck, centavos, renumeração, restore,
+  sync, revisão) + 6 smokes (editar valor/desc/revisão, Esc, excluir/restaurar,
+  adicionar, voltar com/sem confirmação, antigo sem original) + 1 ajuste (nome no
+  PNG). **371 passam** (357 + 14); `typecheck` limpo, `lint` sem erros. Selo `v0.208.0`.
 
 <a id="v20700"></a>
 ## 2026-11-19 — OXI vira higienização (qualquer caixa) + Nº é chave única no histórico (v0.207.0)
