@@ -615,7 +615,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   </div>
                   <div className="space-y-1">
                     <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Parcelas</label>
-                    <select className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
+                    <select aria-label="Parcelas" className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
                       {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
                     </select>
                   </div>
@@ -698,6 +698,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               <QuoteTable
                 summary={visivel}
                 previa={previa}
+                numParcelas={parcelas}
                 selecionados={selecionados}
                 onToggleItem={alternarItem}
                 onEditarDescricao={editarDescricaoPrevia}

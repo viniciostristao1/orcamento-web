@@ -136,7 +136,8 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.blur(campo);
       expect(doc().getAllByText('526,60')).toHaveLength(2); // 100 + 209,60 + 217,00
       expect(doc().getByText('2.292,83')).toBeTruthy(); // 1.766,23 + 526,60
-      expect(doc().getByText('3x: 764,27 + 764,27 + 764,29')).toBeTruthy();
+      expect(doc().getByText('6 × 382,14')).toBeTruthy(); // 2.292,83 / 6 → teto
+      expect(doc().getByText('Parcelamento (6x):')).toBeTruthy();
       expect(doc().getByText(/^\d{2}\/\d{2}\/\d{4}/).textContent).toBe(dataAntes); // data mantida
       // edição salva no histórico, só nesse registro
       const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
@@ -164,7 +165,7 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.change(campoRev, { target: { value: '2.000,00' } });
       fireEvent.blur(campoRev);
       expect(doc().getByText('4.629,64')).toBeTruthy();
-      expect(doc().getByText('3x: 1.543,21 + 1.543,21 + 1.543,22')).toBeTruthy();
+      expect(doc().getByText('6 × 771,61')).toBeTruthy();
       // Esc descarta o rascunho do campo
       fireEvent.click(doc().getByText('PASTILHAS EDITADAS'));
       const campo2 = doc().getByLabelText('Descrição do item 1') as HTMLInputElement;
@@ -214,6 +215,56 @@ describe('App — smoke test (render + processar)', () => {
       expect(doc().getAllByText('2.679,64')).toHaveLength(2);
       const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos[0].previa.itens).toHaveLength(4);
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('prévia: parcelamento N × valor com teto; 6→3 atualiza linha e rótulo', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
+      // padrão 6x: 4.395,87 / 6 = 732,645 → 732,65
+      expect(doc().getByText('Parcelamento (6x):')).toBeTruthy();
+      expect(doc().getByText('6 × 732,65')).toBeTruthy();
+      // muda para 3x: divisão exata usa o valor exato
+      fireEvent.change(screen.getByLabelText('Parcelas'), { target: { value: '3' } });
+      expect(doc().getByText('Parcelamento (3x):')).toBeTruthy();
+      expect(doc().getByText('3 × 1.465,29')).toBeTruthy();
+      // +0,01 no item 1: 4.395,88 / 3 = 1.465,2933… → teto 1.465,30; total intacto
+      fireEvent.click(doc().getByText('2.203,04'));
+      const campo = doc().getByLabelText('Valor do item 1') as HTMLInputElement;
+      fireEvent.change(campo, { target: { value: '2.203,05' } });
+      fireEvent.blur(campo);
+      expect(doc().getByText('3 × 1.465,30')).toBeTruthy();
+      expect(doc().getAllByText('4.395,88')).toHaveLength(1); // total não muda
+    } finally {
+      localStorage.removeItem('orcamentos_historico_v1');
+    }
+  });
+
+  it('prévia: item novo tem descrição editável e entra no total', () => {
+    localStorage.removeItem('orcamentos_historico_v1');
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
+      fireEvent.click(screen.getByRole('button', { name: 'Adicionar linha' }));
+      // placeholder clicável vira campo; digitado aparece e entra no total
+      fireEvent.click(doc().getByText('…'));
+      const campoDesc = doc().getByLabelText('Descrição do item 4') as HTMLInputElement;
+      fireEvent.change(campoDesc, { target: { value: 'SERVIÇO EXTRA' } });
+      fireEvent.blur(campoDesc);
+      expect(doc().getByText('SERVIÇO EXTRA')).toBeTruthy();
+      fireEvent.click(doc().getAllByText('0,00')[0]);
+      const campoValor = doc().getByLabelText('Valor do item 4') as HTMLInputElement;
+      fireEvent.change(campoValor, { target: { value: '100,00' } });
+      fireEvent.blur(campoValor);
+      expect(doc().getAllByText('2.729,64')).toHaveLength(2);
+      const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
+      expect(salvos[0].previa.itens[3]).toMatchObject({ descricao: 'SERVIÇO EXTRA', valor: 100 });
     } finally {
       localStorage.removeItem('orcamentos_historico_v1');
     }

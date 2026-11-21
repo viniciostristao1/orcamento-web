@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.209.0](#v20900) — 2026-11-21 — Parcelamento N × valor com teto + descrição do item novo editável (v0.209.0)
+
 - [v0.208.0](#v20800) — 2026-11-19 — Prévia interativa do PNG (editar, excluir/adicionar linha, voltar ao PDF) (v0.208.0)
 
 - [v0.207.0](#v20700) — 2026-11-19 — OXI vira higienização (qualquer caixa) + Nº é chave única no histórico (v0.207.0)
@@ -340,6 +342,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v20900"></a>
+## 2026-11-21 — Parcelamento N × valor com teto + descrição do item novo editável (v0.209.0)
+
+**Feito:**
+- `calcularPrevia(previa, sel, n)`: parcela única = teto(TOTAL/N) no centavo
+  (`ceil(x*100 - 1e-6)/100` — exato como 4395,87/3 fica 1465,29; 4395,88/3 vira
+  1465,30); TOTAL intacto (revisão + adicional). Linha `N × valor`, rótulo
+  `PARCELAMENTO (NX)`, lendo o `parcelas` do estado (padrão 6, controle mantido).
+- `CelulaTexto`: descrição vazia (linha do "+") mostra placeholder `…` clicável só
+  na tela (`data-ui`, fora do PNG) — edição igual à dos originais.
+- Testes: unidade (teto, exato, casos 4395,87/4395,88, padrão 6x) + 2 smokes
+  (6→3 atualiza linha e rótulo; item novo com desc+valor no total e no histórico).
+  **374 passam**; `typecheck` limpo, `lint` sem erros. Selo `v0.209.0`.
 
 <a id="v20800"></a>
 ## 2026-11-19 — Prévia interativa do PNG (v0.208.0)

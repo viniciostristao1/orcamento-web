@@ -260,17 +260,21 @@ export const previaComOriginal = (p: PreviaOrcamentoSemOriginal): PreviaOrcament
 });
 
 /**
- * Calculadora da prévia (3X fixo): ADICIONAL = soma dos NÃO excluídos e
- * marcados; TOTAL = revisão + adicional; parcelas dividem os centavos com a
- * diferença na ÚLTIMA (ex.: 100,00 → 33,33 + 33,33 + 33,34).
+ * Calculadora da prévia (N parcelas): ADICIONAL = soma dos NÃO excluídos e
+ * marcados; TOTAL = revisão + adicional (não muda); parcela = TOTAL / N
+ * arredondada PARA CIMA no centavo (ex.: 4395,88 / 3 → 1465,30; divisão exata
+ * como 4395,87 / 3 usa 1465,29 — o `1e-6` protege o exato do erro de float).
+ * A soma das parcelas pode passar do TOTAL em centavos.
  */
 export const calcularPrevia = (
   previa: PreviaOrcamentoSemOriginal,
   selecionados: Set<number>,
+  numParcelas: number = 3,
 ): {
   adicional: number;
   total: number;
-  parcelas: [number, number, number];
+  parcela: number;
+  numParcelas: number;
   naoAprovados: ItemPrevia[];
   totalNaoAprovado: number;
   /** Tudo (revisão + itens não excluídos): base do "Total Geral". */
@@ -280,18 +284,14 @@ export const calcularPrevia = (
   const marcados = visiveis.filter((i) => selecionados.has(i.id));
   const adicional = marcados.reduce((acc, i) => acc + i.valor, 0);
   const total = previa.revisaoAprovada + adicional;
-  const centavos = Math.round(total * 100);
-  const base = Math.floor(centavos / 3);
-  const parcelas: [number, number, number] = [
-    base / 100,
-    base / 100,
-    (centavos - 2 * base) / 100,
-  ];
+  const n = Math.max(1, Math.floor(numParcelas) || 1);
+  const parcela = Math.ceil((total / n) * 100 - 1e-6) / 100;
   const naoAprovados = visiveis.filter((i) => !selecionados.has(i.id));
   return {
     adicional,
     total,
-    parcelas,
+    parcela,
+    numParcelas: n,
     naoAprovados,
     totalNaoAprovado: naoAprovados.reduce((acc, i) => acc + i.valor, 0),
     totalGeralPrevia: previa.revisaoAprovada + visiveis.reduce((acc, i) => acc + i.valor, 0),

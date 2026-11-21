@@ -19,6 +19,20 @@ const CelulaTexto: React.FC<{
   const [rascunho, setRascunho] = useState(value);
   // Valor de abertura: o commit é imediato, então o Esc volta para ele.
   const originalRef = useRef(value);
+  if (!editando && !value.trim()) {
+    // Linha nova (descrição vazia): placeholder clicável só na tela — fora do
+    // PNG (data-ui) para a célula sair vazia na captura.
+    return (
+      <span
+        data-ui="1"
+        onClick={() => { originalRef.current = value; setRascunho(value); setEditando(true); }}
+        title="Clique para editar"
+        className={`${className} cursor-text text-slate-300 print:hidden`}
+      >
+        …
+      </span>
+    );
+  }
   if (!editando) {
     return (
       <span onClick={() => { originalRef.current = value; setRascunho(value); setEditando(true); }} title="Clique para editar" className={`${className} cursor-text`}>
@@ -98,8 +112,10 @@ const CelulaValor: React.FC<{
 
 interface QuoteTableProps {
   summary: QuoteSummary;
-  /** Prévia interativa (null = 1ª geração ainda não montada; cai no resumo). */
+  /** Prévia interativa (null = 1ª montagem; cai no resumo). */
   previa: PreviaOrcamento | null;
+  /** Quantidade de parcelas (padrão 6; o controle continua existindo). */
+  numParcelas?: number;
   selecionados: Set<number>;
   onToggleItem: (id: number) => void;
   onEditarDescricao: (id: number, descricao: string) => void;
@@ -122,6 +138,7 @@ interface QuoteTableProps {
 const QuoteTable: React.FC<QuoteTableProps> = ({
   summary,
   previa,
+  numParcelas = 6,
   selecionados,
   onToggleItem,
   onEditarDescricao,
@@ -155,9 +172,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
   // Prévia interativa: sem ela (1ª montagem), cai no resumo recalculado.
   const prev: PreviaOrcamento =
     previa ?? { ...construirPrevia(summary.items, summary.revisaoAprovada), original: null };
-  // Calculadora da prévia (3X fixo): adicional = marcados não excluídos;
-  // total = revisão + adicional; centavos da parcela na última.
-  const calc = calcularPrevia(prev, selecionados);
+  // Calculadora da prévia: adicional = marcados não excluídos; total = revisão
+  // + adicional; parcela = total / N arredondada para cima no centavo.
+  const calc = calcularPrevia(prev, selecionados, numParcelas);
 
   // Impressão: em vez de re-renderizar o HTML na largura do papel (o que mudava
   // a proporção das colunas e quebrava linhas diferentes), geramos a MESMA
@@ -492,8 +509,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
               </div>
 
               <div className="flex justify-between items-center text-slate-400">
-                <span className="font-bold uppercase tracking-wide text-2xl">Parcelamento (3x):</span>
-                <span className="font-bold text-2xl">3x: {formatCurrency(calc.parcelas[0])} + {formatCurrency(calc.parcelas[1])} + {formatCurrency(calc.parcelas[2])}</span>
+                <span className="font-bold uppercase tracking-wide text-2xl">Parcelamento ({calc.numParcelas}x):</span>
+                <span className="font-bold text-2xl">{calc.numParcelas} × {formatCurrency(calc.parcela)}</span>
               </div>
 
               <div className="h-px bg-blue-600 my-2 opacity-40"></div>

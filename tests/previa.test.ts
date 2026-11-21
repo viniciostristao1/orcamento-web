@@ -24,19 +24,30 @@ describe('prévia interativa do documento', () => {
     expect(p.original?.itens).toHaveLength(3);
   });
 
-  it('adicional = marcados; total = revisão + adicional; 3x exato', () => {
+  it('adicional = marcados; total = revisão + adicional; parcela com teto', () => {
     const p = previaComOriginal(construirPrevia(RES.items, 90));
-    const c = calcularPrevia(p, new Set([1, 3]));
+    const c = calcularPrevia(p, new Set([1, 3]), 3);
     expect(c.adicional).toBeCloseTo(40, 2);
     expect(c.total).toBeCloseTo(130, 2);
-    expect(c.parcelas).toEqual([43.33, 43.33, 43.34]);
+    expect(c.numParcelas).toBe(3);
+    expect(c.parcela).toBeCloseTo(43.34, 2); // 130 / 3 = 43,333… → 43,34
   });
 
-  it('diferença de centavos cai na ÚLTIMA parcela', () => {
+  it('parcela arredonda para cima; divisão exata usa o valor exato', () => {
     const p = previaComOriginal(construirPrevia([{ id: 1, description: 'A', value: 100 }], 0));
-    const c = calcularPrevia(p, new Set([1]));
-    expect(c.parcelas).toEqual([33.33, 33.33, 33.34]);
-    expect(c.parcelas.reduce((a, b) => a + b, 0)).toBeCloseTo(100, 2);
+    expect(calcularPrevia(p, new Set([1]), 3).parcela).toBeCloseTo(33.34, 2);
+    const exato = previaComOriginal(construirPrevia([{ id: 1, description: 'A', value: 90 }], 0));
+    expect(calcularPrevia(exato, new Set([1]), 3).parcela).toBeCloseTo(30, 2);
+  });
+
+  it('casos do contrato: 4395,87 e 4395,88 em 3x; padrão 6x', () => {
+    const base = (total: number) =>
+      previaComOriginal(construirPrevia([{ id: 1, description: 'A', value: total }], 0));
+    expect(calcularPrevia(base(4395.87), new Set([1]), 3).parcela).toBeCloseTo(1465.29, 2);
+    expect(calcularPrevia(base(4395.88), new Set([1]), 3).parcela).toBeCloseTo(1465.3, 2);
+    const c6 = calcularPrevia(base(4395.87), new Set([1]), 6);
+    expect(c6.numParcelas).toBe(6);
+    expect(c6.parcela).toBeCloseTo(732.65, 2); // 4395,87 / 6 = 732,645 → 732,65
   });
 
   it('item desmarcado sai dos totais e volta ao marcar', () => {
@@ -78,8 +89,8 @@ describe('prévia interativa do documento', () => {
   it('editar revisão muda total e parcelas', () => {
     const p = previaComOriginal(construirPrevia(RES.items, 100));
     p.revisaoAprovada = 40;
-    const c = calcularPrevia(p, TODOS);
+    const c = calcularPrevia(p, TODOS, 3);
     expect(c.total).toBeCloseTo(100, 2);
-    expect(c.parcelas).toEqual([33.33, 33.33, 33.34]);
+    expect(c.parcela).toBeCloseTo(33.34, 2);
   });
 });
