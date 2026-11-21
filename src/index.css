@@ -18,10 +18,13 @@
 @import "@fontsource/plus-jakarta-sans/latin-400.css";
 @import "@fontsource/plus-jakarta-sans/latin-500.css";
 @import "@fontsource/plus-jakarta-sans/latin-700.css";
-/* Serifada sofisticada (temas Azul-meia-noite, Latte, Creme). */
+/* Serifada sofisticada (temas Azul-meia-noite, Latte, Creme, Duna). */
 @import "@fontsource/fraunces/latin-400.css";
 @import "@fontsource/fraunces/latin-500.css";
 @import "@fontsource/fraunces/latin-600.css";
+/* Itálico da palavra de destaque nos títulos (só o Duna usa, via `em`). */
+@import "@fontsource/fraunces/latin-400-italic.css";
+@import "@fontsource/fraunces/latin-600-italic.css";
 
 /* ============================================================================
    TEMAS DA INTERFACE (Azul é o padrão)
@@ -313,26 +316,27 @@
    sóbrio da galeria. */
 [data-tema='meianoite'] button,
 [data-tema='cobre'] button, [data-tema='latte'] button,
-[data-tema='creme'] button, [data-tema='dark'] button {
+[data-tema='creme'] button, [data-tema='dark'] button,
+[data-tema='duna'] button {
   box-shadow: none;
 }
 [data-tema='meianoite'] [data-neon-glow],
 [data-tema='cobre'] [data-neon-glow],
 [data-tema='latte'] [data-neon-glow], [data-tema='creme'] [data-neon-glow],
-[data-tema='dark'] [data-neon-glow] {
+[data-tema='dark'] [data-neon-glow], [data-tema='duna'] [data-neon-glow] {
   display: none !important;
 }
 [data-tema='meianoite'] [data-neon-dot],
 [data-tema='cobre'] [data-neon-dot],
 [data-tema='latte'] [data-neon-dot], [data-tema='creme'] [data-neon-dot],
-[data-tema='dark'] [data-neon-dot] {
+[data-tema='dark'] [data-neon-dot], [data-tema='duna'] [data-neon-dot] {
   background-color: var(--tema-acento) !important;
   box-shadow: none !important;
 }
 [data-tema='meianoite'] [data-neon-box],
 [data-tema='cobre'] [data-neon-box],
 [data-tema='latte'] [data-neon-box], [data-tema='creme'] [data-neon-box],
-[data-tema='dark'] [data-neon-box] {
+[data-tema='dark'] [data-neon-box], [data-tema='duna'] [data-neon-box] {
   box-shadow: none !important;
 }
 
@@ -459,6 +463,86 @@
 [data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600 { color: #6e5b42; }
 [data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300 { color: #3a2a1c; }
 [data-tema='papel'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200, [data-tema='creme'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200 { color: #3a2a1c; }
+
+/* Duna (claro) = bege quente + marinho + dourado. Fraunces (com itálico) + Inter.
+   Contrastes medidos (WCAG): texto #1B2033/fundo 13,98 · título/fundo 15,25 ·
+   suave #5B6274/fundo 5,28 e cartão 4,77 · placeholder #7E6E55/campo 4,66 ·
+   claro/botão-marinho 14,34 · erro #B3352B 5,25+ · sucesso-texto #287042 5,22.
+   O dourado #E9A23B (1,88) é só decorativo — texto de destaque usa #8A5A00. */
+[data-tema='duna'] {
+  --tema-fundo: #F4EEE3; --tema-campo: #FBF8F1; --tema-painel: #EAE3D4;
+  --tema-borda-forte: #D8CCB4; --tema-borda-media: #E0D5BE;
+  --tema-texto-fraco: #7E6E55; --tema-texto-suave: #5B6274; --tema-texto-medio: #57606F;
+  --tema-texto-medio2: #424B60; --tema-texto: #1B2033; --tema-titulo: #141829;
+  --tema-acento: #1B2033; --tema-acento-2: #2A3350; --tema-acento-claro: #3C4767;
+  --tema-acento-clarissimo: #6B7590; --tema-acento-escuro: #101527; --tema-acento-texto: #F6F1E7;
+  --tema-sucesso: #287042; --tema-sucesso-2: #2F8A4E; --tema-sucesso-claro: #4CAF6E; --tema-sucesso-escuro: #BBE4C9;
+  --tema-ambar: #E9A23B; --tema-ambar-claro: #F2C063; --tema-sombra-sucesso: #BBE4C9;
+  --tema-tracking-widest: 0.14em;
+  --tema-fonte-titulo: 'Fraunces', serif; --tema-fonte-conteudo: 'Inter', sans-serif;
+}
+
+/* Duna: palavra de destaque nos títulos (itálico dourado, via `em`).
+   Sem `em` no markup hoje — regra sem efeito até o uso (outros temas intactos). */
+[data-tema='duna'] .titulo-tema em {
+  color: var(--tema-ambar);
+  font-style: italic;
+}
+
+/* Duna CLARO: campos com letra marinho + foco marinho com anel laranja fino. */
+[data-tema='duna'] .campo-tema {
+  border-color: #D8CCB4;
+  color: #1B2033;
+}
+[data-tema='duna'] .campo-tema:focus {
+  border-color: #1B2033;
+  box-shadow: 0 0 0 2px rgba(233, 162, 59, 0.55);
+}
+[data-tema='duna'] .subaba-fechada {
+  background-color: #E4D6BC;
+  color: #1B2033;
+}
+[data-tema='duna'] .subaba-fechada:hover {
+  background-color: #DCCFAF;
+}
+[data-tema='duna'] .logo-toyota {
+  filter: brightness(0) opacity(0.82);
+}
+
+/* Duna CLARO: pastéis dos cartões do histórico (mesmo padrão do Latte;
+   inclui o text-red-400 dos erros, que o padrão não cobre). */
+[data-tema='duna'] [data-historico] .text-sky-300 { color: #1c4e80; }
+[data-tema='duna'] [data-historico] .text-blue-300 { color: #1d4e9e; }
+[data-tema='duna'] [data-historico] .text-amber-300 { color: #8a5a00; }
+[data-tema='duna'] [data-historico] .text-teal-300 { color: #0b6b5f; }
+[data-tema='duna'] [data-historico] .text-green-300 { color: #1e7a45; }
+[data-tema='duna'] [data-historico] .text-violet-300 { color: #5b3fa8; }
+[data-tema='duna'] [data-historico] .text-red-300 { color: #B3352B; }
+[data-tema='duna'] [data-historico] .text-red-400 { color: #B3352B; }
+[data-tema='duna'] [data-historico] .text-green-400 { color: #287042; }
+[data-tema='duna'] [data-historico] .text-slate-400 { color: #57606F; }
+[data-tema='duna'] [data-historico] .text-slate-500 { color: #5B6274; }
+[data-tema='duna'] [data-historico] .text-slate-600 { color: #424B60; }
+
+/* Duna CLARO: % do relatório + Sim/Não da coluna APROVADO (idem Latte). */
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-green-400 { color: #287042; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-amber-300 { color: #8a5a00; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-red-400 { color: #B3352B; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-blue-300 { color: #1d4e9e; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-400 { color: #57606F; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-500 { color: #5B6274; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-600 { color: #424B60; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-300 { color: #424B60; }
+[data-tema='duna'] [data-janela-relatorio] :is(span, td, th, p, label).text-slate-200 { color: #1B2033; }
+
+/* Duna CLARO: textos de erro e confirmação fora do histórico/relatório
+   (Sino, Bloqueio — menu de configurações). Toda a interface é clara no tema,
+   então o override global é seguro (as saídas resetam as variáveis). */
+[data-tema='duna'] .text-red-400 { color: #B3352B; }
+[data-tema='duna'] .text-green-400 { color: #287042; }
+[data-tema='duna'] nav.menu-dados {
+  background-color: #1B2033;
+}
 
 /* Dark (tipo Taskix) = preto quente + terracota + serifada. Fraunces + Inter. */
 [data-tema='dark'] {

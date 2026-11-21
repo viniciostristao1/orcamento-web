@@ -20,6 +20,7 @@ const OPCOES: { id: Tema; nome: string; descricao: string; fundo: string; acento
   { id: 'cobre', nome: 'Grafite & Cobre', descricao: 'Grafite frio + cobre, Space Grotesk', fundo: '#1f2124', acento: '#b87333' },
   { id: 'latte', nome: 'Latte (claro)', descricao: 'Fundo latte + marrom-escuro, serifada', fundo: '#dbc9b0', acento: '#6e4a2e' },
   { id: 'creme', nome: 'Creme (claro)', descricao: 'Bege + botões pretos + terracota, serifada', fundo: '#F5F0E6', acento: '#1B1B1B' },
+  { id: 'duna', nome: 'Duna (claro)', descricao: 'Bege quente + marinho + dourado, serifada', fundo: '#F4EEE3', acento: '#1B2033' },
 ];
 
 const ConfiguracoesTema: React.FC<ConfiguracoesTemaProps> = ({ tema, onChange }) => {

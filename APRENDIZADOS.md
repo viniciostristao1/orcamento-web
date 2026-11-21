@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.210.0](#v21000) — 2026-11-21 — Tema Duna (bege quente + marinho + dourado) (v0.210.0)
+
 - [v0.209.0](#v20900) — 2026-11-21 — Parcelamento N × valor com teto + descrição do item novo editável (v0.209.0)
 
 - [v0.208.0](#v20800) — 2026-11-19 — Prévia interativa do PNG (editar, excluir/adicionar linha, voltar ao PDF) (v0.208.0)
@@ -342,6 +344,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21000"></a>
+## 2026-11-21 — Tema Duna (v0.210.0)
+
+**Feito:** 10º tema (`duna` em `tema.ts` + `OPCOES` + bloco CSS + `claro` no App):
+fundo #F4EEE3, cartões #EAE3D4, campos #FBF8F1, texto #1B2033, primário marinho com
+texto claro, destaque dourado #E9A23B (só decorativo), títulos Fraunces (+itálico
+via `em`, sem uso no markup hoje), foco marinho com anel laranja, erro #B3352B
+(texto; sem borda de erro em campo — não existe no app), pastéis de histórico/
+relatório, menu-dados marinho, chapado sem neon. Todos os contrastes de texto
+medidos ≥4,5 (placeholder #7E6E55 4,66; suave #5B6274 4,77+; lista no bloco).
+**Validação:** screenshots 360 + desktop (azul × duna), PNG antes/depois com
+relógio fixo: **0 pixels diferentes** (PIL). **374 passam**; `typecheck` limpo,
+`lint` sem erros. Selo `v0.210.0`.
 
 <a id="v20900"></a>
 ## 2026-11-21 — Parcelamento N × valor com teto + descrição do item novo editável (v0.209.0)

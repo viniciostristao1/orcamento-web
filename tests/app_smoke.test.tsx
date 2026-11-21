@@ -413,6 +413,14 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.click(screen.getByText('Azul'));
     expect(document.documentElement.dataset.tema).toBe('azul');
     expect(localStorage.getItem('orcamentos_tema_v1')).toBe('azul');
+
+    // Duna (claro): bege quente + marinho + dourado, salvo como os demais
+    // (o menu reabre com a lista de temas já expandida da escolha anterior)
+    fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+    fireEvent.click(screen.getByText('Duna (claro)'));
+    expect(screen.queryByText('Duna (claro)')).toBeNull(); // fecha o menu ao escolher
+    expect(document.documentElement.dataset.tema).toBe('duna');
+    expect(localStorage.getItem('orcamentos_tema_v1')).toBe('duna');
   });
 
   it('abas superiores: sublinhado âmbar na ativa (ideia 01)', () => {

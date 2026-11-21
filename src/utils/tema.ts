@@ -7,7 +7,8 @@ export type Tema =
   | 'cobre'
   | 'latte'
   | 'creme'
-  | 'dark';
+  | 'dark'
+  | 'duna';
 
 export const TEMA_KEY = 'orcamentos_tema_v1';
 
@@ -21,6 +22,7 @@ const TEMAS_VALIDOS: readonly Tema[] = [
   'latte',
   'creme',
   'dark',
+  'duna',
 ];
 
 /**
