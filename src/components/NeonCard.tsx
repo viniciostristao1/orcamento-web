@@ -13,9 +13,13 @@ interface NeonCardProps {
   collapsible?: boolean;
   /** Começa aberto (padrão) ou fechado. */
   defaultOpen?: boolean;
+  /** Controlado: aberto ou recolhido (só cabeçalho, sem espaço vertical extra). */
+  aberto?: boolean;
+  /** Chamado ao tocar no botão de recolher/expandir (modo controlado). */
+  onAlternar?: () => void;
 }
 
-const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", borderColor = "#3b82f6", actions, compact = false, collapsible = false, defaultOpen = true }) => {
+const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", borderColor = "#3b82f6", actions, compact = false, collapsible = false, defaultOpen = true, aberto: abertoProp, onAlternar }) => {
   const getGlowColor = (color: string) => {
     if (color.includes('blue-500')) return '#3b82f6';
     if (color.includes('blue-600')) return '#2563eb';
@@ -24,7 +28,13 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
   };
 
   const glowColor = getGlowColor(borderColor);
-  const [aberto, setAberto] = useState(defaultOpen);
+  const [abertoInterno, setAbertoInterno] = useState(defaultOpen);
+  const controlado = abertoProp !== undefined;
+  const aberto = controlado ? abertoProp : abertoInterno;
+  const alternar = () => {
+    if (controlado) onAlternar?.();
+    else setAbertoInterno((v) => !v);
+  };
 
   return (
     <div className={`relative ${className}`}>
@@ -50,19 +60,19 @@ const NeonCard: React.FC<NeonCardProps> = ({ children, title, className = "", bo
               </h3>
             </div>
             <div className="flex items-center gap-2">
+              {actions && <div className="flex items-center">{actions}</div>}
               {collapsible && (
                 <button
                   type="button"
-                  onClick={() => setAberto((v) => !v)}
+                  onClick={alternar}
                   aria-label={aberto ? `Ocultar ${title}` : `Mostrar ${title}`}
                   aria-expanded={aberto}
                   title={aberto ? `Ocultar ${title}` : `Mostrar ${title}`}
-                  className="flex items-center justify-center p-1.5 text-slate-400 hover:text-slate-100 transition-all cursor-pointer active:scale-95"
+                  className="flex items-center justify-center p-1.5 text-slate-400 hover:text-slate-100 focus:text-slate-100 transition-all cursor-pointer active:scale-95"
                 >
                   <ChevronDown size={18} className={`transition-transform ${aberto ? 'rotate-180' : ''}`} />
                 </button>
               )}
-              {actions && <div className="flex items-center">{actions}</div>}
             </div>
           </div>
         )}

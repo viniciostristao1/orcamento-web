@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.212.0](#v21200) — 2026-11-23 — Recolher DESCRIÇÃO/DADOS/AJUSTE/RESUMO com persistência (v0.212.0)
+
 - [v0.211.0](#v21100) — 2026-11-23 — Complementar detalhado: peças + MOs por bloco (JBV-2I88) (v0.211.0)
 
 - [v0.210.0](#v21000) — 2026-11-21 — Tema Duna (bege quente + marinho + dourado) (v0.210.0)
@@ -346,6 +348,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21200"></a>
+## 2026-11-23 — Recolher DESCRIÇÃO/DADOS/AJUSTE/RESUMO com persistência (v0.212.0)
+
+**Feito:** botão minimizar nas 4 áreas (só cabeçalho quando recolhida, sem espaço
+vertical extra). DESCRIÇÃO/DADOS (SistemaCard): seta `⌄`/`›` à direita do rótulo,
+na cor do rótulo (`text-slate-500` normal + foco, `currentColor` visual). AJUSTE e
+RESUMO (NeonCard `collapsible` controlado): botão por último à direita, depois do
+limpar. Estado em `orcamento_colapsados_v1` (lembra ao recarregar; entra no backup);
+sem botão global. Recolher nunca apaga o digitado (textareas controladas) e o
+RESUMO segue calculado (`visivel` intacto).
+**Validação:** 8 testes novos (`colapsados` + `orcamento_colapso`: recolhe/abre as 4
+sem perder dados, resumo certo, cor da seta, ordem do botão, persistência) +
+suite cheia 388 passando; `typecheck` limpo, `lint` sem erros; capturas desktop +
+360dp (aberto × recolhido) sem corte/sobreposição. Selo `v0.212.0`.
 
 <a id="v21100"></a>
 ## 2026-11-23 — Complementar detalhado: peças + MOs por bloco (v0.211.0)

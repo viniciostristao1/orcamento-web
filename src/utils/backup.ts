@@ -4,6 +4,7 @@ import { ULTIMO_KEY } from './ultimoOrcamento';
 import { SENHA_KEY } from './bloqueio';
 import { RAPIDOS_KEY } from './lembretesRapidos';
 import { NOTAS_GERAIS_KEY } from './notasGerais';
+import { COLAPSADOS_KEY } from './colapsados';
 
 /** Chaves legadas da aba Whats (removida na v0.117.0): só para restaurar backups antigos. */
 export const SCRIPT_PNEUS_KEY = 'zap_script_pneus_v1';
@@ -47,6 +48,7 @@ export const CHAVES_BACKUP = [
   SENHA_KEY, // a senha do cadeado acompanha o backup (restaurar mantém a senha)
   RAPIDOS_KEY, // lembretes rápidos do sino
   NOTAS_GERAIS_KEY, // bloco de notas gerais (ao lado do sino)
+  COLAPSADOS_KEY, // recolhimento das 4 áreas do orçamento
   BACKUP_DATA_KEY, // data do último backup (restaurar não reacende o aviso à toa)
 ] as const;
 

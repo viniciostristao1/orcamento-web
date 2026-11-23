@@ -12,6 +12,7 @@ import SistemaCard from '../sistema/SistemaCard';
 import { decidirFontePlay, type CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
 import { lerUltimoOrcamento, salvarUltimoOrcamento } from '../utils/ultimoOrcamento';
+import { lerColapsados, salvarColapsados } from '../utils/colapsados';
 
 const EXEMPLO_DESC = `01 TR PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS\n02 OXI\n03 TR BORRACHA DAS PALHETAS`;
 const EXEMPLO_ORCAMENTO = `1 Serviço GUN126L473025 DISCO DIANTEIRO UM LADO NO VEICULO 1,20000 514,800000 514,80\n1 Peça 142142GC133 *GRAXA COBREADA ALTA TEMPERATURA 1 36,640000 36,64\n1 Peça CARE040201 LIMPADOR PREMIUM UNIVERSAL 1 156,600000 156,60\n1 Peça 044650K401 JOGO PASTILHAS FREIO DIANT.HILUX AP.2016 1 1.245,000000 1.245,00\n3 Serviço GUN126L850091 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0,10000 42,900000 42,90\n3 Peça CARE044907 CAR CONJUNTO VISIB. DO PARABRISA, H20 PARA VEICULOS1 27,100000 27,10\n3 Peça 8521428090 BORRACHA LIMPADOR DI 1 65,000000 65,00\n3 Peça 8521453080 BORRACHA LIMPADOR PA 1 82,000000 82,00\n2 Serviço HIGMOTO HIGIENIZACAO AR CONDICIONADO 0,05000 0,000000 0,00\n2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60\n2 Peça CARE010701 OXY-SANITIZATION APP 1 99,000000 99,00\n1 Serviço RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO 1,00000 250,000000 250,00`;
@@ -70,6 +71,12 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   // Estados locais para os inputs de texto para permitir digitação livre (como vírgulas e pontos)
   const [revAprovadaInput, setRevAprovadaInput] = useState<string>(() => rascunho?.revAprovadaInput ?? "1766,23");
   const [revPecasInput, setRevPecasInput] = useState<string>(() => rascunho?.revPecasInput ?? "1000,00");
+  // Recolhimento das 4 áreas (DESCRIÇÃO, DADOS, AJUSTE, RESUMO): só o cabeçalho
+  // aparece; o conteúdo continua no estado (recolher nunca apaga o digitado).
+  const [colapsados, setColapsados] = useState(lerColapsados);
+  useEffect(() => {
+    salvarColapsados(colapsados);
+  }, [colapsados]);
 
   // Salva o rascunho enquanto o usuário edita (reabre com o que estava fazendo).
   useEffect(() => {
@@ -494,6 +501,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 revNonceUsed.current = revNonce.current;
                 camposSujos.current = false;
               }}
+              descRecolhido={colapsados.descricao}
+              dadosRecolhido={colapsados.dados}
+              onAlternarDesc={() => setColapsados((c) => ({ ...c, descricao: !c.descricao }))}
+              onAlternarDados={() => setColapsados((c) => ({ ...c, dados: !c.dados }))}
             />
 
             <NeonCard
@@ -635,19 +646,35 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
             {/* Ajustes Manuais abaixo do APROVADO (mesma largura);
                 o campo mostra só 3 linhas (rows=3). */}
-            <NeonCard title="AJUSTE (ID VALOR)" borderColor="#f59e0b" compact actions={<ClearButton onClick={() => setAjustesManuais('')} />}>
-              <textarea 
+            <NeonCard
+              title="AJUSTE (ID VALOR)"
+              borderColor="#f59e0b"
+              compact
+              collapsible
+              aberto={!colapsados.ajuste}
+              onAlternar={() => setColapsados((c) => ({ ...c, ajuste: !c.ajuste }))}
+              actions={<ClearButton onClick={() => setAjustesManuais('')} />}
+            >
+              <textarea
                 rows={2}
-                className="w-full campo-tema border border-slate-800 rounded-2xl p-4 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none" 
-                placeholder="Ex: 1 50,00" 
-                value={ajustesManuais} 
-                onChange={(e) => setAjustesManuais(e.target.value)} 
+                aria-label="Ajuste manual"
+                className="w-full campo-tema border border-slate-800 rounded-2xl p-4 text-amber-500 font-mono text-lg focus:border-amber-500 outline-none resize-none"
+                placeholder="Ex: 1 50,00"
+                value={ajustesManuais}
+                onChange={(e) => setAjustesManuais(e.target.value)}
               />
             </NeonCard>
 
             {/* RESUMO LÍQUIDO colado abaixo do AJUSTES, em pares. */}
             {visivel && (
-              <NeonCard title="RESUMO LÍQUIDO" borderColor="#10b981" compact>
+              <NeonCard
+                title="RESUMO LÍQUIDO"
+                borderColor="#10b981"
+                compact
+                collapsible
+                aberto={!colapsados.resumo}
+                onAlternar={() => setColapsados((c) => ({ ...c, resumo: !c.resumo }))}
+              >
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="px-3 py-2 bg-slate-950 rounded-2xl border border-slate-800 text-center">

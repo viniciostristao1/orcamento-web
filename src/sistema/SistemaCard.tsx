@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { ClipboardPaste, History, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, ClipboardPaste, History, Plus } from 'lucide-react';
 import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import {
@@ -45,6 +45,11 @@ interface SistemaCardProps {
   onRevisaoInicial?: (v: string) => void;
   /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
   onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
+  /** Recolhido = só o cabeçalho aparece (conteúdo preservado). */
+  descRecolhido?: boolean;
+  dadosRecolhido?: boolean;
+  onAlternarDesc?: () => void;
+  onAlternarDados?: () => void;
 }
 
 const ehPdf = (f: File) => /\.pdf$/i.test(f.name) || f.type === 'application/pdf';
@@ -81,6 +86,10 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onExtraido,
   onRevisaoInicial,
   onUsarTextos,
+  descRecolhido = false,
+  dadosRecolhido = false,
+  onAlternarDesc,
+  onAlternarDados,
 }: SistemaCardProps) => {
   const [estado, setEstado] = useState('');
   const [ocupado, setOcupado] = useState(false);
@@ -340,30 +349,58 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DESCRIÇÃO</label>
-          <textarea
-            value={revDesc}
-            onChange={(e) => onRevDesc(e.target.value)}
-            placeholder="As reclamações do cliente aparecem aqui para revisão…"
-            aria-label="Descrição extraída para revisão"
-            wrap="off"
-            className="w-full h-[138px] campo-tema border border-slate-800 rounded-2xl p-4 text-base font-medium leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
-          />
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DESCRIÇÃO</label>
+            <button
+              type="button"
+              onClick={onAlternarDesc}
+              aria-label={descRecolhido ? 'Mostrar DESCRIÇÃO' : 'Ocultar DESCRIÇÃO'}
+              aria-expanded={!descRecolhido}
+              title={descRecolhido ? 'Mostrar DESCRIÇÃO' : 'Ocultar DESCRIÇÃO'}
+              className="flex items-center justify-center p-1 text-slate-500 hover:text-slate-500 focus:text-slate-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-500 rounded transition-all cursor-pointer active:scale-95"
+            >
+              {descRecolhido ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+            </button>
+          </div>
+          {!descRecolhido && (
+            <textarea
+              value={revDesc}
+              onChange={(e) => onRevDesc(e.target.value)}
+              placeholder="As reclamações do cliente aparecem aqui para revisão…"
+              aria-label="Descrição extraída para revisão"
+              wrap="off"
+              className="w-full h-[138px] campo-tema border border-slate-800 rounded-2xl p-4 text-base font-medium leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+            />
+          )}
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DADOS</label>
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">DADOS</label>
+            <button
+              type="button"
+              onClick={onAlternarDados}
+              aria-label={dadosRecolhido ? 'Mostrar DADOS' : 'Ocultar DADOS'}
+              aria-expanded={!dadosRecolhido}
+              title={dadosRecolhido ? 'Mostrar DADOS' : 'Ocultar DADOS'}
+              className="flex items-center justify-center p-1 text-slate-500 hover:text-slate-500 focus:text-slate-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-500 rounded transition-all cursor-pointer active:scale-95"
+            >
+              {dadosRecolhido ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+            </button>
+          </div>
           {/* Altura medida para o card terminar junto do RESUMO LÍQUIDO
               (medido em tela a 1600px; zoom .75 da interface incluso;
               compensa a DESCRIÇÃO acima para o total não mudar). */}
-          <textarea
-            value={revDados}
-            onChange={(e) => onRevDados(e.target.value)}
-            placeholder="Os itens (peças/serviços) aparecem aqui para revisão…"
-            aria-label="Dados extraídos para revisão"
-            wrap="off"
-            className="w-full h-[251px] campo-tema border border-slate-800 rounded-2xl p-4 text-base font-mono leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
-          />
+          {!dadosRecolhido && (
+            <textarea
+              value={revDados}
+              onChange={(e) => onRevDados(e.target.value)}
+              placeholder="Os itens (peças/serviços) aparecem aqui para revisão…"
+              aria-label="Dados extraídos para revisão"
+              wrap="off"
+              className="w-full h-[251px] campo-tema border border-slate-800 rounded-2xl p-4 text-base font-mono leading-relaxed focus:border-blue-500 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+            />
+          )}
         </div>
 
         <button
