@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.213.0](#v21300) — 2026-11-23 — PNG compacto: gêmeo off-screen com respiros menores (v0.213.0)
+
 - [v0.212.0](#v21200) — 2026-11-23 — Recolher DESCRIÇÃO/DADOS/AJUSTE/RESUMO com persistência (v0.212.0)
 
 - [v0.211.0](#v21100) — 2026-11-23 — Complementar detalhado: peças + MOs por bloco (JBV-2I88) (v0.211.0)
@@ -348,6 +350,28 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21300"></a>
+## 2026-11-23 — PNG compacto: gêmeo off-screen com respiros menores (v0.213.0)
+
+**Causa (medida no PNG real, CDP headless):** sem altura fixa/min-height/flex
+esticando — o `#printable-quote` já acompanha o conteúdo (633 px com 1 peça,
+1101 px com 10). O "vão" era a soma dos respiros fixos do cartão (`sm:p-10`,
+`mb-4`, `mb-2`s, `mt-4`, cantos `2rem`), que num doc curto dominam a altura.
+
+**Ajuste de mecanismo:** o 1.11.13 não tem `onClone` (confirmado no `src/` do
+pacote) — em vez disso o `exportarPng` clona para um gêmeo off-screen
+(`prepararClonePng`: mesma largura, estado dos campos sincronizado, classe
+`png-compacto`, esconderijo no invólucro para não vazar posição para o SVG) e
+captura o gêmeo. Primeira tentativa com o esconderijo no próprio gêmeo saiu
+com PNG 100% em branco (posição fixa serializada desloca a pintura) —
+corrigido e pego por inspeção de pixels. Regras só-respiro em `index.css`
+escopadas `#printable-quote.png-compacto` (sem altura/min-height/fonte);
+vazia mantém cabeçalho + `tfoot`. Tela, preview, valores, ordem e tema
+intactos (flyer segue o caminho direto de antes).
+**Validação:** 4 PNGs reais (0/1/10/completo) medidos + vistos: alturas 1707,
+1707, 3111 e 2061 px (pixelRatio 3; −192 px em todos vs. antes), sem vão nem
+corte. Suite cheia 391 passando; `typecheck`/`lint` limpos. Selo `v0.213.0`.
 
 <a id="v21200"></a>
 ## 2026-11-23 — Recolher DESCRIÇÃO/DADOS/AJUSTE/RESUMO com persistência (v0.212.0)

@@ -717,6 +717,37 @@ body {
   transform-origin: top center;
 }
 
+/* Compactação exclusiva do PNG: a classe só existe no gêmeo off-screen da
+   exportação (ver prepararClonePng em utils/exportImage) — a tela e o preview
+   nunca a recebem, então seguem idênticos. Só respiros (padding/margem/cantos);
+   sem altura fixa, sem min-height e sem mexer em fonte (fonte só por último,
+   se algo ficar apertado — mantendo a legibilidade). */
+#printable-quote.png-compacto {
+  padding: 24px;
+  border-radius: 24px;
+}
+#printable-quote.png-compacto .mb-4 {
+  margin-bottom: 8px;
+}
+#printable-quote.png-compacto .mt-4 {
+  margin-top: 8px;
+}
+#printable-quote.png-compacto .my-2 {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+#printable-quote.png-compacto .rounded-\[2rem\] {
+  border-radius: 20px;
+}
+#printable-quote.png-compacto .sm\:px-10 {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+#printable-quote.png-compacto .sm\:py-4 {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
 /* Impressão via botão: imprimimos a IMAGEM do PNG (mesmas proporções e quebras
    de linha do arquivo enviado no WhatsApp), não o HTML re-renderizado. */
 .area-impressao {
