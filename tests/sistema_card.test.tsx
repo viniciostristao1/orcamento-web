@@ -98,11 +98,11 @@ describe('SistemaCard — contato do anexo e ordem dos botões', () => {
       '0,00',
     ) as HTMLInputElement[];
     expect(revisoes[0].value).toBe('1.065,45');
-    // Os 2 itens (inclui o VIA TANQUE sem "Total do Serviço").
+    // Detalhado: bloco 1 (1 peça + 1 MO) + VIA TANQUE (1 peça + MO 0,00).
     const revDados = screen.getByLabelText(
       'Dados extraídos para revisão',
     ) as HTMLTextAreaElement;
-    expect(revDados.value.split('\n')).toHaveLength(2);
+    expect(revDados.value.split('\n')).toHaveLength(4);
   });
 
   it('anexo do layout antigo também limpa o contato anterior', async () => {

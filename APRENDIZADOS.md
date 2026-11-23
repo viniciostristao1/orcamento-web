@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.211.0](#v21100) — 2026-11-23 — Complementar detalhado: peças + MOs por bloco (JBV-2I88) (v0.211.0)
+
 - [v0.210.0](#v21000) — 2026-11-21 — Tema Duna (bege quente + marinho + dourado) (v0.210.0)
 
 - [v0.209.0](#v20900) — 2026-11-21 — Parcelamento N × valor com teto + descrição do item novo editável (v0.209.0)
@@ -344,6 +346,26 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21100"></a>
+## 2026-11-23 — Complementar detalhado: peças + MOs por bloco (v0.211.0)
+
+**Problema (JBV-2I88.pdf):** o complementar gerava 1 `Serviço` por bloco com o
+Total do Serviço — as peças sumiam do PEÇAS MANUAL e não dava para editar, além
+do desconto em peças não incidir (tudo ia como serviço) e o bloco só-MO
+(Retifica, sem "Código Peça") ser ignorado.
+
+**Feito (`sistema/extracao.ts`):** `extrairComplementar` agora emite 1 `Peça` por
+peça + 1 `Serviço` por MO com o mesmo id do bloco
+(`parsePecaComplementar` tira o `|N`, guarda qtd/unit/total;
+`parseMoComplementar` guarda tempo/custo; `juntarMoQuebrada` junta
+`GUN126L85009` + `1` → `GUN126L850091` e `GUN126L47302` + `5` →
+`GUN126L473025`). JBV vira 22 linhas / 7 itens (soma 6.427,11 + inicial
+2.339,72 = 8.766,83) e a Retifica aparece. Sem linhas legíveis (texto cru),
+cai no total como antes. Soma e layout de saída intactos.
+
+**Validação:** 42 extração + 45 card/sistema passam; `typecheck` limpo, `lint`
+só warnings conhecidos; `dist` autocontido. Selo `v0.211.0`.
 
 <a id="v21000"></a>
 ## 2026-11-21 — Tema Duna (v0.210.0)

@@ -7,7 +7,10 @@ import {
   extrairCabecalho,
   extrairComplementar,
   extrairSistemaToyota,
+  juntarMoQuebrada,
   normalizarTextoExtraido,
+  parseMoComplementar,
+  parsePecaComplementar,
   vinDigitoOk,
 } from '../src/sistema/extracao';
 
@@ -291,13 +294,17 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
     'Total Peças: R$ 224,73 | Total MO: R$ 22,95 | Total do Serviço: R$ 247,68',
     'Limpeza bico dpf',
     'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
-    'CARE040501 LIMPADOR DPF TUNAP 1 R$ 309,47 Sim R$ 309,47',
+    'CARE040501|1 LIMPADOR DPF TUNAP 1 R$ 309,47 Sim R$ 309,47',
+    '9090430012|1 ANEL ACO 1 R$ 78,31 Sim R$ 78,31',
+    '9030106020|1 ANEL DE VEDACAO, DE 1 R$ 28,72 Sim R$ 28,72',
+    '9043008017|1 JUNTA EM ALUMINIO, P 1 R$ 6,63 Sim R$ 6,63',
     'Código MO Descrição Tempo MO Custo MO',
     'LIMPDPF LIMPEZA DO DPF 1.00/h R$ 459,00',
     'Total Peças: R$ 423,13 | Total MO: R$ 459,00 | Total do Serviço: R$ 882,13',
     'Borachinha do limpador',
     'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
     '8521428090|1 BORRACHA LIMPADOR DI 1 R$ 69,00 Sim R$ 69,00',
+    '8521453080|1 BORRACHA LIMPADOR PA 1 R$ 79,00 Sim R$ 79,00',
     'Código MO Descrição Tempo MO Custo MO',
     'GUN156L85009 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0.10/h R$ 4,59',
     'Total Peças: R$ 148,00 | Total MO: R$ 4,59 | Total do Serviço: R$ 152,59',
@@ -330,20 +337,24 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
     ]);
   });
 
-  it('DADOS com 1 Serviço por item usando o Total do Serviço', () => {
+  it('DADOS detalhado: 1 Peça por peça + 1 Serviço por MO (mesmo id)', () => {
     const c = extrairComplementar(TEXTO_COMPL);
     const linhas = c.dados.split('\n');
-    expect(linhas).toHaveLength(5);
-    expect(linhas[0]).toContain('424,75');
-    expect(linhas[1]).toContain('861,29');
-    expect(linhas[2]).toContain('247,68');
-    expect(linhas[3]).toContain('882,13');
-    expect(linhas[4]).toContain('152,59');
-    expect(linhas[0]).toMatch(/^1 Serviço /);
-    expect(linhas[4]).toMatch(/^5 Serviço /);
+    // Bucha 1+1, Bateria 1+1, Oxi 2+1, Limpeza 4+1, Borachinha 2+1 = 15
+    expect(linhas).toHaveLength(15);
+    expect(linhas.filter((l) => /^1 Peça /.test(l))).toHaveLength(1);
+    expect(linhas.filter((l) => /^1 Serviço /.test(l))).toHaveLength(1);
+    expect(linhas.filter((l) => /^4 Peça /.test(l))).toHaveLength(4);
+    expect(linhas.filter((l) => /^4 Serviço /.test(l))).toHaveLength(1);
+    expect(linhas).toContain('1 Peça 488150K090 BUCHA BARRA ESTABILI 2 155,00 310,00');
+    expect(linhas).toContain('1 Serviço GUN126L43021 BUCHA DA BARRA ESTABILIZADORA DIANTEIRA 0.50/h 114,75');
+    expect(linhas).toContain('4 Peça CARE040501 LIMPADOR DPF TUNAP 1 309,47 309,47');
+    expect(linhas).toContain('4 Serviço LIMPDPF LIMPEZA DO DPF 1.00/h 459,00');
+    expect(linhas.filter((l) => /^5 Peça /.test(l))).toHaveLength(2);
+    expect(linhas).toContain('5 Serviço GUN156L85009 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0.10/h 4,59');
   });
 
-  it('soma dos 5 Serviços + inicial = total do rodapé', () => {
+  it('soma das linhas detalhadas + inicial = total do rodapé', () => {
     const c = extrairComplementar(TEXTO_COMPL);
     const totais = c.dados
       .split('\n')
@@ -351,6 +362,34 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
     const soma = totais.reduce((acc, v) => acc + parseFloat(v.replace(/\./g, '').replace(',', '.')), 0);
     expect(soma).toBeCloseTo(2568.44, 2);
     expect(soma + 3040.92).toBeCloseTo(5609.36, 2);
+  });
+
+  it('parse da peça tira o sufixo |N e guarda qtd/unit/total', () => {
+    expect(parsePecaComplementar('CARE040501|1 LIMPADOR DPF TUNAP 1 R$ 309,47 Sim R$ 309,47')).toEqual({
+      codigo: 'CARE040501',
+      descricao: 'LIMPADOR DPF TUNAP',
+      qtd: '1',
+      unit: '309,47',
+      total: '309,47',
+    });
+    expect(parsePecaComplementar('482520KC40|1 SILENCIADOR MOLA TRA 12 R$ 68,50 Sim R$ 822,00')?.qtd).toBe('12');
+    expect(parsePecaComplementar('Código MO Descrição Tempo MO Custo MO')).toBeNull();
+  });
+
+  it('parse da MO e junção do código quebrado (GUN… + dígito)', () => {
+    expect(parseMoComplementar('LIMPDPF LIMPEZA DO DPF - R$ 459,00')).toEqual({
+      codigo: 'LIMPDPF',
+      descricao: 'LIMPEZA DO DPF',
+      tempo: '-',
+      custo: '459,00',
+    });
+    const quebrada = juntarMoQuebrada([
+      'GUN126L85009',
+      '1',
+      'BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS - R$ 45,90',
+    ]);
+    expect(quebrada).toEqual(['GUN126L850091 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS - R$ 45,90']);
+    expect(parseMoComplementar(quebrada[0])?.codigo).toBe('GUN126L850091');
   });
 
   it('aguenta o texto cru (rótulo e valor em linhas separadas)', () => {
@@ -417,9 +456,129 @@ describe('extrairComplementar — ORÇAMENTO DE SERVIÇOS COMPLEMENTARES (JBG-6E
       '02 VIA TANQUE',
     ]);
     const linhas = c.dados.split('\n');
-    expect(linhas).toHaveLength(2);
-    expect(linhas[0]).toContain('247,68');
-    expect(linhas[1]).toMatch(/^2 Serviço REQ VIA TANQUE 209,89$/);
+    // Bloco 1: 1 peça + 1 MO; bloco 2 (VIA TANQUE, MO zerada): 1 peça + 1 MO 0,00
+    expect(linhas).toHaveLength(4);
+    expect(linhas.filter((l) => /^1 Peça /.test(l))).toHaveLength(1);
+    expect(linhas.filter((l) => /^1 Serviço /.test(l))).toHaveLength(1);
+    expect(linhas.filter((l) => /^2 Peça /.test(l))).toHaveLength(1);
+    expect(linhas.filter((l) => /^2 Serviço /.test(l))).toHaveLength(1);
+    expect(linhas[0]).toContain('115,00');
+    expect(linhas[1]).toContain('22,95');
+    expect(linhas[2]).toContain('209,89');
+    expect(linhas[3]).toMatch(/^2 Serviço REQ REQUISICAO DE PECAS 0.00\/h 0,00$/);
+  });
+});
+
+describe('JBV-2I88 — complementar com 7 blocos, MO quebrada e bloco só-MO', () => {
+  // Texto como sai do pdf.js (agruparLinhasPdf): peças em 1 linha, MO longa
+  // quebrada em `CÓDIGO` / `dígito` / `resto`, Retifica só com MO.
+  const TEXTO_JBV = [
+    'ORÇAMENTO DE SERVIÇOS COMPLEMENTARES',
+    'Nº: 19384753978',
+    'Nome Cliente: CARLOS AUGUSTO DERLAM',
+    'Placa: JBV-2I88 KM: 150547 Data de Criação: 23/11/2026 08:50:29',
+    'Serviços contratados inicialmente e aprovados pelo orçamento inicial R$ 2.339,72',
+    'Serviços Complementares Orçados',
+    'Limpeza do bico dpf',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    'CARE040501|1 LIMPADOR DPF TUNAP 1 R$ 309,47 Sim R$ 309,47',
+    '9090430012|1 ANEL ACO 1 R$ 78,31 Sim R$ 78,31',
+    '9030106020|1 ANEL DE VEDACAO, DE 1 R$ 28,72 Sim R$ 28,72',
+    '9043008017|1 JUNTA EM ALUMINIO, P 1 R$ 6,63 Sim R$ 6,63',
+    'Código MO Descrição Tempo MO Custo MO',
+    'LIMPDPF LIMPEZA DO DPF - R$ 459,00',
+    'Total Peças: R$ 423,13 | Total MO: R$ 459,00 | Total do Serviço: R$ 882,13',
+    'Borracha do limpador',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    '8521428090|1 BORRACHA LIMPADOR DI 1 R$ 69,00 Sim R$ 69,00',
+    '8521453080|1 BORRACHA LIMPADOR PA 1 R$ 79,00 Sim R$ 79,00',
+    'Código MO Descrição Tempo MO Custo MO',
+    'GUN126L85009',
+    '1',
+    'BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS - R$ 45,90',
+    'Total Peças: R$ 148,00 | Total MO: R$ 45,90 | Total do Serviço: R$ 193,90',
+    'Calço feixes de mola',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    '482520KC40|1 SILENCIADOR MOLA TRA 12 R$ 68,50 Sim R$ 822,00',
+    'CARE044902|1 PROTETOR FEIXE DE MOLAS 1 R$ 222,49 Sim R$ 222,49',
+    'Código MO Descrição Tempo MO Custo MO',
+    'GUN126L48099 OUTROS - R$ 275,40',
+    'Total Peças: R$ 1.044,49 | Total MO: R$ 275,40 | Total do Serviço: R$ 1.319,89',
+    'Pastilhas Diant',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    '142142GC133|2 GRAXA COBREADA ALTA TEMPERATURA 1 R$ 36,64 Sim R$ 36,64',
+    '044650K401|1 JOGO PASTILHAS FREIO DIANT.HILUX AP.2016 1 R$ 1.310,00 Sim R$ 1.310,00',
+    'Código MO Descrição Tempo MO Custo MO',
+    'GUN126L47302',
+    '5',
+    'DISCO DIANTEIRO UM LADO NO VEICULO - R$ 550,80',
+    'Total Peças: R$ 1.346,64 | Total MO: R$ 550,80 | Total do Serviço: R$ 1.897,44',
+    'Retifica dos discos diant',
+    'Código MO Descrição Tempo MO Custo MO',
+    'RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO - R$ 250,00',
+    'Total MO: R$ 250,00',
+    'FILTRO DO BLOCO',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    'CARE042502|1 LIMPADOR SISTEMA DIESEL TUNAP 1 R$ 209,89 Sim R$ 209,89',
+    '233900E011|1 ELEMENTO FILTRO DE C 1 R$ 960,00 Sim R$ 960,00',
+    '9043014015|1 JUNTA EM ALUMINIO, D 1 R$ 7,18 Sim R$ 7,18',
+    'Código MO Descrição Tempo MO Custo MO',
+    'FILTROSEC SUBSTITUICAO FILTRO SECUNDARIO - R$ 459,00',
+    'Total Peças: R$ 1.177,07 | Total MO: R$ 459,00 | Total do Serviço: R$ 1.636,07',
+    'OXI',
+    'Código Peça Descrição Qtd Preço Unit Estoque Total Peças',
+    'CARE010701|1 OXY-SANITIZATION APP 1 R$ 115,00 Sim R$ 115,00',
+    'CARE040703|1 AUTO AIR CLEANER (GRANADA) 1 R$ 109,73 Sim R$ 109,73',
+    'Código MO Descrição Tempo MO Custo MO',
+    'HIGMOTO HIGIENIZACAO AR CONDICIONADO 0.05/h R$ 22,95',
+    'Total Peças: R$ 224,73 | Total MO: R$ 22,95 | Total do Serviço: R$ 247,68',
+  ].join('\n');
+
+  it('detecta o layout e extrai cabeçalho', () => {
+    expect(ehLayoutComplementar(TEXTO_JBV)).toBe(true);
+    const c = extrairComplementar(TEXTO_JBV);
+    expect(c.numero).toBe('19384753978');
+    expect(c.placa).toBe('JBV-2I88');
+    expect(c.revisaoInicial).toBe('2.339,72');
+    expect(c.data).toBe('23/11/2026');
+  });
+
+  it('DESCRIÇÃO com os 7 blocos (Retifica inclusa, OXI normalizado)', () => {
+    const c = extrairComplementar(TEXTO_JBV);
+    expect(c.descReparo.split('\n')).toEqual([
+      '01 Limpeza do bico dpf',
+      '02 Borracha do limpador',
+      '03 Calço feixes de mola',
+      '04 Pastilhas Diant',
+      '05 Retifica dos discos diant',
+      '06 FILTRO DO BLOCO',
+      '07 HIGIENIZAÇÃO DO AR CONDICIONADO',
+    ]);
+  });
+
+  it('DADOS com todas as peças + MOs (22 linhas, Retifica não some)', () => {
+    const c = extrairComplementar(TEXTO_JBV);
+    const linhas = c.dados.split('\n');
+    expect(linhas).toHaveLength(22);
+    expect(linhas.filter((l) => /^1 Peça /.test(l))).toHaveLength(4);
+    expect(linhas.filter((l) => /^1 Serviço /.test(l))).toHaveLength(1);
+    expect(linhas.filter((l) => /^5 Serviço /.test(l))).toHaveLength(1);
+    expect(linhas).toContain('1 Peça CARE040501 LIMPADOR DPF TUNAP 1 309,47 309,47');
+    expect(linhas).toContain('1 Serviço LIMPDPF LIMPEZA DO DPF - 459,00');
+    // MO quebrada junta o dígito ao código
+    expect(linhas).toContain('2 Serviço GUN126L850091 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS - 45,90');
+    expect(linhas).toContain('4 Serviço GUN126L473025 DISCO DIANTEIRO UM LADO NO VEICULO - 550,80');
+    expect(linhas).toContain('5 Serviço RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO - 250,00');
+  });
+
+  it('soma detalhada + inicial = 8.766,83 do rodapé', () => {
+    const c = extrairComplementar(TEXTO_JBV);
+    const soma = c.dados
+      .split('\n')
+      .map((l) => l.trim().split(/\s+/).pop() ?? '0')
+      .reduce((acc, v) => acc + parseFloat(v.replace(/\./g, '').replace(',', '.')), 0);
+    expect(soma).toBeCloseTo(6427.11, 2);
+    expect(soma + 2339.72).toBeCloseTo(8766.83, 2);
   });
 });
 

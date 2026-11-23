@@ -170,12 +170,110 @@ const somarBR = (a: string, b: string): string => {
   });
 };
 
+/** Uma peça do complementar: `CÓDIGO|N DESC QTD R$ UNIT Sim R$ TOTAL`. */
+export interface PecaComplementar {
+  codigo: string;
+  descricao: string;
+  qtd: string;
+  unit: string;
+  total: string;
+}
+
+/** Uma MO do complementar: `CÓDIGO DESC TEMPO R$ CUSTO`. */
+export interface MoComplementar {
+  codigo: string;
+  descricao: string;
+  tempo: string;
+  custo: string;
+}
+
 /**
- * Extrai o layout complementar (ex.: JBG-6E46.pdf, 4376.pdf) — função PURA.
- * Cada bloco = título solto antes de "Código Peça" + linha de totais
- * ("Total Peças: R$ X | Total MO: R$ Y | Total do Serviço: R$ Z").
- * Gera 1 linha de Serviço por item (com o Total do Serviço) e numera os
- * títulos (01, 02, ...) para a DESCRIÇÃO. A saída (soma) usa a mesma lógica.
+ * Linha de peça do complementar (ex.: `CARE040501|1 LIMPADOR DPF TUNAP 1
+ * R$ 309,47 Sim R$ 309,47`). O código perde o sufixo `|N` (não é parte do
+ * código Toyota) e valem QTD + UNIT + TOTAL para preservar a informação no
+ * DADOS (a soma usa só o último valor, como no layout antigo).
+ */
+export function parsePecaComplementar(linha: string): PecaComplementar | null {
+  const m = linha
+    .trim()
+    .match(/^(\S+)\s+(.+)\s+(\d+)\s+R\$\s*([\d.,]+)\s+(Sim|Não|Nao)\s+R\$\s*([\d.,]+)\s*$/i);
+  if (!m) return null;
+  const codigo = m[1].split('|')[0].trim();
+  if (!/^[A-Z0-9-]{3,}$/i.test(codigo)) return null;
+  return {
+    codigo: codigo.toUpperCase(),
+    descricao: m[2].replace(/\s+/g, ' ').trim(),
+    qtd: m[3],
+    unit: m[4],
+    total: m[6],
+  };
+}
+
+/**
+ * Linha de MO do complementar (ex.: `LIMPDPF LIMPEZA DO DPF - R$ 459,00`).
+ * Tempo é `-` ou `0.05/h`.
+ */
+export function parseMoComplementar(linha: string): MoComplementar | null {
+  const m = linha.trim().match(/^([A-Z0-9]{3,})\s+(.+)\s+(-|[\d.,]+\/h)\s+R\$\s*([\d.,]+)\s*$/i);
+  if (!m) return null;
+  if (!/[A-Z]/i.test(m[1])) return null;
+  return {
+    codigo: m[1].toUpperCase(),
+    descricao: m[2].replace(/\s+/g, ' ').trim(),
+    tempo: m[3],
+    custo: m[4],
+  };
+}
+
+/**
+ * O pdf.js quebra o código MO quando ele é longo (ex.: `GUN126L85009` numa
+ * linha e o dígito final `1` na seguinte — o código real é `GUN126L850091`,
+ * como no layout antigo). Junta `CÓDIGO` + `dígito` + `resto com R$` numa
+ * linha só antes do parse.
+ */
+export function juntarMoQuebrada(linhas: string[]): string[] {
+  const saidas: string[] = [];
+  for (let i = 0; i < linhas.length; i++) {
+    const atual = linhas[i].trim();
+    const prox = (linhas[i + 1] ?? '').trim();
+    const depois = (linhas[i + 2] ?? '').trim();
+    if (/^[A-Z0-9]{4,}$/.test(atual) && /^\d{1,2}$/.test(prox) && /R\$/.test(depois)) {
+      saidas.push(`${atual}${prox} ${depois}`);
+      i += 2;
+    } else {
+      saidas.push(linhas[i]);
+    }
+  }
+  return saidas;
+}
+
+const ehCodigoPeca = (l: string): boolean => /^\s*Código Peça\b/i.test(l);
+const ehCodigoMO = (l: string): boolean => /^\s*Código MO\b/i.test(l);
+const ehTotalCompl = (l: string): boolean => /Total (do Servi[cç]o|Pe[cç]as|MO)\s*:/i.test(l);
+
+const buscarTituloComplementar = (linhas: string[], idxCabecalho: number): string => {
+  for (let j = idxCabecalho - 1; j >= 0; j--) {
+    const t = linhas[j].trim();
+    if (!t) continue;
+    if (TITULO_INVALIDO.test(t)) break;
+    if (/^(Código|Total|Página|Rodovia|\(51\)|94\.674|Consultor|Mecânico|Placa:|Modelo|OS:|Nº:)/i.test(t)) break;
+    // "Oxi" do PDF vira a higienização (palavra inteira, qualquer caixa).
+    return normalizarOxi(t.replace(/\s+/g, ' ').trim());
+  }
+  return '';
+};
+
+/**
+ * Extrai o layout complementar (ex.: JBG-6E46.pdf, 4376.pdf, JBV-2I88.pdf) —
+ * função PURA. Cada bloco = título solto antes de "Código Peça"/"Código MO" +
+ * linhas de totais ("Total Peças: R$ X | Total MO: R$ Y | Total do Serviço:
+ * R$ Z"). Gera 1+ linhas por item no DADOS (1 `Peça` por peça + 1 `Serviço`
+ * por MO, com o mesmo id do bloco) e numera os títulos (01, 02, ...) para a
+ * DESCRIÇÃO — assim cada peça/MO pode ser editada/excluída no manual e o
+ * desconto em peças incide certo (antes tudo ia como 1 Serviço com o total).
+ * Bloco só com MO (ex.: Retifica, sem "Código Peça") também vale. Quando
+ * nenhuma linha detalhada é legível (texto cru com código e descrição em
+ * linhas separadas, sem valores), cai no total do Serviço como antes.
  */
 export function extrairComplementar(texto: string): SistemaComplementar {
   const out: SistemaComplementar = {
@@ -221,42 +319,76 @@ export function extrairComplementar(texto: string): SistemaComplementar {
   if (!out.cliente && cab.nome) out.cliente = cab.nome;
   if (!out.data && cab.data) out.data = cab.data;
 
-  const blocos: { titulo: string; codigoMO: string; total: string }[] = [];
+  const dados: string[] = [];
+  const desc: string[] = [];
+  let consumidoAte = -1;
+  const IGNORAR_MO = /^(Descrição|Descricao|Tempo|Custo|Qtd|Preço|Preco|Unit|Estoque|Total|Peças|Pecas|MO|Código|Codigo)$/i;
+
   for (let i = 0; i < linhas.length; i++) {
-    if (!/^\s*Código Peça\b/i.test(linhas[i])) continue;
-    // Título: primeira linha não-vazia acima que não seja cabeçalho conhecido.
-    let titulo = '';
-    for (let j = i - 1; j >= 0; j--) {
-      const t = linhas[j].trim();
-      if (!t) continue;
-      if (TITULO_INVALIDO.test(t)) break;
-      if (/^(Código|Total|Página|Rodovia|\(51\)|94\.674|Consultor|Mecânico|Placa:|Modelo|OS:|Nº:)/i.test(t)) break;
-      // "Oxi" do PDF vira a higienização (palavra inteira, qualquer caixa).
-      titulo = normalizarOxi(t.replace(/\s+/g, ' ').trim());
-      break;
-    }
+    if (i <= consumidoAte) continue;
+    if (!ehCodigoPeca(linhas[i]) && !ehCodigoMO(linhas[i])) continue;
+    const titulo = buscarTituloComplementar(linhas, i);
     if (!titulo) continue;
-    // Totais + código MO: procura à frente até o próximo bloco.
-    // O cabeçalho pode vir junto ("Código MO Descrição …") ou quebrado em
-    // linhas ("Código MO" / "Descrição" / … / "GUN…"), conforme o extrator.
-    // Nem todo bloco traz "Total do Serviço" (ex.: 4376.pdf, bloco VIA TANQUE
-    // com MO zerada mostra só "Total Peças: R$ 209,89") — aí vale
-    // Total Peças + Total MO.
+    // Fim do bloco: primeira linha de Total à frente (1–3 linhas seguidas).
+    let fim = -1;
+    for (let k = i; k < linhas.length; k++) {
+      if (ehCodigoPeca(linhas[k]) && k > i) break;
+      if (ehTotalCompl(linhas[k])) {
+        fim = k;
+        while (fim + 1 < linhas.length && ehTotalCompl(linhas[fim + 1])) fim++;
+        break;
+      }
+    }
+    if (fim < 0) continue;
+    const idxMO = (() => {
+      for (let k = i; k <= fim; k++) if (ehCodigoMO(linhas[k])) return k;
+      return -1;
+    })();
+    const idxPeca = ehCodigoPeca(linhas[i]) ? i : -1;
+    const linhasPeca = idxPeca >= 0 ? linhas.slice(idxPeca + 1, idxMO >= 0 ? idxMO : fim) : [];
+    const linhasMoCruas = idxMO >= 0 ? linhas.slice(idxMO + 1, fim) : [];
+    const linhasMo = juntarMoQuebrada(linhasMoCruas);
+
+    const pecas: PecaComplementar[] = [];
+    for (const lp of linhasPeca) {
+      const p = parsePecaComplementar(lp);
+      if (p) pecas.push(p);
+    }
+    const mos: MoComplementar[] = [];
+    for (const lm of linhasMo) {
+      const t = lm.trim();
+      if (!t || IGNORAR_MO.test(t)) continue;
+      const p = parseMoComplementar(t);
+      if (p) mos.push(p);
+    }
+
+    const id = desc.length + 1;
+    if (pecas.length > 0 || mos.length > 0) {
+      for (const p of pecas) {
+        dados.push(`${id} Peça ${p.codigo} ${p.descricao} ${p.qtd} ${p.unit} ${p.total}`);
+      }
+      for (const m of mos) {
+        dados.push(`${id} Serviço ${m.codigo} ${m.descricao} ${m.tempo} ${m.custo}`);
+      }
+      desc.push(`${String(id).padStart(2, '0')} ${titulo}`);
+      consumidoAte = fim;
+      continue;
+    }
+
+    // Fallback (texto cru sem valores por linha): 1 Serviço com o total.
     let totalServico = '';
     let totalPecas = '';
     let totalMO = '';
     let codigoMO = '';
     let viuCodigoMO = false;
-    const IGNORAR_MO = /^(Descrição|Descricao|Tempo|Custo|Qtd|Preço|Preco|Unit|Estoque|Total|Peças|Pecas|MO|Código|Codigo)$/i;
-    for (let k = i + 1; k < linhas.length; k++) {
-      if (/^\s*Código Peça\b/i.test(linhas[k])) break;
+    for (let k = i; k <= fim; k++) {
       const mTotS = linhas[k].match(/Total do Servi[cç]o:\s*R\$\s*([\d.,]+)/i);
       if (mTotS && !totalServico) totalServico = mTotS[1].trim();
       const mTotP = linhas[k].match(/Total Pe[cç]as:\s*R\$\s*([\d.,]+)/i);
       if (mTotP && !totalPecas) totalPecas = mTotP[1].trim();
       const mTotM = linhas[k].match(/Total MO:\s*R\$\s*([\d.,]+)/i);
       if (mTotM && !totalMO) totalMO = mTotM[1].trim();
-      if (/^\s*Código MO\b/i.test(linhas[k])) {
+      if (ehCodigoMO(linhas[k])) {
         viuCodigoMO = true;
         continue;
       }
@@ -264,24 +396,19 @@ export function extrairComplementar(texto: string): SistemaComplementar {
         const t = linhas[k].trim();
         if (!t || IGNORAR_MO.test(t)) continue;
         const mCod = t.match(/^([A-Z0-9]{3,})/);
-        if (mCod && /[A-Z]/.test(mCod[1])) {
-          codigoMO = mCod[1];
-        }
+        if (mCod && /[A-Z]/.test(mCod[1])) codigoMO = mCod[1];
       }
-      if (totalServico && codigoMO) break;
     }
     const total = totalServico || (totalPecas ? somarBR(totalPecas, totalMO || '0,00') : '');
     if (titulo && total) {
-      blocos.push({ titulo, codigoMO: codigoMO || 'COMPL', total });
+      dados.push(`${id} Serviço ${codigoMO || 'COMPL'} ${titulo} ${total}`);
+      desc.push(`${String(id).padStart(2, '0')} ${titulo}`);
+      consumidoAte = fim;
     }
   }
 
-  out.dados = blocos
-    .map((b, idx) => `${idx + 1} Serviço ${b.codigoMO} ${b.titulo} ${b.total}`)
-    .join('\n');
-  out.descReparo = blocos
-    .map((b, idx) => `${String(idx + 1).padStart(2, '0')} ${b.titulo}`)
-    .join('\n');
+  out.dados = dados.join('\n');
+  out.descReparo = desc.join('\n');
   return out;
 }
 
