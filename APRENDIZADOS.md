@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.214.0](#v21400) — 2026-11-23 — Tela: vão PEÇAS MANUAL → botões de 56 px para 24 px (v0.214.0)
+
 - [v0.213.0](#v21300) — 2026-11-23 — PNG compacto: gêmeo off-screen com respiros menores (v0.213.0)
 
 - [v0.212.0](#v21200) — 2026-11-23 — Recolher DESCRIÇÃO/DADOS/AJUSTE/RESUMO com persistência (v0.212.0)
@@ -350,6 +352,20 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21400"></a>
+## 2026-11-23 — Tela: vão PEÇAS MANUAL → botões de 56 px para 24 px (v0.214.0)
+
+**Causa (medida no DOM via CDP, 4 estados × 2 viewports):** o vão era
+integralmente o `mt-14` (56 px) do `#result-section` — sem `min-height`,
+altura fixa, desnível de coluna ou elemento invisível na faixa (só ancestrais
++ brilho decorativo `absolute`). No mobile a faixa tem a coluna direita
+empilhada (conteúdo, não buraco).
+**Feito:** 1 classe em `OrcamentosApp.tsx` (`mt-14` → `mt-6`), sem altura
+fixa/min-height. `QuoteTable`, `exportarPng`/gêmeo e CSS de saída intactos
+(diff de 1 linha). Desktop 56 → 24 px nos 4 estados; mobile 776 → 744 px
+(conteúdo íntegro, sem corte/sobreposição). Suite cheia 391 passando;
+`typecheck`/`lint` limpos. Selo `v0.214.0`.
 
 <a id="v21300"></a>
 ## 2026-11-23 — PNG compacto: gêmeo off-screen com respiros menores (v0.213.0)

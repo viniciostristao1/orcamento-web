@@ -719,7 +719,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           </div>
         </div>
 
-        <div id="result-section" className="mt-14">
+        <div id="result-section" className="mt-6">
           {visivel && (
             <div className="max-w-4xl mx-auto">
               <QuoteTable
