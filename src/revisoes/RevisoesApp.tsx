@@ -104,14 +104,25 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
     };
   }, []);
 
-  // Clique no aviso/sino: limpa busca e data (o item filtrado some da
-  // lista), recarrega (o clique conclui e muda o salvo) e rola até ele em âmbar.
+  // Foto do filtro (data + busca) no momento do clique no aviso/sino: o item
+  // destacado entra na lista mesmo fora do filtro, e sai sozinho quando a
+  // data ou a busca mudam (sem ficar fixo). A busca (transitória) continua
+  // limpando como antes; a data (persistida) nunca mais é apagada aqui.
+  const filtroDestaqueRef = useRef<{ id: string; data: string; busca: string } | null>(null);
+  const dataIniRef = useRef(dataIni);
+  useEffect(() => {
+    dataIniRef.current = dataIni;
+  });
+
+  // Clique no aviso/sino: limpa a busca (o item filtrado some da lista),
+  // recarrega (o clique conclui e muda o salvo) e rola até ele em âmbar.
+  // A data escolhida fica no campo e no navegador; o destaque entra na lista
+  // por fora do filtro (ver listaVisivel) em vez de apagar o filtro.
   useEffect(() => {
     if (!destaqueId) return;
     setBusca('');
     setBuscaAberta(false);
-    setDataIni('');
-    salvarUltimaBusca('');
+    filtroDestaqueRef.current = { id: destaqueId, data: dataIniRef.current, busca: '' };
     setLista(listarHistoricoRevisoes());
     const t = window.setTimeout(() => {
       document.querySelector(`[data-revisao="${destaqueId}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -143,7 +154,28 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
   // limite final; busca e copiar seguem o visível.
   const listaPorPeriodo = filtrarPorPeriodo(listaPorAba, dataIni, '');
   // Busca (lupa): filtra por nome do cliente ou chassi; o copiar segue o visível.
-  const listaVisivel = busca.trim() ? filtrarListaRevisoes(listaPorPeriodo, busca) : listaPorPeriodo;
+  const listaVisivelBase = busca.trim() ? filtrarListaRevisoes(listaPorPeriodo, busca) : listaPorPeriodo;
+  // Pin do destaque: enquanto data e busca forem as do clique no aviso/sino,
+  // o item destacado entra na lista mesmo fora do filtro (na ordem geral, com
+  // o anel âmbar); mudou a data ou a busca, o pin solta e ele filtra normal.
+  const snapDestaque = filtroDestaqueRef.current;
+  const pinDestaque =
+    !!destaqueId &&
+    !!snapDestaque &&
+    snapDestaque.id === destaqueId &&
+    dataIni === snapDestaque.data &&
+    busca.trim() === snapDestaque.busca;
+  const itemDestaquePin = pinDestaque ? listaOrdenada.find((r) => r.id === destaqueId) : undefined;
+  const listaVisivel =
+    itemDestaquePin && !listaVisivelBase.some((r) => r.id === itemDestaquePin.id)
+      ? listaOrdenada.filter(
+          (r) => listaVisivelBase.some((b) => b.id === r.id) || r.id === itemDestaquePin.id,
+        )
+      : listaVisivelBase;
+  // Contador "X de Y": o Y acompanha o pin (item fora do período conta junto).
+  const totalContador =
+    listaPorPeriodo.length +
+    (itemDestaquePin && !listaPorPeriodo.some((r) => r.id === itemDestaquePin.id) ? 1 : 0);
 
   // Troca a data inicial (pt-BR) e persiste no navegador; vazio limpa
   // o filtro (sem limite). Inválida não salva.
@@ -590,7 +622,7 @@ const RevisoesApp: React.FC<{ destaqueId?: string | null; destaqueVez?: number }
                 )}
               </div>
               <span className="text-sm font-bold text-slate-500 whitespace-nowrap">
-                {listaVisivel.length} de {listaPorPeriodo.length}
+                {listaVisivel.length} de {totalContador}
               </span>
             </div>
           )}

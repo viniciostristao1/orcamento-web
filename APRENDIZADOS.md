@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.216.0](#v21600) — 2026-11-24 — Data da Revisões não é mais apagada pelo destaque; item entra pinado (v0.216.0)
+
 - [v0.215.0](#v21500) — 2026-11-23 — Cursor na edição do item não pula mais ao fim (v0.215.0)
 
 - [v0.214.0](#v21400) — 2026-11-23 — Tela: vão PEÇAS MANUAL → botões de 56 px para 24 px (v0.214.0)
@@ -354,6 +356,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21600"></a>
+## 2026-11-24 — Data da Revisões não é mais apagada pelo destaque; item entra pinado (v0.216.0)
+
+**Causa (medida no navegador; 3 hipóteses do relato refutadas):** HIP-1/2/3
+negadas — campo, conversão ISO↔pt-BR, troca de aba e reload preservam a data
+em desktop e celular. O apagão real: o clique no aviso/sino (`destaqueId`)
+fazia `setDataIni('')` + `salvarUltimaBusca('')` (input "" e storage null
+medidos logo após o clique).
+**Feito (`RevisoesApp`, só ele):** efeito destaque não toca mais na data nem
+no storage (busca transitória continua limpando); foto do filtro no clique e
+o item destacado entra em `listaVisivel` (na ordem geral, anel âmbar) mesmo
+fora do filtro; o pin solta ao mudar data/busca; contador "X de Y" soma o
+pinado fora do período. Layout, abas, PNG, cálculos, filtros e dados intactos.
+**Validação:** jsdom novo (`revisoes_destaque`, 4 testes) + matriz e2e CDP
+(escolher/limpar/trocar aba/reload/meses-anos + clique no popup, desktop e
+celular) + suite cheia 398 passando; `typecheck`/`lint` limpos. Selo `v0.216.0`.
 
 <a id="v21500"></a>
 ## 2026-11-23 — Cursor na edição do item não pula mais ao fim (v0.215.0)
