@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.215.0](#v21500) — 2026-11-23 — Cursor na edição do item não pula mais ao fim (v0.215.0)
+
 - [v0.214.0](#v21400) — 2026-11-23 — Tela: vão PEÇAS MANUAL → botões de 56 px para 24 px (v0.214.0)
 
 - [v0.213.0](#v21300) — 2026-11-23 — PNG compacto: gêmeo off-screen com respiros menores (v0.213.0)
@@ -352,6 +354,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21500"></a>
+## 2026-11-23 — Cursor na edição do item não pula mais ao fim (v0.215.0)
+
+**Causa (medida no navegador, cenário do relato):** caret em 9 + tecla `s` →
+valor certo no meio (`...DAs...`, sem maiusculizar ao vivo) mas caret em 29;
+2ª tecla, seta e `çãé` iam ao fim. Não era reescrita do valor: a `ref`
+inline de `CelulaTexto`/`CelulaValor` (`focus()` + caret ao fim) é recriada a
+cada render, e cada tecla re-renderiza o pai (commit imediato) — o React a
+re-disparava e forçava o fim.
+**Feito:** flag em `useRef` (`focouAbertura`, zerada ao abrir e ao terminar):
+foca e posiciona no fim só na abertura; re-renders não tocam no caret.
+**Validação:** jsdom novo (`quote_caret`: 2ª tecla no meio, refoco pós-blur,
+valor) + CDP desktop e celular (digitar/apagar/colar/setas/`çãé`, caret
+medido a cada passo, tudo no lugar) + suite cheia 394 passando;
+`typecheck`/`lint` limpos. Layout, PNG, cálculos e `processQuote` intactos.
+Selo `v0.215.0`.
 
 <a id="v21400"></a>
 ## 2026-11-23 — Tela: vão PEÇAS MANUAL → botões de 56 px para 24 px (v0.214.0)

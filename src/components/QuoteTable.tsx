@@ -19,13 +19,28 @@ const CelulaTexto: React.FC<{
   const [rascunho, setRascunho] = useState(value);
   // Valor de abertura: o commit é imediato, então o Esc volta para ele.
   const originalRef = useRef(value);
+  // Foca e leva o caret ao fim SÓ na abertura da edição. A ref inline abaixo é
+  // recriada a cada render — e o pai re-renderiza a cada tecla (onCommit
+  // imediato) — então sem a guarda o React a re-disparava e o caret voltava
+  // ao fim no meio da digitação (a 2ª tecla no meio do texto caía no fim).
+  const focouAbertura = useRef(false);
+  const iniciarEdicao = () => {
+    originalRef.current = value;
+    setRascunho(value);
+    focouAbertura.current = false;
+    setEditando(true);
+  };
+  const terminarEdicao = () => {
+    focouAbertura.current = false;
+    setEditando(false);
+  };
   if (!editando && !value.trim()) {
     // Linha nova (descrição vazia): placeholder clicável só na tela — fora do
     // PNG (data-ui) para a célula sair vazia na captura.
     return (
       <span
         data-ui="1"
-        onClick={() => { originalRef.current = value; setRascunho(value); setEditando(true); }}
+        onClick={iniciarEdicao}
         title="Clique para editar"
         className={`${className} cursor-text text-slate-300 print:hidden`}
       >
@@ -35,7 +50,7 @@ const CelulaTexto: React.FC<{
   }
   if (!editando) {
     return (
-      <span onClick={() => { originalRef.current = value; setRascunho(value); setEditando(true); }} title="Clique para editar" className={`${className} cursor-text`}>
+      <span onClick={iniciarEdicao} title="Clique para editar" className={`${className} cursor-text`}>
         {value}
       </span>
     );
@@ -45,13 +60,14 @@ const CelulaTexto: React.FC<{
       type="text"
       value={rascunho}
       onChange={(e) => { setRascunho(e.target.value); onCommit(e.target.value); }}
-      onBlur={() => setEditando(false)}
+      onBlur={terminarEdicao}
       onKeyDown={(e) => {
         if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-        else if (e.key === 'Escape') { onCommit(originalRef.current); setEditando(false); }
+        else if (e.key === 'Escape') { onCommit(originalRef.current); terminarEdicao(); }
       }}
       ref={(el) => {
-        if (el) {
+        if (el && !focouAbertura.current) {
+          focouAbertura.current = true;
           el.focus();
           const fim = el.value.length;
           el.setSelectionRange(fim, fim);
@@ -75,9 +91,23 @@ const CelulaValor: React.FC<{
   const texto = rascunho ?? formatCurrency(value);
   // Valor de abertura: o commit é imediato, então o Esc volta para ele.
   const originalRef = useRef(value);
+  // Mesma guarda do CelulaTexto: focar e levar ao fim só na abertura — sem
+  // ela, cada tecla (commit imediato → re-render do pai) jogava o caret ao
+  // fim no meio da digitação.
+  const focouAbertura = useRef(false);
+  const iniciarEdicao = () => {
+    originalRef.current = value;
+    setRascunho(formatCurrency(value));
+    focouAbertura.current = false;
+    setEditando(true);
+  };
+  const terminarEdicao = () => {
+    focouAbertura.current = false;
+    setEditando(false);
+  };
   if (!editando) {
     return (
-      <span onClick={() => { originalRef.current = value; setRascunho(formatCurrency(value)); setEditando(true); }} title="Clique para editar" className={`${className} cursor-text`}>
+      <span onClick={iniciarEdicao} title="Clique para editar" className={`${className} cursor-text`}>
         {formatCurrency(value)}
       </span>
     );
@@ -92,13 +122,14 @@ const CelulaValor: React.FC<{
       inputMode="decimal"
       value={texto}
       onChange={(e) => { setRascunho(e.target.value); confirmarTexto(e.target.value); }}
-      onBlur={() => { setRascunho(null); setEditando(false); }}
+      onBlur={() => { setRascunho(null); terminarEdicao(); }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-        else if (e.key === 'Escape') { onCommit(originalRef.current); setRascunho(null); setEditando(false); }
+        else if (e.key === 'Escape') { onCommit(originalRef.current); setRascunho(null); terminarEdicao(); }
       }}
       ref={(el) => {
-        if (el) {
+        if (el && !focouAbertura.current) {
+          focouAbertura.current = true;
           el.focus();
           const fim = el.value.length;
           el.setSelectionRange(fim, fim);
