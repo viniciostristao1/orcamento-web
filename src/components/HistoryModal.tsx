@@ -413,6 +413,12 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
                 <span className="text-base font-black uppercase tracking-widest text-slate-500">
                   <SeloCor cor={r.cor} />
                   {dataDoRegistro(r.criadoEm)}
+                  {r.manual === true && (
+                    <>
+                      <span className="text-slate-600"> · </span>
+                      <span className="bg-violet-600 text-white text-xs rounded px-1.5 py-0.5">Manual</span>
+                    </>
+                  )}
                   {r.nome ? (
                     <>
                       <span className="text-slate-600"> · </span>

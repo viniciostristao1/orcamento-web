@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.217.0](#v21700) — 2026-11-26 — Segundo × (apaga de vez + Desfazer), botão "+" manual e telefone à direita (v0.217.0)
+
 - [v0.216.0](#v21600) — 2026-11-24 — Data da Revisões não é mais apagada pelo destaque; item entra pinado (v0.216.0)
 
 - [v0.215.0](#v21500) — 2026-11-23 — Cursor na edição do item não pula mais ao fim (v0.215.0)
@@ -356,6 +358,32 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21700"></a>
+## 2026-11-26 — Segundo × (apaga de vez + Desfazer), botão "+" manual e telefone à direita (v0.217.0)
+
+**Causa (medida no código):** o botão WhatsApp do documento já abria `wa.me`
+(`abrirWhats`, sem texto) — só faltava o número, pois o layout novo mascara o
+telefone (`******`); os botões da fileira usam cores literais remapeadas pelo
+`@theme inline` no Duna (`bg-blue-600`→marinho `#1B2033`, `bg-slate-600`→oliva),
+então `slate-800` no "+" seria bege-claro quase invisível; `aplicarPrevia`
+mantinha no resumo itens fora da prévia (o resumo negativava após o apagar).
+**Feito:** segundo × ao lado da "–" (só na linha excluída, `data-ui`, fora do
+PNG, renumeração/totais automáticos) com toast Desfazer ~6s (padrão
+`DadosApp`, fora do `ui-compacta`); botão "+" violeta (`bg-violet-600`,
+`#7c3aed` literal — difere das seis no Duna e no padrão) primeiro na fileira +
+atalho quando sem documento (perfil novo), abre manual limpo (item 1 vazio,
+revisão 0, 6x, contato zerado) sem `confirm` e com aviso rápido; linha vazia
+fora do PNG + `alert` se tudo vazio; card WHATSAPP DO CLIENTE no topo da pilha
+direita espelhando o mesmo estado (fora do PNG); telefone tira zero inicial e
+exige DDD 11–99; manual entra no histórico (`manual: true`, badge, busca,
+sempre novo); `aplicarPrevia` agora manda no conjunto de linhas E nos totais
+(soma do que ficou + revisão).
+**Validação:** jsdom novos (`linha_manual` 12, `orcamento_botoes` 8: dois ×,
+Desfazer, "+", aviso, guarda de vazio, telefone válido/inválido, PNG sem fone)
++ `telefone` (+3: zero inicial, DDD) + suite cheia 421 passando;
+`typecheck`/`lint` limpos; `dist` autocontido; CDP desktop (Duna) e celular.
+Selo `v0.217.0`.
 
 <a id="v21600"></a>
 ## 2026-11-24 — Data da Revisões não é mais apagada pelo destaque; item entra pinado (v0.216.0)

@@ -260,6 +260,42 @@ export const previaComOriginal = (p: PreviaOrcamentoSemOriginal): PreviaOrcament
 });
 
 /**
+ * Apaga uma linha DE VEZ (segundo ×): tira o item do array (não é só o
+ * `excluido` reversível). A renumeração (`numeroExibicaoPrevia`) e os totais
+ * (`calcularPrevia`) se ajustam sozinhos, pois derivam dos não excluídos.
+ */
+export const removerItemDefinitivo = <T extends PreviaOrcamentoSemOriginal>(
+  previa: T,
+  id: number,
+): T => ({
+  ...previa,
+  itens: previa.itens.filter((i) => i.id !== id),
+});
+
+/**
+ * Base do orçamento MANUAL (botão "+"): só o item 1, descrição e valor
+ * vazios, revisão zerada. Quem chama guarda o `original` com
+ * `previaComOriginal` (o ↺ volta ao limpo, como no vindo do PDF).
+ */
+export const criarPreviaManual = (): PreviaOrcamentoSemOriginal => ({
+  itens: [{ id: 1, descricao: '', valor: 0, excluido: false }],
+  revisaoAprovada: 0,
+});
+
+/** Linha totalmente vazia: sem descrição E valor zerado (não sai no PNG). */
+export const ehLinhaVazia = (item: Pick<ItemPrevia, 'descricao' | 'valor'>): boolean =>
+  !item.descricao.trim() && item.valor === 0;
+
+/**
+ * Documento sem nada imprimível: revisão zerada e nenhuma linha visível
+ * (não excluída) com conteúdo — nesse caso o PNG saía em branco, então a
+ * exportação avisa em vez de gerar a imagem.
+ */
+export const previaVazia = (previa: PreviaOrcamentoSemOriginal): boolean =>
+  previa.revisaoAprovada === 0 &&
+  previa.itens.filter((i) => !i.excluido).every(ehLinhaVazia);
+
+/**
  * Calculadora da prévia (N parcelas): ADICIONAL = soma dos NÃO excluídos e
  * marcados; TOTAL = revisão + adicional (não muda); parcela = TOTAL / N
  * arredondada PARA CIMA no centavo (ex.: 4395,88 / 3 → 1465,30; divisão exata
@@ -323,7 +359,15 @@ export const aplicarPrevia = (
   previa: PreviaOrcamentoSemOriginal,
 ): QuoteSummary => {
   const porId = new Map(previa.itens.map((i) => [i.id, i]));
-  const items = summary.items.map((item) => {
+  // A prévia manda no conjunto de linhas: id do resumo que não está nela foi
+  // apagado de vez (segundo ×) e sai do resumo (RESUMO, relatório e V/X).
+  // Os totais acompanham: sem o ajuste, `recalcularComSelecao` derivaria a
+  // parte de peças da revisão de um total cheio sobre itens parciais.
+  const idsPrev = new Set(previa.itens.map((i) => i.id));
+  const removidos = summary.items.filter((item) => !idsPrev.has(item.id));
+  const soma = (xs: QuoteItem[], k: 'value' | 'pecasValue' | 'servicosValue'): number =>
+    xs.reduce((acc, i) => acc + i[k], 0);
+  const items = summary.items.filter((item) => idsPrev.has(item.id)).map((item) => {
     const edit = porId.get(item.id);
     if (!edit) return item;
     if (edit.valor === item.value) return { ...item, description: edit.descricao };
@@ -343,7 +387,29 @@ export const aplicarPrevia = (
       items.push({ id: edit.id, description: edit.descricao, value: edit.valor, pecasValue: 0, servicosValue: edit.valor });
     }
   }
-  return { ...summary, items, revisaoAprovada: previa.revisaoAprovada };
+  // Totais coerentes com as linhas: soma do que ficou + revisão da prévia
+  // (o desconto/parcelas do resumo são preservados).
+  const totalOrcamento = soma(items, 'value');
+  const revisaoAprovada = previa.revisaoAprovada;
+  const totalGeral = revisaoAprovada + totalOrcamento;
+  const totalPecasGeral = summary.totalPecasGeral - soma(removidos, 'pecasValue');
+  const totalServicosGeral = summary.totalServicosGeral - soma(removidos, 'servicosValue');
+  const fatorDesc = (100 - summary.descontoPercentual) / 100;
+  const valorLiquidoFinal = totalPecasGeral * fatorDesc + totalServicosGeral;
+  const valorDescontoTotal = totalPecasGeral + totalServicosGeral - valorLiquidoFinal;
+  const numParcelas = summary.numParcelas;
+  return {
+    ...summary,
+    items,
+    revisaoAprovada,
+    totalOrcamento,
+    totalGeral,
+    totalPecasGeral,
+    totalServicosGeral,
+    valorDescontoTotal,
+    valorLiquidoFinal,
+    valorParcela: numParcelas ? totalGeral / numParcelas : 0,
+  };
 };
 
 export const recalcularComSelecao = (

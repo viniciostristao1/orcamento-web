@@ -37,6 +37,21 @@ describe('telefone (WhatsApp dos históricos)', () => {
     expect(urlWhats(undefined)).toBeNull();
   });
 
+  it('remove um zero inicial antes de validar (prefixo de operadora)', () => {
+    expect(normalizarTelefoneParaWhats('051 99999-9999')).toBe('5551999999999');
+    expect(temTelefoneValido('051 99999-9999')).toBe(true);
+    expect(urlWhats('051 99999-9999')).toBe('https://wa.me/5551999999999');
+  });
+
+  it('só aceita DDD 11–99 (rejeita 00/0x)', () => {
+    expect(temTelefoneValido('00 99999-9999')).toBe(false);
+    expect(temTelefoneValido('(00) 3333-4444')).toBe(false);
+    expect(temTelefoneValido('10 99999-9999')).toBe(false);
+    expect(temTelefoneValido('11 99999-9999')).toBe(true);
+    expect(temTelefoneValido('51 99999-9999')).toBe(true);
+    expect(temTelefoneValido('99 3333-4444')).toBe(true);
+  });
+
   it('abrirWhats abre nova aba; sem número não abre nada', () => {
     const abertas: string[] = [];
     const original = window.open;

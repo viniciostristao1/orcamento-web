@@ -11,15 +11,19 @@ export function somenteDigitos(valor: string | undefined | null): string {
  * (12/13 dígitos) fica como está.
  */
 export function normalizarTelefoneParaWhats(valor: string | undefined | null): string {
-  const digitos = somenteDigitos(valor);
+  let digitos = somenteDigitos(valor);
+  // Zero inicial (ex.: `051 99999-9999`, prefixo de operadora) sai antes de validar.
+  if (digitos.startsWith('0')) digitos = digitos.slice(1);
   if (digitos.length === 10 || digitos.length === 11) return `55${digitos}`;
   return digitos;
 }
 
-/** Tem número suficiente para habilitar o botão (55 + DDD + número). */
+/** Habilita o botão: 55 + DDD válido (11–99) + número (12/13 dígitos). */
 export function temTelefoneValido(valor: string | undefined | null): boolean {
   const n = normalizarTelefoneParaWhats(valor);
-  return n.length === 12 || n.length === 13;
+  if (n.length !== 12 && n.length !== 13) return false;
+  const ddd = parseInt(n.slice(2, 4), 10);
+  return ddd >= 11 && ddd <= 99;
 }
 
 /**

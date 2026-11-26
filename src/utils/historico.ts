@@ -52,6 +52,9 @@ export interface OrcamentoSalvo {
   // IDs dos itens desmarcados no momento em que foi salvo (botão próprio).
   // Opcional: registros comuns não têm — só entram na aba "Não Realizados".
   naoRealizados?: number[];
+  // Orçamento MANUAL (botão "+" do documento): começa limpo (só o item 1,
+  // vazio) em vez de vir do PDF/print. Entra na busca ("manual").
+  manual?: boolean;
   // Prévia interativa do documento (edições diretas no PNG: textos, valores,
   // linhas excluídas/adicionadas, revisão). Opcional: registros antigos não têm.
   previa?: PreviaOrcamento;
@@ -122,12 +125,24 @@ const fundirRegistro = (
  * Salva um orçamento. Com Nº preenchido, ele é a chave única: editar um item
  * manual ou regerar substitui o registro de mesmo Nº (vai para o topo, sem
  * mudar id/data) em vez de criar outro. Sem Nº, vale o anti-duplicado antigo
- * (o mais recente com os MESMOS dados é substituído).
+ * (o mais recente com os MESMOS dados é substituído) — a não ser com
+ * `forcarNovo` (o "+" manual sempre cria um registro novo, mesmo vazio).
  */
 export function adicionarAoHistorico(
   novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'>,
+  forcarNovo = false,
 ): OrcamentoSalvo[] {
   const lista = listarHistorico();
+  if (forcarNovo) {
+    const rec: OrcamentoSalvo = {
+      ...novo,
+      id: String(Date.now()),
+      criadoEm: new Date().toLocaleString('pt-BR'),
+    };
+    const out = [rec, ...lista];
+    gravar(out);
+    return out;
+  }
   const chave = (novo.numeroOrcamento ?? '').trim();
   if (chave) {
     // Cor, lembrete, aprovação e chamado são marcações posteriores (não entram no
@@ -452,6 +467,7 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
       normalizarBusca(r.dataDoc ?? '').includes(t) ||
       normalizarBusca(r.criadoEm).includes(t) ||
       normalizarBusca(r.descReparo).includes(t) ||
+      (r.manual === true && 'MANUAL'.includes(t)) ||
       (corBuscada !== null && r.cor === corBuscada),
   );
   // `1000-3000` é ambíguo com telefone/placa (ex.: `99999-9999`): o texto tem

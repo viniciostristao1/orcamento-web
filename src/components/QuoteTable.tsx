@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QuoteSummary } from '../types';
-import { calcularPrevia, construirPrevia, formatCurrency, numeroExibicaoPrevia, parseBrazilianNumber, type PreviaOrcamento } from '../utils/quoteLogic';
+import { calcularPrevia, construirPrevia, ehLinhaVazia, formatCurrency, numeroExibicaoPrevia, parseBrazilianNumber, previaVazia, type PreviaOrcamento } from '../utils/quoteLogic';
 import { Printer, Image as ImageIcon, Check, Minus, X, Plus, RotateCcw } from 'lucide-react';
 import { exportarPng } from '../utils/exportImage';
 import { abrirWhats, temTelefoneValido } from '../utils/telefone';
@@ -154,8 +154,12 @@ interface QuoteTableProps {
   onEditarRevisao: (valor: number) => void;
   onExcluirItem: (id: number) => void;
   onRestaurarItem: (id: number) => void;
+  /** Apaga a linha DE VEZ (segundo ×, só na linha já excluída; com Desfazer). */
+  onApagarItem: (id: number) => void;
   onAdicionarItem: () => void;
   onVoltarOriginal: () => void;
+  /** Abre um orçamento manual limpo (só o item 1, vazio). */
+  onNovoManual: () => void;
   /** Aprovação atual do orçamento em tela (V/X). */
   aprovacao?: AprovacaoVoto | null;
   /** Marca/desmarca (clicar no mesmo limpa; sempre salva no histórico). */
@@ -177,8 +181,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
   onEditarRevisao,
   onExcluirItem,
   onRestaurarItem,
+  onApagarItem,
   onAdicionarItem,
   onVoltarOriginal,
+  onNovoManual,
   aprovacao = null,
   onMarcarAprovacao,
   telefone = '',
@@ -231,6 +237,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
   const handlePrint = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!printableRef.current) return;
+    // Nada imprimível (só linhas vazias e revisão zerada): avisa em vez de
+    // imprimir uma folha em branco.
+    if (previaVazia(prev)) {
+      alert('O orçamento está vazio: preencha ao menos uma descrição ou valor (ou a revisão aprovada) antes de imprimir.');
+      return;
+    }
     await confirmarEdicaoAberta();
     try {
       const dataUrl = await exportarPng(printableRef.current, opcoesPng);
@@ -263,6 +275,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
   const handleDownloadImage = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!printableRef.current) return;
+    // Nada imprimível (só linhas vazias e revisão zerada): avisa em vez de
+    // baixar um PNG em branco.
+    if (previaVazia(prev)) {
+      alert('O orçamento está vazio: preencha ao menos uma descrição ou valor (ou a revisão aprovada) antes de baixar a imagem.');
+      return;
+    }
     await confirmarEdicaoAberta();
 
     try {
@@ -287,7 +305,21 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     >
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-center gap-4 print:hidden ui-compacta">
-        <button 
+        {/* Orçamento manual: abre um documento limpo (só o item 1, vazio).
+            Violeta (#7c3aed, literal — fora do remapeamento do tema): difere das
+            seis demais no Duna (marinho, verde-escuro, verde, verde-escuro,
+            âmbar queimado, vermelho, oliva) e no padrão. */}
+        <button
+          type="button"
+          onClick={onNovoManual}
+          aria-label="Novo orçamento manual"
+          title="Novo orçamento manual (limpo, só com o item 1)"
+          className="flex items-center justify-center bg-violet-600 hover:bg-violet-500 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
+        >
+          <Plus size={24} className="group-hover:scale-110 transition-transform" />
+        </button>
+
+        <button
           type="button"
           onClick={handlePrint}
           aria-label="Imprimir / PDF"
@@ -419,7 +451,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                   const numero = numeroExibicaoPrevia(prev.itens, item.id);
                   if (item.excluido) {
                     // Linha excluída: riscada e fraca na tela (toque restaura),
-                    // fora do PNG (data-ui) e da impressão.
+                    // fora do PNG (data-ui) e da impressão. O segundo × (ao
+                    // lado da barra) apaga de vez, com Desfazer no toast.
                     return (
                       <tr
                         key={item.id}
@@ -429,7 +462,19 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         className="bg-slate-100/60 cursor-pointer print:hidden"
                       >
                         <td className="py-2 px-6 text-center font-bold text-slate-400 text-2xl border-r-2 border-slate-200">
-                          <span>–</span>
+                          <span className="inline-flex items-center justify-center gap-2">
+                            <span>–</span>
+                            <button
+                              type="button"
+                              data-ui="1"
+                              onClick={(ev) => { ev.stopPropagation(); onApagarItem(item.id); }}
+                              aria-label="Apagar linha definitivamente"
+                              title="Apagar a linha de vez (sem voltar; tem Desfazer)"
+                              className="print:hidden text-slate-300 hover:text-red-500 transition-colors cursor-pointer"
+                            >
+                              <X size={16} strokeWidth={3} />
+                            </button>
+                          </span>
                         </td>
                         <td className="py-2 px-6 font-bold text-2xl uppercase leading-none text-slate-400 line-through">{item.descricao || '(sem descrição)'}</td>
                         <td className="py-2 px-6 text-right font-bold text-2xl border-l-2 border-slate-200 text-slate-400 line-through">
@@ -438,10 +483,14 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                       </tr>
                     );
                   }
+                  // Linha totalmente vazia (sem descrição e valor zerado): segue
+                  // editável na tela, mas fora do PNG (data-ui) e da impressão.
+                  const vazia = ehLinhaVazia(item);
                   return (
                   <tr
                     key={item.id}
-                    className="even:bg-slate-50/50"
+                    {...(vazia ? { 'data-ui': '1' as const } : {})}
+                    className={vazia ? 'even:bg-slate-50/50 print:hidden' : 'even:bg-slate-50/50'}
                   >
                     <td className="py-2 px-6 text-center font-bold text-slate-500 text-2xl border-r-2 border-slate-200">
                       <span className="inline-flex items-center justify-center gap-2">
@@ -493,8 +542,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             </table>
           </div>
 
-          {/* Adicionar linha: só na tela (fora do PNG e da impressão). */}
-          <div data-ui="1" className="print:hidden flex justify-center mt-2">
+          {/* Adicionar linha: só na tela (fora do PNG e da impressão).
+              Linha totalmente vazia também não sai no PNG. */}
+          <div data-ui="1" className="print:hidden flex flex-col items-center mt-2 gap-1">
             <button
               type="button"
               onClick={onAdicionarItem}
@@ -504,6 +554,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             >
               <Plus size={18} strokeWidth={3} />
             </button>
+            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+              linhas vazias não saem no PNG
+            </span>
           </div>
 
           {/* Document Info - Space Further Reduced */}

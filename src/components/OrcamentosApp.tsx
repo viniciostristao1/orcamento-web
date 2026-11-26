@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { aplicarPrevia, calcularPrevia, construirPrevia, previaComOriginal, processQuote, formatCurrency, formatarValorInput, normalizarOxi, parseBrazilianNumber, recalcularComSelecao, type PreviaOrcamento } from '../utils/quoteLogic';
+import { aplicarPrevia, calcularPrevia, construirPrevia, criarPreviaManual, previaComOriginal, previaVazia, processQuote, formatCurrency, formatarValorInput, normalizarOxi, parseBrazilianNumber, recalcularComSelecao, removerItemDefinitivo, type ItemPrevia, type PreviaOrcamento } from '../utils/quoteLogic';
+import { temTelefoneValido } from '../utils/telefone';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable, { type AprovacaoVoto } from './QuoteTable';
-import { Play, Percent, Eraser } from 'lucide-react';
+import { Play, Percent, Eraser, Plus } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import MenuDados from './MenuDados';
@@ -67,6 +68,16 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const registroAbertoRef = useRef<{ id: string; criadoEm: string; base: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> } | null>(null);
   // Registro do histórico referente ao documento em tela + aprovação (V/X).
   const [aprovacao, setAprovacao] = useState<AprovacaoVoto | null>(null);
+  // Toasts fora do `ui-compacta` (mesmo padrão do Desfazer dos Dados): linha
+  // apagada de vez (com Desfazer ~6s) + aviso rápido do orçamento manual.
+  const [avisoRapido, setAvisoRapido] = useState<string | null>(null);
+  const [desfazerApagar, setDesfazerApagar] = useState<{ item: ItemPrevia; indice: number; rotulo: string } | null>(null);
+  const timerAviso = useRef<number | null>(null);
+  const timerDesfazer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (timerAviso.current) window.clearTimeout(timerAviso.current);
+    if (timerDesfazer.current) window.clearTimeout(timerDesfazer.current);
+  }, []);
 
   // Estados locais para os inputs de texto para permitir digitação livre (como vírgulas e pontos)
   const [revAprovadaInput, setRevAprovadaInput] = useState<string>(() => rascunho?.revAprovadaInput ?? "1766,23");
@@ -403,6 +414,100 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     persistirPrevia(nova, summary, sel);
   };
 
+  /** Segundo ×: apaga a linha DE VEZ (fora do array), com Desfazer ~6s. */
+  const apagarLinhaDefinitiva = (id: number) => {
+    if (!previa || !summary) return;
+    const indice = previa.itens.findIndex((i) => i.id === id);
+    if (indice < 0) return;
+    const item = previa.itens[indice];
+    const rotulo = item.descricao.trim() ? `Linha "${item.descricao.trim().toUpperCase()}"` : `Linha ${indice + 1}`;
+    const nova: PreviaOrcamento = { ...removerItemDefinitivo(previa, id), original: previa.original };
+    const sel = new Set(selecionados);
+    sel.delete(id);
+    persistirPrevia(nova, summary, sel);
+    // Desfazer reinsere na posição original como excluída (volta ao "–").
+    if (timerDesfazer.current) window.clearTimeout(timerDesfazer.current);
+    setDesfazerApagar({ item: { ...item }, indice, rotulo });
+    timerDesfazer.current = window.setTimeout(() => setDesfazerApagar(null), 6000);
+  };
+
+  const desfazerApagarLinha = () => {
+    if (!desfazerApagar || !previa || !summary) return;
+    const { item, indice } = desfazerApagar;
+    const itens = previa.itens.map((i) => ({ ...i }));
+    itens.splice(Math.min(indice, itens.length), 0, { ...item, excluido: true });
+    const nova: PreviaOrcamento = { ...previa, itens, original: previa.original };
+    const sel = new Set(selecionados);
+    sel.delete(item.id);
+    persistirPrevia(nova, summary, sel);
+    if (timerDesfazer.current) window.clearTimeout(timerDesfazer.current);
+    setDesfazerApagar(null);
+  };
+
+  /** Botão "+": abre um orçamento manual limpo (só o item 1, vazio). */
+  const novoOrcamentoManual = () => {
+    // Tudo já está salvo (histórico + último + rascunho): abre direto. Só
+    // avisa quando havia documento com conteúdo em tela; vazio não avisa.
+    if (previa && !previaVazia(previa)) {
+      if (timerAviso.current) window.clearTimeout(timerAviso.current);
+      setAvisoRapido('Orçamento anterior salvo no histórico');
+      timerAviso.current = window.setTimeout(() => setAvisoRapido(null), 3500);
+    }
+    const fresca = previaComOriginal(criarPreviaManual());
+    const agora = new Date().toLocaleString('pt-BR');
+    const doc: QuoteSummary = {
+      items: [{ id: 1, description: '', pecasValue: 0, servicosValue: 0, value: 0 }],
+      totalOrcamento: 0,
+      revisaoAprovada: 0,
+      totalGeral: 0,
+      numParcelas: 6,
+      valorParcela: 0,
+      currentTime: agora,
+      totalPecasGeral: 0,
+      totalServicosGeral: 0,
+      valorDescontoTotal: 0,
+      valorLiquidoFinal: 0,
+      descontoPercentual: 5,
+    };
+    // Contato zerado (nome/telefone digitados vão ao doc/histórico, não ao PNG).
+    setDesconto(5);
+    setParcelas(6);
+    setRevAprovadaInput('0,00');
+    setRevPecasInput('0,00');
+    setNumero('');
+    setDataDoc('');
+    setPlaca('');
+    setNome('');
+    setChassi('');
+    setTelefone('');
+    setAprovacao(null);
+    setSummary(doc);
+    setSelecionados(new Set([1]));
+    setPrevia(fresca);
+    // Registro próprio no histórico (sempre novo, mesmo vazio) + prévia.
+    const novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> = {
+      descReparo: '',
+      orcamentoRaw: '',
+      ajustesManuais: '',
+      revAprovadaInput: '0,00',
+      revPecasInput: '0,00',
+      desconto: 5,
+      parcelas: 6,
+      placa: '',
+      telefone: '',
+      numeroOrcamento: '',
+      dataDoc: '',
+      nome: '',
+      chassi: '',
+      manual: true,
+      ...retratoDoResumo(doc),
+    };
+    const salvos = adicionarAoHistorico(novo, true);
+    registroAbertoRef.current = { id: salvos[0].id, criadoEm: salvos[0].criadoEm, base: { ...novo } };
+    atualizarPreviaHistorico(salvos[0].id, fresca, retratoDoResumo(doc));
+    setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
+  };
+
   const adicionarLinhaPrevia = () => {
     if (!previa || !summary) return;
     const proximoId = previa.itens.reduce((m, i) => Math.max(m, i.id), 0) + 1;
@@ -531,6 +636,34 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           <div className="min-w-0">
             {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO). */}
             <div className="flex flex-col gap-4 min-w-0 xl:w-[425px]">
+            {/* Telefone espelhado do card do sistema: cola aqui o WhatsApp do
+                cliente; habilita o botão do WhatsApp no documento. Não sai no PNG. */}
+            <NeonCard
+              title="WHATSAPP DO CLIENTE"
+              borderColor="emerald-500"
+              compact
+            >
+              <div className="space-y-2">
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  value={telefone}
+                  onChange={(e) => setTelefone(e.target.value)}
+                  placeholder="Cole o número: 51 99999-9999"
+                  maxLength={20}
+                  aria-label="Telefone do cliente (WhatsApp)"
+                  className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none"
+                />
+                {telefone.trim() !== '' && !temTelefoneValido(telefone) && (
+                  <p className="text-sm font-bold text-red-400">
+                    Telefone incompleto — use DDD + número (ex.: 51 99999-9999).
+                  </p>
+                )}
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                  Não sai no PNG · vale para o botão do WhatsApp
+                </p>
+              </div>
+            </NeonCard>
             <NeonCard
               title="APROVADO E DESCONTO"
               borderColor="emerald-500"
@@ -720,6 +853,24 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         </div>
 
         <div id="result-section" className="mt-6">
+          {!visivel && (
+            // Sem documento em tela (perfil novo): atalho para o manual limpo.
+            // Só tela (print:hidden) — nunca entra no PNG.
+            <div className="max-w-4xl mx-auto flex flex-col items-center gap-3 py-10 print:hidden">
+              <p className="text-sm font-bold uppercase tracking-widest text-slate-500">
+                Nenhum orçamento em tela — processe um ou comece um manual
+              </p>
+              <button
+                type="button"
+                onClick={novoOrcamentoManual}
+                aria-label="Novo orçamento manual"
+                title="Novo orçamento manual (limpo, só com o item 1)"
+                className="flex items-center justify-center bg-violet-600 hover:bg-violet-500 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
+              >
+                <Plus size={24} className="group-hover:scale-110 transition-transform" />
+              </button>
+            </div>
+          )}
           {visivel && (
             <div className="max-w-4xl mx-auto">
               <QuoteTable
@@ -733,8 +884,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 onEditarRevisao={editarRevisaoPrevia}
                 onExcluirItem={excluirLinhaPrevia}
                 onRestaurarItem={restaurarLinhaPrevia}
+                onApagarItem={apagarLinhaDefinitiva}
                 onAdicionarItem={adicionarLinhaPrevia}
                 onVoltarOriginal={voltarOriginalPrevia}
+                onNovoManual={novoOrcamentoManual}
                 aprovacao={aprovacao}
                 onMarcarAprovacao={votarAprovacao}
                 telefone={telefone}
@@ -751,6 +904,29 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
         destaqueId={destaqueHistoricoId}
         destaqueVez={destaqueHistoricoVez}
       />
+
+      {/* Toasts fora do `ui-compacta` (zoom não encolhe o fixo). */}
+      {desfazerApagar && (
+        <div className="fixed left-1/2 bottom-6 -translate-x-1/2 z-[200] flex items-center gap-4 bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3 shadow-2xl max-w-[92vw]">
+          <span className="text-sm font-bold text-slate-200 truncate">
+            {desfazerApagar.rotulo} apagada
+          </span>
+          <button
+            type="button"
+            onClick={desfazerApagarLinha}
+            className="shrink-0 text-sm font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 cursor-pointer"
+          >
+            Desfazer
+          </button>
+        </div>
+      )}
+      {avisoRapido && (
+        <div className="fixed left-1/2 bottom-20 -translate-x-1/2 z-[200] flex items-center gap-4 bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3 shadow-2xl max-w-[92vw]">
+          <span className="text-sm font-bold text-slate-200 truncate">
+            {avisoRapido}
+          </span>
+        </div>
+      )}
     </>
   );
 };
