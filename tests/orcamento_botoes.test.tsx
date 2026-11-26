@@ -99,7 +99,7 @@ describe('botão "+" (orçamento manual)', () => {
   });
 });
 
-describe('telefone à direita + botão WhatsApp', () => {
+describe('telefone no CLAUDE + botão WhatsApp', () => {
   it('número válido habilita o botão; inválido mostra erro e mantém desabilitado', () => {
     processarExemplo();
     const campo = screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLInputElement;

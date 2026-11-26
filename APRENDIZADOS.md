@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.221.0](#v22100) — 2026-11-26 — Prévia menor (0,5, holder 448px) + telefone dentro do CLAUDE (v0.221.0)
+
 - [v0.220.0](#v22000) — 2026-11-26 — Layout: CLAUDE no topo da esquerda; botões + prévia na direita (v0.220.0)
 
 - [v0.219.0](#v21900) — 2026-11-26 — Card vira CLAUDE: sai o campo da revisão, Total Revisão volta a manual (v0.219.0)
@@ -364,6 +366,21 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v22100"></a>
+## 2026-11-26 — Prévia menor (0,5, holder 448px) + telefone dentro do CLAUDE (v0.221.0)
+
+**Causa:** prévia a 0,59 enchia a coluna demais; telefone em card próprio
+ocupava a pilha direita. Layout interno segue 896px, então o PNG não muda.
+**Feito:** escala fixa 0,5 com holder 448px centralizado (sai o cálculo
+dinâmico); campo WHATSAPP virou bloco do CLAUDE (mesmo rótulo pequeno dos
+demais, mesmo estado/validação/botão/aviso; borracha limpa só a lista —
+telefone fica); card da direita removido (APROVADO sobe).
+**Validação:** `getComputedStyle(#printable-quote).width === '896px'`; PNG
+antes/depois do mesmo orçamento com dimensões e quebras iguais (só timestamp);
+impressão igual (só +6mm herdados da v0.220.0, sem regra nova); jsdom (ordem,
+campo no CLAUDE, espelhamento, borracha preserva fone) + suite cheia passando;
+`typecheck`/`lint` limpos; `dist` autocontido; CDP desktop e celular. Selo `v0.221.0`.
 
 <a id="v22000"></a>
 ## 2026-11-26 — Layout: CLAUDE no topo da esquerda; botões + prévia na direita (v0.220.0)

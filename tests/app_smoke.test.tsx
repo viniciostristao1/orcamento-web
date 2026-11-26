@@ -1938,22 +1938,26 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
   });
 
-  it('ordem das colunas: CLAUDE, sistema, botões+prévia, whatsapp, aprovado, ajuste, resumo', () => {
+  it('ordem das colunas: CLAUDE (com telefone), sistema, botões+prévia, aprovado, ajuste, resumo', () => {
     render(<App />);
     colarEProcessar(); // mostra o RESUMO
     const hClaude = screen.getByText('CLAUDE');
     const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
     const botoes = screen.getByRole('button', { name: 'Imprimir / PDF' });
     const doc = document.querySelector('#printable-quote') as HTMLElement;
-    const hWhats = screen.getByText('WHATSAPP DO CLIENTE');
     const hAprovado = screen.getByText('APROVADO E DESCONTO');
     const hAjuste = screen.getByText(/AJUSTE \(ID/);
     const hResumo = screen.getByText('RESUMO LÍQUIDO');
-    const ordem = [hClaude, hSistema, botoes, doc, hWhats, hAprovado, hAjuste, hResumo];
+    const ordem = [hClaude, hSistema, botoes, doc, hAprovado, hAjuste, hResumo];
     for (let i = 0; i + 1 < ordem.length; i++) {
       expect(ordem[i].compareDocumentPosition(ordem[i + 1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
-    // botões + prévia moram na coluna da direita (pilha de 526px no xl)
+    // sem card próprio de WhatsApp: o campo mora dentro do CLAUDE
+    expect(screen.queryByRole('heading', { name: 'WHATSAPP DO CLIENTE' })).toBeNull();
+    const fone = screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLElement;
+    const cardClaude = fone.closest('[data-neon-box]');
+    expect(cardClaude?.querySelector('h3')?.textContent).toBe('CLAUDE');
+    // botões + prévia moram na coluna da direita (pilha de 526px)
     const rs = document.querySelector('#result-section') as HTMLElement;
     let no = rs.parentElement;
     let naColunaDireita = false;

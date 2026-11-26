@@ -261,3 +261,36 @@ describe('CLAUDE — relação com o "+" e com o histórico', () => {
     expect(salvos[0].listaRevisao).toBe('Revisao\tR$ 20,00');
   });
 });
+
+describe('CLAUDE — telefone espelhado e borracha só na lista', () => {
+  it('digitar no CLAUDE atualiza o Telefone do sistema, e vice-versa', () => {
+    render(<App />);
+    const campoClaude = screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLInputElement;
+    const campoSistema = screen.getByPlaceholderText('Ex.: 51 99999-9999') as HTMLInputElement;
+    // CLAUDE → sistema
+    fireEvent.change(campoClaude, { target: { value: '(51) 99999-9999' } });
+    expect(campoSistema.value).toBe('(51) 99999-9999');
+    // sistema → CLAUDE
+    fireEvent.change(campoSistema, { target: { value: '51988887777' } });
+    expect(campoClaude.value).toBe('51988887777');
+    // o botão do WhatsApp continua usando esse número
+    colarAdicional('Filtro\tR$ 10,00');
+    gerar();
+    const zap = screen.getByRole('button', { name: 'Conversar no WhatsApp' }) as HTMLButtonElement;
+    expect(zap.disabled).toBe(false);
+    expect(zap.title).toContain('51988887777');
+  });
+
+  it('ClearButton do CLAUDE limpa só a lista e deixa o telefone intacto', () => {
+    render(<App />);
+    colarAdicional('Filtro\tR$ 10,00');
+    fireEvent.change(screen.getByLabelText('Telefone do cliente (WhatsApp)'), {
+      target: { value: '(51) 99999-9999' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar lista' }));
+    expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
+    expect((screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLInputElement).value).toBe(
+      '(51) 99999-9999',
+    );
+  });
+});

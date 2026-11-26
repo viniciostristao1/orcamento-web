@@ -640,6 +640,30 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               actions={<ClearButton onClick={() => { setListaAdicional(''); }} label="Limpar lista" />}
             >
               <div className="space-y-4">
+                {/* WhatsApp do cliente: campo do próprio card (mesmo estado,
+                    validação e botão da fileira; não sai no PNG). A borracha
+                    do card limpa só a lista — o telefone fica. */}
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">WhatsApp do cliente</label>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="Cole o número: 51 99999-9999"
+                    maxLength={20}
+                    aria-label="Telefone do cliente (WhatsApp)"
+                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none"
+                  />
+                  {telefone.trim() !== '' && !temTelefoneValido(telefone) && (
+                    <p className="text-sm font-bold text-red-400">
+                      Telefone incompleto — use DDD + número (ex.: 51 99999-9999).
+                    </p>
+                  )}
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                    Não sai no PNG · vale para o botão do WhatsApp
+                  </p>
+                </div>
                 <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Itens do adicional (nº ⇥ descrição ⇥ valor)</label>
                   <textarea
@@ -767,34 +791,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
             {/* Demais cards da pilha (fora da impressão e do zoom da prévia). */}
             <div className="flex flex-col gap-4 min-w-0 print:hidden ui-compacta">
-            {/* Telefone espelhado do card do sistema: cola aqui o WhatsApp do
-                cliente; habilita o botão do WhatsApp no documento. Não sai no PNG. */}
-            <NeonCard
-              title="WHATSAPP DO CLIENTE"
-              borderColor="emerald-500"
-              compact
-            >
-              <div className="space-y-2">
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
-                  placeholder="Cole o número: 51 99999-9999"
-                  maxLength={20}
-                  aria-label="Telefone do cliente (WhatsApp)"
-                  className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none"
-                />
-                {telefone.trim() !== '' && !temTelefoneValido(telefone) && (
-                  <p className="text-sm font-bold text-red-400">
-                    Telefone incompleto — use DDD + número (ex.: 51 99999-9999).
-                  </p>
-                )}
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                  Não sai no PNG · vale para o botão do WhatsApp
-                </p>
-              </div>
-            </NeonCard>
             <NeonCard
               title="APROVADO E DESCONTO"
               borderColor="emerald-500"

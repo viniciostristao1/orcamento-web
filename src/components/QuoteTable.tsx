@@ -191,33 +191,23 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
   nomeCliente = '',
 }) => {
   const printableRef = useRef<HTMLDivElement>(null);
-  const holderRef = useRef<HTMLDivElement>(null);
   const [alturaDocumento, setAlturaDocumento] = useState(0);
-  // Escala da prévia: no desktop (xl) o layout é travado em 896px e a escala
-  // preenche a largura útil do holder; fora do xl, 0,5 como sempre foi.
-  const [escala, setEscala] = useState(0.5);
+  // Escala fixa em 0,5 (só o visual): no desktop o holder tem 448px e o
+  // layout é travado em 896px (896 × 0,5 = 448, preenche centrado); fora do
+  // xl, fluido + .5 como sempre foi.
+  const escala = 0.5;
 
-  // Mede a altura real do documento e a largura útil do holder para a escala
-  // (só o visual). O PNG/impressão não mudam: transform não afeta o tamanho
-  // do nó e o layout continua travado em 896px no desktop.
+  // Mede a altura real do documento para o preview (só o visual).
+  // O PNG/impressão não mudam: transform não afeta o tamanho do nó e o
+  // layout continua travado em 896px no desktop.
   useEffect(() => {
     const el = printableRef.current;
-    const holder = holderRef.current;
-    if (!el || !holder) return;
-    const medir = () => {
-      setAlturaDocumento(el.offsetHeight);
-      // jsdom não tem matchMedia nem largura real: cai no 0,5 de sempre.
-      const xl =
-        typeof window.matchMedia === 'function' &&
-        window.matchMedia('(min-width: 1280px)').matches &&
-        holder.clientWidth > 0;
-      setEscala(xl ? holder.clientWidth / 896 : 0.5);
-    };
+    if (!el) return;
+    const medir = () => setAlturaDocumento(el.offsetHeight);
     medir();
     if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(medir);
     observer.observe(el);
-    observer.observe(holder);
     return () => observer.disconnect();
   }, []);
 
@@ -433,14 +423,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
       </div>
 
       {/* Printable Document Context: no desktop o layout é travado em 896px
-          (o PNG sai idêntico) e a escala preenche a coluna; fora do xl, tudo
-          como era (fluido + escala .5). */}
+          e a escala fixa (.5) preenche o holder de 448px; fora do xl, tudo
+          como era (fluido + .5). */}
       <div
-        ref={holderRef}
-        className="preview-orcamento-holder w-full max-w-4xl mx-auto"
+        className="preview-orcamento-holder w-full max-w-4xl mx-auto xl:w-[448px]"
         style={alturaDocumento ? { height: alturaDocumento * escala } : undefined}
       >
-      <div className="preview-orcamento" style={{ transform: `scale(${escala})` }}>
+      <div className="preview-orcamento">
       <div 
         ref={printableRef}
         id="printable-quote" 
