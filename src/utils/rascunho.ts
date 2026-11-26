@@ -2,7 +2,11 @@ import { converterBrutoParaLista } from './quoteLogic';
 
 export interface RascunhoOrcamento {
   listaAdicional: string;
-  listaRevisao: string;
+  /**
+   * Campo antigo da revisão (v0.218.0): sem UI desde a v0.219.0 — só passa
+   * pelo rascunho para não perder o dado se ele existir.
+   */
+  listaRevisao?: string;
   ajustesManuais: string;
   revAprovadaInput: string;
   revPecasInput: string;
@@ -42,15 +46,16 @@ export const lerRascunho = (): RascunhoOrcamento | null => {
       nome: typeof d?.nome === 'string' ? d.nome : '',
       chassi: typeof d?.chassi === 'string' ? d.chassi : '',
     };
-    if (typeof d?.listaAdicional === 'string' && typeof d?.listaRevisao === 'string') {
-      return { listaAdicional: d.listaAdicional, listaRevisao: d.listaRevisao, ...base };
+    if (typeof d?.listaAdicional === 'string') {
+      const rasc: RascunhoOrcamento = { listaAdicional: d.listaAdicional, ...base };
+      if (typeof d?.listaRevisao === 'string') rasc.listaRevisao = d.listaRevisao;
+      return rasc;
     }
     // Rascunho do formato antigo: converte o bruto uma vez para a lista.
     if (typeof d?.descReparo === 'string' && typeof d?.orcamentoRaw === 'string') {
       return {
         listaAdicional: converterBrutoParaLista(d.descReparo, d.orcamentoRaw),
-        listaRevisao: '',
-        ...base,
+        ...base
       };
     }
     return null;

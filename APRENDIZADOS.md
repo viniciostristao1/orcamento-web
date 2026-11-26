@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.219.0](#v21900) — 2026-11-26 — Card vira CLAUDE: sai o campo da revisão, Total Revisão volta a manual (v0.219.0)
+
 - [v0.218.0](#v21800) — 2026-11-26 — COLAR ITENS substitui os manuais: lista TAB vira orçamento (v0.218.0)
 
 - [v0.217.0](#v21700) — 2026-11-26 — Segundo × (apaga de vez + Desfazer), botão "+" manual e telefone à direita (v0.217.0)
@@ -360,6 +362,22 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21900"></a>
+## 2026-11-26 — Card vira CLAUDE: sai o campo da revisão, Total Revisão volta a manual (v0.219.0)
+
+**Causa:** campo B (revisão) preenchia o Total Revisão sozinho — o pedido é
+manual de novo (como antes do COLAR ITENS); título passa a CLAUDE.
+**Feito:** removidos campo B, resumo B, auto-preenchimento da revisão, estado
+`listaRevisao` e textos; GERAR usa só o Total Revisão digitado (B vazio =
+comportamento único agora); `listaRevisao` some da escrita mas continua lida —
+rascunho/registros antigos com o campo abrem sem quebrar e o dado passa intacto
+(`fundirRegistro` preserva; `manterVerbos`/recalculos intactos).
+**Validação:** jsdom (`colar_itens`: Total Revisão manual preservado 500,00,
+rascunho antigo com `listaRevisao` intacto, registro com `listaRevisao` abre e o
+voto preserva + `lista_itens`/`app_smoke`/`colapso`/`caret` adaptados: CLAUDE
+presente, B ausente) + suite cheia 446 passando; `typecheck`/`lint` limpos;
+`dist` autocontido; CDP desktop (card novo) e celular. Selo `v0.219.0`.
 
 <a id="v21800"></a>
 ## 2026-11-26 — COLAR ITENS substitui os manuais: lista TAB vira orçamento (v0.218.0)

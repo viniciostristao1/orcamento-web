@@ -16,8 +16,6 @@ const SETE_LINHAS = [
   '6\tBorracha do limpador\tR$ 240,90',
   '7\t2 rolamentos diant\tR$ 5.419,12',
 ].join('\n');
-const APROVADOS_4 = SETE_LINHAS.split('\n').slice(0, 4).join('\n');
-const REPROVADOS_3 = SETE_LINHAS.split('\n').slice(4).join('\n');
 
 // PDF mockado (sem worker): layout Toyota antigo com 1 item.
 vi.mock('../src/sistema/pdf', () => ({
@@ -51,22 +49,19 @@ const colarAdicional = (texto: string) => {
   fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: texto } });
 };
 
-const colarRevisao = (texto: string) => {
-  fireEvent.change(screen.getByLabelText('Itens da revisão aprovada'), { target: { value: texto } });
-};
-
 const gerar = () => {
   fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
 };
 
 const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
 
-describe('COLAR ITENS — card novo no lugar dos manuais', () => {
-  it('mostra COLAR ITENS e remove DESCRIÇÃO MANUAL', () => {
+describe('CLAUDE — card único no lugar dos manuais', () => {
+  it('mostra CLAUDE e remove DESCRIÇÃO MANUAL', () => {
     render(<App />);
-    expect(screen.getByText('COLAR ITENS')).toBeTruthy();
+    expect(screen.getByText('CLAUDE')).toBeTruthy();
     expect(screen.queryByText('DESCRIÇÃO MANUAL')).toBeNull();
     expect(screen.queryByText('PEÇAS MANUAL')).toBeNull();
+    expect(screen.queryByLabelText('Itens da revisão aprovada')).toBeNull();
   });
 
   it('resumo vivo: conta e soma as 7 linhas do exemplo', () => {
@@ -93,29 +88,18 @@ describe('COLAR ITENS — card novo no lugar dos manuais', () => {
     expect(salvos[0].numItens).toBe(7);
   });
 
-  it('A=reprovados + B=aprovados: revisão 2.672,35, adicional 5.907,70, total 8.580,05', () => {
-    render(<App />);
-    colarAdicional(REPROVADOS_3);
-    colarRevisao(APROVADOS_4);
-    // A soma de B preenche o Total Revisão automaticamente.
-    const rev = screen.getAllByPlaceholderText('0,00')[0] as HTMLInputElement;
-    expect(rev.value).toBe('2.672,35');
-    gerar();
-    expect(doc().getAllByText('5.907,70').length).toBeGreaterThan(0);
-    expect(doc().getAllByText('8.580,05').length).toBeGreaterThan(0);
-    expect(doc().getAllByText('2.672,35').length).toBeGreaterThan(0);
-  });
-
-  it('campo B vazio não altera o Total Revisão (vai tudo ao adicional)', () => {
+  it('Total Revisão manual não muda ao gerar pela lista (tudo vai ao adicional)', () => {
     render(<App />);
     const rev = screen.getAllByPlaceholderText('0,00')[0] as HTMLInputElement;
-    fireEvent.change(rev, { target: { value: '1.000,00' } });
+    fireEvent.change(rev, { target: { value: '500,00' } });
     fireEvent.blur(rev);
     colarAdicional(SETE_LINHAS);
     gerar();
-    expect((screen.getAllByPlaceholderText('0,00')[0] as HTMLInputElement).value).toBe('1.000,00');
-    expect(doc().getAllByText('8.580,05').length).toBeGreaterThan(0); // 1000 + 8580,05
-    expect(doc().getAllByText('9.580,05').length).toBeGreaterThan(0);
+    // O campo continua como digitado; o doc usa a revisão manual + adicional.
+    expect((screen.getAllByPlaceholderText('0,00')[0] as HTMLInputElement).value).toBe('500,00');
+    expect(doc().getAllByText('500,00').length).toBeGreaterThan(0);
+    expect(doc().getAllByText('8.580,05').length).toBeGreaterThan(0);
+    expect(doc().getAllByText('9.080,05').length).toBeGreaterThan(0);
   });
 
   it('linha inválida: pede confirmação; sem confirmar não gera', () => {
@@ -129,7 +113,7 @@ describe('COLAR ITENS — card novo no lugar dos manuais', () => {
     expect(screen.getByText(/Linha 2: sem valor legível/)).toBeTruthy();
     gerar();
     expect(confirms).toHaveLength(1);
-    expect(confirms[0]).toContain('linha 2');
+    expect(confirms[0]).toContain('Linha 2');
     expect(document.querySelector('#printable-quote')).toBeNull();
   });
 
@@ -143,7 +127,7 @@ describe('COLAR ITENS — card novo no lugar dos manuais', () => {
   });
 });
 
-describe('COLAR ITENS — relação com o "+" e com o histórico', () => {
+describe('CLAUDE — relação com o "+" e com o histórico', () => {
   it('GERAR com manual vazio em tela preenche o registro aberto (sem duplicar)', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Novo orçamento manual' }));
@@ -201,5 +185,79 @@ describe('COLAR ITENS — relação com o "+" e com o histórico', () => {
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe(
       'HIGIENIZAÇÃO DO AR CONDICIONADO\tR$ 10,00',
     );
+  });
+
+  it('rascunho com listaRevisao antiga não quebra e o dado passa intacto', () => {
+    localStorage.setItem(
+      RASCUNHO_KEY,
+      JSON.stringify({
+        listaAdicional: 'Filtro\tR$ 10,00',
+        listaRevisao: 'Revisao\tR$ 20,00',
+        ajustesManuais: '',
+        revAprovadaInput: '0,00',
+        revPecasInput: '0,00',
+        desconto: 5,
+        parcelas: 6,
+        placa: '',
+        telefone: '',
+        numero: '',
+        dataDoc: '',
+        nome: '',
+        chassi: '',
+      }),
+    );
+    render(<App />);
+    // sem campo B na tela, mas a lista A abre normal
+    expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe(
+      'Filtro\tR$ 10,00',
+    );
+    expect(screen.queryByLabelText('Itens da revisão aprovada')).toBeNull();
+    // digitar salva o rascunho sem apagar o campo antigo
+    fireEvent.change(screen.getByLabelText('Itens do adicional'), {
+      target: { value: 'Filtro\tR$ 10,00\nPastilha\tR$ 5,00' },
+    });
+    expect(JSON.parse(localStorage.getItem(RASCUNHO_KEY) ?? '{}').listaRevisao).toBe(
+      'Revisao\tR$ 20,00',
+    );
+  });
+
+  it('registro com listaRevisao abre normal e o voto preserva o campo', () => {
+    localStorage.setItem(
+      HIST_KEY,
+      JSON.stringify([
+        {
+          id: 'r1',
+          criadoEm: '26/11/2026, 10:00:00',
+          descReparo: '01 FILTRO',
+          orcamentoRaw: '1 Serviço GERADO FILTRO 10,00',
+          listaAdicional: 'Filtro\tR$ 10,00',
+          listaRevisao: 'Revisao\tR$ 20,00',
+          ajustesManuais: '',
+          revAprovadaInput: '0,00',
+          revPecasInput: '0,00',
+          desconto: 5,
+          parcelas: 6,
+          totalPecasGeral: 0,
+          totalServicosGeral: 10,
+          valorDescontoTotal: 0,
+          valorLiquidoFinal: 10,
+          totalGeral: 10,
+          numItens: 1,
+        },
+      ]),
+    );
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir orçamento' }));
+    // lista A preenchida, sem campo B, documento na tela
+    expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe(
+      'Filtro\tR$ 10,00',
+    );
+    expect(document.querySelector('#printable-quote')).toBeTruthy();
+    // votar preserva o campo antigo no registro (ignora na tela, não apaga)
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
+    const salvos = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');
+    expect(salvos).toHaveLength(1);
+    expect(salvos[0].listaRevisao).toBe('Revisao\tR$ 20,00');
   });
 });

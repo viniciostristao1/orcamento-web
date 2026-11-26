@@ -44,7 +44,7 @@ interface SistemaCardProps {
   onExtraido: () => void;
   /** Preenche o Total Revisão com o "orçamento inicial" do complementar. */
   onRevisaoInicial?: (v: string) => void;
-  /** Preenche a lista do COLAR ITENS com a extração convertida. */
+  /** Preenche a lista do CLAUDE com a extração convertida. */
   onUsarLista: (lista: string) => void;
   /** Recolhido = só o cabeçalho aparece (conteúdo preservado). */
   descRecolhido?: boolean;
@@ -409,7 +409,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           onClick={() => {
             if (!temTexto) return;
             onUsarLista(converterBrutoParaLista(revDesc, revDados));
-            setMsg('Preenchido na lista do COLAR ITENS — confira e clique em Gerar orçamento.');
+            setMsg('Preenchido na lista do CLAUDE — confira e clique em Gerar orçamento.');
           }}
           disabled={!temTexto || ocupado}
           aria-label="Usar no orçamento manual"

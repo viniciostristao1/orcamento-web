@@ -73,7 +73,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByRole('button', { name: 'Orçamentos' }).className).toContain('text-white');
     // selo de versão do header acompanha o package.json (trava contra selo defasado)
     expect(screen.getByTitle('Versão do arquivo').textContent).toBe(`v${VERSAO}`);
-    expect(screen.getByText('COLAR ITENS')).toBeTruthy();
+    expect(screen.getByText('CLAUDE')).toBeTruthy();
     expect(screen.queryByText('DESCRIÇÃO MANUAL')).toBeNull();
     expect(screen.queryByText('PEÇAS MANUAL')).toBeNull();
     // os dois campos da lista com a mesma fonte (text-lg)
@@ -1123,17 +1123,17 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('orçamentos: COLAR ITENS sem barra de rolagem (só mouse)', () => {
+  it('orçamentos: CLAUDE sem barra de rolagem (só mouse)', () => {
     const { container } = render(<App />);
     expect(container.querySelectorAll('textarea')[0].className).toContain('scrollbar-hide');
   });
 
-  it('orçamentos: COLAR ITENS começa aberto e recolhe na seta', () => {
+  it('orçamentos: CLAUDE começa aberto e recolhe na seta', () => {
     const { container } = render(<App />);
     const n0 = container.querySelectorAll('textarea').length;
-    fireEvent.click(screen.getByRole('button', { name: 'Ocultar COLAR ITENS' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar CLAUDE' }));
     expect(container.querySelectorAll('textarea').length).toBeLessThan(n0);
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar COLAR ITENS' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar CLAUDE' }));
     expect(container.querySelectorAll('textarea').length).toBe(n0);
   });
 
@@ -1932,18 +1932,17 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByPlaceholderText('Ex.: JOÃO DA SILVA') as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Descrição extraída para revisão') as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Dados extraídos para revisão') as HTMLInputElement).value).toBe('');
-    // revisão, ajustes e listas também zeram
+    // revisão, ajustes e lista também zeram
     expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
     expect((screen.getByPlaceholderText('Ex: 1 50,00') as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
-    expect((screen.getByLabelText('Itens da revisão aprovada') as HTMLTextAreaElement).value).toBe('');
   });
 
-  it('ordem dos cards: sistema, colar itens, ajustes, resumo (sem descrição manual)', () => {
+  it('ordem dos cards: sistema, claude, ajustes, resumo (sem descrição manual)', () => {
     render(<App />);
     colarEProcessar(); // mostra o RESUMO
     const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
-    const hColar = screen.getByText('COLAR ITENS');
+    const hColar = screen.getByText('CLAUDE');
     const hAjustes = screen.getByText(/AJUSTE \(ID/);
     const hResumo = screen.getByText('RESUMO LÍQUIDO');
     expect(screen.queryByText('DESCRIÇÃO MANUAL')).toBeNull();
@@ -1970,13 +1969,12 @@ describe('App — smoke test (render + processar)', () => {
 
   it('play com campo vazio avisa em vez de sair em silêncio (sem scroll/imagem)', () => {
     render(<App />);
-    // listas vazias + sem revisão pendente: alerta e não gera
+    // lista vazia + sem revisão pendente: alerta e não gera
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
-    expect((screen.getByLabelText('Itens da revisão aprovada') as HTMLTextAreaElement).value).toBe('');
     const alerta = vi.spyOn(window, 'alert').mockImplementation(() => {});
     try {
       fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
-      expect(alerta).toHaveBeenCalledWith(expect.stringContaining('COLAR ITENS'));
+      expect(alerta).toHaveBeenCalledWith(expect.stringContaining('CLAUDE'));
       expect(document.querySelector('#printable-quote')).toBeNull();
     } finally {
       alerta.mockRestore();

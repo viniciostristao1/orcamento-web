@@ -47,7 +47,7 @@ export const parseBrazilianNumber = (value: string): number => {
 };
 
 /**
- * Item colado na lista nova (COLAR ITENS): descrição final + valor.
+ * Item colado na lista nova (CLAUDE): descrição final + valor.
  * Tudo entra como serviço (a lista não tem coluna de tipo) — o desconto em
  * peças passa a valer só na parte da revisão.
  */
@@ -80,7 +80,7 @@ const ehCabecalhoLista = (t: string): boolean =>
 const limparTokenValor = (t: string): string => t.trim().replace(/^R\$/i, '').trim();
 
 /**
- * Lê a lista colada (COLAR ITENS): `nº ⇥ descrição ⇥ valor`, TABs ou espaços.
+ * Lê a lista colada (CLAUDE): `nº ⇥ descrição ⇥ valor`, TABs ou espaços.
  * - Com TAB: colunas explícitas (`[nº, descrição, valor]`; 2 cols = desc+valor;
  *   1ª coluna só-dígitos em 3+ colunas é sempre o nº — descarta sem olhar posição).
  * - Sem TAB: `número? descrição… valor`; o 1º inteiro vale como nº SÓ se for

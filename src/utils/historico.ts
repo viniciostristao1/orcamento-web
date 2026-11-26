@@ -55,7 +55,7 @@ export interface OrcamentoSalvo {
   // Orçamento MANUAL (botão "+" do documento): começa limpo (só o item 1,
   // vazio) em vez de vir do PDF/print. Entra na busca ("manual").
   manual?: boolean;
-  // Listas coladas (COLAR ITENS): adicional e revisão, no formato
+  // Listas coladas (CLAUDE): adicional e revisão, no formato
   // `nº ⇥ descrição ⇥ valor`. Geram `descReparo`/`orcamentoRaw` convertidos;
   // registros sem elas (antigos) recalculam pelo caminho de sempre.
   listaAdicional?: string;
