@@ -20,6 +20,9 @@ afterEach(() => {
 
 const processarExemplo = () => {
   render(<App />);
+  fireEvent.change(screen.getByLabelText('Itens do adicional'), {
+    target: { value: 'Filtro\tR$ 10,00\nPastilha\tR$ 20,00' },
+  });
   fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
 };
 

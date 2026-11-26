@@ -49,6 +49,19 @@ afterEach(() => {
 });
 
 describe('App — smoke test (render + processar)', () => {
+  /** Lista equivalente ao exemplo antigo (mesmos itens e valores). */
+  const LISTA_EXEMPLO = [
+    'PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS\tR$ 2.203,04',
+    'HIGIENIZAÇÃO DO AR CONDICIONADO\tR$ 209,60',
+    'BORRACHA DAS PALHETAS\tR$ 217,00',
+  ].join('\n');
+
+  /** Cola a lista e processa (equivale ao exemplo antigo). */
+  const colarEProcessar = () => {
+    fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: LISTA_EXEMPLO } });
+    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+  };
+
   it('renderiza a tela com os textos principais', () => {
     const { container } = render(<App />);
     // header só com o símbolo (título e "Gestão de Vendas" saíram)
@@ -60,9 +73,10 @@ describe('App — smoke test (render + processar)', () => {
     expect(screen.getByRole('button', { name: 'Orçamentos' }).className).toContain('text-white');
     // selo de versão do header acompanha o package.json (trava contra selo defasado)
     expect(screen.getByTitle('Versão do arquivo').textContent).toBe(`v${VERSAO}`);
-    expect(screen.getByText('DESCRIÇÃO MANUAL')).toBeTruthy();
-    expect(screen.getByText('PEÇAS MANUAL')).toBeTruthy();
-    // DESCRIÇÃO MANUAL e PEÇAS MANUAL com a mesma fonte (text-lg)
+    expect(screen.getByText('COLAR ITENS')).toBeTruthy();
+    expect(screen.queryByText('DESCRIÇÃO MANUAL')).toBeNull();
+    expect(screen.queryByText('PEÇAS MANUAL')).toBeNull();
+    // os dois campos da lista com a mesma fonte (text-lg)
     const grandes = container.querySelectorAll('textarea.text-lg');
     expect(grandes.length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
@@ -73,14 +87,14 @@ describe('App — smoke test (render + processar)', () => {
   it('ao processar, mostra o resumo com os valores calculados', () => {
     render(<App />);
     fireEvent.change(screen.getByPlaceholderText('Ex.: ABC1D23'), { target: { value: 'ABC1D23' } });
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    colarEProcessar();
 
     // Resumo líquido (nos cartões) e a tabela de saída
     expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
     expect(screen.getByText('Orçamento Adicional')).toBeTruthy();
-    expect(screen.getAllByText(/4\.254,77/).length).toBeGreaterThan(0); // valor líquido
-    expect(screen.getAllByText(/2\.821,94/).length).toBeGreaterThan(0); // total peças
-    expect(screen.getAllByText(/1\.573,93/).length).toBeGreaterThan(0); // total serviços
+    expect(screen.getAllByText(/4\.345,87/).length).toBeGreaterThan(0); // valor líquido
+    expect(screen.getAllByText(/1\.000,00/).length).toBeGreaterThan(0); // total peças
+    expect(screen.getAllByText(/3\.395,87/).length).toBeGreaterThan(0); // total serviços
     // Itens com descrição tratada
     expect(screen.getByText('PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS')).toBeTruthy();
     expect(screen.getByText('HIGIENIZAÇÃO DO AR CONDICIONADO')).toBeTruthy();
@@ -100,15 +114,12 @@ describe('App — smoke test (render + processar)', () => {
     try {
       render(<App />);
       fireEvent.change(screen.getByPlaceholderText('Ex.: 4471'), { target: { value: '19384751778' } });
-      fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
-      fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
-      fireEvent.change(screen.getByLabelText('Descrição manual'), { target: { value: '01 OXY' } });
-      fireEvent.change(screen.getByLabelText('Dados manuais'), { target: { value: '1 Serviço X 1 10,00' } });
+      fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: 'PASTILHA\tR$ 10,00' } });
       fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
       let salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos).toHaveLength(1);
       // edita o item manual e regenera: substitui o registro de mesmo Nº
-      fireEvent.change(screen.getByLabelText('Descrição manual'), { target: { value: '01 Oxi' } });
+      fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: 'Oxi\tR$ 10,00' } });
       fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
       salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos).toHaveLength(1);
@@ -125,7 +136,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
       expect(doc().getAllByText('2.629,64')).toHaveLength(2); // tabela + resumo
       const dataAntes = doc().getByText(/^\d{2}\/\d{2}\/\d{4}/).textContent;
@@ -152,7 +163,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
       fireEvent.click(doc().getByText('PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS'));
       const campoDesc = doc().getByLabelText('Descrição do item 1') as HTMLInputElement;
@@ -181,7 +192,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
       fireEvent.click(screen.getByRole('button', { name: 'Excluir linha 2' }));
       // excluída some dos totais e aparece riscada (fora do PNG: data-ui)
@@ -205,7 +216,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
       fireEvent.click(screen.getByRole('button', { name: 'Adicionar linha' }));
       fireEvent.click(doc().getAllByText('0,00')[0]);
@@ -224,7 +235,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
       // padrão 6x: 4.395,87 / 6 = 732,645 → 732,65
       expect(doc().getByText('Parcelamento (6x):')).toBeTruthy();
@@ -249,7 +260,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
       fireEvent.click(screen.getByRole('button', { name: 'Adicionar linha' }));
       // placeholder clicável vira campo; digitado aparece e entra no total
@@ -275,7 +286,7 @@ describe('App — smoke test (render + processar)', () => {
     const confirmar = vi.spyOn(window, 'confirm');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const doc = () => within(document.querySelector('#printable-quote') as HTMLElement);
       fireEvent.click(doc().getByText('2.203,04'));
       const campo = doc().getByLabelText('Valor do item 1') as HTMLInputElement;
@@ -316,8 +327,8 @@ describe('App — smoke test (render + processar)', () => {
 
   it('caixinhas: desmarcar um item recalcula os totais', () => {
     const { container } = render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
-    expect(screen.getAllByText(/2\.821,94/).length).toBeGreaterThan(0); // total peças cheio
+    colarEProcessar();
+    expect(screen.getAllByText(/1\.000,00/).length).toBeGreaterThan(0); // total peças cheio (só revisão)
     // todos marcados: NÃO existe a caixa de não realizados
     expect(screen.queryByText(/Itens Não Aprovados/i)).toBeNull();
 
@@ -325,7 +336,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(checks().length).toBe(3); // um por item
     fireEvent.click(checks()[0]); // desmarca o item 1 (peças 1.438,24)
 
-    expect(screen.getAllByText(/1\.383,70/).length).toBeGreaterThan(0); // 2.821,94 − 1.438,24
+    expect(screen.getAllByText(/1\.192,83/).length).toBeGreaterThan(0); // 3.395,87 − 2.203,04 (serviços)
     // apareceu a caixa com a soma do item desmarcado (2.203,04)
     expect(screen.getByText(/Itens Não Aprovados/i)).toBeTruthy();
     expect(screen.getAllByText(/2\.203,04/).length).toBeGreaterThan(0);
@@ -337,7 +348,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('mantém o último documento gerado ao reabrir (sem processar de novo)', () => {
     const { unmount } = render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    colarEProcessar();
     expect(document.querySelector('#printable-quote')).toBeTruthy();
     const checks = screen.getAllByRole('checkbox');
     fireEvent.click(checks[0]); // desmarca um item (marcação também é salva)
@@ -352,20 +363,16 @@ describe('App — smoke test (render + processar)', () => {
   });
 
   it('lembra o último orçamento digitado (rascunho no localStorage)', () => {
-    const { unmount, container } = render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
-    const primeiroTextarea = Array.from(container.querySelectorAll('textarea')).find((t) =>
-      (t as HTMLTextAreaElement).value.includes('PASTILHAS'),
-    ) as HTMLTextAreaElement;
-    fireEvent.change(primeiroTextarea, { target: { value: '01 TESTE PERSISTIDO' } });
+    const { unmount } = render(<App />);
+    fireEvent.change(screen.getByLabelText('Itens do adicional'), {
+      target: { value: 'TESTE PERSISTIDO\tR$ 10,00' },
+    });
     unmount();
 
-    const { container: novo } = render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
-    const textareaDepois = Array.from(novo.querySelectorAll('textarea')).find((t) =>
-      (t as HTMLTextAreaElement).value.includes('TESTE PERSISTIDO'),
-    ) as HTMLTextAreaElement;
-    expect(textareaDepois.value).toBe('01 TESTE PERSISTIDO');
+    render(<App />);
+    expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe(
+      'TESTE PERSISTIDO\tR$ 10,00',
+    );
   });
 
   it('configurações: troca entre os temas e salva a escolha', () => {
@@ -491,7 +498,7 @@ describe('App — smoke test (render + processar)', () => {
 
   it('documentos de saída são marcados para não seguir o tema', () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    colarEProcessar();
     expect(document.querySelector('#printable-quote')).toBeTruthy();
     expect(document.querySelector('[data-saida="flyer"]')).toBeTruthy();
   });
@@ -563,7 +570,7 @@ describe('App — smoke test (render + processar)', () => {
       render(<App />);
       fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51 99999-9999' } });
       fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'JOAO' } });
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
 
       const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos).toHaveLength(1);
@@ -600,7 +607,7 @@ describe('App — smoke test (render + processar)', () => {
   it('telefone + WhatsApp: sem telefone o botão fica desabilitado', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    colarEProcessar();
     fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
     const botao = screen.getByRole('button', { name: 'Chamar no WhatsApp' });
     expect((botao as HTMLButtonElement).disabled).toBe(true);
@@ -801,7 +808,7 @@ describe('App — smoke test (render + processar)', () => {
   it('V com desmarcados salva com a marcação (vai para Não Aprovados)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    colarEProcessar();
     fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
     fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
 
@@ -814,7 +821,7 @@ describe('App — smoke test (render + processar)', () => {
   it('histórico: itens mostram o valor por id e o resumo aprovado/não aprovado', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    colarEProcessar();
     fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
     fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
 
@@ -1116,20 +1123,18 @@ describe('App — smoke test (render + processar)', () => {
     }
   });
 
-  it('orçamentos: DESCRIÇÃO MANUAL sem barra de rolagem (só mouse)', () => {
+  it('orçamentos: COLAR ITENS sem barra de rolagem (só mouse)', () => {
     const { container } = render(<App />);
     expect(container.querySelectorAll('textarea')[0].className).toContain('scrollbar-hide');
   });
 
-  it('orçamentos: PEÇAS MANUAL e DESCRIÇÃO MANUAL começam fechados e abrem na seta', () => {
+  it('orçamentos: COLAR ITENS começa aberto e recolhe na seta', () => {
     const { container } = render(<App />);
     const n0 = container.querySelectorAll('textarea').length;
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
-    expect(container.querySelectorAll('textarea').length).toBe(n0 + 1);
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
-    expect(container.querySelectorAll('textarea').length).toBe(n0 + 2);
-    fireEvent.click(screen.getByRole('button', { name: 'Ocultar PEÇAS MANUAL' }));
-    expect(container.querySelectorAll('textarea').length).toBe(n0 + 1);
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar COLAR ITENS' }));
+    expect(container.querySelectorAll('textarea').length).toBeLessThan(n0);
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar COLAR ITENS' }));
+    expect(container.querySelectorAll('textarea').length).toBe(n0);
   });
 
   it('aba Dados: colar planilha distribui nas células e arrastar seleciona várias para copiar', () => {
@@ -1909,7 +1914,7 @@ describe('App — smoke test (render + processar)', () => {
   });
 
   it('card 3: borracha apaga extração, nº e data', () => {
-    const { container } = render(<App />);
+    render(<App />);
     const numInput = screen.getByPlaceholderText('Ex.: 4471') as HTMLInputElement;
     const dataInput = screen.getByPlaceholderText('Ex.: 24/09/2026') as HTMLInputElement;
     fireEvent.change(numInput, { target: { value: '20234' } });
@@ -1927,28 +1932,23 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByPlaceholderText('Ex.: JOÃO DA SILVA') as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Descrição extraída para revisão') as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Dados extraídos para revisão') as HTMLInputElement).value).toBe('');
-    // revisão, ajustes e textos principais também zeram
+    // revisão, ajustes e listas também zeram
     expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
     expect((screen.getByPlaceholderText('Ex: 1 50,00') as HTMLInputElement).value).toBe('');
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
-    const livres = Array.from(container.querySelectorAll('textarea')).filter(
-      (t) => t.getAttribute('aria-label') === 'Dados manuais' || t.getAttribute('aria-label') === 'Descrição manual',
-    );
-    expect(livres.map((t) => t.value)).toEqual(['', '']);
+    expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
+    expect((screen.getByLabelText('Itens da revisão aprovada') as HTMLTextAreaElement).value).toBe('');
   });
 
-  it('ordem dos cards: sistema, dados, ajustes, resumo, descrição', () => {
+  it('ordem dos cards: sistema, colar itens, ajustes, resumo (sem descrição manual)', () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i })); // mostra o RESUMO
+    colarEProcessar(); // mostra o RESUMO
     const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
-    const hDados = screen.getByText('PEÇAS MANUAL');
-    const hDesc = screen.getByText('DESCRIÇÃO MANUAL');
+    const hColar = screen.getByText('COLAR ITENS');
     const hAjustes = screen.getByText(/AJUSTE \(ID/);
     const hResumo = screen.getByText('RESUMO LÍQUIDO');
-    expect(hSistema.compareDocumentPosition(hDados) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByText('DESCRIÇÃO MANUAL')).toBeNull();
+    expect(hSistema.compareDocumentPosition(hColar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(hAjustes.compareDocumentPosition(hResumo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(hResumo.compareDocumentPosition(hDesc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('aprovado: borracha limpa só revisão e ajustes (resto fica)', () => {
@@ -1969,19 +1969,14 @@ describe('App — smoke test (render + processar)', () => {
   });
 
   it('play com campo vazio avisa em vez de sair em silêncio (sem scroll/imagem)', () => {
-    const { container } = render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
-    const livres = Array.from(container.querySelectorAll('textarea')).filter(
-      (t) => t.getAttribute('aria-label') === 'Dados manuais' || t.getAttribute('aria-label') === 'Descrição manual',
-    );
-    expect(livres).toHaveLength(2); // DESCRIÇÃO e DADOS
-    fireEvent.change(livres[0], { target: { value: '' } });
-    fireEvent.change(livres[1], { target: { value: '' } });
+    render(<App />);
+    // listas vazias + sem revisão pendente: alerta e não gera
+    expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
+    expect((screen.getByLabelText('Itens da revisão aprovada') as HTMLTextAreaElement).value).toBe('');
     const alerta = vi.spyOn(window, 'alert').mockImplementation(() => {});
     try {
       fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
-      expect(alerta).toHaveBeenCalledWith(expect.stringContaining('Usar no orçamento manual'));
+      expect(alerta).toHaveBeenCalledWith(expect.stringContaining('COLAR ITENS'));
       expect(document.querySelector('#printable-quote')).toBeNull();
     } finally {
       alerta.mockRestore();
@@ -1989,14 +1984,7 @@ describe('App — smoke test (render + processar)', () => {
   });
 
   it('play usa o texto em revisão quando os campos estão vazios', () => {
-    const { container } = render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar PEÇAS MANUAL' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar DESCRIÇÃO MANUAL' }));
-    const livres = Array.from(container.querySelectorAll('textarea')).filter(
-      (t) => t.getAttribute('aria-label') === 'Dados manuais' || t.getAttribute('aria-label') === 'Descrição manual',
-    );
-    fireEvent.change(livres[0], { target: { value: '' } });
-    fireEvent.change(livres[1], { target: { value: '' } });
+    render(<App />);
     fireEvent.change(screen.getByLabelText('Descrição extraída para revisão'), {
       target: { value: '01 TESTE' },
     });
@@ -2009,6 +1997,10 @@ describe('App — smoke test (render + processar)', () => {
       expect(alerta).not.toHaveBeenCalled();
       expect(document.querySelector('#printable-quote')).toBeTruthy();
       expect(screen.getByText('TESTE')).toBeTruthy();
+      // a revisão convertida preenche a lista (próxima vez vale a lista)
+      expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe(
+        'TESTE\tR$ 10,00',
+      );
     } finally {
       alerta.mockRestore();
     }
@@ -2400,7 +2392,7 @@ describe('App — smoke test (render + processar)', () => {
       render(<App />);
       fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'ELTON' } });
       fireEvent.change(screen.getByPlaceholderText('Ex.: 4471'), { target: { value: '19715' } });
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
 
       // V no documento marca o registro (e fica pressionado)
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
@@ -2432,7 +2424,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como não aprovado' }));
 
       // tudo riscado na tela
@@ -2454,7 +2446,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       // X risca tudo...
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como não aprovado' }));
       // ...e V sem remarcar nada aprova tudo (vai para Aprovados, sem parcial)
@@ -2482,7 +2474,7 @@ describe('App — smoke test (render + processar)', () => {
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: escrever }, configurable: true });
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       fireEvent.click(screen.getAllByRole('checkbox')[0]); // desmarca o item 1
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como aprovado' }));
 
@@ -2503,7 +2495,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       fireEvent.click(screen.getByRole('button', { name: 'Marcar como parcial' }));
 
       const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
@@ -2821,7 +2813,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
 
       // sem telefone: apagado
       const whats = screen.getByRole('button', { name: 'Conversar no WhatsApp' }) as HTMLButtonElement;
@@ -2892,7 +2884,7 @@ describe('App — smoke test (render + processar)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     try {
       render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      colarEProcessar();
       const criado = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]')[0].criadoEm;
 
       fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));

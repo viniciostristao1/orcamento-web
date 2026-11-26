@@ -16,6 +16,7 @@ import {
   importarBackup,
   limparHistorico,
   listarHistorico,
+  processQuoteDoRegistro,
   removerDoHistorico,
   retratoDoResumo,
   temNaoRealizados,
@@ -25,7 +26,7 @@ import { dataDoRegistro, formatarLembrete } from '../utils/lembretes';
 import { filtrarPorCor, type CorCliente, type FiltroCor } from '../utils/corCliente';
 import { MarcadorCor, SeloCor, classeBordaCor } from './CorCliente';
 import { BotaoRelogio, EditorLembrete } from './LembreteRelogio';
-import { formatCurrency, parseBrazilianNumber, processQuote, recalcularComSelecao, resumoAprovacao } from '../utils/quoteLogic';
+import { formatCurrency, recalcularComSelecao, resumoAprovacao } from '../utils/quoteLogic';
 import BotaoWhats from './BotaoWhats';
 import HistoricoBase from './HistoricoBase';
 import RelatorioModal from './RelatorioModal';
@@ -95,16 +96,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
   // orçamento é recalculado a partir dos textos salvos, como ao abrir).
   const resumoItens = useMemo(() => {
     if (!itensDe) return null;
-    const summary = processQuote(
-      itensDe.descReparo,
-      itensDe.orcamentoRaw,
-      parseBrazilianNumber(itensDe.revAprovadaInput),
-      parseBrazilianNumber(itensDe.revPecasInput),
-      itensDe.desconto,
-      itensDe.parcelas,
-      itensDe.ajustesManuais,
-    );
-    return resumoAprovacao(summary, itensDe.naoRealizados);
+    return resumoAprovacao(processQuoteDoRegistro(itensDe), itensDe.naoRealizados);
   }, [itensDe]);
 
   if (!aberto) return null;
@@ -198,16 +190,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
     const cheio = len > 0 && !temParcial(rec);
     const sincronizarItens = (patch: Partial<OrcamentoSalvo>) =>
       setItensDe((atualRec) => (atualRec && atualRec.id === rec.id ? { ...atualRec, ...patch } : atualRec));
-    const resumoDoRec = () =>
-      processQuote(
-        rec.descReparo,
-        rec.orcamentoRaw,
-        parseBrazilianNumber(rec.revAprovadaInput),
-        parseBrazilianNumber(rec.revPecasInput),
-        rec.desconto,
-        rec.parcelas,
-        rec.ajustesManuais,
-      );
+    const resumoDoRec = () => processQuoteDoRegistro(rec);
 
     if (voto === 'parcial') {
       // Marca/desmarca parcial com os itens como estão (só a marca muda).
@@ -283,15 +266,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ aberto, onFechar, onAbrir, 
     else atuais.add(itemId);
     const novaLista = [...atuais];
     try {
-      const summary = processQuote(
-        rec.descReparo,
-        rec.orcamentoRaw,
-        parseBrazilianNumber(rec.revAprovadaInput),
-        parseBrazilianNumber(rec.revPecasInput),
-        rec.desconto,
-        rec.parcelas,
-        rec.ajustesManuais,
-      );
+      const summary = processQuoteDoRegistro(rec);
       const selecionados = new Set(summary.items.map((i) => i.id).filter((id) => !atuais.has(id)));
       const base = recalcularComSelecao(summary, selecionados);
       setLista(atualizarNaoRealizadosHistorico(rec.id, novaLista, retratoDoResumo(base)));

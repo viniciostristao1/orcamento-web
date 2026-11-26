@@ -10,6 +10,7 @@ import {
   normalizarTextoExtraido,
   type CabecalhoOrcamento,
 } from './extracao';
+import { converterBrutoParaLista } from '../utils/quoteLogic';
 import { extrairTextoPdf } from './pdf';
 import { lerPrints } from './ocr';
 
@@ -43,8 +44,8 @@ interface SistemaCardProps {
   onExtraido: () => void;
   /** Preenche o Total Revisão com o "orçamento inicial" do complementar. */
   onRevisaoInicial?: (v: string) => void;
-  /** Preenche os campos 1. DESCRIÇÃO e 2. DADOS com o texto revisado. */
-  onUsarTextos: (descReparo: string, orcamentoRaw: string) => void;
+  /** Preenche a lista do COLAR ITENS com a extração convertida. */
+  onUsarLista: (lista: string) => void;
   /** Recolhido = só o cabeçalho aparece (conteúdo preservado). */
   descRecolhido?: boolean;
   dadosRecolhido?: boolean;
@@ -85,7 +86,7 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
   onRevDados,
   onExtraido,
   onRevisaoInicial,
-  onUsarTextos,
+  onUsarLista,
   descRecolhido = false,
   dadosRecolhido = false,
   onAlternarDesc,
@@ -407,8 +408,8 @@ const SistemaCard: React.FC<SistemaCardProps> = ({
           type="button"
           onClick={() => {
             if (!temTexto) return;
-            onUsarTextos(revDesc, revDados);
-            setMsg('Preenchido na DESCRIÇÃO e nos DADOS — confira e clique em Processar Tudo.');
+            onUsarLista(converterBrutoParaLista(revDesc, revDados));
+            setMsg('Preenchido na lista do COLAR ITENS — confira e clique em Gerar orçamento.');
           }}
           disabled={!temTexto || ocupado}
           aria-label="Usar no orçamento manual"

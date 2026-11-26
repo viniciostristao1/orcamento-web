@@ -51,14 +51,17 @@ describe('Recolher DESCRIÇÃO, DADOS, AJUSTE e RESUMO', () => {
 
   it('resumo recolhido mantém o cálculo certo ao reabrir', () => {
     render(<App />);
+    fireEvent.change(screen.getByLabelText('Itens do adicional'), {
+      target: { value: 'Filtro\tR$ 10,00\nPastilha\tR$ 20,00' },
+    });
     fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
     expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
-    const liquidoAntes = screen.getAllByText('4.254,77')[0].textContent;
+    const liquidoAntes = screen.getAllByText('1.746,23')[0].textContent;
     // recolhe o resumo e o ajuste, processa de novo: o cálculo segue valendo
     fireEvent.click(screen.getByRole('button', { name: 'Ocultar RESUMO LÍQUIDO' }));
     expect(screen.queryByText('Valor Líquido')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar RESUMO LÍQUIDO' }));
-    expect(screen.getAllByText('4.254,77')[0].textContent).toBe(liquidoAntes);
+    expect(screen.getAllByText('1.746,23')[0].textContent).toBe(liquidoAntes);
   });
 
   it('seta de DESCRIÇÃO/DADOS tem a mesma cor do rótulo e fica à direita', () => {

@@ -1,5 +1,5 @@
 import type { QuoteSummary } from '../types';
-import type { PreviaOrcamento } from './quoteLogic';
+import { parseBrazilianNumber, processQuote, type PreviaOrcamento } from './quoteLogic';
 import { somenteDigitos } from './telefone';
 import { normalizarBusca } from './busca';
 import { avisarLembretesMudaram } from './lembretes';
@@ -55,6 +55,11 @@ export interface OrcamentoSalvo {
   // Orçamento MANUAL (botão "+" do documento): começa limpo (só o item 1,
   // vazio) em vez de vir do PDF/print. Entra na busca ("manual").
   manual?: boolean;
+  // Listas coladas (COLAR ITENS): adicional e revisão, no formato
+  // `nº ⇥ descrição ⇥ valor`. Geram `descReparo`/`orcamentoRaw` convertidos;
+  // registros sem elas (antigos) recalculam pelo caminho de sempre.
+  listaAdicional?: string;
+  listaRevisao?: string;
   // Prévia interativa do documento (edições diretas no PNG: textos, valores,
   // linhas excluídas/adicionadas, revisão). Opcional: registros antigos não têm.
   previa?: PreviaOrcamento;
@@ -128,6 +133,20 @@ const fundirRegistro = (
  * (o mais recente com os MESMOS dados é substituído) — a não ser com
  * `forcarNovo` (o "+" manual sempre cria um registro novo, mesmo vazio).
  */
+/**
+ * Substitui o conteúdo de um registro (edições, listas, totais), preservando
+ * `id`, `criadoEm` e as marcações posteriores (cor, chamado, lembrete,
+ * aprovação) — usado ao preencher o manual vazio sem duplicar.
+ */
+export function atualizarConteudoHistorico(
+  id: string,
+  novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'>,
+): OrcamentoSalvo[] {
+  const out = listarHistorico().map((r) => (r.id === id ? fundirRegistro(r, novo) : r));
+  gravar(out);
+  return out;
+}
+
 export function adicionarAoHistorico(
   novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'>,
   forcarNovo = false,
@@ -476,6 +495,24 @@ export function filtrarHistorico(lista: OrcamentoSalvo[], termo: string): Orcame
   const faixa = faixaDeValor(termo);
   if (faixa) return porValor(faixa);
   return texto;
+}
+
+/**
+ * Recalcula um registro a partir dos textos salvos (Ver itens, V/X inline,
+ * relatório): registros da lista nova mantêm os verbos (`manterVerbos`);
+ * os antigos usam o caminho de sempre — byte a byte iguais.
+ */
+export function processQuoteDoRegistro(r: OrcamentoSalvo): QuoteSummary {
+  return processQuote(
+    r.descReparo ?? '',
+    r.orcamentoRaw ?? '',
+    parseBrazilianNumber(r.revAprovadaInput ?? ''),
+    parseBrazilianNumber(r.revPecasInput ?? ''),
+    r.desconto ?? 0,
+    r.parcelas ?? 1,
+    r.ajustesManuais ?? '',
+    { manterVerbos: r.listaAdicional !== undefined },
+  );
 }
 
 /** Resumo do resultado para a lista do histórico (sem recalcular). */

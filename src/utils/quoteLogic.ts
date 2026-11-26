@@ -46,6 +46,170 @@ export const parseBrazilianNumber = (value: string): number => {
   return isNaN(parsed) ? 0 : parsed;
 };
 
+/**
+ * Item colado na lista nova (COLAR ITENS): descrição final + valor.
+ * Tudo entra como serviço (a lista não tem coluna de tipo) — o desconto em
+ * peças passa a valer só na parte da revisão.
+ */
+export interface ItemLista {
+  descricao: string;
+  valor: number;
+}
+
+export interface LinhaListaProblema {
+  /** Nº da linha crua na textarea (1-based, para achar fácil). */
+  linha: number;
+  motivo: string;
+}
+
+export interface ResultadoLista {
+  itens: ItemLista[];
+  invalidas: LinhaListaProblema[];
+  /** Cabeçalhos/totais/rótulos ignorados em silêncio (não são erro). */
+  ignoradas: number;
+  soma: number;
+}
+
+const ehInteiro = (t: string): boolean => /^\d+$/.test(t);
+
+/** Início de linha que é cabeçalho/total, não item (ignora sem consumir posição). */
+const ehCabecalhoLista = (t: string): boolean =>
+  /^(TOTAL|SUBTOTAL|ORÇAMENTO|ORCAMENTO|DESCONTO|TROCO|CLIENTE|DATA|PLACA|NOME|CHASSI|REVISÃO|REVISAO)\b/i.test(t.trim());
+
+/** Último token/coluna precisa ter dígito para ser valor legível. */
+const limparTokenValor = (t: string): string => t.trim().replace(/^R\$/i, '').trim();
+
+/**
+ * Lê a lista colada (COLAR ITENS): `nº ⇥ descrição ⇥ valor`, TABs ou espaços.
+ * - Com TAB: colunas explícitas (`[nº, descrição, valor]`; 2 cols = desc+valor;
+ *   1ª coluna só-dígitos em 3+ colunas é sempre o nº — descarta sem olhar posição).
+ * - Sem TAB: `número? descrição… valor`; o 1º inteiro vale como nº SÓ se for
+ *   igual à posição esperada (ordem entre as não-brancas) — senão faz parte
+ *   da descrição (ex.: "2 rolamentos" na posição 1 mantém o 2).
+ * Ignora brancas, linhas sem dígitos e cabeçalhos/totais; o resto sem valor
+ * ou sem descrição volta em `invalidas` com o motivo (nada some em silêncio).
+ */
+export const parseListaItens = (texto: string): ResultadoLista => {
+  const itens: ItemLista[] = [];
+  const invalidas: LinhaListaProblema[] = [];
+  let ignoradas = 0;
+  let candidatos = 0;
+  texto.split('\n').forEach((bruta, idx) => {
+    const linha = idx + 1;
+    const t = bruta.trim();
+    if (!t) return;
+    if (ehCabecalhoLista(t)) { ignoradas += 1; return; }
+    // Sem nenhum dígito e sem ser cabeçalho conhecido: item sem valor —
+    // avisa em vez de descartar em silêncio (pode ser valor esquecido).
+    if (!/\d/.test(t)) {
+      invalidas.push({ linha, motivo: 'sem valor legível' });
+      return;
+    }
+    candidatos += 1;
+    const esperada = candidatos;
+    let corpo = '';
+    let valorToken = '';
+    if (t.includes('\t')) {
+      const cols = t.split('\t').map((c) => c.trim()).filter((c) => c !== '');
+      if (cols.length <= 1) {
+        invalidas.push({ linha, motivo: 'sem valor legível' });
+        return;
+      }
+      valorToken = cols[cols.length - 1];
+      const resto = cols.slice(0, -1);
+      if (resto.length === 1) {
+        if (ehInteiro(resto[0])) {
+          invalidas.push({ linha, motivo: 'sem descrição (só número e valor)' });
+          return;
+        }
+        corpo = resto[0];
+      } else {
+        const [c0, ...meio] = resto;
+        corpo = (ehInteiro(c0) ? meio : resto).join(' ');
+      }
+    } else {
+      const tokens = t.split(/\s+/);
+      if (tokens.length === 1) {
+        invalidas.push({ linha, motivo: 'sem descrição' });
+        return;
+      }
+      valorToken = tokens[tokens.length - 1];
+      if (tokens.length === 2) {
+        if (ehInteiro(tokens[0])) {
+          invalidas.push({ linha, motivo: 'sem descrição (só número e valor)' });
+          return;
+        }
+        corpo = tokens[0];
+      } else {
+        const t0 = tokens[0];
+        const meio = tokens.slice(1, -1);
+        corpo = (ehInteiro(t0) && parseInt(t0, 10) === esperada ? meio : tokens.slice(0, -1)).join(' ');
+      }
+    }
+    const limpo = limparTokenValor(valorToken);
+    if (!/[\d]/.test(limpo)) {
+      invalidas.push({ linha, motivo: 'sem valor legível' });
+      return;
+    }
+    const valor = parseBrazilianNumber(limpo);
+    if (!Number.isFinite(valor)) {
+      invalidas.push({ linha, motivo: 'sem valor legível' });
+      return;
+    }
+    // "R$" solto antes do valor (ex.: "Filtro R$ 195,90") não é descrição.
+    corpo = corpo.replace(/\s*R\$\s*$/i, '').trim();
+    if (ehCabecalhoLista(corpo)) { ignoradas += 1; return; }
+    const descricao = normalizarOxi(corpo).trim().toUpperCase();
+    if (!descricao || !/[A-Za-zÀ-ÿ]/.test(descricao)) {
+      invalidas.push({ linha, motivo: 'sem descrição legível' });
+      return;
+    }
+    itens.push({ descricao, valor });
+  });
+  return { itens, invalidas, ignoradas, soma: itens.reduce((acc, i) => acc + i.valor, 0) };
+};
+
+/**
+ * Converte os itens da lista para o formato bruto interno (`desc` + `dados`
+ * no estilo do PDF), alimentando o pipeline existente (`processQuote`):
+ * ids 1..N na ordem (o AJUSTE continua valendo pelo número exibido), tudo
+ * como serviço, valor com milhar/vírgula (o parse aceita de volta).
+ */
+export const converterListaParaBruto = (itens: ItemLista[]): { desc: string; dados: string } => ({
+  desc: itens.map((it, i) => `${String(i + 1).padStart(2, '0')} ${it.descricao}`).join('\n'),
+  dados: itens.map((it, i) => `${i + 1} Serviço GERADO ${it.descricao} ${formatCurrency(it.valor)}`).join('\n'),
+});
+
+/**
+ * Emite itens como linhas de lista (`DESCRIÇÃO ⇥ R$ VALOR`), sem números
+ * (o app renumera na leitura).
+ */
+export const itensParaLista = (itens: { descricao: string; valor: number }[]): string =>
+  itens.map((i) => `${i.descricao}\tR$ ${formatCurrency(i.valor)}`).join('\n');
+
+/**
+ * Converte textos brutos (revisão do SistemaCard / rascunho antigo) para
+ * linhas de lista: parseia pelo caminho de sempre (tirando verbos, como o
+ * Play fazia) e emite sem números (o app renumera).
+ */
+export const converterBrutoParaLista = (descReparo: string, orcamentoRaw: string): string =>
+  itensParaLista(
+    processQuote(descReparo, orcamentoRaw, 0, 0, 0, 1).items.map((i) => ({
+      descricao: i.description,
+      valor: i.value,
+    })),
+  );
+
+/** Opções do `processQuote` (só o caminho da lista nova usa). */
+export interface OpcoesProcessQuote {
+  /**
+   * Mantém verbos (TR/TROCAR/TROCA) nas descrições: a lista nova já traz o
+   * texto final — pula `removerPalavras`/`substituicoesCondicionais` (o OXI
+   * continua expandindo). Padrão `false` = comportamento de sempre.
+   */
+  manterVerbos?: boolean;
+}
+
 export const processQuote = (
   descricaoReparo: string,
   orcamentoRaw: string,
@@ -53,7 +217,8 @@ export const processQuote = (
   revisaoAprovadaPecas: number,
   descontoPercentual: number,
   numParcelas: number,
-  ajustesManuais: string = ""
+  ajustesManuais: string = "",
+  opts?: OpcoesProcessQuote
 ): QuoteSummary => {
   const valoresPorItem: Record<string, { pecas: number, servicos: number }> = {};
   
@@ -108,7 +273,8 @@ export const processQuote = (
     
     let desc = parts.slice(1).join(" ");
     if (!desc.trim()) return;
-    desc = substituicoesCondicionais(removerPalavras(desc));
+    // Caminho da lista nova: texto final — só OXI + maiúsculas, sem tirar verbos.
+    desc = opts?.manterVerbos ? normalizarOxi(desc) : substituicoesCondicionais(removerPalavras(desc));
     
     const data = valoresPorItem[id.toString()] || { pecas: 0, servicos: 0 };
     processedItems.push({

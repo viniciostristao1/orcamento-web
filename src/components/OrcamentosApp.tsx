@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { aplicarPrevia, calcularPrevia, construirPrevia, criarPreviaManual, previaComOriginal, previaVazia, processQuote, formatCurrency, formatarValorInput, normalizarOxi, parseBrazilianNumber, recalcularComSelecao, removerItemDefinitivo, type ItemPrevia, type PreviaOrcamento } from '../utils/quoteLogic';
+import { aplicarPrevia, calcularPrevia, construirPrevia, converterBrutoParaLista, converterListaParaBruto, criarPreviaManual, itensParaLista, parseListaItens, previaComOriginal, previaVazia, processQuote, formatCurrency, formatarValorInput, parseBrazilianNumber, recalcularComSelecao, removerItemDefinitivo, type ItemPrevia, type PreviaOrcamento, type ResultadoLista } from '../utils/quoteLogic';
 import { temTelefoneValido } from '../utils/telefone';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
@@ -8,15 +8,38 @@ import { Play, Percent, Eraser, Plus } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import MenuDados from './MenuDados';
-import { adicionarAoHistorico, atualizarAprovacaoHistorico, atualizarChassiHistorico, atualizarPreviaHistorico, listarHistorico, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
+import { adicionarAoHistorico, atualizarAprovacaoHistorico, atualizarChassiHistorico, atualizarConteudoHistorico, atualizarPreviaHistorico, listarHistorico, processQuoteDoRegistro, retratoDoResumo, type OrcamentoSalvo } from '../utils/historico';
 import SistemaCard from '../sistema/SistemaCard';
 import { decidirFontePlay, type CabecalhoOrcamento } from '../sistema/extracao';
 import { lerRascunho, salvarRascunho } from '../utils/rascunho';
 import { lerUltimoOrcamento, salvarUltimoOrcamento } from '../utils/ultimoOrcamento';
 import { lerColapsados, salvarColapsados } from '../utils/colapsados';
 
-const EXEMPLO_DESC = `01 TR PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS\n02 OXI\n03 TR BORRACHA DAS PALHETAS`;
-const EXEMPLO_ORCAMENTO = `1 Serviço GUN126L473025 DISCO DIANTEIRO UM LADO NO VEICULO 1,20000 514,800000 514,80\n1 Peça 142142GC133 *GRAXA COBREADA ALTA TEMPERATURA 1 36,640000 36,64\n1 Peça CARE040201 LIMPADOR PREMIUM UNIVERSAL 1 156,600000 156,60\n1 Peça 044650K401 JOGO PASTILHAS FREIO DIANT.HILUX AP.2016 1 1.245,000000 1.245,00\n3 Serviço GUN126L850091 BORRACHA DO LIMPADOR DIANTEIRO AMBOS OS 0,10000 42,900000 42,90\n3 Peça CARE044907 CAR CONJUNTO VISIB. DO PARABRISA, H20 PARA VEICULOS1 27,100000 27,10\n3 Peça 8521428090 BORRACHA LIMPADOR DI 1 65,000000 65,00\n3 Peça 8521453080 BORRACHA LIMPADOR PA 1 82,000000 82,00\n2 Serviço HIGMOTO HIGIENIZACAO AR CONDICIONADO 0,05000 0,000000 0,00\n2 Peça CARE040703 AUTO AIR CLEANER (GRANADA) 1 110,600000 110,60\n2 Peça CARE010701 OXY-SANITIZATION APP 1 99,000000 99,00\n1 Serviço RETDISCD1 RETIFICA DISCO FREIO DIANTEIRO 1,00000 250,000000 250,00`;
+/** Exemplo de formato no placeholder (TAB separa nº, descrição e valor). */
+const EXEMPLO_LISTA = `1\tFiltro de ar\tR$ 195,90\n2\tLimpeza de bicos\tR$ 725,95\n3\tRetifica discos\tR$ 150,00`;
+
+/** Resumo vivo sob cada campo (conta, soma, ignoradas e inválidas com motivo). */
+const ResumoLista: React.FC<{ res: ResultadoLista }> = ({ res }) => {
+  if (res.itens.length === 0 && res.invalidas.length === 0) return null;
+  return (
+    <div className="space-y-0.5">
+      <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+        {res.itens.length} {res.itens.length === 1 ? 'item' : 'itens'} · R$ {formatCurrency(res.soma)}
+        {res.ignoradas > 0 && (
+          <span className="text-slate-500"> · {res.ignoradas} de cabeçalho ignorada{res.ignoradas === 1 ? '' : 's'}</span>
+        )}
+      </p>
+      {res.invalidas.slice(0, 6).map((p) => (
+        <p key={p.linha} className="text-sm font-bold text-red-400">
+          Linha {p.linha}: {p.motivo}
+        </p>
+      ))}
+      {res.invalidas.length > 6 && (
+        <p className="text-sm font-bold text-red-400">…e mais {res.invalidas.length - 6}</p>
+      )}
+    </div>
+  );
+};
 
 interface OrcamentosAppProps {
   historicoAberto: boolean;
@@ -31,10 +54,10 @@ interface OrcamentosAppProps {
 }
 
 const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFecharHistorico, onAbrirHistorico, onIrParaSubAba, onBuscarNosDados, destaqueHistoricoId = null, destaqueHistoricoVez = 0 }) => {
-  // Último orçamento em edição (localStorage local). Sem rascunho, cai no exemplo.
+  // Último orçamento em edição (localStorage local). Sem rascunho, listas vazias.
   const [rascunho] = useState(lerRascunho);
-  const [descReparo, setDescReparo] = useState<string>(() => rascunho?.descReparo ?? EXEMPLO_DESC);
-  const [orcamentoRaw, setOrcamentoRaw] = useState<string>(() => rascunho?.orcamentoRaw ?? EXEMPLO_ORCAMENTO);
+  const [listaAdicional, setListaAdicional] = useState<string>(() => rascunho?.listaAdicional ?? "");
+  const [listaRevisao, setListaRevisao] = useState<string>(() => rascunho?.listaRevisao ?? "");
   const [ajustesManuais, setAjustesManuais] = useState<string>(() => rascunho?.ajustesManuais ?? "");
   const [desconto, setDesconto] = useState<number>(() => rascunho?.desconto ?? 5);
   const [parcelas, setParcelas] = useState<number>(() => rascunho?.parcelas ?? 6);
@@ -50,11 +73,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   // do play, vale o que já foi extraído (sem obrigar o clique em "Usar").
   const [revDesc, setRevDesc] = useState('');
   const [revDados, setRevDados] = useState('');
-  // Revisão fresca (extração nova ainda não usada) + campos sujos (edição manual):
-  // o play prefere a revisão fresca com campos intactos (decidirFontePlay).
+  // Revisão fresca (extração nova ainda não usada) + listas sujas (edição manual):
+  // o gerar prefere a revisão fresca com listas intactas (decidirFontePlay).
   const revNonce = useRef(0);
   const revNonceUsed = useRef(0);
-  const camposSujos = useRef(false);
+  const listasSujas = useRef(false);
   // Último documento gerado: reabre o app já com o visual do orçamento na tela.
   const [ultimo] = useState(lerUltimoOrcamento);
   const [summary, setSummary] = useState<QuoteSummary | null>(() => ultimo?.summary ?? null);
@@ -91,8 +114,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   // Salva o rascunho enquanto o usuário edita (reabre com o que estava fazendo).
   useEffect(() => {
-    salvarRascunho({ descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi });
-  }, [descReparo, orcamentoRaw, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi]);
+    salvarRascunho({ listaAdicional, listaRevisao, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi });
+  }, [listaAdicional, listaRevisao, ajustesManuais, revAprovadaInput, revPecasInput, desconto, parcelas, placa, telefone, numero, dataDoc, nome, chassi]);
 
   // Mantém o último documento gerado salvo (inclusive a marcação dos itens e a prévia).
   useEffect(() => {
@@ -107,51 +130,81 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary]);
 
-  const handleGenerate = () => {
-    // Fonte do play (decidirFontePlay): revisão fresca + campos intactos = vale
-    // a revisão (anexar o 2º orçamento + play gera o 2º, sem o "Usar"); edição
-    // manual nos campos vence sempre; vazio dos dois lados cai na revisão.
+  /** Gera o documento a partir das listas coladas (COLAR ITENS). */
+  const gerarDasListas = () => {
+    // Fonte (decidirFontePlay): revisão fresca + listas intactas = vale a
+    // revisão (convertida para a lista A; anexar o 2º orçamento + gerar dá o
+    // 2º sem o "Usar"); edição nas listas vence sempre; vazio dos dois lados
+    // = alerta.
     const fonte = decidirFontePlay({
-      descCampo: descReparo,
-      dadosCampo: orcamentoRaw,
+      descCampo: listaAdicional,
+      dadosCampo: listaAdicional,
       revDesc,
       revDados,
-      camposSujos: camposSujos.current,
+      camposSujos: listasSujas.current,
       revisaoFresca: revNonce.current !== revNonceUsed.current,
     });
-    // Sem os dois não há o que somar: avisa em vez de sair em silêncio
+    let textoA = listaAdicional;
+    if (fonte.usouRevisao) {
+      // Alinha a lista com o que foi somado (a próxima vez vale a lista).
+      textoA = converterBrutoParaLista(fonte.desc, fonte.dados);
+      setListaAdicional(textoA);
+      revNonceUsed.current = revNonce.current;
+      listasSujas.current = false;
+    } else if (!textoA.trim() && (fonte.desc.trim() || fonte.dados.trim())) {
+      // Listas vazias: vale a revisão pendente (convertida para a lista).
+      textoA = converterBrutoParaLista(fonte.desc, fonte.dados);
+      if (textoA.trim()) setListaAdicional(textoA);
+    }
+    const resA = parseListaItens(textoA);
+    const resB = parseListaItens(listaRevisao);
+    // Nada colado e nada na revisão: avisa em vez de sair em silêncio
     // (sem aviso o usuário acha que "não gerou": sem scroll e sem imagem).
-    if (!fonte.desc || !fonte.dados) {
+    if (resA.itens.length === 0 && resB.itens.length === 0 && resA.invalidas.length === 0 && resB.invalidas.length === 0) {
       alert(
-        'Preencha a DESCRIÇÃO e os DADOS — ou anexe o PDF/print no card do sistema e clique em "Usar no orçamento manual".',
+        'Cole a lista de itens em COLAR ITENS — ou anexe o PDF/print no card do sistema.',
       );
       return;
     }
-    // "Oxi" (qualquer caixa) vira a higienização na descrição manual, no PNG
-    // e no registro do Histórico — antes de somar e de salvar.
-    const descNorm = normalizarOxi(fonte.desc);
-    const dadosNorm = normalizarOxi(fonte.dados);
-    if (fonte.usouRevisao) {
-      // Alinha os campos com o que foi somado (a próxima vez vale o campo).
-      setDescReparo(descNorm);
-      setOrcamentoRaw(dadosNorm);
-      revNonceUsed.current = revNonce.current;
-      camposSujos.current = false;
-    } else {
-      setDescReparo(descNorm);
-      setOrcamentoRaw(dadosNorm);
+    // Linhas com problema não descartam em silêncio: lista e pede confirmação.
+    const probs = [
+      ...resA.invalidas.map((p) => `Adicional linha ${p.linha}: ${p.motivo}`),
+      ...resB.invalidas.map((p) => `Revisão linha ${p.linha}: ${p.motivo}`),
+    ];
+    const nValidas = resA.itens.length + resB.itens.length;
+    if (probs.length > 0) {
+      const detalhe = probs.slice(0, 6).join('\n') + (probs.length > 6 ? `\n…e mais ${probs.length - 6}` : '');
+      if (!window.confirm(`Linhas com problema:\n${detalhe}\n\nGerar com as ${nValidas} válidas?`)) return;
     }
-    const finalRevAprovada = parseBrazilianNumber(revAprovadaInput);
+    // Revisão = soma da lista B; B vazio = Total Revisão segue intacto.
+    const somaB = resB.soma;
+    const revAprovTexto = resB.itens.length > 0 ? formatCurrency(somaB) : revAprovadaInput;
+    if (resB.itens.length > 0) setRevAprovadaInput(revAprovTexto);
+    const { desc, dados } = converterListaParaBruto(resA.itens);
+    processarComTextos(desc, dados, parseBrazilianNumber(revAprovTexto), textoA);
+  };
+
+  /**
+   * Núcleo da geração: soma os textos convertidos (lista nova, verbos
+   * mantidos), salva no histórico e mostra o documento. Vale para o GERAR,
+   * o Play e a reabertura manual.
+   */
+  const processarComTextos = (desc: string, dados: string, revAprovNum: number, textoA: string) => {
+    // Normaliza o Total Revisão exibido igual ao salvo (anti-duplicado do Nº).
+    const revAprovTexto = formatCurrency(revAprovNum);
+    if (revAprovTexto !== revAprovadaInput) setRevAprovadaInput(revAprovTexto);
     const finalRevPecas = parseBrazilianNumber(revPecasInput);
 
-    const result = processQuote(descNorm, dadosNorm, finalRevAprovada, finalRevPecas, desconto, parcelas, ajustesManuais);
+    const result = processQuote(desc, dados, revAprovNum, finalRevPecas, desconto, parcelas, ajustesManuais, { manterVerbos: true });
 
-    // Histórico local (localStorage): salva a cada "Processar Tudo".
+    // Histórico local (localStorage): salva a cada geração.
     const novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> = {
-      descReparo: descNorm,
-      orcamentoRaw: dadosNorm,
+      descReparo: desc,
+      orcamentoRaw: dados,
+      listaAdicional: textoA,
+      listaRevisao,
       ajustesManuais,
-      revAprovadaInput,
+      revAprovadaInput: formatCurrency(revAprovNum),
       revPecasInput,
       desconto,
       parcelas,
@@ -192,9 +245,24 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       return;
     }
 
+    // Manual vazio em tela (botão "+"): preenche o registro aberto no lugar,
+    // sem duplicar no histórico.
+    if (!soChassi && aberto !== null && previa && previaVazia(previa)) {
+      const salvos = atualizarConteudoHistorico(aberto.id, novo);
+      registroAbertoRef.current = { ...aberto, base: { ...novo } };
+      setSummary(result);
+      setSelecionados(new Set(result.items.map((i) => i.id)));
+      const fresca = previaComOriginal(construirPrevia(result.items, result.revisaoAprovada));
+      setPrevia(fresca);
+      atualizarPreviaHistorico(aberto.id, fresca, retratoDoResumo(result));
+      setAprovacao(salvos.find((r) => r.id === aberto.id)?.aprovacao ?? null);
+      setTimeout(() => { document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
+      return;
+    }
+
     setSummary(result);
     setSelecionados(new Set(result.items.map((i) => i.id))); // começa com todos marcados
-    // 1ª geração: a prévia interativa nasce do PDF (original guardado p/ voltar).
+    // 1ª geração: a prévia interativa nasce das listas (original guardado p/ voltar).
     const fresca = previaComOriginal(construirPrevia(result.items, result.revisaoAprovada));
     setPrevia(fresca);
 
@@ -209,8 +277,16 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   // Reabre um orçamento do histórico na tela (recalcula a partir dos textos).
   // Zera a revisão pendente: o contexto agora é o registro aberto.
   const abrirDoHistorico = (r: OrcamentoSalvo) => {
-    setDescReparo(r.descReparo);
-    setOrcamentoRaw(r.orcamentoRaw);
+    onFecharHistorico();
+    const result = processQuoteDoRegistro(r);
+    // Prévia salva (edições diretas). Sem ela é registro antigo: monta a
+    // partir do recálculo, mas SEM original (voltar desabilitado, sem quebrar).
+    const aberta: PreviaOrcamento =
+      r.previa ?? { ...construirPrevia(result.items, result.revisaoAprovada), original: null };
+    // Listas: as do registro; sem elas (antigo), reconstrói da prévia para
+    // continuar editável no formato novo.
+    setListaAdicional(r.listaAdicional ?? itensParaLista(aberta.itens.filter((i) => !i.excluido)));
+    setListaRevisao(r.listaRevisao ?? '');
     setAjustesManuais(r.ajustesManuais);
     setRevAprovadaInput(r.revAprovadaInput);
     setRevPecasInput(r.revPecasInput);
@@ -226,15 +302,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setRevDesc('');
     setRevDados('');
     revNonceUsed.current = revNonce.current;
-    camposSujos.current = false;
-    onFecharHistorico();
-    const finalRevAprovada = parseBrazilianNumber(r.revAprovadaInput);
-    const finalRevPecas = parseBrazilianNumber(r.revPecasInput);
-    const result = processQuote(r.descReparo, r.orcamentoRaw, finalRevAprovada, finalRevPecas, r.desconto, r.parcelas, r.ajustesManuais);
-    // Prévia salva (edições diretas). Sem ela é registro antigo: monta a
-    // partir do recálculo, mas SEM original (voltar desabilitado, sem quebrar).
-    const aberta: PreviaOrcamento =
-      r.previa ?? { ...construirPrevia(result.items, result.revisaoAprovada), original: null };
+    listasSujas.current = false;
     setPrevia(aberta);
     // Foto do conteúdo (para a regeração só-com-chassi não mudar a data).
     registroAbertoRef.current = {
@@ -243,6 +311,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       base: {
         descReparo: r.descReparo,
         orcamentoRaw: r.orcamentoRaw,
+        listaAdicional: r.listaAdicional ?? '',
+        listaRevisao: r.listaRevisao ?? '',
         ajustesManuais: r.ajustesManuais,
         revAprovadaInput: r.revAprovadaInput,
         revPecasInput: r.revPecasInput,
@@ -296,9 +366,13 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       summary,
       v === 'naoAprovado' ? new Set<number>() : sel,
     );
+    // Textos convertidos das listas atuais (o voto regrava o registro).
+    const convertidos = converterListaParaBruto(parseListaItens(listaAdicional).itens);
     const salvos = adicionarAoHistorico({
-      descReparo: normalizarOxi(descReparo),
-      orcamentoRaw: normalizarOxi(orcamentoRaw),
+      descReparo: convertidos.desc,
+      orcamentoRaw: convertidos.dados,
+      listaAdicional,
+      listaRevisao,
       ajustesManuais,
       revAprovadaInput,
       revPecasInput,
@@ -474,6 +548,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     setParcelas(6);
     setRevAprovadaInput('0,00');
     setRevPecasInput('0,00');
+    setListaAdicional('');
+    setListaRevisao('');
     setNumero('');
     setDataDoc('');
     setPlaca('');
@@ -488,6 +564,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
     const novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> = {
       descReparo: '',
       orcamentoRaw: '',
+      listaAdicional: '',
+      listaRevisao: '',
       ajustesManuais: '',
       revAprovadaInput: '0,00',
       revPecasInput: '0,00',
@@ -542,6 +620,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   };
 
   const visivel = summary ? recalcularComSelecao(summary, selecionados) : null;
+  // Resumos vivos dos campos (conta, soma, inválidas) — parse puro, barato.
+  const resumoA = parseListaItens(listaAdicional);
+  const resumoB = parseListaItens(listaRevisao);
 
   // Cabeçalho extraído do PDF/print: nº e data preenchem os próprios campos;
   // PLACA, NOME, CHASSI e TELEFONE são escritos/sobrescritos (só quando veio conteúdo).
@@ -586,8 +667,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 setRevAprovadaInput('');
                 setRevPecasInput('');
                 setAjustesManuais('');
-                setDescReparo('');
-                setOrcamentoRaw('');
+                setListaAdicional('');
+                setListaRevisao('');
               }}
               onAbrirHistorico={onAbrirHistorico}
               revDesc={revDesc}
@@ -596,15 +677,14 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               onRevDados={setRevDados}
               onRevisaoInicial={(v) => setRevAprovadaInput(formatarValorInput(v))}
               onExtraido={() => {
-                // Extração nova: revisão fresca e campos intactos de novo.
+                // Extração nova: revisão fresca e listas intactas de novo.
                 revNonce.current += 1;
-                camposSujos.current = false;
+                listasSujas.current = false;
               }}
-              onUsarTextos={(desc, dados) => {
-                if (desc.trim()) setDescReparo(desc);
-                if (dados.trim()) setOrcamentoRaw(dados);
+              onUsarLista={(lista) => {
+                if (lista.trim()) setListaAdicional(lista);
                 revNonceUsed.current = revNonce.current;
-                camposSujos.current = false;
+                listasSujas.current = false;
               }}
               descRecolhido={colapsados.descricao}
               dadosRecolhido={colapsados.dados}
@@ -613,21 +693,55 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
             />
 
             <NeonCard
-              title="PEÇAS MANUAL"
+              title="COLAR ITENS"
               borderColor="blue-600"
               compact
               collapsible
-              defaultOpen={false}
-              actions={<ClearButton onClick={() => setOrcamentoRaw('')}/>}
+              defaultOpen={true}
+              actions={<ClearButton onClick={() => { setListaAdicional(''); setListaRevisao(''); }} label="Limpar listas" />}
             >
-              {/* Altura medida para terminar junto da DESCRIÇÃO (ver SistemaCard). */}
-              <textarea
-                aria-label="Dados manuais"
-                className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
-                value={orcamentoRaw}
-                onChange={(e) => { setOrcamentoRaw(e.target.value); camposSujos.current = true; }}
-                wrap="off"
-              />
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Itens do adicional (nº ⇥ descrição ⇥ valor)</label>
+                  <textarea
+                    aria-label="Itens do adicional"
+                    className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+                    value={listaAdicional}
+                    onChange={(e) => { setListaAdicional(e.target.value); listasSujas.current = true; }}
+                    placeholder={EXEMPLO_LISTA}
+                    wrap="off"
+                  />
+                  <ResumoLista res={resumoA} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Itens da revisão aprovada (a soma vira o Total Revisão)</label>
+                  <textarea
+                    aria-label="Itens da revisão aprovada"
+                    className="w-full h-[144px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+                    value={listaRevisao}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setListaRevisao(v);
+                      listasSujas.current = true;
+                      // Soma preenche o Total Revisão; vazio não altera.
+                      const r = parseListaItens(v);
+                      if (r.itens.length > 0) setRevAprovadaInput(formatCurrency(r.soma));
+                    }}
+                    placeholder={EXEMPLO_LISTA}
+                    wrap="off"
+                  />
+                  <ResumoLista res={resumoB} />
+                </div>
+                <button
+                  onClick={gerarDasListas}
+                  type="button"
+                  aria-label="Gerar orçamento"
+                  title="Gerar orçamento das listas"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] cursor-pointer"
+                >
+                  GERAR ORÇAMENTO
+                </button>
+              </div>
             </NeonCard>
 
           </div>
@@ -765,8 +879,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                   </div>
                 </div>
 
-                <button 
-                  onClick={handleGenerate} 
+                <button
+                  onClick={gerarDasListas}
                   type="button"
                   aria-label="Processar Tudo"
                   title="Processar Tudo"
@@ -833,21 +947,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               </NeonCard>
             )}
 
-            <NeonCard
-              title="DESCRIÇÃO MANUAL"
-              borderColor="blue-500"
-              compact
-              collapsible
-              defaultOpen={false}
-              actions={<ClearButton onClick={() => setDescReparo('')} />}
-            >
-              <textarea
-                aria-label="Descrição manual"
-                className="w-full h-56 campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-medium focus:border-blue-500 outline-none resize-none transition-colors scrollbar-hide"
-                value={descReparo}
-                onChange={(e) => { setDescReparo(e.target.value); camposSujos.current = true; }}
-              />
-            </NeonCard>
             </div>
           </div>
         </div>

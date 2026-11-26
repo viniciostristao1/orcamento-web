@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.218.0](#v21800) — 2026-11-26 — COLAR ITENS substitui os manuais: lista TAB vira orçamento (v0.218.0)
+
 - [v0.217.0](#v21700) — 2026-11-26 — Segundo × (apaga de vez + Desfazer), botão "+" manual e telefone à direita (v0.217.0)
 
 - [v0.216.0](#v21600) — 2026-11-24 — Data da Revisões não é mais apagada pelo destaque; item entra pinado (v0.216.0)
@@ -358,6 +360,29 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v21800"></a>
+## 2026-11-26 — COLAR ITENS substitui os manuais: lista TAB vira orçamento (v0.218.0)
+
+**Causa (medida no código + executada):** DESCRIÇÃO/PEÇAS exigiam dois textos
+crus com ids casados; `removerPalavras` tira TR/TROCAR/TROCA em qualquer posição
+(medido: "KIT TROCA RAPIDA"→"KIT RAPIDA", "RETROCAR JUNTA"→"REJUNTA"); desconto
+só morde peças (medido: tudo-serviço líquido 8.530,05 vs com-peça 8.259,09 —
+TOTAL 8.580,05 idêntico, desconto nunca entra no TOTAL).
+**Feito:** card COLAR ITENS (A adicional + B revisão, soma de B preenche o Total
+Revisão, vazia não altera; resumo vivo + inválidas com motivo + confirm para
+gerar só válidas; regra posicional do nº + descarte sempre em TAB 3-col;
+OXI expande, maiúsculas); conversão p/ formato interno alimenta o pipeline
+(processQuote intacto p/ registros antigos); `manterVerbos` + helper
+`processQuoteDoRegistro` (Ver-itens/V-X/relatório); transferência do SistemaCard
+preenche A; manual vazio é preenchido no lugar; rascunho migra o bruto antigo;
+DESCRIÇÃO MANUAL removida (PEÇAS virou COLAR ITENS).
+**Validação:** jsdom novos (`lista_itens` 14, `colar_itens` 13: exemplo 8.580,05,
+A 5.907,70/B 2.672,35, inválida+confirm, vazio, B opcional, manual-vazio
+preenche, transferência, migração) + app_smoke/colapso/caret adaptados
+(totais peças/serviços/líquido refletem tudo-serviços) + suite cheia 446
+passando; `typecheck`/`lint` limpos; `dist` autocontido; CDP antes/depois
+(desktop; celular igual, sem mudança de layout). Selo `v0.218.0`.
 
 <a id="v21700"></a>
 ## 2026-11-26 — Segundo × (apaga de vez + Desfazer), botão "+" manual e telefone à direita (v0.217.0)

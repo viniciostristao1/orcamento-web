@@ -1,6 +1,5 @@
-import { temNaoRealizados, temParcial, type OrcamentoSalvo } from './historico';
+import { processQuoteDoRegistro, temNaoRealizados, temParcial, type OrcamentoSalvo } from './historico';
 import { dataDoRegistro } from './lembretes';
-import { parseBrazilianNumber, processQuote } from './quoteLogic';
 
 /**
  * Relatório para Excel: uma linha por orçamento do histórico, colunas TAB
@@ -193,27 +192,11 @@ export function valorAprovadoBruto(r: OrcamentoSalvo): number {
     if (r.aprovacao === 'aprovado' && !temNaoRealizados(r)) {
       const snap = (r as { totalGeral?: unknown }).totalGeral;
       if (typeof snap === 'number' && Number.isFinite(snap)) return snap;
-      const s = processQuote(
-        r.descReparo ?? '',
-        r.orcamentoRaw ?? '',
-        parseBrazilianNumber(r.revAprovadaInput ?? ''),
-        parseBrazilianNumber(r.revPecasInput ?? ''),
-        r.desconto ?? 0,
-        r.parcelas ?? 1,
-        r.ajustesManuais ?? '',
-      );
+      const s = processQuoteDoRegistro(r);
       return s.revisaoAprovada + s.items.reduce((acc, i) => acc + i.value, 0);
     }
     if (!!r.aprovacao && (temParcial(r) || r.aprovacao === 'parcial')) {
-      const s = processQuote(
-        r.descReparo ?? '',
-        r.orcamentoRaw ?? '',
-        parseBrazilianNumber(r.revAprovadaInput ?? ''),
-        parseBrazilianNumber(r.revPecasInput ?? ''),
-        r.desconto ?? 0,
-        r.parcelas ?? 1,
-        r.ajustesManuais ?? '',
-      );
+      const s = processQuoteDoRegistro(r);
       const nao = new Set(r.naoRealizados ?? []);
       return s.items.reduce((acc, i) => (nao.has(i.id) ? acc : acc + i.value), 0);
     }
