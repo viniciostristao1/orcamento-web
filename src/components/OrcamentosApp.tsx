@@ -624,12 +624,46 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   return (
     <>
-      <div className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_425px] gap-8 print:hidden ui-compacta">
+      <div id="grade-orcamentos" className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_526px] gap-8">
           {/* MENU DADOS: lateral esquerda, fixo no topo ao rolar. */}
-          <aside className="min-w-0 xl:sticky xl:top-24 self-start">
+          <aside className="min-w-0 xl:sticky xl:top-24 self-start print:hidden ui-compacta">
             <MenuDados onIr={onIrParaSubAba} onBuscar={onBuscarNosDados} />
           </aside>
-          <div className="min-w-0 space-y-6">
+          <div className="min-w-0 space-y-6 print:hidden ui-compacta">
+            {/* CLAUDE no topo da coluna (acima do sistema). */}
+            <NeonCard
+              title="CLAUDE"
+              borderColor="blue-600"
+              compact
+              collapsible
+              defaultOpen={true}
+              actions={<ClearButton onClick={() => { setListaAdicional(''); }} label="Limpar lista" />}
+            >
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Itens do adicional (nº ⇥ descrição ⇥ valor)</label>
+                  <textarea
+                    aria-label="Itens do adicional"
+                    className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
+                    value={listaAdicional}
+                    onChange={(e) => { setListaAdicional(e.target.value); listasSujas.current = true; }}
+                    placeholder={EXEMPLO_LISTA}
+                    wrap="off"
+                  />
+                  <ResumoLista res={resumoA} />
+                </div>
+                <button
+                  onClick={gerarDasListas}
+                  type="button"
+                  aria-label="Gerar orçamento"
+                  title="Gerar orçamento da lista"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] cursor-pointer"
+                >
+                  GERAR ORÇAMENTO
+                </button>
+              </div>
+            </NeonCard>
+
             <SistemaCard
               numero={numero}
               dataDoc={dataDoc}
@@ -678,45 +712,61 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               onAlternarDados={() => setColapsados((c) => ({ ...c, dados: !c.dados }))}
             />
 
-            <NeonCard
-              title="CLAUDE"
-              borderColor="blue-600"
-              compact
-              collapsible
-              defaultOpen={true}
-              actions={<ClearButton onClick={() => { setListaAdicional(''); }} label="Limpar lista" />}
-            >
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Itens do adicional (nº ⇥ descrição ⇥ valor)</label>
-                  <textarea
-                    aria-label="Itens do adicional"
-                    className="w-full h-[216px] campo-tema border border-slate-800 rounded-2xl p-6 text-lg font-mono leading-relaxed focus:border-blue-600 outline-none resize-none overflow-x-auto whitespace-pre scrollbar-hide"
-                    value={listaAdicional}
-                    onChange={(e) => { setListaAdicional(e.target.value); listasSujas.current = true; }}
-                    placeholder={EXEMPLO_LISTA}
-                    wrap="off"
-                  />
-                  <ResumoLista res={resumoA} />
-                </div>
-                <button
-                  onClick={gerarDasListas}
-                  type="button"
-                  aria-label="Gerar orçamento"
-                  title="Gerar orçamento da lista"
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] cursor-pointer"
-                >
-                  GERAR ORÇAMENTO
-                </button>
-              </div>
-            </NeonCard>
-
           </div>
 
           {/* Coluna da direita: pilha com largura única. */}
           <div className="min-w-0">
             {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO). */}
-            <div className="flex flex-col gap-4 min-w-0 xl:w-[425px]">
+            <div className="flex flex-col gap-4 min-w-0 xl:w-[526px]">
+            {/* Saída (botões + prévia) no topo da coluna direita. O id mantém
+                o scroll pós-gerar e as regras de impressão. */}
+            <div id="result-section" className="min-w-0">
+              {!visivel && (
+                // Sem documento em tela (perfil novo): atalho para o manual limpo.
+                // Só tela (print:hidden) — nunca entra no PNG.
+                <div className="w-full flex flex-col items-center gap-3 py-10 print:hidden">
+                  <p className="text-sm font-bold uppercase tracking-widest text-slate-500">
+                    Nenhum orçamento em tela — processe um ou comece um manual
+                  </p>
+                  <button
+                    type="button"
+                    onClick={novoOrcamentoManual}
+                    aria-label="Novo orçamento manual"
+                    title="Novo orçamento manual (limpo, só com o item 1)"
+                    className="flex items-center justify-center bg-violet-600 hover:bg-violet-500 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
+                  >
+                    <Plus size={24} className="group-hover:scale-110 transition-transform" />
+                  </button>
+                </div>
+              )}
+              {visivel && (
+                <div className="w-full">
+                  <QuoteTable
+                    summary={visivel}
+                    previa={previa}
+                    numParcelas={parcelas}
+                    selecionados={selecionados}
+                    onToggleItem={alternarItem}
+                    onEditarDescricao={editarDescricaoPrevia}
+                    onEditarValor={editarValorPrevia}
+                    onEditarRevisao={editarRevisaoPrevia}
+                    onExcluirItem={excluirLinhaPrevia}
+                    onRestaurarItem={restaurarLinhaPrevia}
+                    onApagarItem={apagarLinhaDefinitiva}
+                    onAdicionarItem={adicionarLinhaPrevia}
+                    onVoltarOriginal={voltarOriginalPrevia}
+                    onNovoManual={novoOrcamentoManual}
+                    aprovacao={aprovacao}
+                    onMarcarAprovacao={votarAprovacao}
+                    telefone={telefone}
+                    nomeCliente={nome}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Demais cards da pilha (fora da impressão e do zoom da prévia). */}
+            <div className="flex flex-col gap-4 min-w-0 print:hidden ui-compacta">
             {/* Telefone espelhado do card do sistema: cola aqui o WhatsApp do
                 cliente; habilita o botão do WhatsApp no documento. Não sai no PNG. */}
             <NeonCard
@@ -913,54 +963,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                 </div>
               </NeonCard>
             )}
+            </div>
 
             </div>
           </div>
-        </div>
-
-        <div id="result-section" className="mt-6">
-          {!visivel && (
-            // Sem documento em tela (perfil novo): atalho para o manual limpo.
-            // Só tela (print:hidden) — nunca entra no PNG.
-            <div className="max-w-4xl mx-auto flex flex-col items-center gap-3 py-10 print:hidden">
-              <p className="text-sm font-bold uppercase tracking-widest text-slate-500">
-                Nenhum orçamento em tela — processe um ou comece um manual
-              </p>
-              <button
-                type="button"
-                onClick={novoOrcamentoManual}
-                aria-label="Novo orçamento manual"
-                title="Novo orçamento manual (limpo, só com o item 1)"
-                className="flex items-center justify-center bg-violet-600 hover:bg-violet-500 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
-              >
-                <Plus size={24} className="group-hover:scale-110 transition-transform" />
-              </button>
-            </div>
-          )}
-          {visivel && (
-            <div className="max-w-4xl mx-auto">
-              <QuoteTable
-                summary={visivel}
-                previa={previa}
-                numParcelas={parcelas}
-                selecionados={selecionados}
-                onToggleItem={alternarItem}
-                onEditarDescricao={editarDescricaoPrevia}
-                onEditarValor={editarValorPrevia}
-                onEditarRevisao={editarRevisaoPrevia}
-                onExcluirItem={excluirLinhaPrevia}
-                onRestaurarItem={restaurarLinhaPrevia}
-                onApagarItem={apagarLinhaDefinitiva}
-                onAdicionarItem={adicionarLinhaPrevia}
-                onVoltarOriginal={voltarOriginalPrevia}
-                onNovoManual={novoOrcamentoManual}
-                aprovacao={aprovacao}
-                onMarcarAprovacao={votarAprovacao}
-                telefone={telefone}
-                nomeCliente={nome}
-              />
-            </div>
-          )}
         </div>
 
       <HistoryModal

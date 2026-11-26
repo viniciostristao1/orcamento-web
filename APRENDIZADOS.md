@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.220.0](#v22000) — 2026-11-26 — Layout: CLAUDE no topo da esquerda; botões + prévia na direita (v0.220.0)
+
 - [v0.219.0](#v21900) — 2026-11-26 — Card vira CLAUDE: sai o campo da revisão, Total Revisão volta a manual (v0.219.0)
 
 - [v0.218.0](#v21800) — 2026-11-26 — COLAR ITENS substitui os manuais: lista TAB vira orçamento (v0.218.0)
@@ -362,6 +364,31 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v22000"></a>
+## 2026-11-26 — Layout: CLAUDE no topo da esquerda; botões + prévia na direita (v0.220.0)
+
+**Causa (medida no código):** o clone do PNG copia a largura do nó ao vivo
+(`prepararClonePng` fixa `clone.style.width` no computado) — mover a prévia para
+uma coluna estreita mudaria as quebras de linha do PNG. Grade foi para
+`210px | 1fr | 526px` (centro ~506px).
+**Feito:** CLAUDE acima do SISTEMA; fileira de botões + prévia (com o
+`id="result-section"`, scroll e regras de impressão intactos) abrindo a pilha
+direita; layout travado em 896px só no desktop (`screen and (min-width:1280px)`,
+origem em cima-à-esquerda) com escala do holder (`largura/896`, ~0,59) e mesma
+escala .5 fora do xl; `print:hidden`/`ui-compacta` saíram do grid para
+aside/centro/faixa dos cards (prévia e impressão intactas); mobile empilha na
+ordem pedida sem mudar nada.
+**Validação:** `getComputedStyle(#printable-quote).width === '896px'` no desktop
+(escala 526/896 = 0,587); PNG exportado antes/depois do mesmo orçamento (7 linhas,
+8.580,05) com dimensões iguais (2688×2706) e só o timestamp diferindo; PDF de
+impressão com a imagem idêntica no mesmo tamanho (seletor de impressão com
+`#result-section` nunca casou — o `data-impressao` fica abaixo dele no DOM — então
+o `mt-6` antigo sempre vazou; sem ele o doc começa 6mm acima, sem mudar nada
+no conteúdo); jsdom (ordem das colunas + bloco na pilha de 526px) + suite cheia
+passando;
+`typecheck`/`lint` limpos; `dist` autocontido; CDP desktop (Duna) e celular.
+Selo `v0.220.0`.
 
 <a id="v21900"></a>
 ## 2026-11-26 — Card vira CLAUDE: sai o campo da revisão, Total Revisão volta a manual (v0.219.0)

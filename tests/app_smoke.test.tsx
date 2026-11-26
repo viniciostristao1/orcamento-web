@@ -1938,16 +1938,30 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
   });
 
-  it('ordem dos cards: sistema, claude, ajustes, resumo (sem descrição manual)', () => {
+  it('ordem das colunas: CLAUDE, sistema, botões+prévia, whatsapp, aprovado, ajuste, resumo', () => {
     render(<App />);
     colarEProcessar(); // mostra o RESUMO
+    const hClaude = screen.getByText('CLAUDE');
     const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
-    const hColar = screen.getByText('CLAUDE');
-    const hAjustes = screen.getByText(/AJUSTE \(ID/);
+    const botoes = screen.getByRole('button', { name: 'Imprimir / PDF' });
+    const doc = document.querySelector('#printable-quote') as HTMLElement;
+    const hWhats = screen.getByText('WHATSAPP DO CLIENTE');
+    const hAprovado = screen.getByText('APROVADO E DESCONTO');
+    const hAjuste = screen.getByText(/AJUSTE \(ID/);
     const hResumo = screen.getByText('RESUMO LÍQUIDO');
-    expect(screen.queryByText('DESCRIÇÃO MANUAL')).toBeNull();
-    expect(hSistema.compareDocumentPosition(hColar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(hAjustes.compareDocumentPosition(hResumo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const ordem = [hClaude, hSistema, botoes, doc, hWhats, hAprovado, hAjuste, hResumo];
+    for (let i = 0; i + 1 < ordem.length; i++) {
+      expect(ordem[i].compareDocumentPosition(ordem[i + 1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    // botões + prévia moram na coluna da direita (pilha de 526px no xl)
+    const rs = document.querySelector('#result-section') as HTMLElement;
+    let no = rs.parentElement;
+    let naColunaDireita = false;
+    while (no) {
+      if (no.className.includes('xl:w-[526px]')) { naColunaDireita = true; break; }
+      no = no.parentElement;
+    }
+    expect(naColunaDireita).toBe(true);
   });
 
   it('aprovado: borracha limpa só revisão e ajustes (resto fica)', () => {

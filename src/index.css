@@ -717,6 +717,18 @@ body {
   transform-origin: top center;
 }
 
+/* Desktop: o layout da prévia é travado em 896px (o PNG exportado sai
+   idêntico ao de antes) e a escala, calculada no componente pela largura do
+   holder, preenche a coluna da direita. Fora do xl, tudo como era. */
+@media screen and (min-width: 1280px) {
+  #printable-quote {
+    min-width: 896px;
+  }
+  .preview-orcamento {
+    transform-origin: top left;
+  }
+}
+
 /* Compactação exclusiva do PNG: a classe só existe no gêmeo off-screen da
    exportação (ver prepararClonePng em utils/exportImage) — a tela e o preview
    nunca a recebem, então seguem idênticos. Só respiros (padding/margem/cantos);
@@ -779,6 +791,16 @@ body {
     margin: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
+  }
+  /* a prévia mora na pilha da direita (antes era filha direta do main):
+     na impressão a grade vira bloco e a pilha ocupa a largura toda, igual
+     a antes — sem deslocar o documento na folha. Vale nos dois caminhos
+     (imagem do PNG ou documento ao vivo). */
+  #grade-orcamentos {
+    display: block;
+  }
+  #grade-orcamentos .xl\:w-\[526px\] {
+    width: 100%;
   }
   /* nada de fundo escuro na folha (o root do app ficaria pintado) */
   .min-h-screen {
