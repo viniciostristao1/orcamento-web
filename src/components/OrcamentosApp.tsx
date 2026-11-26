@@ -624,7 +624,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   return (
     <>
-      <div id="grade-orcamentos" className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_526px] gap-8">
+      <div id="grade-orcamentos" className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_448px] gap-8">
           {/* MENU DADOS: lateral esquerda, fixo no topo ao rolar. */}
           <aside className="min-w-0 xl:sticky xl:top-24 self-start print:hidden ui-compacta">
             <MenuDados onIr={onIrParaSubAba} onBuscar={onBuscarNosDados} />
@@ -640,29 +640,61 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               actions={<ClearButton onClick={() => { setListaAdicional(''); }} label="Limpar lista" />}
             >
               <div className="space-y-4">
-                {/* WhatsApp do cliente: campo do próprio card (mesmo estado,
-                    validação e botão da fileira; não sai no PNG). A borracha
-                    do card limpa só a lista — o telefone fica. */}
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">WhatsApp do cliente</label>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
-                    placeholder="Cole o número: 51 99999-9999"
-                    maxLength={20}
-                    aria-label="Telefone do cliente (WhatsApp)"
-                    className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none"
-                  />
-                  {telefone.trim() !== '' && !temTelefoneValido(telefone) && (
-                    <p className="text-sm font-bold text-red-400">
-                      Telefone incompleto — use DDD + número (ex.: 51 99999-9999).
+                {/* WhatsApp + Revisão aprovada lado a lado (empilha no celular):
+                    mesmo estado, validação e botão da fileira; não sai no PNG.
+                    A borracha do card limpa só a lista — telefone e revisão ficam. */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">WhatsApp do cliente</label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      value={telefone}
+                      onChange={(e) => setTelefone(e.target.value)}
+                      placeholder="Cole o número: 51 99999-9999"
+                      maxLength={20}
+                      aria-label="Telefone do cliente (WhatsApp)"
+                      className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-emerald-500 outline-none"
+                    />
+                    {telefone.trim() !== '' && !temTelefoneValido(telefone) && (
+                      <p className="text-sm font-bold text-red-400">
+                        Telefone incompleto — use DDD + número (ex.: 51 99999-9999).
+                      </p>
+                    )}
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                      Não sai no PNG · vale para o botão do WhatsApp
                     </p>
-                  )}
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    Não sai no PNG · vale para o botão do WhatsApp
-                  </p>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Revisão aprovada</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white focus:border-emerald-500 outline-none"
+                        value={revAprovadaInput}
+                        onChange={(e) => setRevAprovadaInput(e.target.value)}
+                        onPaste={(e) => {
+                          const colado = e.clipboardData.getData('text');
+                          if (colado) {
+                            e.preventDefault();
+                            setRevAprovadaInput(formatarValorInput(colado));
+                          }
+                        }}
+                        onBlur={(e) => setRevAprovadaInput(formatarValorInput(e.target.value))}
+                        placeholder="0,00"
+                        aria-label="Revisão aprovada (R$)"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRevAprovadaInput('')}
+                        aria-label="Limpar Revisão aprovada"
+                        title="Limpar Revisão aprovada"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                      >
+                        <Eraser size={16} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Itens do adicional (nº ⇥ descrição ⇥ valor)</label>
@@ -741,7 +773,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
           {/* Coluna da direita: pilha com largura única. */}
           <div className="min-w-0">
             {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO). */}
-            <div className="flex flex-col gap-4 min-w-0 xl:w-[526px]">
+            <div className="flex flex-col gap-4 min-w-0 xl:w-[448px]">
             {/* Saída (botões + prévia) no topo da coluna direita. O id mantém
                 o scroll pós-gerar e as regras de impressão. */}
             <div id="result-section" className="min-w-0">
@@ -807,39 +839,10 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               }
             >
               <div className="space-y-2">
-                {/* Total Revisão | Peças na Revisão (com vassoura para limpar e
-                    formatação automática de milhar/centavos ao colar ou sair) */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Total Revisão (R$)</label>
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white focus:border-emerald-500 outline-none" 
-                        value={revAprovadaInput} 
-                        onChange={(e) => setRevAprovadaInput(e.target.value)}
-                        onPaste={(e) => {
-                          const colado = e.clipboardData.getData('text');
-                          if (colado) {
-                            e.preventDefault();
-                            setRevAprovadaInput(formatarValorInput(colado));
-                          }
-                        }}
-                        onBlur={(e) => setRevAprovadaInput(formatarValorInput(e.target.value))}
-                        placeholder="0,00"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setRevAprovadaInput('')}
-                        aria-label="Limpar Total Revisão"
-                        title="Limpar Total Revisão"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
-                      >
-                        <Eraser size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
+                {/* Peças na Revisão (com vassoura para limpar e formatação
+                    automática de milhar/centavos ao colar ou sair). O Total
+                    Revisão mora no card CLAUDE (mesmo estado). */}
+                <div className="space-y-1">
                     <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
                     <div className="relative">
                       <input 
@@ -867,7 +870,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                         <Eraser size={16} />
                       </button>
                     </div>
-                  </div>
                 </div>
 
                 {/* Desconto em Peças | Parcelas */}

@@ -1612,7 +1612,7 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.paste(campos[1], { clipboardData: { getData: () => '2.188,92' } });
     expect((campos[1] as HTMLInputElement).value).toBe('2.188,92');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Limpar Total Revisão' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar Revisão aprovada' }));
     expect((campos[0] as HTMLInputElement).value).toBe('');
   });
 
@@ -1957,12 +1957,12 @@ describe('App — smoke test (render + processar)', () => {
     const fone = screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLElement;
     const cardClaude = fone.closest('[data-neon-box]');
     expect(cardClaude?.querySelector('h3')?.textContent).toBe('CLAUDE');
-    // botões + prévia moram na coluna da direita (pilha de 526px)
+    // botões + prévia moram na coluna da direita (pilha de 448px)
     const rs = document.querySelector('#result-section') as HTMLElement;
     let no = rs.parentElement;
     let naColunaDireita = false;
     while (no) {
-      if (no.className.includes('xl:w-[526px]')) { naColunaDireita = true; break; }
+      if (no.className.includes('xl:w-[448px]')) { naColunaDireita = true; break; }
       no = no.parentElement;
     }
     expect(naColunaDireita).toBe(true);
@@ -1974,9 +1974,15 @@ describe('App — smoke test (render + processar)', () => {
     fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51999999999' } });
     fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'JOAO' } });
     fireEvent.change(screen.getByPlaceholderText('Ex: 1 50,00'), { target: { value: '1 50,00' } });
+    // revisão digitada no CLAUDE + lista colada: a borracha do APROVADO zera
+    // a revisão (mesmo morando no outro card) e preserva lista e telefone
+    fireEvent.change(screen.getByLabelText('Revisão aprovada (R$)'), { target: { value: '1.000,00' } });
+    fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: 'Filtro\tR$ 10,00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Limpar aprovado e desconto' }));
     expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
     expect((screen.getByPlaceholderText('Ex: 1 50,00') as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('Filtro\tR$ 10,00');
+    expect((screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLInputElement).value).toBe('51999999999');
     // desconto, parcelas, placa, telefone e nome ficam
     expect(screen.getByDisplayValue('5')).toBeTruthy();
     expect(screen.getByDisplayValue('6x')).toBeTruthy();

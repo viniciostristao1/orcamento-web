@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.222.0](#v22200) — 2026-11-26 — Coluna direita de 448px + Revisão aprovada no CLAUDE (v0.222.0)
+
 - [v0.221.0](#v22100) — 2026-11-26 — Prévia menor (0,5, holder 448px) + telefone dentro do CLAUDE (v0.221.0)
 
 - [v0.220.0](#v22000) — 2026-11-26 — Layout: CLAUDE no topo da esquerda; botões + prévia na direita (v0.220.0)
@@ -366,6 +368,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v22200"></a>
+## 2026-11-26 — Coluna direita de 448px + Revisão aprovada no CLAUDE (v0.222.0)
+
+**Causa:** prévia de 448px centralizada numa coluna de 526px deixava folgas
+desiguais com os cards; Total Revisão morava longe do CLAUDE.
+**Feito:** pilha direita `xl:w-[448px]` (centro ganha o espaço; prévia preenche
+exato, escala .5, layout 896px intacto); campo Revisão aprovada movido para o
+CLAUDE ao lado do WhatsApp (`grid-cols-1 sm:grid-cols-2`, mesmo estado,
+máscara/validação/borracha próprios; borracha do APROVADO continua limpando a
+revisão + ajustes, sem tocar em lista/telefone).
+**Validação:** `getComputedStyle(#printable-quote).width === '896px'`; fileira de
+8 botões em 1 linha nos 448px; PNG antes/depois do mesmo orçamento (7 linhas,
+8.580,05) com dimensões e quebras iguais (só timestamp); impressão igual
+(defasagem de 6mm já aceita na v0.220.0); jsdom (ordem, espelho, borrachas,
+Total Revisão preservado) + suite cheia passando; `typecheck`/`lint` limpos;
+`dist` autocontido; CDP desktop (Duna) e celular. Selo `v0.222.0`.
 
 <a id="v22100"></a>
 ## 2026-11-26 — Prévia menor (0,5, holder 448px) + telefone dentro do CLAUDE (v0.221.0)

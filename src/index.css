@@ -799,7 +799,7 @@ body {
   #grade-orcamentos {
     display: block;
   }
-  #grade-orcamentos .xl\:w-\[526px\] {
+  #grade-orcamentos .xl\:w-\[448px\] {
     width: 100%;
   }
   /* nada de fundo escuro na folha (o root do app ficaria pintado) */
