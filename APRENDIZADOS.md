@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.226.0](#v22600) — 2026-11-27 — Resumo financeiro anti-sobreposição (nowrap + leading + fonts.ready) (v0.226.0)
+
 - [v0.225.0](#v22500) — 2026-11-27 — WhatsApp no Tire Flyer (telefone do CONTATO) + MENU DADOS de 170px (v0.225.0)
 
 - [v0.224.0](#v22400) — 2026-11-27 — Fim do card APROVADO E DESCONTO, prévia a 0,43 e fileira sem "+" (v0.224.0)
@@ -374,6 +376,33 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v22600"></a>
+## 2026-11-27 — Resumo financeiro anti-sobreposição (nowrap + leading + fonts.ready) (v0.226.0)
+
+**Causa:** relato de rótulos sobrepostos no PNG/impressão (arquivo do usuário na
+v0.223.0). Com os mesmos dados (1838,52 + 790,26, 10x = 2628,78) NÃO reproduziu
+aqui em nenhum caminho (prévia DOM, PNG exportado, Ctrl+P em largura de papel,
+v0.223.0 e v0.225.0 idênticos a menos do timestamp; Inter/DejaVu/Archivo Black
+como reserva, viewport desktop/mobile/papel). Fragilidade real encontrada no
+SVG do `toSvg`: alturas computadas fixas embutidas (ex.: `height: 33px` na
+docinfo) + caixas de linha apertadas (`leading-[1.1]`, `leading-none`) — se o
+raster usar outra fonte que a do layout, o texto pode vazar/sobrepor.
+**Feito:** linhas do resumo com rótulo `whitespace-nowrap shrink-0` + valor à
+direita `whitespace-nowrap` + `gap-6` + `space-y-0.5→1.5`; `Total:` e totais de
+não aprovados/geral com `leading-tight` (+nowrap); docinfo com `leading-snug`;
+`await document.fonts.ready` (timeout 3s, try/catch) no início do `exportarPng`
+— sem ele, clique rápido podia medir o clone na reserva. Não foi preciso
+`fontEmbedCSS` explícito: o lib já embute as 3 faces Inter (data-URL) — verificado
+no SVG. Versão `0.226.0`.
+**Validação:** `tests/resumo_overlap.test.tsx` novo — FALHAVA antes (3/3, sem
+nowrap/leading apertado) e PASSA depois; suíte 459/459; `typecheck`/`lint`
+limpos. Matriz 7 casos (10x, 6x, 1x, sem revisão, só revisão, 12.345.678,90, 12
+itens) × 3 caminhos (prévia, PNG real, print) × fonte normal/reserva forçada
+(Archivo Black global): zero sobreposição e zero quebra em todos (14/14).
+PNG vs v0.223.0: mesma largura (2688), altura +72px (+24 CSS px, só o respiro);
+tabela/cabeçalho pixel-idênticos acima da docinfo. Prints dos 3 caminhos × 2
+fontes anexados no relatório. Chaves do localStorage inalteradas.
 
 <a id="v22500"></a>
 ## 2026-11-27 — WhatsApp no Tire Flyer + MENU DADOS de 170px (v0.225.0)

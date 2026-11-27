@@ -103,6 +103,20 @@ export function prepararClonePng(original: HTMLElement): {
  * quebra de linha na captura. Ver `restaurarFontesReduzidas`.
  */
 export const exportarPng = async (node: HTMLElement, opcoes: OpcoesPng = {}): Promise<string> => {
+  // O layout do clone e as fontes embutidas no SVG precisam da MESMA fonte:
+  // sem esperar, um clique rápido (ou fonte ainda carregando) media o clone
+  // com a fonte de reserva e o raster divergia (linhas quebravam e as alturas
+  // fixadas pelo html-to-image sobrepunham o texto). `document.fonts.ready`
+  // resolve quando acaba o carregamento; com timeout de segurança para nunca
+  // travar a exportação (file://, fontes locais embutidas).
+  try {
+    await Promise.race([
+      document.fonts.ready,
+      new Promise((r) => window.setTimeout(r, 3000)),
+    ]);
+  } catch {
+    // Fontes indisponíveis: exporta mesmo assim (reserva do sistema).
+  }
   // O 1.11.13 não tem `onClone`: o compacto vai num gêmeo off-screen (só PNG).
   const pre = node.id === 'printable-quote' ? prepararClonePng(node) : null;
   let svgDataUrl: string;

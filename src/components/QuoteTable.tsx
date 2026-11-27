@@ -549,7 +549,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
           </div>
 
           {/* Document Info - Space Further Reduced */}
-          <div className="text-center text-[10px] text-slate-400 mb-2 uppercase tracking-[0.2em] font-medium leading-[1.1]">
+          <div className="text-center text-[10px] text-slate-400 mb-2 uppercase tracking-[0.2em] font-medium leading-snug">
             <p>Data: <span className="text-slate-900">{summary.currentTime}</span></p>
             <p>Orçamento sujeito a alterações. Validade: 10 dias.</p>
             <p className="text-blue-600 font-bold">Toyota Weiand Lajeado</p>
@@ -563,10 +563,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
               <div className="h-px w-10 bg-slate-300"></div>
             </div>
             
-            <div className="space-y-0.5 max-w-xl mx-auto">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-slate-500 uppercase tracking-tight text-2xl">Revisão Aprovada:</span>
-                <span className="text-slate-950 font-bold text-2xl text-right">
+            <div className="space-y-1.5 max-w-xl mx-auto">
+              <div className="flex justify-between items-center gap-6">
+                <span className="font-bold text-slate-500 uppercase tracking-tight text-2xl whitespace-nowrap shrink-0">Revisão Aprovada:</span>
+                <span className="text-slate-950 font-bold text-2xl text-right whitespace-nowrap">
                   <CelulaValor
                     value={prev.revisaoAprovada}
                     onCommit={onEditarRevisao}
@@ -575,24 +575,24 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-slate-500 uppercase tracking-tight text-2xl">Orçamento Adicional:</span>
-                <span className="text-slate-950 font-bold text-2xl">{formatCurrency(calc.adicional)}</span>
+              <div className="flex justify-between items-center gap-6">
+                <span className="font-bold text-slate-500 uppercase tracking-tight text-2xl whitespace-nowrap shrink-0">Orçamento Adicional:</span>
+                <span className="text-slate-950 font-bold text-2xl whitespace-nowrap">{formatCurrency(calc.adicional)}</span>
               </div>
 
-              <div className="flex justify-between items-center text-slate-400">
-                <span className="font-bold uppercase tracking-wide text-2xl">Parcelamento ({calc.numParcelas}x):</span>
-                <span className="font-bold text-2xl">{calc.numParcelas} × {formatCurrency(calc.parcela)}</span>
+              <div className="flex justify-between items-center gap-6 text-slate-400">
+                <span className="font-bold uppercase tracking-wide text-2xl whitespace-nowrap shrink-0">Parcelamento ({calc.numParcelas}x):</span>
+                <span className="font-bold text-2xl whitespace-nowrap">{calc.numParcelas} × {formatCurrency(calc.parcela)}</span>
               </div>
 
               <div className="h-px bg-blue-600 my-2 opacity-40"></div>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-6">
                 <div className="flex flex-col">
-                  <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-none">Total:</span>
+                  <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-tight whitespace-nowrap">Total:</span>
                   <span className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Revisão + Adicional</span>
                 </div>
-                <span className="text-2xl font-bold text-slate-950">
+                <span className="text-2xl font-bold text-slate-950 whitespace-nowrap">
                   {formatCurrency(calc.total)}
                 </span>
               </div>
@@ -609,7 +609,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 <div className="h-px w-10 bg-red-200"></div>
               </div>
 
-              <div className="space-y-0.5 max-w-xl mx-auto">
+              <div className="space-y-1.5 max-w-xl mx-auto">
                 {calc.naoAprovados.map((item) => (
                   <div key={item.id} className="flex justify-between items-start gap-6">
                     <span className="font-bold uppercase tracking-tight text-slate-500 text-2xl line-through">
@@ -624,8 +624,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 <div className="h-px bg-red-300 my-2 opacity-60"></div>
 
                 <div className="flex justify-between items-center">
-                  <span className="font-bold uppercase tracking-widest text-2xl text-red-800 leading-none">Total Não Aprovado:</span>
-                  <span className="text-2xl font-bold text-red-700">
+                  <span className="font-bold uppercase tracking-widest text-2xl text-red-800 leading-tight whitespace-nowrap shrink-0">Total Não Aprovado:</span>
+                  <span className="text-2xl font-bold text-red-700 whitespace-nowrap">
                     {formatCurrency(calc.totalNaoAprovado)}
                   </span>
                 </div>
@@ -638,7 +638,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
           {calc.naoAprovados.length > 0 && (
             <div className="mt-3 bg-slate-50 border-2 border-slate-300 rounded-[2rem] px-6 py-4 sm:px-10">
               <div className="flex justify-between items-center max-w-xl mx-auto">
-                <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-none">Total Geral:</span>
+                <span className="font-bold uppercase tracking-widest text-2xl text-blue-900 leading-tight whitespace-nowrap shrink-0">Total Geral:</span>
                 <span className="text-3xl font-bold text-slate-950">
                   {formatCurrency(calc.totalGeralPrevia)}
                 </span>
