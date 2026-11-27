@@ -7,6 +7,8 @@ import NeonCard from '../components/NeonCard';
 import ClearButton from '../components/ClearButton';
 import { Play, Image as ImageIcon, History, Eraser, Copy, Check } from 'lucide-react';
 import { montarDescricaoWhats } from './utils/descricaoWhats';
+import { abrirWhats, temTelefoneValido } from '../utils/telefone';
+import { IconeWhatsApp } from '../components/BotaoWhats';
 import FlyerHistoryModal from './components/FlyerHistoryModal';
 import { adicionarAoFlyerHistorico, type FlyerSalvo } from './utils/historicoFlyer';
 import { lerLayoutFlyer, salvarLayoutFlyer, type LayoutFlyer } from './utils/layoutFlyer';
@@ -253,6 +255,23 @@ const TireFlyerApp: React.FC<{
         {/* Visualização do Flyer */}
         <div className="flex flex-col items-center">
           <div className="sticky top-24 flex flex-col items-center w-[375px]">
+            {/* WhatsApp do cliente: abre só a conversa (sem texto), com o
+                telefone do CONTATO — mesmo estilo e comportamento do botão da
+                aba ORÇAMENTOS. Fora do nó do flyer: não sai no PNG. */}
+            <div className="mb-4 print:hidden">
+              <button
+                type="button"
+                onClick={() => abrirWhats(telefone)}
+                disabled={!temTelefoneValido(telefone)}
+                aria-label="Conversar no WhatsApp (flyer)"
+                title={temTelefoneValido(telefone) ? `Conversar no WhatsApp (${telefone})` : 'Conversar no WhatsApp (digite o telefone no CONTATO)'}
+                className="flex items-center justify-center bg-green-600 hover:bg-green-500 disabled:opacity-40 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer disabled:cursor-not-allowed"
+              >
+                <span className="group-hover:scale-110 transition-transform inline-flex">
+                  <IconeWhatsApp size={24} />
+                </span>
+              </button>
+            </div>
             {/* Preview na metade do tamanho — só o visual. O PNG continua 750px
                 (a captura usa o tamanho do nó; transform não interfere). */}
             <div

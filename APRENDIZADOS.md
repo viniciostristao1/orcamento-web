@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.225.0](#v22500) — 2026-11-27 — WhatsApp no Tire Flyer (telefone do CONTATO) + MENU DADOS de 170px (v0.225.0)
+
 - [v0.224.0](#v22400) — 2026-11-27 — Fim do card APROVADO E DESCONTO, prévia a 0,43 e fileira sem "+" (v0.224.0)
 
 - [v0.223.0](#v22300) — 2026-11-26 — Cliente fora do PNG, OXI literal e borracha "+" no CLAUDE (v0.223.0)
@@ -372,6 +374,31 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v22500"></a>
+## 2026-11-27 — WhatsApp no Tire Flyer + MENU DADOS de 170px (v0.225.0)
+
+**Causa:** flyer pronto exigia copiar o número do CONTATO à mão; MENU DADOS de
+210px deixava sobra à direita (centro com 680px no desktop cheio).
+**Feito:** botão verde acima do preview do flyer (fora do nó `data-saida`,
+`print:hidden`), mesmas classes/title-padrão e `abrirWhats(telefone)` do
+`QuoteTable` com o telefone do CONTATO; sem lógica nova (só `telefone.ts` +
+`IconeWhatsApp`). Nome acessível próprio (`Conversar no WhatsApp (flyer)` —
+jsdom ignora o `display:none` da aba inativa e o `getByRole` duplicado quebrava
+3 suítes; em produção/Playwright não há conflito, mas o nome único segue a
+convenção e facilita o teste novo). Grade `210px→170px` (logo do header junto);
+centro `680→720px` no desktop cheio (`+40px` no CLAUDE/SISTEMA); direita 386px,
+prévia 896px/escala .43 e PNGs intactos. Selo `v0.225.0`.
+**Validação:** suíte 456/456 (inclui `tests/flyer_whats.test.tsx` novo: vazio
+desabilita, válido abre `wa.me/5551999999999`, botão fora do nó de saída);
+`typecheck`/`lint` limpos (só warnings padrão); CDP 1366: grade
+`170px 686px 386px`, imprimível 896px, wa.me idêntico nas duas abas, botão acima
+do flyer (`bottom 118 < top 131`); flyer PNG antes/depois byte-idêntico
+(1500×3978, 0 pixels); orçamento PNG mesmas dimensões (2688×2082, dif só na
+faixa Y 1026–1054 = linha da data/hora); menu 170px com PEÇAS/O.S'S/BUSCAR/
+MEMÓRIA/CASOS/E-MAILS/SERVIÇOS inteiros (nome absurdo trunca com `…` sem quebrar);
+mobile 390px sem regressão (908→878, sobra pré-existente do header); `dist`
+autocontido; prints desktop das duas abas. Chaves do localStorage inalteradas.
 
 <a id="v22400"></a>
 ## 2026-11-27 — Fim do card APROVADO E DESCONTO, prévia a 0,43 e fileira sem "+" (v0.224.0)

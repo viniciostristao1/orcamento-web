@@ -637,7 +637,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   return (
     <>
-      <div id="grade-orcamentos" className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_386px] gap-8">
+      <div id="grade-orcamentos" className="grid grid-cols-1 xl:grid-cols-[170px_minmax(0,1fr)_386px] gap-8">
           {/* MENU DADOS: lateral esquerda, fixo no topo ao rolar. */}
           <aside className="min-w-0 xl:sticky xl:top-24 self-start print:hidden ui-compacta">
             <MenuDados onIr={onIrParaSubAba} onBuscar={onBuscarNosDados} />
