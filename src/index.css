@@ -710,10 +710,10 @@ body {
   zoom: 0.75;
 }
 
-/* Preview do orçamento gerado na tela: metade do tamanho (só o visual).
+/* Preview do orçamento gerado na tela: ~43% do tamanho (só o visual).
    O PNG continua no tamanho real e a impresão sai normal (ver @media print). */
 .preview-orcamento {
-  transform: scale(0.5);
+  transform: scale(0.43);
   transform-origin: top center;
 }
 
@@ -799,7 +799,7 @@ body {
   #grade-orcamentos {
     display: block;
   }
-  #grade-orcamentos .xl\:w-\[448px\] {
+  #grade-orcamentos .xl\:w-\[386px\] {
     width: 100%;
   }
   /* nada de fundo escuro na folha (o root do app ficaria pintado) */
@@ -818,7 +818,7 @@ body {
     display: none !important;
   }
 
-  /* o preview em metade do tamanho vale só na tela */
+  /* a prévia reduzida vale só na tela */
   .preview-orcamento {
     transform: none !important;
   }

@@ -23,7 +23,7 @@ const processarExemplo = () => {
   fireEvent.change(screen.getByLabelText('Itens do adicional'), {
     target: { value: 'Filtro\tR$ 10,00\nPastilha\tR$ 20,00' },
   });
-  fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+  fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
 };
 
 describe('segundo × (apagar de vez)', () => {
@@ -58,7 +58,7 @@ describe('segundo × (apagar de vez)', () => {
   });
 });
 
-describe('botão "+" (orçamento manual)', () => {
+describe('botão "Novo orçamento manual" (header do CLAUDE)', () => {
   it('com documento em tela: abre limpo direto e avisa que o anterior foi salvo', () => {
     processarExemplo();
     fireEvent.click(screen.getByRole('button', { name: 'Novo orçamento manual' }));
@@ -75,14 +75,15 @@ describe('botão "+" (orçamento manual)', () => {
 
   it('sem documento em tela: abre limpo sem aviso', () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Novo orçamento manual' }));
+    // sem doc há dois ("CLAUDE" + estado vazio): o do header vem antes no DOM
+    fireEvent.click(screen.getAllByRole('button', { name: 'Novo orçamento manual' })[0]);
     expect(screen.queryByText('Orçamento anterior salvo no histórico')).toBeNull();
     expect(screen.getByText('linhas vazias não saem no PNG')).toBeTruthy();
   });
 
   it('manual entra no histórico com a marca Manual', () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Novo orçamento manual' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Novo orçamento manual' })[0]);
     const lista = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');
     expect(lista).toHaveLength(1);
     expect(lista[0].manual).toBe(true);
@@ -92,7 +93,7 @@ describe('botão "+" (orçamento manual)', () => {
     const alertas: string[] = [];
     vi.stubGlobal('alert', (m: string) => { alertas.push(m); });
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Novo orçamento manual' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Novo orçamento manual' })[0]);
     fireEvent.click(screen.getByRole('button', { name: 'Baixar imagem (alta qualidade)' }));
     expect(alertas).toHaveLength(1);
     expect(alertas[0]).toMatch(/vazio/);

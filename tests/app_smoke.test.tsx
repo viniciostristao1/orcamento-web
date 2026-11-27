@@ -59,7 +59,7 @@ describe('App — smoke test (render + processar)', () => {
   /** Cola a lista e processa (equivale ao exemplo antigo). */
   const colarEProcessar = () => {
     fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: LISTA_EXEMPLO } });
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
   };
 
   it('renderiza a tela com os textos principais', () => {
@@ -79,8 +79,9 @@ describe('App — smoke test (render + processar)', () => {
     // os dois campos da lista com a mesma fonte (text-lg)
     const grandes = container.querySelectorAll('textarea.text-lg');
     expect(grandes.length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByText('APROVADO E DESCONTO')).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Processar Tudo/i })).toBeTruthy();
+    expect(screen.getByText('Desconto em Peças (%)')).toBeTruthy();
+    expect(screen.getByText('Parcelas')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Gerar orçamento' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Histórico' })).toBeTruthy();
   });
 
@@ -115,12 +116,12 @@ describe('App — smoke test (render + processar)', () => {
       render(<App />);
       fireEvent.change(screen.getByPlaceholderText('Ex.: 4471'), { target: { value: '19384751778' } });
       fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: 'PASTILHA\tR$ 10,00' } });
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
       let salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos).toHaveLength(1);
       // edita o item manual e regenera: substitui o registro de mesmo Nº
       fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: 'Oxi\tR$ 10,00' } });
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
       salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos).toHaveLength(1);
       // OXI fica literal (sem expandir para a higienização)
@@ -1940,17 +1941,16 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
   });
 
-  it('ordem das colunas: CLAUDE (com telefone), sistema, botões+prévia, aprovado, ajuste, resumo', () => {
+  it('ordem das colunas: CLAUDE (com telefone, desconto e parcelas), sistema, botões+prévia, ajuste, resumo', () => {
     render(<App />);
     colarEProcessar(); // mostra o RESUMO
     const hClaude = screen.getByText('CLAUDE');
     const hSistema = screen.getByRole('heading', { name: 'ORÇAMENTO DO SISTEMA' });
     const botoes = screen.getByRole('button', { name: 'Imprimir / PDF' });
     const doc = document.querySelector('#printable-quote') as HTMLElement;
-    const hAprovado = screen.getByText('APROVADO E DESCONTO');
     const hAjuste = screen.getByText(/AJUSTE \(ID/);
     const hResumo = screen.getByText('RESUMO LÍQUIDO');
-    const ordem = [hClaude, hSistema, botoes, doc, hAprovado, hAjuste, hResumo];
+    const ordem = [hClaude, hSistema, botoes, doc, hAjuste, hResumo];
     for (let i = 0; i + 1 < ordem.length; i++) {
       expect(ordem[i].compareDocumentPosition(ordem[i + 1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
@@ -1964,23 +1964,23 @@ describe('App — smoke test (render + processar)', () => {
     let no = rs.parentElement;
     let naColunaDireita = false;
     while (no) {
-      if (no.className.includes('xl:w-[448px]')) { naColunaDireita = true; break; }
+      if (no.className.includes('xl:w-[386px]')) { naColunaDireita = true; break; }
       no = no.parentElement;
     }
     expect(naColunaDireita).toBe(true);
   });
 
-  it('aprovado: borracha limpa só revisão e ajustes (resto fica)', () => {
+  it('borracha do CLAUDE: limpa revisão, peças e ajuste (resto fica)', () => {
     render(<App />);
     fireEvent.change(screen.getByPlaceholderText('Ex.: ABC1D23'), { target: { value: 'ABC1D23' } });
     fireEvent.change(screen.getByPlaceholderText('Ex.: 51 99999-9999'), { target: { value: '51999999999' } });
     fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'JOAO' } });
     fireEvent.change(screen.getByPlaceholderText('Ex: 1 50,00'), { target: { value: '1 50,00' } });
-    // revisão digitada no CLAUDE + lista colada: a borracha do APROVADO zera
+    // revisão digitada no CLAUDE + lista colada: a borracha do CLAUDE zera
     // a revisão (mesmo morando no outro card) e preserva lista e telefone
     fireEvent.change(screen.getByLabelText('Revisão aprovada (R$)'), { target: { value: '1.000,00' } });
     fireEvent.change(screen.getByLabelText('Itens do adicional'), { target: { value: 'Filtro\tR$ 10,00' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Limpar aprovado e desconto' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar revisão, peças e ajuste' }));
     expect(screen.getAllByPlaceholderText('0,00').map((i) => (i as HTMLInputElement).value)).toEqual(['', '']);
     expect((screen.getByPlaceholderText('Ex: 1 50,00') as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('Filtro\tR$ 10,00');
@@ -1999,7 +1999,7 @@ describe('App — smoke test (render + processar)', () => {
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
     const alerta = vi.spyOn(window, 'alert').mockImplementation(() => {});
     try {
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
       expect(alerta).toHaveBeenCalledWith(expect.stringContaining('CLAUDE'));
       expect(document.querySelector('#printable-quote')).toBeNull();
     } finally {
@@ -2017,7 +2017,7 @@ describe('App — smoke test (render + processar)', () => {
     });
     const alerta = vi.spyOn(window, 'alert').mockImplementation(() => {});
     try {
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
       expect(alerta).not.toHaveBeenCalled();
       expect(document.querySelector('#printable-quote')).toBeTruthy();
       expect(screen.getByText('TESTE')).toBeTruthy();
@@ -2391,13 +2391,13 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.change(input, { target: { files: [pdf('primeiro.pdf')] } });
       await screen.findByDisplayValue('01 PRIMEIRO');
       fireEvent.click(screen.getByRole('button', { name: 'Usar no orçamento manual' }));
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
       expect(screen.getByText('PRIMEIRO')).toBeTruthy();
 
       // 2º anexo + play direto (sem Usar) = SEGUNDO
       fireEvent.change(input, { target: { files: [pdf('segundo.pdf')] } });
       await screen.findByDisplayValue('02 SEGUNDO');
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
       expect(screen.getByText('SEGUNDO')).toBeTruthy();
 
       const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
@@ -2916,7 +2916,7 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.change(screen.getByPlaceholderText('Ex.: 9BRKC3F33R8269071'), {
         target: { value: '9brkc3f33r8269071' },
       });
-      fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
 
       const salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos).toHaveLength(1); // não duplicou

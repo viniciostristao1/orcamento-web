@@ -158,8 +158,6 @@ interface QuoteTableProps {
   onApagarItem: (id: number) => void;
   onAdicionarItem: () => void;
   onVoltarOriginal: () => void;
-  /** Abre um orçamento manual limpo (só o item 1, vazio). */
-  onNovoManual: () => void;
   /** Aprovação atual do orçamento em tela (V/X). */
   aprovacao?: AprovacaoVoto | null;
   /** Marca/desmarca (clicar no mesmo limpa; sempre salva no histórico). */
@@ -182,17 +180,16 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
   onApagarItem,
   onAdicionarItem,
   onVoltarOriginal,
-  onNovoManual,
   aprovacao = null,
   onMarcarAprovacao,
   telefone = '',
 }) => {
   const printableRef = useRef<HTMLDivElement>(null);
   const [alturaDocumento, setAlturaDocumento] = useState(0);
-  // Escala fixa em 0,5 (só o visual): no desktop o holder tem 448px e o
-  // layout é travado em 896px (896 × 0,5 = 448, preenche centrado); fora do
-  // xl, fluido + .5 como sempre foi.
-  const escala = 0.5;
+  // Escala fixa em 0,43 (só o visual): no desktop o holder tem 386px e o
+  // layout é travado em 896px (896 × 0,43 ≈ 385, preenche centrado); fora do
+  // xl, fluido + .43 como sempre foi.
+  const escala = 0.43;
 
   // Mede a altura real do documento para o preview (só o visual).
   // O PNG/impressão não mudam: transform não afeta o tamanho do nó e o
@@ -307,19 +304,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     >
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-center gap-4 print:hidden ui-compacta">
-        {/* Orçamento manual: abre um documento limpo (só o item 1, vazio).
-            Violeta (#7c3aed, literal — fora do remapeamento do tema): difere das
-            seis demais no Duna (marinho, verde-escuro, verde, verde-escuro,
-            âmbar queimado, vermelho, oliva) e no padrão. */}
-        <button
-          type="button"
-          onClick={onNovoManual}
-          aria-label="Novo orçamento manual"
-          title="Novo orçamento manual (limpo, só com o item 1)"
-          className="flex items-center justify-center bg-violet-600 hover:bg-violet-500 text-white p-4 rounded-xl transition-all shadow-lg active:scale-95 group cursor-pointer"
-        >
-          <Plus size={24} className="group-hover:scale-110 transition-transform" />
-        </button>
+        {/* Ações do documento (o "Novo orçamento manual" mora no CLAUDE). */}
 
         <button
           type="button"
@@ -420,10 +405,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
       </div>
 
       {/* Printable Document Context: no desktop o layout é travado em 896px
-          e a escala fixa (.5) preenche o holder de 448px; fora do xl, tudo
-          como era (fluido + .5). */}
+          e a escala fixa (.43) preenche o holder de 386px; fora do xl, tudo
+          como era (fluido + .43). */}
       <div
-        className="preview-orcamento-holder w-full max-w-4xl mx-auto xl:w-[448px]"
+        className="preview-orcamento-holder w-full max-w-4xl mx-auto xl:w-[386px]"
         style={alturaDocumento ? { height: alturaDocumento * escala } : undefined}
       >
       <div className="preview-orcamento">

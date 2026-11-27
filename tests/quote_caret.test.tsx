@@ -22,7 +22,7 @@ const abrirEdicaoDescricao = () => {
         'PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS\tR$ 2.203,04\nHIGIENIZAÇÃO DO AR CONDICIONADO\tR$ 209,60\nBORRACHA DAS PALHETAS\tR$ 217,00',
     },
   });
-  fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+  fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
   fireEvent.click(screen.getByText('PASTILHAS DE FREIO DIANT + RETIFICA DOS DISCOS'));
   const input = screen.getByLabelText('Descrição do item 1') as HTMLInputElement;
   expect(document.activeElement).toBe(input);
@@ -72,7 +72,7 @@ describe('cursor na edição direta do documento (ORÇAMENTO ADICIONAL)', () => 
     fireEvent.change(screen.getByLabelText('Itens do adicional'), {
       target: { value: 'Filtro\tR$ 2.203,04\nPastilha\tR$ 10,00' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
     fireEvent.click(screen.getByText('2.203,04'));
     const input = screen.getByLabelText('Valor do item 1') as HTMLInputElement;
     input.setSelectionRange(1, 1);

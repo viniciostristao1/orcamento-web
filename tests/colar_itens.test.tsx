@@ -129,10 +129,11 @@ describe('CLAUDE — card único no lugar dos manuais', () => {
   });
 });
 
-describe('CLAUDE — relação com o "+" e com o histórico', () => {
+describe('CLAUDE — relação com o manual e com o histórico', () => {
   it('GERAR com manual vazio em tela preenche o registro aberto (sem duplicar)', () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Novo orçamento manual' }));
+    // sem doc há dois ("CLAUDE" + estado vazio): o do header vem antes no DOM
+    fireEvent.click(screen.getAllByRole('button', { name: 'Novo orçamento manual' })[0]);
     colarAdicional('Filtro\tR$ 10,00');
     gerar();
     const salvos = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');

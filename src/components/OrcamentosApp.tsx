@@ -4,7 +4,7 @@ import { temTelefoneValido } from '../utils/telefone';
 import { QuoteSummary } from '../types';
 import NeonCard from './NeonCard';
 import QuoteTable, { type AprovacaoVoto } from './QuoteTable';
-import { Play, Percent, Eraser, Plus } from 'lucide-react';
+import { FilePlus, Percent, Eraser, Plus } from 'lucide-react';
 import HistoryModal from './HistoryModal';
 import ClearButton from './ClearButton';
 import MenuDados from './MenuDados';
@@ -183,8 +183,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   /**
    * Núcleo da geração: soma os textos convertidos (lista nova, verbos
-   * mantidos), salva no histórico e mostra o documento. Vale para o GERAR,
-   * o Play e a reabertura manual.
+   * mantidos), salva no histórico e mostra o documento. Vale para o GERAR
+   * e a reabertura manual.
    */
   const processarComTextos = (desc: string, dados: string, revAprovNum: number, textoA: string) => {
     // Guarda os textos que geraram o doc (o votar V/X os reutiliza).
@@ -637,7 +637,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
   return (
     <>
-      <div id="grade-orcamentos" className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_448px] gap-8">
+      <div id="grade-orcamentos" className="grid grid-cols-1 xl:grid-cols-[210px_minmax(0,1fr)_386px] gap-8">
           {/* MENU DADOS: lateral esquerda, fixo no topo ao rolar. */}
           <aside className="min-w-0 xl:sticky xl:top-24 self-start print:hidden ui-compacta">
             <MenuDados onIr={onIrParaSubAba} onBuscar={onBuscarNosDados} />
@@ -651,22 +651,44 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               collapsible
               defaultOpen={true}
               actions={
-                <button
-                  type="button"
-                  onClick={() => {
-                    // Limpa a lista, a revisão e o WhatsApp (mesmo estado do
-                    // Telefone do sistema, que limpa junto). Nome, placa e o
-                    // resto ficam (a borracha do APROVADO limpa a revisão).
-                    setListaAdicional('');
-                    setRevAprovadaInput('');
-                    setTelefone('');
-                  }}
-                  aria-label="Limpar lista, revisão e WhatsApp"
-                  title="Limpar lista, revisão e WhatsApp"
-                  className="flex items-center justify-center p-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl transition-all shadow-2xl cursor-pointer active:scale-95"
-                >
-                  <Plus size={18} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Limpa a lista, a revisão e o WhatsApp (mesmo estado do
+                      // Telefone do sistema, que limpa junto). Nome, placa e o
+                      // resto ficam.
+                      setListaAdicional('');
+                      setRevAprovadaInput('');
+                      setTelefone('');
+                    }}
+                    aria-label="Limpar lista, revisão e WhatsApp"
+                    title="Limpar lista, revisão e WhatsApp"
+                    className="flex items-center justify-center p-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl transition-all shadow-2xl cursor-pointer active:scale-95"
+                  >
+                    <Plus size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={novoOrcamentoManual}
+                    aria-label="Novo orçamento manual"
+                    title="Novo orçamento manual (limpo, só com o item 1)"
+                    className="flex items-center justify-center p-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl transition-all shadow-2xl cursor-pointer active:scale-95"
+                  >
+                    <FilePlus size={18} />
+                  </button>
+                  <ClearButton
+                    onClick={() => {
+                      // Zera revisão, peças e ajuste; desconto, parcelas, placa,
+                      // telefone e nome ficam (mesmo comportamento da borracha
+                      // do antigo card APROVADO E DESCONTO).
+                      setRevAprovadaInput('');
+                      setRevPecasInput('');
+                      setAjustesManuais('');
+                    }}
+                    label="Limpar revisão, peças e ajuste"
+                  />
+                </div>
               }
             >
               <div className="space-y-4">
@@ -691,9 +713,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                         Telefone incompleto — use DDD + número (ex.: 51 99999-9999).
                       </p>
                     )}
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                      Não sai no PNG · vale para o botão do WhatsApp
-                    </p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Revisão aprovada</label>
@@ -724,6 +743,59 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                         <Eraser size={16} />
                       </button>
                     </div>
+                  </div>
+                </div>
+                {/* Peças na Revisão + Desconto em Peças + Parcelas (3 colunas
+                    no desktop, empilha no celular; mesmo rótulo pequeno).
+                    Mudou do card APROVADO E DESCONTO para cá sem mudar estado,
+                    validação, máscara nem efeito no cálculo/PNG. */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white focus:border-emerald-500 outline-none"
+                        value={revPecasInput}
+                        onChange={(e) => setRevPecasInput(e.target.value)}
+                        onPaste={(e) => {
+                          const colado = e.clipboardData.getData('text');
+                          if (colado) {
+                            e.preventDefault();
+                            setRevPecasInput(formatarValorInput(colado));
+                          }
+                        }}
+                        onBlur={(e) => setRevPecasInput(formatarValorInput(e.target.value))}
+                        placeholder="0,00"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRevPecasInput('')}
+                        aria-label="Limpar Peças na Revisão"
+                        title="Limpar Peças na Revisão"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                      >
+                        <Eraser size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Desconto em Peças (%)</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-amber-500 focus:border-amber-500 outline-none"
+                        value={desconto}
+                        onChange={(e) => setDesconto(parseFloat(e.target.value))}
+                      />
+                      <Percent size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Parcelas</label>
+                    <select aria-label="Parcelas" className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
+                      {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
+                    </select>
                   </div>
                 </div>
                 <div className="space-y-1">
@@ -802,8 +874,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
           {/* Coluna da direita: pilha com largura única. */}
           <div className="min-w-0">
-            {/* Pilha com largura única (APROVADO = AJUSTES = RESUMO). */}
-            <div className="flex flex-col gap-4 min-w-0 xl:w-[448px]">
+            {/* Pilha com largura única (prévia = AJUSTES = RESUMO). */}
+            <div className="flex flex-col gap-4 min-w-0 xl:w-[386px]">
             {/* Saída (botões + prévia) no topo da coluna direita. O id mantém
                 o scroll pós-gerar e as regras de impressão. */}
             <div id="result-section" className="min-w-0">
@@ -841,7 +913,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                     onApagarItem={apagarLinhaDefinitiva}
                     onAdicionarItem={adicionarLinhaPrevia}
                     onVoltarOriginal={voltarOriginalPrevia}
-                    onNovoManual={novoOrcamentoManual}
                     aprovacao={aprovacao}
                     onMarcarAprovacao={votarAprovacao}
                     telefone={telefone}
@@ -852,90 +923,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
             {/* Demais cards da pilha (fora da impressão e do zoom da prévia). */}
             <div className="flex flex-col gap-4 min-w-0 print:hidden ui-compacta">
-            <NeonCard
-              title="APROVADO E DESCONTO"
-              borderColor="emerald-500"
-              compact
-              actions={
-                <ClearButton
-                  onClick={() => {
-                    setRevAprovadaInput('');
-                    setRevPecasInput('');
-                    setAjustesManuais('');
-                  }}
-                  label="Limpar aprovado e desconto"
-                />
-              }
-            >
-              <div className="space-y-2">
-                {/* Peças na Revisão (com vassoura para limpar e formatação
-                    automática de milhar/centavos ao colar ou sair). O Total
-                    Revisão mora no card CLAUDE (mesmo estado). */}
-                <div className="space-y-1">
-                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Peças na Revisão (R$)</label>
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-white focus:border-emerald-500 outline-none" 
-                        value={revPecasInput} 
-                        onChange={(e) => setRevPecasInput(e.target.value)}
-                        onPaste={(e) => {
-                          const colado = e.clipboardData.getData('text');
-                          if (colado) {
-                            e.preventDefault();
-                            setRevPecasInput(formatarValorInput(colado));
-                          }
-                        }}
-                        onBlur={(e) => setRevPecasInput(formatarValorInput(e.target.value))}
-                        placeholder="0,00"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setRevPecasInput('')}
-                        aria-label="Limpar Peças na Revisão"
-                        title="Limpar Peças na Revisão"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
-                      >
-                        <Eraser size={16} />
-                      </button>
-                    </div>
-                </div>
-
-                {/* Desconto em Peças | Parcelas */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Desconto em Peças (%)</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xl font-black text-amber-500 focus:border-amber-500 outline-none" 
-                        value={desconto} 
-                        onChange={(e) => setDesconto(parseFloat(e.target.value))} 
-                      />
-                      <Percent size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700" />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Parcelas</label>
-                    <select aria-label="Parcelas" className="w-full campo-tema border border-slate-800 rounded-xl px-4 py-2.5 text-xl font-black text-white focus:border-blue-500 outline-none appearance-none" value={parcelas} onChange={(e) => setParcelas(parseInt(e.target.value))}>
-                      {[1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => <option key={n} value={n} className="bg-slate-900">{n}x</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <button
-                  onClick={gerarDasListas}
-                  type="button"
-                  aria-label="Processar Tudo"
-                  title="Processar Tudo"
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-2xl transition-all flex items-center justify-center active:scale-[0.98] mt-2 cursor-pointer"
-                >
-                  <Play size={26} fill="currentColor" />
-                </button>
-              </div>
-            </NeonCard>
-
-            {/* Ajustes Manuais abaixo do APROVADO (mesma largura);
+            {/* Ajustes Manuais abaixo da prévia (mesma largura);
                 o campo mostra só 3 linhas (rows=3). */}
             <NeonCard
               title="AJUSTE (ID VALOR)"

@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.224.0](#v22400) — 2026-11-27 — Fim do card APROVADO E DESCONTO, prévia a 0,43 e fileira sem "+" (v0.224.0)
+
 - [v0.223.0](#v22300) — 2026-11-26 — Cliente fora do PNG, OXI literal e borracha "+" no CLAUDE (v0.223.0)
 
 - [v0.222.0](#v22200) — 2026-11-26 — Coluna direita de 448px + Revisão aprovada no CLAUDE (v0.222.0)
@@ -371,7 +373,15 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 <!-- INDICE-VERSOES-FIM -->
 
+<a id="v22400"></a>
+## 2026-11-27 — Fim do card APROVADO E DESCONTO, prévia a 0,43 e fileira sem "+" (v0.224.0)
+
+**Causa:** card APROVADO E DESCONTO duplicava o GERAR (mesmo `gerarDasListas`) e a fileira tinha "+" redundante com o estado vazio.
+**Feito:** Desconto+Parcelas e Peças na Revisão no CLAUDE (linha 2, 3 colunas); Play removido (equivale ao GERAR); borracha "Limpar revisão, peças e ajuste" no header do CLAUDE (mesmo handler: zera revisão/peças/ajuste); "+" da fileira removido, "Novo orçamento manual" no header do CLAUDE (FilePlus violeta; "Usar no orçamento manual" do SISTEMA não cobre: só preenche a lista, não abre doc limpo); frase do WhatsApp removida; prévia 0.5→0.43 (escala + holder/pilha 448→386px, print 100% atualizado); v0.224.0.
+**Validação:** typecheck + lint limpos; suíte 454/454; `getComputedStyle` 896px; PNG baixado 2688×2394 idêntico ao de antes; fileira de 7 em 1 linha (desktop, zoom .75); prints antes/depois desktop+mobile.
+
 <a id="v22300"></a>
+## 2026-11-26 — Cliente fora do PNG, OXI literal e borracha "+" no CLAUDE (v0.223.0)
 ## 2026-11-26 — Cliente fora do PNG, OXI literal e borracha "+" no CLAUDE (v0.223.0)
 
 **Causa:** linha "Cliente:" era a única com dado do cliente no PNG; OXI expandia

@@ -54,7 +54,7 @@ describe('Recolher DESCRIÇÃO, DADOS, AJUSTE e RESUMO', () => {
     fireEvent.change(screen.getByLabelText('Itens do adicional'), {
       target: { value: 'Filtro\tR$ 10,00\nPastilha\tR$ 20,00' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Gerar orçamento' }));
     expect(screen.getByText('RESUMO LÍQUIDO')).toBeTruthy();
     const liquidoAntes = screen.getAllByText('1.746,23')[0].textContent;
     // recolhe o resumo e o ajuste, processa de novo: o cálculo segue valendo
