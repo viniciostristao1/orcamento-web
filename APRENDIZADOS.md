@@ -10,6 +10,8 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 
 ## Índice de versões
 
+- [v0.223.0](#v22300) — 2026-11-26 — Cliente fora do PNG, OXI literal e borracha "+" no CLAUDE (v0.223.0)
+
 - [v0.222.0](#v22200) — 2026-11-26 — Coluna direita de 448px + Revisão aprovada no CLAUDE (v0.222.0)
 
 - [v0.221.0](#v22100) — 2026-11-26 — Prévia menor (0,5, holder 448px) + telefone dentro do CLAUDE (v0.221.0)
@@ -368,6 +370,23 @@ O [índice de versões](#indice-de-versoes) lista todos os blocos.
 - [2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)](#bloco-2026-09-24-scaffold-do-projeto-web-build-de-arquivo-unico-ba) — 2026-09-24 — Scaffold do projeto web + build de arquivo único (base do AI Studio)
 
 <!-- INDICE-VERSOES-FIM -->
+
+<a id="v22300"></a>
+## 2026-11-26 — Cliente fora do PNG, OXI literal e borracha "+" no CLAUDE (v0.223.0)
+
+**Causa:** linha "Cliente:" era a única com dado do cliente no PNG; OXI expandia
+em 3 pontos (`normalizarOxi` direto, ramo `manterVerbos` e `parseListaItens`).
+**Feito:** linha removida do `#printable-quote` (relatório/histórico mantêm o
+nome); `oxiLiteral?: true` nos registros novos + `processQuoteDoRegistro`
+(total/relatório/V-X idênticos nos antigos, que expandem; exceção do flag no
+só-chassi para não duplicar); borracha do CLAUDE virou `+` violeta
+(`aria-label` "Limpar lista, revisão e WhatsApp") limpando lista+revisão+fone
+(mesmo estado do Telefone do sistema; resto intacto).
+**Validação:** PNG antes/depois (só a linha some; tabela e resto iguais);
+`getComputedStyle(#printable-quote).width === '896px'`; jsdom (OXI literal no
+novo, antigo intacto em reabrir/V-X/relatório/Ver itens, borracha nos 3 campos
+preservando o resto) + suite cheia passando; `typecheck`/`lint` limpos; `dist`
+autocontido; CDP desktop (Duna) e celular. Selo `v0.223.0`.
 
 <a id="v22200"></a>
 ## 2026-11-26 — Coluna direita de 448px + Revisão aprovada no CLAUDE (v0.222.0)

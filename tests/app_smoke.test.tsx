@@ -108,7 +108,7 @@ describe('App — smoke test (render + processar)', () => {
     expect(salvo[0].placa).toBe('ABC1D23');
   });
 
-  it('editar item manual e regerar não duplica o Nº (OXI vira higienização)', () => {
+  it('editar item manual e regerar não duplica o Nº (OXI fica literal)', () => {
     localStorage.removeItem('orcamentos_historico_v1');
     localStorage.removeItem(RASCUNHO_KEY);
     try {
@@ -123,9 +123,10 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.click(screen.getByRole('button', { name: /Processar Tudo/i }));
       salvos = JSON.parse(localStorage.getItem('orcamentos_historico_v1') ?? '[]');
       expect(salvos).toHaveLength(1);
-      expect(salvos[0].descReparo).toBe('01 HIGIENIZAÇÃO DO AR CONDICIONADO');
-      // o documento (base do PNG) mostra a descrição tratada
-      expect(screen.getByText('HIGIENIZAÇÃO DO AR CONDICIONADO')).toBeTruthy();
+      // OXI fica literal (sem expandir para a higienização)
+      expect(salvos[0].descReparo).toBe('01 OXI');
+      expect(salvos[0].oxiLiteral).toBe(true);
+      expect(screen.getByText('OXI')).toBeTruthy();
     } finally {
       localStorage.removeItem('orcamentos_historico_v1');
       localStorage.removeItem(RASCUNHO_KEY);
@@ -580,8 +581,9 @@ describe('App — smoke test (render + processar)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
       // telefone aparece no cartão + botão habilitado abre a conversa (sem texto)
       expect(screen.getByText('51 99999-9999')).toBeTruthy();
-      // nome no cartão do histórico e no documento (Cliente:)
-      expect(screen.getAllByText('JOAO')).toHaveLength(2);
+      // nome no cartão do histórico, mas FORA do documento (sem "Cliente:" no PNG)
+      expect(screen.getAllByText('JOAO')).toHaveLength(1);
+      expect(document.querySelector('#printable-quote')?.textContent).not.toContain('JOAO');
       const botao = screen.getByRole('button', { name: 'Chamar no WhatsApp' });
       expect((botao as HTMLButtonElement).disabled).toBe(false);
       fireEvent.click(botao);

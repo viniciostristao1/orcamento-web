@@ -60,6 +60,9 @@ export interface OrcamentoSalvo {
   // registros sem elas (antigos) recalculam pelo caminho de sempre.
   listaAdicional?: string;
   listaRevisao?: string;
+  // OXI literal (sem expandir para a higienização): só os registros gerados
+  // já sem a regra (v0.223.0+). Ausente = expande, como sempre.
+  oxiLiteral?: boolean;
   // Prévia interativa do documento (edições diretas no PNG: textos, valores,
   // linhas excluídas/adicionadas, revisão). Opcional: registros antigos não têm.
   previa?: PreviaOrcamento;
@@ -511,7 +514,7 @@ export function processQuoteDoRegistro(r: OrcamentoSalvo): QuoteSummary {
     r.desconto ?? 0,
     r.parcelas ?? 1,
     r.ajustesManuais ?? '',
-    { manterVerbos: r.listaAdicional !== undefined },
+    { manterVerbos: r.listaAdicional !== undefined, oxiLiteral: r.oxiLiteral === true },
   );
 }
 

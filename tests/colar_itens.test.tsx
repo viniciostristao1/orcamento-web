@@ -81,10 +81,12 @@ describe('CLAUDE — card único no lugar dos manuais', () => {
     expect((screen.getAllByPlaceholderText('0,00')[0] as HTMLInputElement).value).toBe('0,00');
     expect(doc().getAllByText('8.580,05').length).toBeGreaterThan(0);
     expect(doc().getByText('2 ROLAMENTOS DIANT')).toBeTruthy();
-    expect(doc().getByText('HIGIENIZAÇÃO DO AR CONDICIONADO')).toBeTruthy();
+    // OXI fica literal (sem expandir para a higienização).
+    expect(doc().getByText('OXI')).toBeTruthy();
     const salvos = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');
     expect(salvos).toHaveLength(1);
     expect(salvos[0].listaAdicional).toBe(SETE_LINHAS);
+    expect(salvos[0].oxiLiteral).toBe(true);
     expect(salvos[0].numItens).toBe(7);
   });
 
@@ -281,16 +283,81 @@ describe('CLAUDE — telefone espelhado e borracha só na lista', () => {
     expect(zap.title).toContain('51988887777');
   });
 
-  it('ClearButton do CLAUDE limpa só a lista e deixa o telefone intacto', () => {
+  it('registro ANTIGO (sem flag, texto já expandido) reabre e recalcula idêntico', () => {
+    // Registro gerado antes da regra do OXI literal: desc + prévia expandidos, sem flag.
+    localStorage.setItem(
+      HIST_KEY,
+      JSON.stringify([
+        {
+          id: 'r-antigo',
+          criadoEm: '20/11/2026, 10:00:00',
+          descReparo: '05 HIGIENIZAÇÃO DO AR CONDICIONADO',
+          orcamentoRaw: '5 Serviço X 1 247,68',
+          ajustesManuais: '',
+          revAprovadaInput: '0,00',
+          revPecasInput: '0,00',
+          desconto: 0,
+          parcelas: 6,
+          totalPecasGeral: 0,
+          totalServicosGeral: 247.68,
+          valorDescontoTotal: 0,
+          valorLiquidoFinal: 247.68,
+          totalGeral: 247.68,
+          numItens: 1,
+          previa: {
+            itens: [{ id: 5, descricao: 'HIGIENIZAÇÃO DO AR CONDICIONADO', valor: 247.68, excluido: false }],
+            revisaoAprovada: 0,
+            original: null,
+          },
+        },
+      ]),
+    );
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir orçamento' }));
+    // Reabre com o texto expandido (nada muda).
+    expect(screen.getByText('HIGIENIZAÇÃO DO AR CONDICIONADO')).toBeTruthy();
+    expect(screen.queryByText('OXI')).toBeNull();
+    // V/X recalculam igual (soma e total intactos).
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar como não aprovado' }));
+    const salvos = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');
+    expect(salvos).toHaveLength(1);
+    expect(salvos[0].aprovacao).toBe('naoAprovado');
+    expect(salvos[0].naoRealizados).toEqual([5]);
+    expect(salvos[0].totalGeral).toBeCloseTo(247.68, 2);
+    // Ver itens mostra a linha expandida com o valor.
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ver itens do orçamento' }));
+    expect(document.querySelector('[data-janela-itens="1"]')?.textContent).toContain('HIGIENIZAÇÃO DO AR CONDICIONADO');
+    expect(document.querySelector('[data-janela-itens="1"]')?.textContent).toContain('247,68');
+  });
+
+  it('registro NOVO com "Oxi" mantém OXI literal no documento e no histórico', () => {
+    render(<App />);
+    colarAdicional('Oxi\tR$ 247,68');
+    gerar();
+    expect(doc().getByText('OXI')).toBeTruthy();
+    expect(doc().queryByText('HIGIENIZAÇÃO DO AR CONDICIONADO')).toBeNull();
+    const salvos = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');
+    expect(salvos[0].oxiLiteral).toBe(true);
+    expect(salvos[0].descReparo).toBe('01 OXI');
+  });
+
+  it('botão + do CLAUDE limpa lista, revisão e WhatsApp (e nada mais)', () => {
     render(<App />);
     colarAdicional('Filtro\tR$ 10,00');
     fireEvent.change(screen.getByLabelText('Telefone do cliente (WhatsApp)'), {
       target: { value: '(51) 99999-9999' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Limpar lista' }));
+    const rev = screen.getAllByPlaceholderText('0,00')[0] as HTMLInputElement;
+    fireEvent.change(rev, { target: { value: '111,00' } });
+    fireEvent.blur(rev);
+    fireEvent.change(screen.getByPlaceholderText('Ex.: JOÃO DA SILVA'), { target: { value: 'JOAO' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar lista, revisão e WhatsApp' }));
     expect((screen.getByLabelText('Itens do adicional') as HTMLTextAreaElement).value).toBe('');
-    expect((screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLInputElement).value).toBe(
-      '(51) 99999-9999',
-    );
+    expect((screen.getByLabelText('Revisão aprovada (R$)') as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText('Telefone do cliente (WhatsApp)') as HTMLInputElement).value).toBe('');
+    // Nome (e o resto) ficam.
+    expect((screen.getByPlaceholderText('Ex.: JOÃO DA SILVA') as HTMLInputElement).value).toBe('JOAO');
   });
 });

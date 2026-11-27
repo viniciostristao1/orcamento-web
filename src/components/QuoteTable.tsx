@@ -166,8 +166,6 @@ interface QuoteTableProps {
   onMarcarAprovacao?: (v: AprovacaoVoto | undefined) => void;
   /** Telefone do cliente (só abre a conversa, sem texto pronto). */
   telefone?: string;
-  /** Nome do cliente (vai para o PNG, junto da data). */
-  nomeCliente?: string;
 }
 
 const QuoteTable: React.FC<QuoteTableProps> = ({
@@ -188,7 +186,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
   aprovacao = null,
   onMarcarAprovacao,
   telefone = '',
-  nomeCliente = '',
 }) => {
   const printableRef = useRef<HTMLDivElement>(null);
   const [alturaDocumento, setAlturaDocumento] = useState(0);
@@ -570,7 +567,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
           <div className="text-center text-[10px] text-slate-400 mb-2 uppercase tracking-[0.2em] font-medium leading-[1.1]">
             <p>Data: <span className="text-slate-900">{summary.currentTime}</span></p>
             <p>Orçamento sujeito a alterações. Validade: 10 dias.</p>
-            {nomeCliente.trim() && <p>Cliente: <span className="text-slate-900 font-bold">{nomeCliente.trim().toUpperCase()}</span></p>}
             <p className="text-blue-600 font-bold">Toyota Weiand Lajeado</p>
           </div>
 

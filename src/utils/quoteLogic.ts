@@ -16,9 +16,9 @@ const removerPalavras = (descricao: string): string => {
 export const normalizarOxi = (texto: string): string =>
   texto.replace(/\bOXI\b/gi, 'HIGIENIZAÇÃO DO AR CONDICIONADO');
 
-const substituicoesCondicionais = (descricao: string): string => {
+const substituicoesCondicionais = (descricao: string, pularOxi = false): string => {
   const d = descricao.trim();
-  const comOxi = normalizarOxi(d);
+  const comOxi = pularOxi ? d : normalizarOxi(d);
   if (comOxi !== d) return comOxi;
   if (d.includes("PASTILHA DE FREIO Diant + RETIFICA")) return "PASTILHA DE FREIO DIANT + RETIFICA DOS DISCOS";
   if (d.includes("PASTILHA DE FREIO Diant + RET")) return "PASTILHA DE FREIO DIANT + RETIFICA DOS DISCOS";
@@ -159,7 +159,8 @@ export const parseListaItens = (texto: string): ResultadoLista => {
     // "R$" solto antes do valor (ex.: "Filtro R$ 195,90") não é descrição.
     corpo = corpo.replace(/\s*R\$\s*$/i, '').trim();
     if (ehCabecalhoLista(corpo)) { ignoradas += 1; return; }
-    const descricao = normalizarOxi(corpo).trim().toUpperCase();
+    // "OXI" fica literal (a troca virou tarefa do Claude antes de colar).
+    const descricao = corpo.trim().toUpperCase();
     if (!descricao || !/[A-Za-zÀ-ÿ]/.test(descricao)) {
       invalidas.push({ linha, motivo: 'sem descrição legível' });
       return;
@@ -204,10 +205,16 @@ export const converterBrutoParaLista = (descReparo: string, orcamentoRaw: string
 export interface OpcoesProcessQuote {
   /**
    * Mantém verbos (TR/TROCAR/TROCA) nas descrições: a lista nova já traz o
-   * texto final — pula `removerPalavras`/`substituicoesCondicionais` (o OXI
-   * continua expandindo). Padrão `false` = comportamento de sempre.
+   * texto final — pula `removerPalavras`/`substituicoesCondicionais`.
+   * Padrão `false` = comportamento de sempre.
    */
   manterVerbos?: boolean;
+  /**
+   * "OXI" fica literal (sem expandir para a higienização). Só os registros
+   * novos passam `true`; sem a flag vale a expansão de sempre — registros
+   * antigos recalculam byte a byte iguais.
+   */
+  oxiLiteral?: boolean;
 }
 
 export const processQuote = (
@@ -273,8 +280,12 @@ export const processQuote = (
     
     let desc = parts.slice(1).join(" ");
     if (!desc.trim()) return;
-    // Caminho da lista nova: texto final — só OXI + maiúsculas, sem tirar verbos.
-    desc = opts?.manterVerbos ? normalizarOxi(desc) : substituicoesCondicionais(removerPalavras(desc));
+    // Caminho da lista nova: texto final, sem tirar verbos. OXI literal com
+    // o flag `oxiLiteral` (registros novos); sem ele, expande como sempre
+    // (registros antigos idênticos). O flag vence nos dois ramos.
+    desc = opts?.manterVerbos
+      ? (opts?.oxiLiteral ? desc.trim() : normalizarOxi(desc))
+      : substituicoesCondicionais(removerPalavras(desc), opts?.oxiLiteral === true);
     
     const data = valoresPorItem[id.toString()] || { pecas: 0, servicos: 0 };
     processedItems.push({

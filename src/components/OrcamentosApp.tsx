@@ -91,6 +91,9 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   // mudando SÓ o chassi atualiza o registro no lugar (sem mudar a data);
   // qualquer outra mudança segue o fluxo normal (novo registro).
   const registroAbertoRef = useRef<{ id: string; criadoEm: string; base: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> } | null>(null);
+  // Textos convertidos que geraram o documento em tela (votar V/X regrava o
+  // registro com eles, sem reconverter — preserva ids/textos byte a byte).
+  const textosBaseRef = useRef<{ desc: string; dados: string } | null>(null);
   // Registro do histórico referente ao documento em tela + aprovação (V/X).
   const [aprovacao, setAprovacao] = useState<AprovacaoVoto | null>(null);
   // Toasts fora do `ui-compacta` (mesmo padrão do Desfazer dos Dados): linha
@@ -184,18 +187,22 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
    * o Play e a reabertura manual.
    */
   const processarComTextos = (desc: string, dados: string, revAprovNum: number, textoA: string) => {
+    // Guarda os textos que geraram o doc (o votar V/X os reutiliza).
+    textosBaseRef.current = { desc, dados };
     // Normaliza o Total Revisão exibido igual ao salvo (anti-duplicado do Nº).
     const revAprovTexto = formatCurrency(revAprovNum);
     if (revAprovTexto !== revAprovadaInput) setRevAprovadaInput(revAprovTexto);
     const finalRevPecas = parseBrazilianNumber(revPecasInput);
 
-    const result = processQuote(desc, dados, revAprovNum, finalRevPecas, desconto, parcelas, ajustesManuais, { manterVerbos: true });
+    const result = processQuote(desc, dados, revAprovNum, finalRevPecas, desconto, parcelas, ajustesManuais, { manterVerbos: true, oxiLiteral: true });
 
     // Histórico local (localStorage): salva a cada geração.
     const novo: Omit<OrcamentoSalvo, 'id' | 'criadoEm'> = {
       descReparo: desc,
       orcamentoRaw: dados,
       listaAdicional: textoA,
+      // OXI literal daqui em diante (registros antigos não têm a flag e expandem).
+      oxiLiteral: true,
       ajustesManuais,
       revAprovadaInput: formatCurrency(revAprovNum),
       revPecasInput,
@@ -212,10 +219,11 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
 
     // Regerou o registro aberto mudando SÓ o chassi (ex.: lançou o chassi num
     // orçamento antigo)? Atualiza no lugar, sem mudar a data e sem duplicar.
+    // `oxiLiteral` fica de fora da comparação (é marca da época de geração).
     const aberto = registroAbertoRef.current;
     const soChassi =
       aberto !== null &&
-      (Object.keys(novo) as (keyof typeof novo)[]).every((k) => k === 'chassi' || novo[k] === aberto.base[k]);
+      (Object.keys(novo) as (keyof typeof novo)[]).every((k) => k === 'chassi' || k === 'oxiLiteral' || novo[k] === aberto.base[k]);
     if (soChassi) {
       if ((novo.chassi ?? '') !== (aberto.base.chassi ?? '')) {
         const atualizados = atualizarChassiHistorico(aberto.id, novo.chassi ?? '');
@@ -272,6 +280,8 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
   const abrirDoHistorico = (r: OrcamentoSalvo) => {
     onFecharHistorico();
     const result = processQuoteDoRegistro(r);
+    // Textos que geraram o doc (o votar V/X os reutiliza sem reconverter).
+    textosBaseRef.current = { desc: r.descReparo ?? '', dados: r.orcamentoRaw ?? '' };
     // Prévia salva (edições diretas). Sem ela é registro antigo: monta a
     // partir do recálculo, mas SEM original (voltar desabilitado, sem quebrar).
     const aberta: PreviaOrcamento =
@@ -357,12 +367,14 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       summary,
       v === 'naoAprovado' ? new Set<number>() : sel,
     );
-    // Textos convertidos das listas atuais (o voto regrava o registro).
-    const convertidos = converterListaParaBruto(parseListaItens(listaAdicional).itens);
+    // Textos que geraram o documento (sem reconverter: preserva o registro
+    // byte a byte, inclusive os ids de registros antigos).
+    const textos = textosBaseRef.current ?? converterListaParaBruto(parseListaItens(listaAdicional).itens);
     const salvos = adicionarAoHistorico({
-      descReparo: convertidos.desc,
-      orcamentoRaw: convertidos.dados,
+      descReparo: textos.desc,
+      orcamentoRaw: textos.dados,
       listaAdicional,
+      oxiLiteral: true,
       ajustesManuais,
       revAprovadaInput,
       revPecasInput,
@@ -554,6 +566,7 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
       descReparo: '',
       orcamentoRaw: '',
       listaAdicional: '',
+      oxiLiteral: true,
       ajustesManuais: '',
       revAprovadaInput: '0,00',
       revPecasInput: '0,00',
@@ -637,7 +650,24 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
               compact
               collapsible
               defaultOpen={true}
-              actions={<ClearButton onClick={() => { setListaAdicional(''); }} label="Limpar lista" />}
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Limpa a lista, a revisão e o WhatsApp (mesmo estado do
+                    // Telefone do sistema, que limpa junto). Nome, placa e o
+                    // resto ficam (a borracha do APROVADO limpa a revisão).
+                    setListaAdicional('');
+                    setRevAprovadaInput('');
+                    setTelefone('');
+                  }}
+                  aria-label="Limpar lista, revisão e WhatsApp"
+                  title="Limpar lista, revisão e WhatsApp"
+                  className="flex items-center justify-center p-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl transition-all shadow-2xl cursor-pointer active:scale-95"
+                >
+                  <Plus size={18} />
+                </button>
+              }
             >
               <div className="space-y-4">
                 {/* WhatsApp + Revisão aprovada lado a lado (empilha no celular):
@@ -815,7 +845,6 @@ const OrcamentosApp: React.FC<OrcamentosAppProps> = ({ historicoAberto, onFechar
                     aprovacao={aprovacao}
                     onMarcarAprovacao={votarAprovacao}
                     telefone={telefone}
-                    nomeCliente={nome}
                   />
                 </div>
               )}

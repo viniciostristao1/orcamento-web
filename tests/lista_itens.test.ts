@@ -20,7 +20,7 @@ const EXEMPLO_7 = [
 ].join('\n');
 
 describe('parseListaItens — exemplo das 7 linhas', () => {
-  it('lê tudo: descrições em maiúsculas, OXI expandido, soma 8.580,05', () => {
+  it('lê tudo: descrições em maiúsculas, OXI literal, soma 8.580,05', () => {
     const r = parseListaItens(EXEMPLO_7);
     expect(r.invalidas).toEqual([]);
     expect(r.itens.map((i) => i.descricao)).toEqual([
@@ -28,7 +28,7 @@ describe('parseListaItens — exemplo das 7 linhas', () => {
       'LIMPEZA DE BICOS',
       'RETIFICA DISCOS',
       'PASTILHAS D.D',
-      'HIGIENIZAÇÃO DO AR CONDICIONADO',
+      'OXI',
       'BORRACHA DO LIMPADOR',
       '2 ROLAMENTOS DIANT',
     ]);
@@ -69,7 +69,8 @@ describe('parseListaItens — regra posicional do número', () => {
     const r = parseListaItens('5\tOxi\tR$ 247,68');
     expect(r.invalidas).toEqual([]);
     expect(r.itens).toHaveLength(1);
-    expect(r.itens[0].descricao).toBe('HIGIENIZAÇÃO DO AR CONDICIONADO');
+    // OXI fica literal (sem expandir para a higienização).
+    expect(r.itens[0].descricao).toBe('OXI');
     expect(r.itens[0].valor).toBeCloseTo(247.68, 2);
   });
 
@@ -143,6 +144,46 @@ describe('manterVerbos — caminho novo x caminho antigo', () => {
     };
     expect(processQuoteDoRegistro({ ...base, listaAdicional: 'x' }).items[0]?.description).toBe('KIT TROCA RAPIDA');
     expect(processQuoteDoRegistro(base).items[0]?.description).toBe('KIT RAPIDA');
+  });
+});
+
+describe('oxiLiteral — OXI literal nos novos, expansão nos antigos', () => {
+  const descOxi = '05 OXI';
+  const dadosOxi = '5 Serviço X 1 247,68';
+
+  it('processQuote padrão (antigo) expande OXI', () => {
+    expect(processQuote(descOxi, dadosOxi, 0, 0, 0, 1).items[0]?.description).toBe(
+      'HIGIENIZAÇÃO DO AR CONDICIONADO',
+    );
+  });
+
+  it('processQuote com oxiLiteral mantém OXI literal', () => {
+    const s = processQuote(descOxi, dadosOxi, 0, 0, 0, 1, '', { manterVerbos: true, oxiLiteral: true });
+    expect(s.items[0]?.description).toBe('OXI');
+    expect(s.items[0]?.value).toBeCloseTo(247.68, 2);
+  });
+
+  it('processQuoteDoRegistro: sem flag (antigo) expande; com flag (novo) mantém', () => {
+    const base: OrcamentoSalvo = {
+      id: 'x',
+      criadoEm: '26/11/2026, 10:00:00',
+      descReparo: descOxi,
+      orcamentoRaw: dadosOxi,
+      ajustesManuais: '',
+      revAprovadaInput: '0,00',
+      revPecasInput: '0,00',
+      desconto: 0,
+      parcelas: 6,
+      totalPecasGeral: 0,
+      totalServicosGeral: 247.68,
+      valorDescontoTotal: 0,
+      valorLiquidoFinal: 247.68,
+      totalGeral: 247.68,
+    };
+    expect(processQuoteDoRegistro(base).items[0]?.description).toBe('HIGIENIZAÇÃO DO AR CONDICIONADO');
+    expect(processQuoteDoRegistro({ ...base, oxiLiteral: true }).items[0]?.description).toBe('OXI');
+    // O valor não muda nos dois caminhos.
+    expect(processQuoteDoRegistro({ ...base, oxiLiteral: true }).items[0]?.value).toBeCloseTo(247.68, 2);
   });
 });
 
